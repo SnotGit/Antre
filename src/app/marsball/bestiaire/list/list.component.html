@@ -1,0 +1,20 @@
+<div class="container">
+  <h2>Liste complète du bestiaire</h2>
+  <!-- Bouton d'ajout d'un nouvel item -->
+  <div class="add-item-btn">
+    <a routerLink="/marsball/bestiaire/add">
+      <button type="button">Ajouter un nouvel item</button>
+    </a>
+  </div>
+  <!-- Liste des items du bestiaire -->
+  <div class="list-item" *ngFor="let item of items">
+    <div class="imagebox">
+      <img [src]="item.imageUrl" alt="{{ item.id }}" width="50">
+    </div>
+    <div class="name">{{ item.id }} - {{ item.type }}</div>
+    <div class="links">
+      <a routerLink="/marsball/bestiaire/details/{{ item.id }}">Voir Détails</a>
+      <a routerLink="/marsball/bestiaire/edit/{{ item.id }}">Modifier</a>
+    </div>
+  </div>
+</div>

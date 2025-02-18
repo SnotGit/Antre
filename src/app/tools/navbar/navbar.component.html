@@ -1,0 +1,24 @@
+<nav class="navbar">
+    <div class="logo"></div>
+    
+    <div [class.links-open]="isMenuOpen" class="links">
+        <a routerLink="/home" routerLinkActive="active" (click)="closeMenu()">Home</a>
+        <a routerLink="/archive" routerLinkActive="active" (click)="closeMenu()">Archives</a>
+        <a routerLink="/marsball" routerLinkActive="active" (click)="closeMenu()">Marsball</a>
+        <a routerLink="/bunker" routerLinkActive="active" (click)="closeMenu()">Bunker</a>
+        
+        <!-- Ajoute Staff dans le menu déroulant en mode mobile sans routerLinkActive -->
+        <div *ngIf="isMobile"><a routerLink="/staff" routerLinkActive="active" (click)="closeMenu()">Staff</a></div>
+    </div>
+
+    <!-- Staff en dehors du menu en mode desktop avec routerLinkActive -->
+    <div class="staff" *ngIf="!isMobile">
+        <a routerLink="/staff" routerLinkActive="active">Staff</a>
+    </div>
+    
+    <div class="burger" (click)="toggleMenu()" [class.change]="isMenuOpen">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+    </div>
+</nav>

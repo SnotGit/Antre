@@ -1,0 +1,69 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Aligner les éléments en haut */
+  height: 100vh; /* Assurez-vous que le conteneur occupe toute la hauteur de la vue */
+  overflow: auto; /* Permettre le défilement */
+  padding: 20px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  padding-bottom: 50px; /* Ajoutez une marge en bas pour éviter le problème de défilement */
+}
+
+input, textarea {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.drop-zone {
+  color: white;
+  border: 2px dashed #2c3236;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  min-height: 200px; /* Assurez-vous que la zone de dépôt a une hauteur minimale */
+}
+
+.drop-zone img {
+  max-width: 100%;
+  max-height: 200px; /* Limiter la hauteur de l'image */
+  object-fit: contain; /* Conserver les proportions de l'image */
+}
+
+button {
+  padding: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+/* Style pour le bouton de suppression */
+.delete-button {
+  background-color: #f44336;
+  color: white;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  margin-top: 20px;
+  border-radius: 5px;
+  align-self: center; /* Centrer le bouton horizontalement */
+}
+
+.delete-button:hover {
+  background-color: #e53935;
+}

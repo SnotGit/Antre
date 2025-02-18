@@ -1,0 +1,13 @@
+<div class="container">
+    <div *ngIf="!isChildRoute('list') && !isChildRoute('add') && !isChildRoute('edit')">
+      <div class="header">
+        <h1>Bienvenue au Bestiaire</h1>
+      </div>
+      <div class="menu-container">
+        <div class="menu">
+          <a routerLink="list">Liste complète du bestiaire</a>
+        </div>
+      </div>
+    </div>
+    <router-outlet></router-outlet>
+  </div>

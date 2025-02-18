@@ -1,0 +1,39 @@
+<div class="container">
+  <h2>Ajouter un nouvel item</h2>
+  <form (ngSubmit)="addItem()">
+    <!-- Nom de l'item -->
+    <label for="id">Nom (ID)</label>
+    <input id="id" [(ngModel)]="newItem.id" name="id">
+
+    <!-- Zone de drop pour l'image -->
+    <div class="drop-zone" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+      <p *ngIf="!image">Drop une image ici</p>
+      <img *ngIf="image" [src]="image" alt="Image déposée">
+    </div>
+
+    <!-- Saisie manuelle de l'URL de l'image -->
+    <label for="imageUrl">URL de l'image</label>
+    <input id="imageUrl" [(ngModel)]="newItem.imageUrl" name="imageUrl" (input)="onImageUrlChange(newItem.imageUrl)">
+
+    <!-- Type d'item -->
+    <label for="type">Type</label>
+    <input id="type" [(ngModel)]="newItem.type" name="type">
+
+    <!-- Zone d'origine -->
+    <label for="zone">Zone</label>
+    <input id="zone" [(ngModel)]="newItem.zone" name="zone">
+
+    <!-- Est-ce un boss de zone ? -->
+    <label for="isBoss">
+      <input type="checkbox" id="isBoss" [(ngModel)]="newItem.isBoss" name="isBoss">
+      Boss de zone ?
+    </label>
+
+    <!-- Description de l'item -->
+    <label for="description">Description de l'item</label>
+    <textarea id="description" [(ngModel)]="newItem.description" name="description"></textarea>
+
+    <!-- Bouton pour enregistrer les modifications -->
+    <button type="submit">Ajouter</button>
+  </form>
+</div>

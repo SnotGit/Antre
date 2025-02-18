@@ -1,0 +1,43 @@
+<div class="container">
+  <h2>Modifier l'item : {{ item?.id }}</h2>
+
+  <form *ngIf="item" (ngSubmit)="saveItem()">
+    <!-- Nom de l'item -->
+    <label for="id">Nom de l'item (ID)</label>
+    <input id="id" [(ngModel)]="item.id" name="id">
+
+    <!-- Zone de drop pour l'image -->
+    <div class="drop-zone" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+      <p *ngIf="!item.imageUrl">Déposez une image ou saisissez une URL</p>
+      <img *ngIf="item.imageUrl" [src]="item.imageUrl" alt="Image de l'item">
+    </div>
+
+    <!-- Saisie manuelle de l'URL de l'image -->
+    <label for="imageUrl">URL de l'image</label>
+    <input id="imageUrl" [(ngModel)]="item.imageUrl" name="imageUrl" (input)="onImageUrlChange(item.imageUrl)">
+
+    <!-- Type d'item -->
+    <label for="type">Type d'item</label>
+    <input id="type" [(ngModel)]="item.type" name="type">
+
+    <!-- Zone d'origine -->
+    <label for="zone">Zone d'origine</label>
+    <input id="zone" [(ngModel)]="item.zone" name="zone">
+
+    <!-- Est-ce un boss de zone ? -->
+    <label for="isBoss">
+      <input type="checkbox" id="isBoss" [(ngModel)]="item.isBoss" name="isBoss">
+      Est-ce un boss de zone ?
+    </label>
+
+    <!-- Description de l'item -->
+    <label for="description">Description de l'item</label>
+    <textarea id="description" [(ngModel)]="item.description" name="description"></textarea>
+
+    <!-- Bouton pour enregistrer les modifications -->
+    <button type="submit">Enregistrer les modifications</button>
+  </form>
+
+  <!-- Bouton de suppression -->
+  <button *ngIf="item" (click)="deleteItem()" class="delete-button">Supprimer l'item</button>
+</div>

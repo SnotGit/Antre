@@ -1,0 +1,49 @@
+<div class="container">
+  <div class="row">
+    <div class="left-section">
+      <div class="card">
+        <h1>{{ item.name }}</h1>
+        <img class="img" [src]="item.image" alt="{{ item.name }}">
+        <table class="table">
+          <tr>
+            <th scope="row">Type :</th>
+            <td>{{ item.type }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Zone :</th>
+            <td>{{ item.zone }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Points de vie :</th>
+            <td>{{ item.pointsdevie }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Dégâts :</th>
+            <td>{{ item.damage }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Attaque :</th>
+            <td>
+              <ul>
+                <li *ngFor="let attack of item.attack">{{ attack }}</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Loot possible:</th>
+            <td>
+              <ul>
+                <li *ngFor="let loot of item.loot">{{ loot }}</li>
+              </ul>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="right-section">
+      <div class="text">
+        <p>Aucunes données à afficher</p>
+      </div>
+    </div>
+  </div>
+</div>

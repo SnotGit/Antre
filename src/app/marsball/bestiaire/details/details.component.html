@@ -1,0 +1,17 @@
+<div *ngIf="item" class="item-details">
+  <h2>Détails de l'item : {{ item.id }}</h2>
+
+  <div class="imagebox">
+    <img [src]="item.imageUrl" alt="{{ item.id }}" width="200">
+  </div>
+  <div class="">
+    <ul>
+      <li>Type : {{ item.type }}</li>
+      <li>Zone : {{ item.zone }}</li>
+      <li></li>
+      <li>Description : {{ item.description }}</li>
+    </ul>
+  </div>
+  <div></div>
+  <a routerLink="/list">Retour à la liste</a>
+</div>

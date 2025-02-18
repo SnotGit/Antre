@@ -1,0 +1,21 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+  }
+  
+
+.page-not-found {
+    background-image: url(/images/NotFound.png);
+    background-size: cover; 
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;  
+    height: 100%;
+    width: 100%;
+}
