@@ -1,9 +1,5 @@
-import { Injectable } from '@angular/core';
 import { Model } from '../model/model';
 
-@Injectable({
-  providedIn: 'root',
-})
 export class BestiaireData {
   public static data: Model[] = [
     {
@@ -17,8 +13,4 @@ export class BestiaireData {
     },
     // Ajoutez d'autres items ici
   ];
-
-  addItem(item: Model): void {
-    BestiaireData.data.push(item);
-  }
 }
