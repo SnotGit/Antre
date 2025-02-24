@@ -1,14 +1,11 @@
 <div class="container">
-  <div *ngIf="!isChildRoute()">
-    <div class="header">
-      <h1>Bienvenue au Marsball</h1>
-    </div>
-    <div class="menu-container">
-      <div class="menu">
-        <a routerLink="bestiaire">Bestiaire</a>
-        <a routerLink="rover">Rover</a>
-      </div>
+  <div class="header">
+    <h1>Bienvenue au Marsball</h1>
+  </div>
+  <div class="menu-container">
+    <div class="menu">
+      <a routerLink="bestiaire">Bestiaire</a>
     </div>
   </div>
-  <router-outlet></router-outlet>
 </div>
+<router-outlet></router-outlet>

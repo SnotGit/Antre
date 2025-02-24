@@ -1,6 +1,9 @@
 import { Routes } from "@angular/router";
-import { StaffComponent } from "./staff.component";
 
-export const STAFF_ROUTES: Routes = [
-    { path: '', component: StaffComponent }
+const staffRoutes: Routes = [
+
+    { path: 'staff', 
+        loadChildren: () => import('./staff.routes'),},
 ];
+
+export default staffRoutes;

@@ -1,6 +1,13 @@
 import { Routes } from "@angular/router";
-import { BunkerComponent } from "./bunker.component";
 
-export const BUNKER_ROUTES: Routes = [
-    { path: '', component: BunkerComponent }
+const bunkerRoutes: Routes = [
+
+    {
+        path: '',
+        redirectTo: 'bunker',
+        pathMatch: 'full'
+      },
+
 ];
+
+export default bunkerRoutes;

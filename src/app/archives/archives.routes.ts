@@ -1,6 +1,10 @@
 import { Routes } from '@angular/router';
-import { ArchivesComponent } from './archives.component';
 
-export const ARCHIVES_ROUTES: Routes = [
-    { path: '', component: ArchivesComponent },
+const archivesRoutes: Routes = [
+    
+    { path: 'archives', 
+        loadChildren: () => import('./archives.routes'),
+     },
 ];
+
+export default archivesRoutes;

@@ -1,23 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { StorageData } from '../data/storage.data'; // Assurez-vous que l'importation est correcte
+import { StorageData } from '../data/storage.data';
 import { Model } from '../model/model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-bestiaire-item-edit',
-  standalone: true,  
+  standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './edit.component.html', 
+  templateUrl: './edit.component.html',
   styleUrls: ['./edit.component.css']
 })
 export class EditComponent implements OnInit {
   item: Model | undefined;
+  isNewItem: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
-    private storageData: StorageData,  // Injection du service de stockage
+    private storageData: StorageData,
     private router: Router
   ) {}
 
@@ -25,13 +26,26 @@ export class EditComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.item = this.storageData.getItems().find(item => item.id === id);
+      if (!this.item) {
+        // Si l'élément n'existe pas, c'est un nouvel élément
+        this.isNewItem = true;
+        this.item = { id, imageUrl: '', isBoss: false, type: '', zone: '', lootItems: [], description: '' };
+      }
+    } else {
+      // Si aucun ID n'est fourni, c'est un nouvel élément
+      this.isNewItem = true;
+      this.item = { id: '', imageUrl: '', isBoss: false, type: '', zone: '', lootItems: [], description: '' };
     }
   }
 
   // Méthode pour enregistrer les modifications de l'item
   saveItem() {
     if (this.item) {
-      this.storageData.addItem(this.item);
+      if (this.isNewItem) {
+        this.storageData.addItem(this.item);
+      } else {
+        this.storageData.updateItem(this.item);
+      }
       this.router.navigate(['/marsball/bestiaire/list']);
     }
   }
@@ -51,8 +65,8 @@ export class EditComponent implements OnInit {
     reader.onload = (e: ProgressEvent<FileReader>) => {
       if (this.item) {
         const imageBase64 = e.target?.result as string;
-        this.storageData.saveImage(this.item.id, imageBase64);  // Sauvegarder l'image
-        this.item.imageUrl = imageBase64;  // Mettre à jour l'URL dans l'item
+        this.storageData.saveImage(this.item.id, imageBase64);
+        this.item.imageUrl = imageBase64;
       }
     };
     reader.readAsDataURL(file);
@@ -67,7 +81,7 @@ export class EditComponent implements OnInit {
   onImageUrlChange(url: string) {
     if (this.item) {
       this.item.imageUrl = url;
-      this.storageData.saveImage(this.item.id, url);  // Sauvegarder l'image via URL dans le storage
+      this.storageData.saveImage(this.item.id, url);
     }
   }
 

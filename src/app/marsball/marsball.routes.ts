@@ -1,15 +1,8 @@
 import { Routes } from '@angular/router';
-import { MarsballComponent } from './marsball.component';
-import { BestiaireComponent } from './bestiaire/bestiaire.component';
-import { RoverComponent } from './rover/rover.component';
+import { BESTIAIRE_ROUTES } from './bestiaire/bestiaire.routes';
 
 export const MARSBALL_ROUTES: Routes = [
-  {
-    path: '',
-    component: MarsballComponent,
-    children: [
-      { path: 'bestiaire', loadChildren: () => import('./bestiaire/bestiaire.routes').then(m => m.BESTIAIRE_ROUTES) },
-      { path: 'rover', component: RoverComponent },
-    ],
-  },
+  { path: 'marsball', loadComponent: () => import('./marsball.component').then(m => m.MarsballComponent) },
+  { path: 'marsball/bestiaire', loadComponent: () => import('./bestiaire/bestiaire.component').then(m => m.BestiaireComponent) },
+  ...BESTIAIRE_ROUTES, 
 ];

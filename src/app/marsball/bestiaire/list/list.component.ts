@@ -14,7 +14,9 @@ import { CommonModule } from '@angular/common';
 export class ListComponent implements OnInit {
   items: Model[] = [];
 
-  constructor(private storageData: StorageData) {}
+  constructor(private storageData: StorageData) {
+    console.log('ListComponent initialized');
+  }
 
   ngOnInit(): void {
     // Initialiser les items depuis le service

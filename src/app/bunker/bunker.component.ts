@@ -19,7 +19,7 @@ interface Item {
   templateUrl: './bunker.component.html',
   styleUrl: './bunker.component.css'
 })
-export class BunkerComponent implements OnInit {
+export default class BunkerComponent implements OnInit {
   item: Item;  // Utilisation de l'interface Item
 
   constructor() {

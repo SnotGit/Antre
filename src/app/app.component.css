@@ -1,19 +1,6 @@
-body, html {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    overflow: hidden; /* Empêcher le défilement global */
-  }
-  
-  .app-container {
+.container {
     display: flex;
-    flex-direction: column;
-    max-height: 100vh; 
-    max-width: 100vw;
-    overflow: hidden; /* Empêcher le défilement global */
-  }
-  
-  .main-content {
-    flex: 1;
-    overflow: auto; /* Permettre le défilement uniquement dans le contenu principal */
-  }
+    
+    
+    
+}

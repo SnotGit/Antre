@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { Model } from '../model/model';
-import { BestiaireData } from './bestaire.data';
+import { Injectable } from "@angular/core";
+import { BestiaireData } from "./bestaire.data";
+import { Model } from "../model/model";
 
 @Injectable({
   providedIn: 'root',
@@ -17,6 +17,8 @@ export class StorageData {
     const storedData = localStorage.getItem(this.localStorageKey);
     if (!storedData) {
       localStorage.setItem(this.localStorageKey, JSON.stringify(BestiaireData.data));
+    } else {
+      BestiaireData.data = JSON.parse(storedData); // Synchronise BestiaireData avec les données du localStorage
     }
   }
 
@@ -30,6 +32,7 @@ export class StorageData {
   // Sauvegarde la liste des items dans le localStorage.
   private saveDataToStorage(data: Model[]): void {
     localStorage.setItem(this.localStorageKey, JSON.stringify(data));
+    BestiaireData.data = data; // Met à jour BestiaireData avec les nouveaux items
   }
 
   // Retourne la liste de tous les items.
@@ -37,16 +40,23 @@ export class StorageData {
     return this.getDataFromStorage();
   }
 
-  // Ajoute ou met à jour un item.
+  // Ajoute un nouvel item.
   addItem(item: Model): void {
+    const data = this.getDataFromStorage();
+    data.push(item);
+    this.saveDataToStorage(data);
+  }
+
+  // Met à jour un item existant.
+  updateItem(item: Model): void {
     const data = this.getDataFromStorage();
     const index = data.findIndex(i => i.id === item.id);
     if (index !== -1) {
-      data[index] = item;
+      data[index] = { ...data[index], ...item };
+      this.saveDataToStorage(data);
     } else {
-      data.push(item);
+      console.error('Item not found for update:', item);
     }
-    this.saveDataToStorage(data);
   }
 
   // Supprime un item.
@@ -64,5 +74,17 @@ export class StorageData {
       item.imageUrl = imageBase64;
       this.saveDataToStorage(data);
     }
+  }
+
+  // Sauvegarde les items créés dans bestiaire.data.ts sous forme de modèle.
+  saveCreatedItems(): void {
+    const createdItems = BestiaireData.data;
+    this.saveDataToStorage(createdItems);
+  }
+
+  // Sauvegarde les items du storage dans bestiaire.data.ts sous forme de modèle.
+  saveItemsToBestiaireData(): void {
+    const items = this.getDataFromStorage();
+    BestiaireData.data = items;
   }
 }
