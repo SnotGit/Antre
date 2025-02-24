@@ -5,11 +5,10 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-list',
-  standalone: true, 
-  templateUrl: './list.component.html',
-  styleUrls: ['./list.component.css'],
-  imports: [CommonModule, RouterModule] 
+    selector: 'app-list',
+    templateUrl: './list.component.html',
+    styleUrls: ['./list.component.css'],
+    imports: [CommonModule, RouterModule]
 })
 export class ListComponent implements OnInit {
   items: Model[] = [];

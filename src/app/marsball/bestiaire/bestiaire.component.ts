@@ -3,11 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-bestiaire',
-  standalone: true,
-  imports: [CommonModule, RouterModule, RouterLink],
-  templateUrl: './bestiaire.component.html',
-  styleUrls: ['./bestiaire.component.css']
+    selector: 'app-bestiaire',
+    imports: [CommonModule, RouterModule, RouterLink],
+    templateUrl: './bestiaire.component.html',
+    styleUrls: ['./bestiaire.component.css']
 })
 
 export class BestiaireComponent {}

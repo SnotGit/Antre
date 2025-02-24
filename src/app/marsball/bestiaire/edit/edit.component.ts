@@ -6,11 +6,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-bestiaire-item-edit',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './edit.component.html',
-  styleUrls: ['./edit.component.css']
+    selector: 'app-bestiaire-item-edit',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './edit.component.html',
+    styleUrls: ['./edit.component.css']
 })
 export class EditComponent implements OnInit {
   item: Model | undefined;

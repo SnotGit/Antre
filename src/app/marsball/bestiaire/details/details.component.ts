@@ -6,11 +6,10 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-bestiaire-item-details',
-  standalone: true, 
-  imports: [CommonModule, RouterModule], 
-  templateUrl: './details.component.html',
-  styleUrls: ['./details.component.css'],
+    selector: 'app-bestiaire-item-details',
+    imports: [CommonModule, RouterModule],
+    templateUrl: './details.component.html',
+    styleUrls: ['./details.component.css']
 })
 export class DetailsComponent implements OnInit {
   item: Model | undefined;

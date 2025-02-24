@@ -13,11 +13,10 @@ interface Item {
 }
 
 @Component({
-  selector: 'app-bunker',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './bunker.component.html',
-  styleUrl: './bunker.component.css'
+    selector: 'app-bunker',
+    imports: [CommonModule],
+    templateUrl: './bunker.component.html',
+    styleUrl: './bunker.component.css'
 })
 export default class BunkerComponent implements OnInit {
   item: Item;  // Utilisation de l'interface Item

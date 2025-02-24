@@ -6,11 +6,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-add',
-  standalone: true,
-  templateUrl: './add.component.html',
-  styleUrls: ['./add.component.css'],
-  imports: [CommonModule, FormsModule]
+    selector: 'app-add',
+    templateUrl: './add.component.html',
+    styleUrls: ['./add.component.css'],
+    imports: [CommonModule, FormsModule]
 })
 export class AddComponent {
   newItem: Model = {
