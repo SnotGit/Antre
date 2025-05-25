@@ -9,35 +9,18 @@ function countWords(text: string): number {
 }
 
 async function main() {
-  console.log('🌱 Début du seeding...');
+  console.log('Début du seeding...');
 
-  // Hasher les mots de passe
-  const adminPassword = await bcrypt.hash('admin123', 10);
+  // Hasher le mot de passe pour Elena
   const userPassword = await bcrypt.hash('user123', 10);
-
-  // Créer Snot (ton compte admin)
-  const snot = await prisma.user.upsert({
-    where: { email: 'snot@antre.com' },
-    update: {},
-    create: {
-      username: 'Snot',
-      email: 'snot@antre.com',
-      passwordHash: adminPassword,
-      description: 'Créateur de L\'Antre - Maître des Chroniques',
-      avatar: '/assets/images/writers/snot.jpg',
-      role: 'admin',
-    },
-  });
-
-  console.log('✅ Snot (admin) créé:', snot);
 
   // Créer Elena Nova (utilisatrice test)
   const elena = await prisma.user.upsert({
-    where: { email: 'elena@test.com' },
+    where: { email: 'elena.test@antre.com' },
     update: {},
     create: {
       username: 'Elena Nova',
-      email: 'elena@test.com',
+      email: 'elena.test@antre.com',
       passwordHash: userPassword,
       description: 'Archéologue martienne.',
       avatar: '/assets/images/Avatar-test.png',
@@ -45,7 +28,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Elena Nova (user test) créée:', elena);
+  console.log('Elena Nova (user test) créée:', elena);
 
   // Histoires d'Elena Nova
   const stories = [
@@ -61,7 +44,6 @@ Nous avons élargi la zone de forage et déployé des scanners souterrains. Les 
 Le Dr. Yamamoto a été le premier à suggérer qu'il pouvait s'agir d'une forme d'écriture. Je pensais qu'il exagérait, jusqu'à ce que je remarque les répétitions, les motifs... Une séquence mathématique précise. Nous avions découvert soit la preuve d'une intelligence extraterrestre ancienne, soit un phénomène géologique totalement inconnu. Dans les deux cas, l'histoire de Mars allait devoir être réécrite...`,
       status: 'PUBLISHED',
       publishedAt: new Date('2025-01-15'),
-      views: 147,
     },
     
     // Histoire publiée 2
@@ -76,7 +58,6 @@ Mais quelque chose clochait. Cette tempête ne suivait pas les modèles habituel
 Alors que nous rassemblions nos équipements essentiels, j'ai aperçu quelque chose d'impossible à travers le nuage de poussière rouge : une lueur bleue, pulsante, émanant des profondeurs d'Olympus Mons. Cette découverte allait changer notre compréhension de Mars pour toujours...`,
       status: 'PUBLISHED',
       publishedAt: new Date('2025-01-08'),
-      views: 89,
     },
 
     // Histoire publiée 3
@@ -93,7 +74,6 @@ Les signaux provenaient de l'intérieur de Phobos. Nos sondes n'avaient jamais d
 Le commandant Torres a pris la décision : mission d'exploration immédiate vers Phobos. Nous allions être les premiers humains à poser le pied sur cette lune mystérieuse. Ce que nous y avons découvert a changé notre vision de l'univers...`,
       status: 'PUBLISHED',
       publishedAt: new Date('2024-12-28'),
-      views: 203,
     },
 
     // Brouillon 1
@@ -160,50 +140,24 @@ C'est cette nuit-là que nous avons décidé de prendre les choses en main. Si l
         content: storyData.content,
         status: storyData.status as 'DRAFT' | 'PUBLISHED',
         publishedAt: storyData.publishedAt,
-        views: storyData.views || 0,
         wordCount: wordCount,
         userId: elena.id,
       },
     });
   }
 
-  // Créer quelques likes pour les histoires publiées (depuis Snot)
-  const publishedStories = await prisma.story.findMany({
-    where: { status: 'PUBLISHED' },
-    select: { id: true }
-  });
-
-  for (const story of publishedStories) {
-    await prisma.like.upsert({
-      where: {
-        userId_storyId: {
-          userId: snot.id,
-          storyId: story.id
-        }
-      },
-      update: {},
-      create: {
-        userId: snot.id,
-        storyId: story.id
-      }
-    });
-  }
-
-  console.log('✅ Histoires d\'Elena Nova créées');
-  console.log('✅ Likes ajoutés par Snot');
-  console.log('🎉 Seeding terminé avec succès !');
-  console.log('📝 Connexions:');
-  console.log('   Admin: snot@antre.com / admin123');
-  console.log('   User:  elena@test.com / user123');
-  console.log('📊 Données créées:');
-  console.log(`   - 3 histoires publiées par Elena`);
-  console.log(`   - 3 brouillons par Elena`);
-  console.log(`   - Likes de Snot sur toutes les histoires publiées`);
+  console.log('Histoires d\'Elena Nova créées');
+  console.log('Seeding terminé avec succès !');
+  console.log('Connexions:');
+  console.log('   User test: elena.test@antre.com / user123');
+  console.log('Données créées:');
+  console.log('   - 3 histoires publiées par Elena');
+  console.log('   - 3 brouillons par Elena');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Erreur pendant le seeding:', e);
+    console.error('Erreur pendant le seeding:', e);
     process.exit(1);
   })
   .finally(async () => {

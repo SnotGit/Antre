@@ -1,8 +1,10 @@
+// storyboard.service.ts - Version corrigée et simplifiée
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 
+// Interfaces alignées avec l'API backend
 export interface DraftStoryFromAPI {
   id: number;
   title: string;
@@ -10,14 +12,14 @@ export interface DraftStoryFromAPI {
   wordCount: number;
   createdAt: string;
   updatedAt: string;
-  lastModified: string;
+  lastModified: string; // Formaté côté API
   status: string;
 }
 
 export interface PublishedStoryFromAPI {
   id: number;
   title: string;
-  publishDate: string;
+  publishDate: string; // Formaté côté API
   likes: number;
   views: number;
   wordCount: number;
@@ -36,15 +38,11 @@ export interface APIResponse<T> {
 export class StoryboardService {
   private readonly API_URL = 'http://localhost:3000/api';
   
-  // Signals pour l'état
-  private _drafts = signal<DraftStoryFromAPI[]>([]);
-  private _published = signal<PublishedStoryFromAPI[]>([]);
+  // Signals pour l'état global
   private _loading = signal<boolean>(false);
   private _error = signal<string | null>(null);
 
   // Computed signals publics
-  drafts = this._drafts.asReadonly();
-  published = this._published.asReadonly();
   loading = this._loading.asReadonly();
   error = this._error.asReadonly();
 
@@ -56,6 +54,10 @@ export class StoryboardService {
   // Headers avec authentification
   private getAuthHeaders(): HttpHeaders {
     const token = this.authService.getToken();
+    if (!token) {
+      throw new Error('Token d\'authentification manquant');
+    }
+
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -73,13 +75,13 @@ export class StoryboardService {
         { headers: this.getAuthHeaders() }
       ).subscribe({
         next: (response) => {
-          this._drafts.set(response.drafts || []);
+          console.log('Brouillons chargés:', response.count);
           this._loading.set(false);
           observer.next(response);
           observer.complete();
         },
         error: (error) => {
-          console.error('Erreur lors du chargement des brouillons:', error);
+          console.error('Erreur chargement brouillons:', error);
           this._error.set('Impossible de charger vos brouillons');
           this._loading.set(false);
           observer.error(error);
@@ -99,13 +101,13 @@ export class StoryboardService {
         { headers: this.getAuthHeaders() }
       ).subscribe({
         next: (response) => {
-          this._published.set(response.stories || []);
+          console.log('Histoires publiées chargées:', response.count);
           this._loading.set(false);
           observer.next(response);
           observer.complete();
         },
         error: (error) => {
-          console.error('Erreur lors du chargement des histoires publiées:', error);
+          console.error('Erreur chargement histoires publiées:', error);
           this._error.set('Impossible de charger vos histoires publiées');
           this._loading.set(false);
           observer.error(error);
@@ -123,13 +125,12 @@ export class StoryboardService {
         { headers: this.getAuthHeaders() }
       ).subscribe({
         next: (response) => {
-          // Recharger les données après publication
-          this.refreshData();
+          console.log('Histoire publiée:', storyId);
           observer.next(response);
           observer.complete();
         },
         error: (error) => {
-          console.error('Erreur lors de la publication:', error);
+          console.error('Erreur publication:', error);
           observer.error(error);
         }
       });
@@ -145,20 +146,19 @@ export class StoryboardService {
         { headers: this.getAuthHeaders() }
       ).subscribe({
         next: (response) => {
-          // Recharger les données après archivage
-          this.refreshData();
+          console.log('Histoire archivée:', storyId);
           observer.next(response);
           observer.complete();
         },
         error: (error) => {
-          console.error('Erreur lors de l\'archivage:', error);
+          console.error('Erreur archivage:', error);
           observer.error(error);
         }
       });
     });
   }
 
-  // Supprimer un brouillon (DELETE story)
+  // Supprimer une histoire (utilise l'API stories générale)
   deleteStory(storyId: number): Observable<any> {
     return new Observable(observer => {
       this.http.delete(
@@ -166,13 +166,12 @@ export class StoryboardService {
         { headers: this.getAuthHeaders() }
       ).subscribe({
         next: (response) => {
-          // Recharger les données après suppression
-          this.refreshData();
+          console.log('Histoire supprimée:', storyId);
           observer.next(response);
           observer.complete();
         },
         error: (error) => {
-          console.error('Erreur lors de la suppression:', error);
+          console.error('Erreur suppression:', error);
           observer.error(error);
         }
       });
@@ -202,34 +201,65 @@ export class StoryboardService {
         { headers: this.getAuthHeaders() }
       ).subscribe({
         next: (response) => {
-          // Recharger les brouillons après sauvegarde
-          this.loadUserDrafts().subscribe();
+          console.log('Brouillon sauvegardé:', storyId || 'nouveau');
           observer.next(response);
           observer.complete();
         },
         error: (error) => {
-          console.error('Erreur lors de la sauvegarde:', error);
+          console.error('Erreur sauvegarde:', error);
           observer.error(error);
         }
       });
     });
   }
 
-  // Actualiser toutes les données
-  refreshData(): void {
-    this.loadUserDrafts().subscribe();
-    this.loadUserPublishedStories().subscribe();
+  // Like/Unlike une histoire
+  toggleLike(storyId: number): Observable<any> {
+    return new Observable(observer => {
+      this.http.post(
+        `${this.API_URL}/chroniques/${storyId}/like`,
+        {},
+        { headers: this.getAuthHeaders() }
+      ).subscribe({
+        next: (response) => {
+          console.log('Like togglé:', storyId);
+          observer.next(response);
+          observer.complete();
+        },
+        error: (error) => {
+          console.error('Erreur toggle like:', error);
+          observer.error(error);
+        }
+      });
+    });
   }
 
-  // Vérifier si l'utilisateur est connecté
-  isAuthenticated(): boolean {
-    return this.authService.isAuthenticated();
+  // Vérifier l'authentification (méthode corrigée)
+  isUserAuthenticated(): boolean {
+    return this.authService.isLoggedIn();
   }
 
-  // Initialiser les données utilisateur
-  initializeUserData(): void {
-    if (this.isAuthenticated()) {
-      this.refreshData();
-    }
+  // Obtenir l'utilisateur actuel
+  getCurrentUser() {
+    return this.authService.currentUser();
+  }
+
+  // Utilitaire pour formater les données API en format component
+  formatDraftForComponent(draft: DraftStoryFromAPI) {
+    return {
+      id: draft.id,
+      title: draft.title || 'Histoire sans titre',
+      lastModified: draft.lastModified,
+      status: draft.status
+    };
+  }
+
+  formatPublishedForComponent(story: PublishedStoryFromAPI) {
+    return {
+      id: story.id,
+      title: story.title,
+      publishDate: story.publishDate,
+      likes: story.likes
+    };
   }
 }

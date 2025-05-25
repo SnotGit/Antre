@@ -8,12 +8,13 @@
   border: 2px solid #5d889e;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
   font-family: 'Courier New', monospace;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
 
+  // 1. HEADER FIXE
   .console-header {
+    flex-shrink: 0;
     background-color: #5d889e;
     color: #121416;
     padding: 12px 16px;
@@ -22,7 +23,6 @@
     justify-content: center;
     font-weight: bold;
     font-size: 14px;
-    flex-shrink: 0;
 
     .console-title {
       font-size: 15px;
@@ -30,13 +30,14 @@
     }
   }
 
+  // 2. SECTION STATUS FIXE
   .console-body {
+    flex-shrink: 0;
     padding: 20px;
     color: #d0d0d0;
     font-size: 13px;
     line-height: 1.6;
     border-bottom: 1px solid rgba(93, 136, 158, 0.3);
-    flex-shrink: 0;
 
     .status-line, .user-line, .access-line {
       display: flex;
@@ -45,7 +46,6 @@
       margin-bottom: 8px;
     }
 
-    // Indicateur mode dev
     .dev-mode-indicator {
       display: flex;
       align-items: center;
@@ -56,11 +56,38 @@
     }
   }
 
-  .connexion-section {
-    padding: 20px;
-    border-bottom: 1px solid rgba(93, 136, 158, 0.3);
-    flex-shrink: 0;
+  // 3. SECTION COMMANDES FLEXIBLE (prend l'espace restant)
+  .console-actions {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 0;
 
+    .connexion-section {
+      padding: 20px;
+      border-bottom: 1px solid rgba(93, 136, 158, 0.3);
+    }
+
+    .action-group {
+      padding: 15px 20px;
+      border-bottom: 1px solid rgba(93, 136, 158, 0.2);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .group-title {
+        display: block;
+        color: #b55a44;
+        font-size: 11px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        letter-spacing: 0.5px;
+      }
+    }
+
+    // Boutons standards
     .console-btn {
       display: block;
       width: 100%;
@@ -97,49 +124,6 @@
           background-color: rgba(93, 136, 158, 0.1);
         }
       }
-    }
-  }
-
-  .console-actions {
-    flex: 1;
-    overflow: hidden;
-
-    .action-group {
-      padding: 15px 20px;
-      border-bottom: 1px solid rgba(93, 136, 158, 0.2);
-
-      &:last-child {
-        border-bottom: none;
-      }
-
-      .group-title {
-        display: block;
-        color: #b55a44;
-        font-size: 11px;
-        font-weight: bold;
-        margin-bottom: 10px;
-        letter-spacing: 0.5px;
-      }
-    }
-
-    .console-btn {
-      display: block;
-      width: 100%;
-      background: transparent;
-      border: 1px solid #5d889e;
-      color: #5d889e;
-      padding: 8px 10px;
-      margin-bottom: 6px;
-      border-radius: 4px;
-      font-family: inherit;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-
-      &:hover {
-        background-color: rgba(93, 136, 158, 0.1);
-        transform: translateX(2px);
-      }
 
       &.dev-btn {
         border-color: #f39c12;
@@ -153,16 +137,23 @@
       &.logout {
         border-color: #e74c3c;
         color: #e74c3c;
-        margin-top: 10px;
 
         &:hover {
           background-color: rgba(231, 76, 60, 0.1);
         }
       }
     }
+  }
 
-    .common-actions {
-      padding: 15px 20px;
+  // 4. FOOTER FIXE
+  .logout-footer {
+    flex-shrink: 0;
+    padding: 15px 20px;
+    border-top: 1px solid rgba(93, 136, 158, 0.2);
+    background-color: rgba(26, 29, 32, 0.5);
+
+    .console-btn {
+      margin-bottom: 0;
     }
   }
 
@@ -185,12 +176,9 @@
   }
 }
 
-// Mode mobile
+// Responsive
 @media (max-width: 768px) {
   .console-panel {
-    height: 200px;
-    flex: 1;
-    
     .console-header {
       padding: 8px 12px;
       font-size: 12px;
@@ -209,8 +197,10 @@
       }
     }
     
-    .connexion-section {
-      padding: 10px 12px;
+    .console-actions {
+      .connexion-section, .action-group {
+        padding: 10px 12px;
+      }
       
       .console-btn {
         padding: 6px 8px;
@@ -218,22 +208,9 @@
         font-size: 10px;
       }
     }
-    
-    .console-actions {
-      .action-group {
-        padding: 8px 12px;
-        
-        .group-title {
-          font-size: 10px;
-          margin-bottom: 6px;
-        }
-      }
-      
-      .console-btn {
-        padding: 6px 8px;
-        margin-bottom: 4px;
-        font-size: 10px;
-      }
+
+    .logout-footer {
+      padding: 10px 12px;
     }
   }
 }

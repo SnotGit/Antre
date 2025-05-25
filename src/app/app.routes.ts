@@ -20,7 +20,13 @@ export const routes: Routes = [
     loadChildren: () => import('./components/chroniques/chroniques.routes').then(m => m.routes)
   },
 
-  // Autres sections de ton app
+  // Route Mon Compte (authentification requise)
+  {
+    path: 'mon-compte',
+    loadComponent: () => import('./components/user-account/user-account.component').then(m => m.UserAccountComponent)
+  },
+
+  // Autres sections de l'app
   {
     path: 'archives',
     loadComponent: () => import('./components/archives/archives.component').then(m => m.ArchivesComponent)
@@ -34,7 +40,7 @@ export const routes: Routes = [
     loadComponent: () => import('./components/terraformars/terraformars.component').then(m => m.TerraformarsComponent)
   },
 
-  // Routes d'authentification (si nécessaire)
+  // Routes d'authentification
   {
     path: 'auth',
     loadChildren: () => import('./auth/auth.routes').then(m => m.routes)
