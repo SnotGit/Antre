@@ -1,5 +1,5 @@
-// story-board.component.ts - Version signals purs Angular 19.2
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+// story-board.component.ts
+import { Component, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
@@ -26,7 +26,7 @@ interface PublishedStory {
   templateUrl: './story-board.component.html',
   styleUrl: './story-board.component.scss'
 })
-export class StoryBoardComponent implements OnInit {
+export class StoryBoardComponent implements OnInit, OnDestroy {
   
   private router = inject(Router);
   private authService = inject(AuthService);
@@ -66,31 +66,50 @@ export class StoryBoardComponent implements OnInit {
     this.currentUser()?.username || 'Utilisateur'
   );
 
+  // Effect pour détecter les changements d'utilisateur (y compris mode dev)
+  private userChangeEffect = effect(() => {
+    // S'abonner aux changements d'utilisateur (userChanged se met à jour lors du switch)
+    this.authService.userChanged();
+    const user = this.currentUser();
+    
+    if (user) {
+      console.log('👤 Changement utilisateur détecté dans StoryBoard:', user.username);
+      // Déclencher le rechargement des données
+      this.loadUserData();
+    } else {
+      console.log('👤 Utilisateur déconnecté - nettoyage des données');
+      // Optionnel: nettoyer les données locales
+      this.likedStories.set(new Set());
+    }
+  });
+
   ngOnInit(): void {
     if (!this.isLoggedIn()) {
       this.router.navigate(['/auth/login']);
       return;
     }
 
-    console.log('Story Board - Chargement pour:', this.currentUser()?.username);
+    console.log('📊 Story Board - Initialisation pour:', this.currentUser()?.username);
     
     // Charger les données initiales
-    this.loadInitialData();
+    this.loadUserData();
+  }
+
+  ngOnDestroy(): void {
+    // L'effect se nettoie automatiquement
   }
 
   setActiveTab(tab: 'drafts' | 'published'): void {
     this.activeTab.set(tab);
   }
 
-  // Charger les données initiales
-  private async loadInitialData(): Promise<void> {
+  // Charger les données utilisateur (méthode privée)
+  private async loadUserData(): Promise<void> {
     try {
-      await Promise.all([
-        this.storyboardService.loadDraftsData(),
-        this.storyboardService.loadPublishedData()
-      ]);
+      await this.storyboardService.initializeUserData();
+      console.log('✅ Données chargées pour:', this.currentUser()?.username);
     } catch (error) {
-      console.error('Erreur chargement initial:', error);
+      console.error('❌ Erreur chargement données utilisateur:', error);
     }
   }
 

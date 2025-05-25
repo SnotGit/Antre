@@ -1,5 +1,5 @@
-// storyboard.service.ts - Version signals purs Angular 19.2
-import { Injectable, signal, effect, computed } from '@angular/core';
+// storyboard.service.ts 
+import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from './auth.service';
 
@@ -60,16 +60,26 @@ export class StoryboardService {
     private http: HttpClient,
     private authService: AuthService
   ) {
-    // Effect pour recharger automatiquement quand l'utilisateur change
-    effect(() => {
-      // Déclenché par le signal userChanged
-      this.authService.userChanged();
-      
-      if (this.authService.isLoggedIn()) {
-        console.log('🔄 Signal userChanged détecté - Rechargement données storyboard pour:', this.authService.currentUser()?.username);
-        this.reloadAllData();
-      }
-    });
+    // Pas d'effect() ici - on charge explicitement quand nécessaire
+  }
+
+  // Méthode publique pour initialiser les données (appelée par les composants)
+  async initializeUserData(): Promise<void> {
+    if (!this.authService.isLoggedIn()) {
+      console.log('❌ Utilisateur non connecté - pas de chargement des données');
+      this._drafts.set([]);
+      this._published.set([]);
+      return;
+    }
+
+    console.log('🔄 Initialisation données storyboard pour:', this.authService.currentUser()?.username);
+    await this.reloadAllData();
+  }
+
+  // Méthode publique pour recharger quand l'utilisateur change (appelée explicitement)
+  async onUserChanged(): Promise<void> {
+    console.log('🔄 Changement utilisateur détecté - Rechargement données storyboard');
+    await this.initializeUserData();
   }
 
   // Headers avec authentification
@@ -283,5 +293,14 @@ export class StoryboardService {
       publishDate: story.publishDate,
       likes: story.likes
     };
+  }
+
+  // Nettoyage explicite des données (quand l'utilisateur se déconnecte)
+  clearUserData(): void {
+    this._drafts.set([]);
+    this._published.set([]);
+    this._error.set(null);
+    this._loading.set(false);
+    console.log('🧹 Données utilisateur nettoyées');
   }
 }

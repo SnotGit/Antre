@@ -1,4 +1,3 @@
-// src/app/components/chroniques/chroniques.routes.ts
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
@@ -12,7 +11,7 @@ export const routes: Routes = [
   {
     path: 'story-board',
     loadComponent: () => import('./storyboard/story-board.component').then(m => m.StoryBoardComponent),
-    // Tu peux ajouter un guard ici pour vérifier l'authentification
+    // Ajouter un guard ici pour vérifier l'authentification
     // canActivate: [AuthGuard]
   },
 
@@ -30,15 +29,16 @@ export const routes: Routes = [
     // canActivate: [AuthGuard]
   },
 
-  // Vue détaillée d'une histoire spécifique
+  // Lire une histoire 
   {
     path: 'story/:id',
     loadComponent: () => import('./story-detail/story-detail.component').then(m => m.StoryDetailComponent)
   },
 
-  // Liste des histoires d'un auteur spécifique
+  // Liste des histoires d'un auteur 
   {
     path: 'author/:username',
     loadComponent: () => import('./story-list/story-list.component').then(m => m.StoryListComponent)
   }
+
 ];
