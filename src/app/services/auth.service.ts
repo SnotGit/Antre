@@ -12,6 +12,7 @@ export interface User {
   description?: string;
   avatar?: string;
   role: 'admin' | 'user';
+  isDev?: boolean; 
   createdAt: string;
 }
 
@@ -38,6 +39,10 @@ export interface LoginResponse {
   user: User;
 }
 
+export interface DevUsersResponse {
+  users: User[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -51,12 +56,18 @@ export class AuthService {
   private _currentUser = signal<User | null>(null);
   private _isDevMode = signal<boolean>(false);
   private _realUser = signal<User | null>(null);
+  private _userChanged = signal<number>(0);
 
   // Computed signals publics
   currentUser = this._currentUser.asReadonly();
   isLoggedIn = computed(() => this._currentUser() !== null);
   isAdmin = computed(() => this._currentUser()?.role === 'admin');
   isDevMode = this._isDevMode.asReadonly();
+  userChanged = this._userChanged.asReadonly();
+  canUseDev = computed(() => {
+    const user = this._currentUser();
+    return user?.isDev === true;
+  });
 
   constructor(
     private http: HttpClient,
@@ -114,30 +125,49 @@ export class AuthService {
 
   // ============ MODE DÉVELOPPEMENT ============
 
-  switchToDevUser(devUser: 'elena'): void {
+  private switchToDevUser(devUserType: 'elena' | 'snot'): void {
     const currentUser = this._currentUser();
-    if (!currentUser) {
-      console.error('❌ Impossible de passer en mode dev sans être connecté');
+    if (!currentUser || !currentUser.isDev) {
+      console.error('❌ Accès mode dev non autorisé');
       return;
     }
 
     this._realUser.set(currentUser);
-    
-    const elenaUser: User = {
-      id: 2,
-      username: 'Elena_Nova',
-      email: 'elena@test.com',
-      description: 'Archéologue martienne',
-      avatar: '/assets/images/Avatar-test.png',
-      role: 'user',
-      createdAt: '2025-01-01T00:00:00Z'
-    };
 
-    this._currentUser.set(elenaUser);
-    this._isDevMode.set(true);
-    localStorage.setItem(this.DEV_USER_KEY, JSON.stringify(elenaUser));
-    
-    console.log('🔄 Passage en mode dev - Elena Nova');
+    // Appel API pour récupérer les données du dev user
+    this.http.get<DevUsersResponse>(`${this.API_URL}/auth/dev-users`, {
+      headers: this.getAuthHeaders()
+    }).subscribe({
+      next: (response) => {
+        const targetUser = response.users.find(user => 
+          devUserType === 'elena' ? user.role === 'user' : user.role === 'admin'
+        );
+
+        if (targetUser) {
+          this._currentUser.set(targetUser);
+          this._isDevMode.set(true);
+          localStorage.setItem(this.DEV_USER_KEY, JSON.stringify(targetUser));
+          
+          // Notifier le changement d'utilisateur
+          this._userChanged.set(this._userChanged() + 1);
+          
+          console.log(`🔄 Passage en mode dev - ${targetUser.username}`);
+        } else {
+          console.error('❌ Utilisateur dev non trouvé');
+        }
+      },
+      error: (error) => {
+        console.error('❌ Erreur récupération dev users:', error);
+      }
+    });
+  }
+
+  switchToElena(): void {
+    this.switchToDevUser('elena');
+  }
+
+  switchToSnot(): void {
+    this.switchToDevUser('snot');
   }
 
   exitDevMode(): void {
@@ -151,6 +181,9 @@ export class AuthService {
     this._isDevMode.set(false);
     this._realUser.set(null);
     localStorage.removeItem(this.DEV_USER_KEY);
+    
+    // Notifier le changement d'utilisateur
+    this._userChanged.set(this._userChanged() + 1);
     
     console.log('🔄 Retour au mode normal -', realUser.username);
   }

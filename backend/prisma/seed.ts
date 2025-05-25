@@ -11,20 +11,39 @@ function countWords(text: string): number {
 async function main() {
   console.log('Début du seeding...');
 
-  // Hasher le mot de passe pour Elena
+  // Hasher les mots de passe
+  const adminPassword = await bcrypt.hash('admin123', 10);
   const userPassword = await bcrypt.hash('user123', 10);
+
+  // Créer Snot (admin + dev)
+  const snot = await prisma.user.upsert({
+    where: { email: 'snot@antre.com' },
+    update: {},
+    create: {
+      username: 'Snot',
+      email: 'snot@antre.com',
+      passwordHash: adminPassword,
+      description: 'Administrateur de L\'Antre',
+      avatar: '/assets/images/admin-avatar.png',
+      role: 'admin',
+      isDev: true,
+    },
+  });
+
+  console.log('Snot (admin + dev) créé:', snot);
 
   // Créer Elena Nova (utilisatrice test)
   const elena = await prisma.user.upsert({
-    where: { email: 'elena.test@antre.com' },
+    where: { email: 'elena@antre.com' },
     update: {},
     create: {
       username: 'Elena Nova',
-      email: 'elena.test@antre.com',
+      email: 'elena@antre.com',
       passwordHash: userPassword,
       description: 'Archéologue martienne.',
       avatar: '/assets/images/Avatar-test.png',
       role: 'user',
+      isDev: false,
     },
   });
 
@@ -149,7 +168,8 @@ C'est cette nuit-là que nous avons décidé de prendre les choses en main. Si l
   console.log('Histoires d\'Elena Nova créées');
   console.log('Seeding terminé avec succès !');
   console.log('Connexions:');
-  console.log('   User test: elena.test@antre.com / user123');
+  console.log('   Admin + Dev: snot@antre.com / admin123');
+  console.log('   User test: elena@antre.com / user123');
   console.log('Données créées:');
   console.log('   - 3 histoires publiées par Elena');
   console.log('   - 3 brouillons par Elena');

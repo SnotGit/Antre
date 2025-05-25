@@ -30,14 +30,9 @@
   <!-- 3. SECTION COMMANDES FLEXIBLE -->
   <div class="console-commands">
     @if (!isLoggedIn()) {
-      <!-- Section Connexion -->  
+      <!-- Section vide propre quand pas connecté -->
       <div class="action-group">
-        <button class="console-btn" (click)="openLogin()">
-          [⚡] CONNEXION
-        </button>
-        <button class="console-btn" (click)="openRegister()">
-          [👤] INSCRIPTION
-        </button>
+        <span class="group-title">> SYSTÈME EN ATTENTE</span>
       </div>
     }
 
@@ -49,18 +44,20 @@
           <button class="console-btn" (click)="addCategory()">AJOUTER CATEGORIE</button>
           <button class="console-btn" (click)="addList()">AJOUTER LISTE</button>
           <button class="console-btn" (click)="addItem()">AJOUTER ITEM</button>
-          
-          <span class="group-title">> MODE DEV</span>
-          @if (isAdmin() && !isDevMode()) {
-            <button class="console-btn dev-btn" (click)="switchToElena()">
-              SWITCH ELENA
-            </button>
-          }
 
-          @if (isDevMode()) {
-            <button class="console-btn dev-btn" (click)="exitDevMode()">
-              RETOUR ADMIN
-            </button>
+          @if (canUseDev()) {
+            <span class="group-title">> MODE DEV</span>
+            <!-- Switch selon l'utilisateur actuel -->
+            @if (currentUser()?.role === 'admin') {
+              <button class="console-btn dev-btn" (click)="switchToElena()">
+                SWITCH TO ELENA
+              </button>
+            }
+            @if (currentUser()?.role === 'user') {
+              <button class="console-btn dev-btn" (click)="switchToSnot()">
+                SWITCH TO SNOT
+              </button>
+            }
           }
         </div>
       }
@@ -71,25 +68,29 @@
           <span class="group-title">> FONCTIONS UTILISATEUR</span>
           <button class="console-btn" (click)="newStory()">NOUVELLE HISTOIRE</button>
           <button class="console-btn" (click)="myStories()">MES HISTOIRES</button>
-          
-          @if (isAdmin() && !isDevMode()) {
-            <button class="console-btn dev-btn" (click)="switchToElena()">
-              SWITCH ELENA
-            </button>
-          }
 
-          @if (isDevMode()) {
-            <button class="console-btn dev-btn" (click)="exitDevMode()">
-              RETOUR ADMIN
-            </button>
+          @if (canUseDev()) {
+            <span class="group-title">> MODE DEV</span>
+            <!-- Switch selon l'utilisateur actuel -->
+            @if (currentUser()?.role === 'admin') {
+              <button class="console-btn dev-btn" (click)="switchToElena()">
+                SWITCH TO ELENA
+              </button>
+            }
+            @if (currentUser()?.role === 'user') {
+              <button class="console-btn dev-btn" (click)="switchToSnot()">
+                SWITCH TO SNOT
+              </button>
+            }
           }
         </div>
       }
     }
   </div>
 
-  <!-- 4. FOOTER FIXE -->
+  <!-- 4. FOOTER ADAPTATIF -->
   @if (isLoggedIn()) {
+    <!-- Footer pour utilisateurs connectés -->
     <div class="console-footer">
       <span class="group-title">> PARAMETRES DU COMPTE</span>
       <button class="console-btn" (click)="openAccount()">
@@ -97,6 +98,17 @@
       </button>
       <button class="console-btn logout" (click)="logout()">
         DECONNEXION
+      </button>
+    </div>
+  } @else {
+    <!-- Footer pour visiteurs non connectés -->
+    <div class="console-footer">
+      <span class="group-title">> AUTHENTIFICATION</span>
+      <button class="console-btn" (click)="openLogin()">
+        [⚡] CONNEXION
+      </button>
+      <button class="console-btn" (click)="openRegister()">
+        [👤] INSCRIPTION
       </button>
     </div>
   }

@@ -18,6 +18,7 @@ model User {
   description String?  @db.Text
   avatar      String?  @db.VarChar(255)
   role        String   @default("user") @db.VarChar(20)
+  isDev       Boolean  @default(false) @map("is_dev")
   createdAt   DateTime @default(now()) @map("created_at")
   
   // Relations
@@ -32,6 +33,7 @@ enum StoryStatus {
   PUBLISHED
   ARCHIVED
 }
+
 
 model Story {
   id          Int         @id @default(autoincrement())

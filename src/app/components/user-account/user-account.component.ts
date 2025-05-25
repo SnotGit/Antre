@@ -204,9 +204,17 @@ export class UserAccountComponent implements OnInit {
     return this.currentUser()?.username || '';
   }
 
-  get userRole(): string {
-    return this.currentUser()?.role?.toUpperCase() || 'USER';
+get userRole(): string {
+  const user = this.currentUser();
+  if (!user) return 'USER';
+  
+  // Si admin ET dev → afficher "ADMIN / DEV"
+  if (user.role === 'admin' && user.isDev) {
+    return 'ADMIN / DEV';
   }
+  
+  return user.role.toUpperCase();
+}
 
   get accountCreatedDate(): string {
     const user = this.currentUser();

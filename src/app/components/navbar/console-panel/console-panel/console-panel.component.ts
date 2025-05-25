@@ -12,7 +12,7 @@ import { AuthService } from '../../../../services/auth.service';
   styleUrls: ['./console-panel.component.scss']
 })
 export class ConsolePanelComponent implements OnInit {
-  
+
   private router = inject(Router);
   private authService = inject(AuthService);
 
@@ -21,20 +21,19 @@ export class ConsolePanelComponent implements OnInit {
   isLoggedIn = this.authService.isLoggedIn;
   isAdmin = this.authService.isAdmin;
   isDevMode = this.authService.isDevMode;
+  canUseDev = this.authService.canUseDev;
 
   // Signals pour l'état du composant
   private currentRoute = signal<string>('');
-  
+
   // Computed pour la logique des boutons
   isInChroniques = computed(() => this.currentRoute().includes('/chroniques'));
-  
-  // LOGIQUE CORRIGÉE :
-  // Si dans chroniques -> fonctions USER (même pour admin)
-  // Si hors chroniques -> fonctions ADMIN (seulement pour admin)
+
+  // Logique des boutons
   showUserButtons = computed(() => {
     return this.isLoggedIn() && this.isInChroniques();
   });
-  
+
   showAdminButtons = computed(() => {
     return this.isLoggedIn() && this.isAdmin() && !this.isInChroniques();
   });
@@ -56,6 +55,7 @@ export class ConsolePanelComponent implements OnInit {
     console.log('Dans chroniques:', this.isInChroniques());
     console.log('Boutons user:', this.showUserButtons());
     console.log('Boutons admin:', this.showAdminButtons());
+    console.log('Can use dev:', this.canUseDev());
   }
 
   // ============ AUTHENTIFICATION ============
@@ -75,7 +75,11 @@ export class ConsolePanelComponent implements OnInit {
   // ============ MODE DÉVELOPPEMENT ============
 
   switchToElena(): void {
-    this.authService.switchToDevUser('elena');
+    this.authService.switchToElena();
+  }
+
+  switchToSnot(): void {
+    this.authService.switchToSnot();
   }
 
   exitDevMode(): void {
