@@ -1,0 +1,61 @@
+<!-- story-detail.component.html -->
+<div class="story-detail-container">
+  <!-- Navigation de retour -->
+  <div class="back-navigation">
+    <button class="back-btn" (click)="goBack()">
+      <span class="back-icon">←</span>
+      Retour à l'accueil
+    </button>
+  </div>
+
+  <!-- En-tête auteur -->
+  <div class="author-header">
+    <div class="author-avatar" [style.background-image]="'url(' + story().user?.avatar + ')'">
+      <span class="avatar-placeholder" *ngIf="!story().user?.avatar">👤</span>
+    </div>
+    <div class="author-info">
+      <h2 class="author-name">{{ story().user?.username || 'Auteur Inconnu' }}</h2>
+      <p class="author-description">{{ story().user?.description || 'Écrivain martien' }} • {{ getTotalStories() }} histoires</p>
+    </div>
+  </div>
+
+  <!-- Article principal -->
+  <article class="story-article">
+    <!-- Titre de l'histoire -->
+    <header class="story-header">
+      <h1 class="story-title">{{ story().title }}</h1>
+      <div class="story-meta">
+        <span class="meta-date">📅 {{ getFormattedDate() }}</span>
+        <div class="story-stats" *ngIf="isPublished()">
+          <span class="stat-item">👁️ {{ story().views || 0 }}</span>
+          <span class="stat-item">❤️ {{ getLikesCount() }}</span>
+          <span class="stat-item">📄 {{ story().wordCount || 0 }} mots</span>
+        </div>
+        <div class="story-status" *ngIf="!isPublished()">
+          <span class="status-badge" [attr.data-status]="getStatus().toLowerCase()">
+            {{ getStatus() }}
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Contenu de l'histoire -->
+    <div class="story-content">
+      <div class="content-text">{{ story().content }}</div>
+    </div>
+  </article>
+
+  <!-- États de chargement et d'erreur -->
+  <div class="loading-state" *ngIf="loading()">
+    <div class="loading-spinner"></div>
+    <p>Chargement de l'histoire...</p>
+  </div>
+
+  <div class="error-state" *ngIf="error()">
+    <div class="error-icon">⚠️</div>
+    <p>{{ error() }}</p>
+    <button class="retry-btn" (click)="loadStory()">
+      Réessayer
+    </button>
+  </div>
+</div>

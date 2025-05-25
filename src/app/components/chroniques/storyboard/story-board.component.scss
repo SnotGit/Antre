@@ -1,0 +1,148 @@
+.story-board-container {
+  padding: 30px;
+  background: #121416;
+  color: #d0d0d0;
+  font-family: 'Courier New', monospace;
+  height: 100%;
+
+  .main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+
+    .main-title {
+      font-size: 32px;
+      color: #5d889e;
+      margin: 0;
+
+      &::before {
+        content: '> ';
+        color: #b55a44;
+      }
+    }
+
+ 
+  }
+
+  .tabs-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+
+    .tab-btn {
+      background: transparent;
+      border: 2px solid #5d889e;
+      border-right: none;
+      padding: 12px 20px;
+      color: #5d889e;
+      font-family: inherit;
+      font-weight: bold;
+      cursor: pointer;
+      transition: border-color 0.3s ease;
+
+      &:first-child { 
+        border-radius: 6px 0 0 6px; 
+      }
+      
+      &:last-child { 
+        border-radius: 0 6px 6px 0;
+        border-right: 2px solid #5d889e;
+      }
+
+      &:hover {
+        border-color: #5d889e;
+      }
+
+      &.active {
+        background: #5d889e;
+        color: #121416;
+      }
+    }
+  }
+
+  .stories-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+
+    @media (max-width: 900px) {
+      grid-template-columns: 1fr;
+    }
+
+    .story-card {
+      background: #1a1d20;
+      border: 2px solid rgba(93, 136, 158, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      transition: border-color 0.3s ease;
+
+      &:hover {
+        border-color: #5d889e;
+      }
+
+      .story-title {
+        color: #d0d0d0;
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0 0 15px 0;
+      }
+
+      .card-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 15px;
+
+        .action-btn {
+          background: transparent;
+          border: 1px solid #5d889e;
+          border-radius: 4px;
+          padding: 8px 12px;
+          color: #5d889e;
+          font-family: inherit;
+          cursor: pointer;
+          font-size: 12px;
+          transition: border-color 0.3s ease;
+
+          &:hover {
+            border-color: #5d889e;
+          }
+        }
+      }
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #5d889e;
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+
+    h3 {
+      font-size: 24px;
+      margin: 0 0 15px 0;
+      color: #d0d0d0;
+    }
+
+    .create-first-btn {
+      background: #5d889e;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 24px;
+      color: #121416;
+      font-family: inherit;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background: #5d889e;
+        color: #121416;
+      }
+    }
+  }
+}

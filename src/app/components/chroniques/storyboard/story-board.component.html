@@ -1,0 +1,125 @@
+<!-- story-board.component.html - Version corrigée -->
+<div class="story-board-container">
+  <!-- Header principal -->
+  <div class="main-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="main-title">Tableau de bord</h1>
+        <p class="subtitle">Gestion de vos chroniques martiennes</p>
+      </div>
+
+      <!-- Navigation tabs -->
+      <div class="tabs-container">
+        <button class="tab-btn" [class.active]="activeTab === 'drafts'" (click)="setActiveTab('drafts')">
+          <span class="tab-icon">📝</span>
+          BROUILLONS
+          <span class="tab-count">({{drafts().length}})</span>
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'published'" (click)="setActiveTab('published')">
+          <span class="tab-icon">📖</span>
+          PUBLIÉES
+          <span class="tab-count">({{published().length}})</span>
+        </button>
+      </div>
+
+      <!-- Container principal avec scroll propre -->
+      <div class="stories-container">
+        <div class="stories-scroll">
+
+          <!-- Section Brouillons -->
+          @if (activeTab === 'drafts') {
+          @if (drafts().length > 0) {
+          <div class="stories-grid">
+            @for (draft of drafts(); track draft.id) {
+            <div class="story-card draft-card">
+              <div class="card-header">
+                <h3 class="story-title">{{draft.title}}</h3>
+                <div class="status-badge" [attr.data-status]="draft.status.toLowerCase()">
+                  {{draft.status}}
+                </div>
+              </div>
+
+              <div class="story-meta">
+                <div class="meta-item">
+                  <span class="meta-icon">🕒</span>
+                  <span>{{draft.lastModified}}</span>
+                </div>
+              </div>
+
+              <div class="card-actions">
+                <button class="action-btn edit-btn" (click)="editStory(draft.id)">
+                  <span class="btn-icon">✏️</span>
+                  Éditer
+                </button>
+                <button class="action-btn publish-btn" (click)="publishStory(draft.id)">
+                  <span class="btn-icon">🚀</span>
+                  Publier
+                </button>
+                <button class="action-btn delete-btn" (click)="deleteStory(draft.id)">
+                  <span class="btn-icon">🗑️</span>
+                  Supprimer
+                </button>
+              </div>
+            </div>
+            }
+          </div>
+          } @else {
+          <div class="empty-state">
+            <div class="empty-icon">📝</div>
+            <h3>Aucun brouillon</h3>
+            <p>Commencez votre première chronique martienne !</p>
+            <button class="create-first-btn" (click)="createNewStory()">
+              Créer ma première histoire
+            </button>
+          </div>
+          }
+          }
+
+          <!-- Section Publiées -->
+          @if (activeTab === 'published') {
+          @if (published().length > 0) {
+          <div class="stories-grid">
+            @for (story of published(); track story.id) {
+            <div class="story-card published-card">
+              <div class="card-header">
+                <h3 class="story-title">{{story.title}}</h3>
+                <div class="publish-date">{{story.publishDate}}</div>
+              </div>
+
+              <div class="story-stats">
+                <div class="stat-item">
+                  <span class="stat-icon">❤️</span>
+                  <span class="stat-value">{{story.likes}}</span>
+                  <span class="stat-label">likes</span>
+                </div>
+              </div>
+
+              <div class="card-actions">
+                <button class="action-btn view-btn" (click)="viewStory(story.id)">
+                  <span class="btn-icon">👁️</span>
+                  Voir
+                </button>
+                <button class="action-btn edit-btn" (click)="editStory(story.id)">
+                  <span class="btn-icon">✏️</span>
+                  Éditer
+                </button>
+                <button class="action-btn archive-btn" (click)="archiveStory(story.id)">
+                  <span class="btn-icon">📦</span>
+                  Archiver
+                </button>
+              </div>
+            </div>
+            }
+          </div>
+          } @else {
+          <div class="empty-state">
+            <div class="empty-icon">📖</div>
+            <h3>Aucune histoire publiée</h3>
+            <p>Vos chroniques apparaîtront ici une fois publiées</p>
+          </div>
+          }
+          }
+
+        </div>
+      </div>
+    </div>

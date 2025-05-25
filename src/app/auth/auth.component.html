@@ -1,0 +1,194 @@
+<!-- auth.component.html -->
+<div class="auth-container">
+  <!-- Retour à l'accueil -->
+  <div class="back-navigation">
+    <button class="back-btn" (click)="goBack()">
+      <span class="back-icon">←</span>
+      Retour à l'accueil
+    </button>
+  </div>
+
+  <!-- Terminal d'authentification -->
+  <div class="auth-terminal">
+    <!-- Header du terminal -->
+    <div class="terminal-header">
+      <span class="terminal-title">SYSTÈME D'AUTHENTIFICATION</span>
+    </div>
+
+    <!-- Contenu du terminal -->
+    <div class="terminal-content">
+      <!-- Navigation entre login/register -->
+      <div class="auth-tabs">
+        <button 
+          class="auth-tab" 
+          [class.active]="authMode() === 'login'"
+          (click)="setAuthMode('login')">
+          [CONNEXION]
+        </button>
+        <button 
+          class="auth-tab" 
+          [class.active]="authMode() === 'register'"
+          (click)="setAuthMode('register')">
+          [INSCRIPTION]
+        </button>
+      </div>
+
+      <!-- Formulaires -->
+      <div class="forms-container">
+        
+        <!-- Formulaire de connexion -->
+        @if (authMode() === 'login') {
+          <form class="auth-form" (ngSubmit)="onLogin()" #loginForm="ngForm">
+            <div class="form-header">
+              <span class="form-title">AUTHENTIFICATION REQUISE</span>
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">EMAIL:</label>
+              <input 
+                type="email" 
+                name="email"
+                [(ngModel)]="loginData.email"
+                class="terminal-input"
+                placeholder="utilisateur@antre.com"
+                required
+                autocomplete="email"
+                [disabled]="loading()">
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">PASSWORD:</label>
+              <input 
+                type="password" 
+                name="password"
+                [(ngModel)]="loginData.password"
+                class="terminal-input"
+                placeholder="••••••••••••"
+                required
+                autocomplete="current-password"
+                [disabled]="loading()">
+            </div>
+
+            @if (error()) {
+              <div class="error-message">
+                <span>ERREUR: {{ error() }}</span>
+              </div>
+            }
+
+            <div class="form-actions">
+              <button 
+                type="submit" 
+                class="submit-btn login-btn"
+                [disabled]="loading() || !loginForm.valid">
+                @if (loading()) {
+                  <span class="loading-spinner"></span>
+                  CONNEXION EN COURS...
+                } @else {
+                  SE CONNECTER
+                }
+              </button>
+            </div>
+          </form>
+        }
+
+        <!-- Formulaire d'inscription -->
+        @if (authMode() === 'register') {
+          <form class="auth-form" (ngSubmit)="onRegister()" #registerForm="ngForm">
+            <div class="form-header">
+              <span class="form-title">CRÉATION DE COMPTE</span>
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">USERNAME:</label>
+              <input 
+                type="text" 
+                name="username"
+                [(ngModel)]="registerData.username"
+                class="terminal-input"
+                placeholder="nom_utilisateur"
+                required
+                minlength="3"
+                maxlength="50"
+                [disabled]="loading()">
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">EMAIL:</label>
+              <input 
+                type="email" 
+                name="email"
+                [(ngModel)]="registerData.email"
+                class="terminal-input"
+                placeholder="utilisateur@antre.com"
+                required
+                autocomplete="email"
+                [disabled]="loading()">
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">PASSWORD:</label>
+              <input 
+                type="password" 
+                name="password"
+                [(ngModel)]="registerData.password"
+                class="terminal-input"
+                placeholder="••••••••••••"
+                required
+                minlength="6"
+                autocomplete="new-password"
+                [disabled]="loading()">
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">DESCRIPTION (optionnel):</label>
+              <textarea 
+                name="description"
+                [(ngModel)]="registerData.description"
+                class="terminal-textarea"
+                placeholder="Votre description..."
+                maxlength="500"
+                rows="3"
+                [disabled]="loading()">
+              </textarea>
+            </div>
+
+            @if (error()) {
+              <div class="error-message">
+                <span>ERREUR: {{ error() }}</span>
+              </div>
+            }
+
+            @if (successMessage()) {
+              <div class="success-message">
+                <span>{{ successMessage() }}</span>
+              </div>
+            }
+
+            <div class="form-actions">
+              <button 
+                type="submit" 
+                class="submit-btn register-btn"
+                [disabled]="loading() || !registerForm.valid">
+                @if (loading()) {
+                  <span class="loading-spinner"></span>
+                  CRÉATION EN COURS...
+                } @else {
+                  CRÉER COMPTE
+                }
+              </button>
+            </div>
+          </form>
+        }
+      </div>
+
+      <!-- Info bas de terminal -->
+      <div class="terminal-footer">
+        <div class="system-info">
+          <span class="info-line">Système: L'Antre v3.0</span>
+          <span class="info-line">Sécurité: JWT Token</span>
+          <span class="info-line">Status: {{ getSystemStatus() }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

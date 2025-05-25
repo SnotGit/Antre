@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  username    String   @unique @db.VarChar(50)
+  email       String   @unique @db.VarChar(100)
+  passwordHash String  @map("password_hash") @db.VarChar(255)
+  description String?  @db.Text
+  avatar      String?  @db.VarChar(255)
+  role        String   @default("user") @db.VarChar(20)
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  // Relations
+  stories     Story[]
+  likes       Like[]
+  
+  @@map("users")
+}
+
+enum StoryStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Story {
+  id          Int         @id @default(autoincrement())
+  title       String      @db.VarChar(200)
+  content     String      @db.Text
+  status      StoryStatus @default(DRAFT)
+  userId      Int         @map("user_id")
+  views       Int         @default(0)
+  wordCount   Int         @default(0) @map("word_count")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  publishedAt DateTime?   @map("published_at")
+  
+  // Relations
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes       Like[]
+  
+  @@map("stories")
+}
+
+model Like {
+  id      Int @id @default(autoincrement())
+  userId  Int @map("user_id")
+  storyId Int @map("story_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  // Relations
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  story   Story @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  
+  // Un utilisateur ne peut liker qu'une fois la même histoire
+  @@unique([userId, storyId])
+  @@map("likes")
+}

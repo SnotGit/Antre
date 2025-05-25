@@ -1,0 +1,35 @@
+<!-- navbar.component.html - Supprime le div app-layout superflu -->
+<nav class="navbar">
+  <!-- Logo -->
+  <div class="logo">
+    <div class="logo-container">
+      <div class="glitch-logo">
+        <img src="assets/images/Logo.png" alt="L'Antre Logo">
+      </div>
+      <div class="scanlines"></div>
+      <div class="rolling-bar"></div>
+      <div class="noise"></div>
+    </div>
+  </div>
+
+  <!-- Menu principal -->
+  <div class="menu-items">
+    <a routerLink="/archives" routerLinkActive="active" class="menu-item">
+      Archives
+    </a>
+    <a routerLink="/marsball" routerLinkActive="active" class="menu-item">
+      Marsball
+    </a>
+    <a routerLink="/terraformars" routerLinkActive="active" class="menu-item">
+      Terraformars
+    </a>
+    <a routerLink="/chroniques" routerLinkActive="active" class="menu-item">
+      Chroniques de Mars
+    </a>
+    @if (isAdmin()) {
+      <a routerLink="/staff" routerLinkActive="active" class="menu-item staff-only">
+        Staff
+      </a>
+    }
+  </div>
+</nav>
