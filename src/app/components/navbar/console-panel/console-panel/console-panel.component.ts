@@ -25,20 +25,26 @@ export class ConsolePanelComponent implements OnInit {
   // Signals pour l'état du composant
   private currentRoute = signal<string>('');
   
-  // Computed pour déterminer le contexte
+  // Computed pour la logique des boutons
   isInChroniques = computed(() => this.currentRoute().includes('/chroniques'));
-  shouldShowAdminButtons = computed(() => 
-    this.isLoggedIn() && this.isAdmin() && !this.isInChroniques()
-  );
-  shouldShowUserButtons = computed(() => 
-    this.isLoggedIn() && this.isInChroniques()
-  );
+  
+  // LOGIQUE CORRIGÉE :
+  // Si dans chroniques -> fonctions USER (même pour admin)
+  // Si hors chroniques -> fonctions ADMIN (seulement pour admin)
+  showUserButtons = computed(() => {
+    return this.isLoggedIn() && this.isInChroniques();
+  });
+  
+  showAdminButtons = computed(() => {
+    return this.isLoggedIn() && this.isAdmin() && !this.isInChroniques();
+  });
+
+  // Alias pour le template (compatibilité)
+  shouldShowUserButtons = this.showUserButtons;
+  shouldShowAdminButtons = this.showAdminButtons;
 
   ngOnInit(): void {
-    // Écouter les changements de route
     this.updateCurrentRoute();
-    
-    // Optionnel: écouter les changements de route en temps réel
     this.router.events.subscribe(() => {
       this.updateCurrentRoute();
     });
@@ -46,17 +52,19 @@ export class ConsolePanelComponent implements OnInit {
 
   private updateCurrentRoute(): void {
     this.currentRoute.set(this.router.url);
+    console.log('Route actuelle:', this.router.url);
+    console.log('Dans chroniques:', this.isInChroniques());
+    console.log('Boutons user:', this.showUserButtons());
+    console.log('Boutons admin:', this.showAdminButtons());
   }
 
   // ============ AUTHENTIFICATION ============
 
   openLogin(): void {
-    console.log('Opening login...');
     this.router.navigate(['/auth/login']);
   }
 
   openRegister(): void {
-    console.log('Opening register...');
     this.router.navigate(['/auth/register']);
   }
 
@@ -74,24 +82,21 @@ export class ConsolePanelComponent implements OnInit {
     this.authService.exitDevMode();
   }
 
-  // ============ ACTIONS ADMIN ============
+  // ============ ACTIONS ADMIN (hors chroniques seulement) ============
 
   addCategory(): void {
     console.log('Add category clicked');
-    // TODO: Implémenter l'ajout de catégorie
   }
 
   addList(): void {
     console.log('Add list clicked');
-    // TODO: Implémenter l'ajout de liste
   }
 
   addItem(): void {
     console.log('Add item clicked');
-    // TODO: Implémenter l'ajout d'item
   }
 
-  // ============ ACTIONS CHRONIQUES ============
+  // ============ ACTIONS USER (dans chroniques seulement) ============
 
   newStory(): void {
     console.log('New story clicked');
@@ -103,25 +108,31 @@ export class ConsolePanelComponent implements OnInit {
     this.router.navigate(['/chroniques/story-board']);
   }
 
-  // Actions contextuelles pour StoryDetail (TODO: à implémenter)
+  // Actions contextuelles (quand une histoire est sélectionnée)
   editCurrentStory(): void {
     console.log('Edit current story');
-    // TODO: Éditer l'histoire actuellement consultée
+    // TODO: Implémenter selon l'histoire sélectionnée
   }
 
   deleteCurrentStory(): void {
     console.log('Delete current story');
-    // TODO: Supprimer l'histoire actuellement consultée
+    // TODO: Implémenter selon l'histoire sélectionnée
   }
 
   publishCurrentStory(): void {
     console.log('Publish current story');
-    // TODO: Publier l'histoire actuellement consultée
+    // TODO: Implémenter selon l'histoire sélectionnée
+  }
+
+  // ============ ACTIONS COMMUNES (utilisateurs connectés) ============
+
+  openAccount(): void {
+    console.log('Mon compte clicked');
+    this.router.navigate(['/mon-compte']);
   }
 
   // ============ UTILITAIRES ============
 
-  // Getters pour le template
   getCurrentUserName(): string {
     return this.currentUser()?.username || 'GUEST';
   }

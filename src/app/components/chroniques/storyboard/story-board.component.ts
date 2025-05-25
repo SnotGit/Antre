@@ -1,14 +1,16 @@
-// story-board.component.ts
-import { Component, OnInit, signal } from '@angular/core';
+// story-board.component.ts - Version professionnelle avec API réelle
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../services/auth.service';
+import { StoryboardService, DraftStoryFromAPI, PublishedStoryFromAPI } from '../../../services/storyboard.service';
 
+// Interfaces pour l'affichage
 interface DraftStory {
   id: number;
   title: string;
   lastModified: string;
-  wordCount: number;
-  status: 'En cours' | 'Brouillon' | 'En révision';
+  status: string;
 }
 
 interface PublishedStory {
@@ -16,8 +18,6 @@ interface PublishedStory {
   title: string;
   publishDate: string;
   likes: number;
-  views: number;
-  wordCount: number;
 }
 
 @Component({
@@ -27,182 +27,156 @@ interface PublishedStory {
   styleUrl: './story-board.component.scss'
 })
 export class StoryBoardComponent implements OnInit {
+  
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private storyboardService = inject(StoryboardService);
+
   activeTab: 'drafts' | 'published' = 'drafts';
 
-  // Utilisation de signals pour les données
-  drafts = signal<DraftStory[]>([
-    {
-      id: 1,
-      title: "Les Dômes Perdus",
-      lastModified: "Il y a 2 heures",
-      wordCount: 1247,
-      status: "En cours"
-    },
-    {
-      id: 2,
-      title: "Histoire sans titre",
-      lastModified: "Il y a 1 jour",
-      wordCount: 523,
-      status: "Brouillon"
-    },
-    {
-      id: 3,
-      title: "Révolte dans les Mines",
-      lastModified: "Il y a 3 jours",
-      wordCount: 2156,
-      status: "En révision"
-    }
-  ]);
+  // Signals pour les données
+  drafts = signal<DraftStory[]>([]);
+  published = signal<PublishedStory[]>([]);
+  loading = this.storyboardService.loading;
+  error = this.storyboardService.error;
+  likedStories = signal<Set<number>>(new Set());
 
-  published = signal<PublishedStory[]>([
-    {
-      id: 4,
-      title: "Tempête sur Mars",
-      publishDate: "15 Jan 2025",
-      likes: 23,
-      views: 147,
-      wordCount: 3421
-    },
-    {
-      id: 5,
-      title: "Premier Contact",
-      publishDate: "08 Jan 2025",
-      likes: 45,
-      views: 298,
-      wordCount: 2967
-    },
-    {
-      id: 6,
-      title: "Les Canaux Oubliés",
-      publishDate: "28 Déc 2024",
-      likes: 12,
-      views: 89,
-      wordCount: 1834
-    }
-  ]);
-
-  constructor(private router: Router) {}
+  // Signals depuis AuthService
+  currentUser = this.authService.currentUser;
+  isLoggedIn = this.authService.isLoggedIn;
 
   ngOnInit(): void {
-    // Initialisation du composant
-    this.loadUserStories();
+    if (!this.isLoggedIn()) {
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+
+    console.log('Story Board - Chargement pour:', this.currentUser()?.username);
+    this.loadUserData();
   }
 
   setActiveTab(tab: 'drafts' | 'published'): void {
     this.activeTab = tab;
   }
 
-  // Actions principales
+  // Charger les données utilisateur depuis l'API
+  private loadUserData(): void {
+    this.loadDrafts();
+    this.loadPublishedStories();
+  }
+
+  private loadDrafts(): void {
+    this.storyboardService.loadUserDrafts().subscribe({
+      next: (response) => {
+        const formattedDrafts = response.drafts?.map(this.formatDraft) || [];
+        this.drafts.set(formattedDrafts);
+      },
+      error: (error) => {
+        console.error('Erreur chargement brouillons:', error);
+        this.drafts.set([]);
+      }
+    });
+  }
+
+  private loadPublishedStories(): void {
+    this.storyboardService.loadUserPublishedStories().subscribe({
+      next: (response) => {
+        const formattedStories = response.stories?.map(this.formatPublished) || [];
+        this.published.set(formattedStories);
+      },
+      error: (error) => {
+        console.error('Erreur chargement histoires publiées:', error);
+        this.published.set([]);
+      }
+    });
+  }
+
+  // Formatage des données API pour l'affichage
+  private formatDraft(draft: DraftStoryFromAPI): DraftStory {
+    return {
+      id: draft.id,
+      title: draft.title || 'Histoire sans titre',
+      lastModified: draft.lastModified,
+      status: draft.status
+    };
+  }
+
+  private formatPublished(story: PublishedStoryFromAPI): PublishedStory {
+    return {
+      id: story.id,
+      title: story.title,
+      publishDate: story.publishDate,
+      likes: story.likes
+    };
+  }
+
+  // Sélection d'histoire pour actions console panel
+  selectStory(storyId: number): void {
+    console.log('Histoire sélectionnée:', storyId);
+  }
+
+  // Système de likes via API
+  toggleLike(storyId: number, event: Event): void {
+    event.stopPropagation();
+    
+    if (!this.isLoggedIn()) {
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+
+    const currentLikes = new Set(this.likedStories());
+    
+    // Si déjà liké, ne rien faire (pas de remove)
+    if (currentLikes.has(storyId)) {
+      console.log('Histoire déjà likée, pas de modification possible');
+      return;
+    }
+
+    // Seulement LIKE (une seule fois)
+    currentLikes.add(storyId);
+    this.updateLikeCount(storyId, 1);
+    this.likedStories.set(currentLikes);
+    
+    console.log('Like histoire:', storyId);
+    
+    // Appel API pour persister
+    this.storyboardService.toggleLike(storyId).subscribe({
+      next: () => {
+        console.log('Like mis à jour en base');
+      },
+      error: (error) => {
+        console.error('Erreur toggle like:', error);
+        // Rollback en cas d'erreur
+        currentLikes.delete(storyId);
+        this.likedStories.set(currentLikes);
+        this.updateLikeCount(storyId, -1);
+      }
+    });
+  }
+
+  private updateLikeCount(storyId: number, increment: number): void {
+    const published = [...this.published()];
+    const storyIndex = published.findIndex(s => s.id === storyId);
+    if (storyIndex !== -1) {
+      published[storyIndex].likes = Math.max(0, published[storyIndex].likes + increment);
+      this.published.set(published);
+    }
+  }
+
+  isStoryLiked(storyId: number): boolean {
+    return this.likedStories().has(storyId);
+  }
+
   createNewStory(): void {
-    console.log('Créer une nouvelle histoire');
-    // Navigation vers l'éditeur
-    // this.router.navigate(['/chroniques/editor/new']);
-  }
-
-  editStory(storyId: number): void {
-    console.log('Éditer histoire ID:', storyId);
-    // Navigation vers l'éditeur avec l'ID
-    // this.router.navigate(['/chroniques/editor', storyId]);
-  }
-
-  viewStory(storyId: number): void {
-    console.log('Voir histoire ID:', storyId);
-    // Navigation vers la vue détail
-    // this.router.navigate(['/chroniques/story', storyId]);
-  }
-
-  publishStory(storyId: number): void {
-    console.log('Publier histoire ID:', storyId);
-    // Logique de publication
-    const currentDrafts = this.drafts();
-    const draftIndex = currentDrafts.findIndex(draft => draft.id === storyId);
-    
-    if (draftIndex !== -1) {
-      const draft = currentDrafts[draftIndex];
-      
-      // Créer une nouvelle histoire publiée
-      const publishedStory: PublishedStory = {
-        id: draft.id,
-        title: draft.title,
-        publishDate: new Date().toLocaleDateString('fr-FR', { 
-          day: '2-digit', 
-          month: 'short', 
-          year: 'numeric' 
-        }),
-        likes: 0,
-        views: 0,
-        wordCount: draft.wordCount
-      };
-
-      // Mettre à jour les signals
-      const newPublished = [publishedStory, ...this.published()];
-      const newDrafts = currentDrafts.filter((_, index) => index !== draftIndex);
-      
-      this.published.set(newPublished);
-      this.drafts.set(newDrafts);
-
-      // Optionnel: notification de succès
-      this.showSuccessMessage('Histoire publiée avec succès !');
-    }
-  }
-
-  deleteStory(storyId: number): void {
-    console.log('Supprimer histoire ID:', storyId);
-    
-    // Confirmation avant suppression
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette histoire ? Cette action est irréversible.')) {
-      // Supprimer des brouillons
-      const currentDrafts = this.drafts();
-      const newDrafts = currentDrafts.filter(draft => draft.id !== storyId);
-      
-      if (newDrafts.length !== currentDrafts.length) {
-        this.drafts.set(newDrafts);
-        this.showSuccessMessage('Histoire supprimée.');
-      }
-    }
-  }
-
-  archiveStory(storyId: number): void {
-    console.log('Archiver histoire ID:', storyId);
-    
-    if (confirm('Archiver cette histoire ? Elle ne sera plus visible publiquement.')) {
-      const currentPublished = this.published();
-      const newPublished = currentPublished.filter(story => story.id !== storyId);
-      
-      if (newPublished.length !== currentPublished.length) {
-        this.published.set(newPublished);
-        this.showSuccessMessage('Histoire archivée.');
-      }
-    }
-  }
-
-  // Méthodes utilitaires
-  private loadUserStories(): void {
-    // Ici on chargerait les données depuis un service
-    // this.storyService.getUserStories().subscribe(...)
-    console.log('Chargement des histoires utilisateur...');
-  }
-
-  private showSuccessMessage(message: string): void {
-    // Implémentation d'une notification temporaire
-    console.log('✅ ' + message);
-    // Ou utiliser un service de notification
+    this.router.navigate(['/chroniques/editor/new']);
   }
 
   // Getters pour le template
-  get totalDrafts(): number {
-    return this.drafts().length;
+  get hasStories(): boolean {
+    return this.drafts().length > 0 || this.published().length > 0;
   }
 
-  get totalPublished(): number {
-    return this.published().length;
-  }
-
-  get totalLikes(): number {
-    return this.published().reduce((sum, story) => sum + story.likes, 0);
-  }
-
-  get totalViews(): number {
-    return this.published().reduce((sum, story) => sum + story.views, 0);
+  get userName(): string {
+    return this.currentUser()?.username || 'Utilisateur';
   }
 }
