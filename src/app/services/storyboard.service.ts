@@ -1,7 +1,6 @@
-// storyboard.service.ts - Version corrigée et simplifiée
-import { Injectable, signal } from '@angular/core';
+// storyboard.service.ts - Version signals purs Angular 19.2
+import { Injectable, signal, effect, computed } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 
 // Interfaces alignées avec l'API backend
@@ -12,14 +11,14 @@ export interface DraftStoryFromAPI {
   wordCount: number;
   createdAt: string;
   updatedAt: string;
-  lastModified: string; // Formaté côté API
+  lastModified: string;
   status: string;
 }
 
 export interface PublishedStoryFromAPI {
   id: number;
   title: string;
-  publishDate: string; // Formaté côté API
+  publishDate: string;
   likes: number;
   views: number;
   wordCount: number;
@@ -41,15 +40,37 @@ export class StoryboardService {
   // Signals pour l'état global
   private _loading = signal<boolean>(false);
   private _error = signal<string | null>(null);
-
-  // Computed signals publics
+  
+  // Signals pour les données
+  private _drafts = signal<DraftStoryFromAPI[]>([]);
+  private _published = signal<PublishedStoryFromAPI[]>([]);
+  
+  // Signals publics en lecture seule
   loading = this._loading.asReadonly();
   error = this._error.asReadonly();
+  drafts = this._drafts.asReadonly();
+  published = this._published.asReadonly();
+  
+  // Computed signals pour statistiques
+  draftsCount = computed(() => this._drafts().length);
+  publishedCount = computed(() => this._published().length);
+  totalStories = computed(() => this.draftsCount() + this.publishedCount());
 
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {}
+  ) {
+    // Effect pour recharger automatiquement quand l'utilisateur change
+    effect(() => {
+      // Déclenché par le signal userChanged
+      this.authService.userChanged();
+      
+      if (this.authService.isLoggedIn()) {
+        console.log('🔄 Signal userChanged détecté - Rechargement données storyboard pour:', this.authService.currentUser()?.username);
+        this.reloadAllData();
+      }
+    });
+  }
 
   // Headers avec authentification
   private getAuthHeaders(): HttpHeaders {
@@ -57,194 +78,195 @@ export class StoryboardService {
     if (!token) {
       throw new Error('Token d\'authentification manquant');
     }
-
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
   }
 
-  // Charger les brouillons de l'utilisateur connecté
-  loadUserDrafts(): Observable<APIResponse<DraftStoryFromAPI>> {
-    this._loading.set(true);
-    this._error.set(null);
-
-    return new Observable(observer => {
-      this.http.get<APIResponse<DraftStoryFromAPI>>(
-        `${this.API_URL}/chroniques/drafts`,
-        { headers: this.getAuthHeaders() }
-      ).subscribe({
-        next: (response) => {
-          console.log('Brouillons chargés:', response.count);
-          this._loading.set(false);
-          observer.next(response);
-          observer.complete();
-        },
-        error: (error) => {
-          console.error('Erreur chargement brouillons:', error);
-          this._error.set('Impossible de charger vos brouillons');
-          this._loading.set(false);
-          observer.error(error);
-        }
-      });
-    });
+  // Recharger toutes les données (méthode privée)
+  private async reloadAllData(): Promise<void> {
+    try {
+      await Promise.all([
+        this.loadDraftsData(),
+        this.loadPublishedData()
+      ]);
+    } catch (error) {
+      console.error('Erreur lors du rechargement des données:', error);
+      this._error.set('Erreur lors du rechargement des données');
+    }
   }
 
-  // Charger les histoires publiées de l'utilisateur connecté
-  loadUserPublishedStories(): Observable<APIResponse<PublishedStoryFromAPI>> {
+  // Charger les brouillons (signal pur)
+  async loadDraftsData(): Promise<void> {
     this._loading.set(true);
     this._error.set(null);
 
-    return new Observable(observer => {
-      this.http.get<APIResponse<PublishedStoryFromAPI>>(
+    try {
+      const response = await this.http.get<APIResponse<DraftStoryFromAPI>>(
+        `${this.API_URL}/chroniques/drafts`,
+        { headers: this.getAuthHeaders() }
+      ).toPromise();
+
+      if (response) {
+        this._drafts.set(response.drafts || []);
+        console.log('📝 Brouillons chargés pour:', this.authService.currentUser()?.username, '- Count:', response.count);
+      }
+    } catch (error) {
+      console.error('Erreur chargement brouillons:', error);
+      this._error.set('Impossible de charger vos brouillons');
+      this._drafts.set([]);
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  // Charger les histoires publiées (signal pur)
+  async loadPublishedData(): Promise<void> {
+    this._loading.set(true);
+    this._error.set(null);
+
+    try {
+      const response = await this.http.get<APIResponse<PublishedStoryFromAPI>>(
         `${this.API_URL}/chroniques/published`,
         { headers: this.getAuthHeaders() }
-      ).subscribe({
-        next: (response) => {
-          console.log('Histoires publiées chargées:', response.count);
-          this._loading.set(false);
-          observer.next(response);
-          observer.complete();
-        },
-        error: (error) => {
-          console.error('Erreur chargement histoires publiées:', error);
-          this._error.set('Impossible de charger vos histoires publiées');
-          this._loading.set(false);
-          observer.error(error);
-        }
-      });
-    });
+      ).toPromise();
+
+      if (response) {
+        this._published.set(response.stories || []);
+        console.log('📚 Histoires publiées chargées pour:', this.authService.currentUser()?.username, '- Count:', response.count);
+      }
+    } catch (error) {
+      console.error('Erreur chargement histoires publiées:', error);
+      this._error.set('Impossible de charger vos histoires publiées');
+      this._published.set([]);
+    } finally {
+      this._loading.set(false);
+    }
   }
 
   // Publier un brouillon
-  publishStory(storyId: number): Observable<any> {
-    return new Observable(observer => {
-      this.http.put(
+  async publishStory(storyId: number): Promise<void> {
+    try {
+      await this.http.put(
         `${this.API_URL}/chroniques/${storyId}/publish`,
         {},
         { headers: this.getAuthHeaders() }
-      ).subscribe({
-        next: (response) => {
-          console.log('Histoire publiée:', storyId);
-          observer.next(response);
-          observer.complete();
-        },
-        error: (error) => {
-          console.error('Erreur publication:', error);
-          observer.error(error);
-        }
-      });
-    });
+      ).toPromise();
+
+      console.log('Histoire publiée:', storyId);
+      // Recharger automatiquement les données
+      await this.reloadAllData();
+    } catch (error) {
+      console.error('Erreur publication:', error);
+      this._error.set('Erreur lors de la publication');
+      throw error;
+    }
   }
 
-  // Archiver une histoire publiée
-  archiveStory(storyId: number): Observable<any> {
-    return new Observable(observer => {
-      this.http.put(
+  // Archiver une histoire
+  async archiveStory(storyId: number): Promise<void> {
+    try {
+      await this.http.put(
         `${this.API_URL}/chroniques/${storyId}/archive`,
         {},
         { headers: this.getAuthHeaders() }
-      ).subscribe({
-        next: (response) => {
-          console.log('Histoire archivée:', storyId);
-          observer.next(response);
-          observer.complete();
-        },
-        error: (error) => {
-          console.error('Erreur archivage:', error);
-          observer.error(error);
-        }
-      });
-    });
+      ).toPromise();
+
+      console.log('Histoire archivée:', storyId);
+      await this.reloadAllData();
+    } catch (error) {
+      console.error('Erreur archivage:', error);
+      this._error.set('Erreur lors de l\'archivage');
+      throw error;
+    }
   }
 
-  // Supprimer une histoire (utilise l'API stories générale)
-  deleteStory(storyId: number): Observable<any> {
-    return new Observable(observer => {
-      this.http.delete(
+  // Supprimer une histoire
+  async deleteStory(storyId: number): Promise<void> {
+    try {
+      await this.http.delete(
         `${this.API_URL}/stories/${storyId}`,
         { headers: this.getAuthHeaders() }
-      ).subscribe({
-        next: (response) => {
-          console.log('Histoire supprimée:', storyId);
-          observer.next(response);
-          observer.complete();
-        },
-        error: (error) => {
-          console.error('Erreur suppression:', error);
-          observer.error(error);
-        }
-      });
-    });
-  }
+      ).toPromise();
 
-  // Récupérer un brouillon spécifique pour édition
-  getDraftForEdit(storyId: number): Observable<any> {
-    return this.http.get(
-      `${this.API_URL}/chroniques/drafts/${storyId}`,
-      { headers: this.getAuthHeaders() }
-    );
+      console.log('Histoire supprimée:', storyId);
+      await this.reloadAllData();
+    } catch (error) {
+      console.error('Erreur suppression:', error);
+      this._error.set('Erreur lors de la suppression');
+      throw error;
+    }
   }
 
   // Sauvegarder un brouillon
-  saveDraft(draftData: { title: string; content: string }, storyId?: number): Observable<any> {
+  async saveDraft(draftData: { title: string; content: string }, storyId?: number): Promise<void> {
     const url = storyId 
       ? `${this.API_URL}/chroniques/drafts/${storyId}` 
       : `${this.API_URL}/chroniques/drafts`;
     
     const method = storyId ? 'put' : 'post';
 
-    return new Observable(observer => {
-      this.http[method](
+    try {
+      await this.http[method](
         url,
         draftData,
         { headers: this.getAuthHeaders() }
-      ).subscribe({
-        next: (response) => {
-          console.log('Brouillon sauvegardé:', storyId || 'nouveau');
-          observer.next(response);
-          observer.complete();
-        },
-        error: (error) => {
-          console.error('Erreur sauvegarde:', error);
-          observer.error(error);
-        }
-      });
-    });
+      ).toPromise();
+
+      console.log('Brouillon sauvegardé:', storyId || 'nouveau');
+      // Recharger seulement les brouillons
+      await this.loadDraftsData();
+    } catch (error) {
+      console.error('Erreur sauvegarde:', error);
+      this._error.set('Erreur lors de la sauvegarde');
+      throw error;
+    }
   }
 
   // Like/Unlike une histoire
-  toggleLike(storyId: number): Observable<any> {
-    return new Observable(observer => {
-      this.http.post(
+  async toggleLike(storyId: number): Promise<void> {
+    try {
+      await this.http.post(
         `${this.API_URL}/chroniques/${storyId}/like`,
         {},
         { headers: this.getAuthHeaders() }
-      ).subscribe({
-        next: (response) => {
-          console.log('Like togglé:', storyId);
-          observer.next(response);
-          observer.complete();
-        },
-        error: (error) => {
-          console.error('Erreur toggle like:', error);
-          observer.error(error);
-        }
-      });
-    });
+      ).toPromise();
+
+      console.log('Like togglé:', storyId);
+      // Optionnel: recharger pour avoir les likes à jour
+      await this.loadPublishedData();
+    } catch (error) {
+      console.error('Erreur toggle like:', error);
+      this._error.set('Erreur lors du like');
+      throw error;
+    }
   }
 
-  // Vérifier l'authentification (méthode corrigée)
+  // Récupérer un brouillon pour édition
+  async getDraftForEdit(storyId: number): Promise<any> {
+    try {
+      return await this.http.get(
+        `${this.API_URL}/chroniques/drafts/${storyId}`,
+        { headers: this.getAuthHeaders() }
+      ).toPromise();
+    } catch (error) {
+      console.error('Erreur récupération brouillon:', error);
+      this._error.set('Erreur lors de la récupération du brouillon');
+      throw error;
+    }
+  }
+
+  // Utilitaires
   isUserAuthenticated(): boolean {
     return this.authService.isLoggedIn();
   }
 
-  // Obtenir l'utilisateur actuel
   getCurrentUser() {
     return this.authService.currentUser();
   }
 
-  // Utilitaire pour formater les données API en format component
+  // Formatage pour les composants
   formatDraftForComponent(draft: DraftStoryFromAPI) {
     return {
       id: draft.id,

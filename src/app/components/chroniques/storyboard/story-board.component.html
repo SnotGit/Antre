@@ -1,4 +1,4 @@
-<!-- story-board.component.html - Version simplifiée -->
+<!-- story-board.component.html - Version corrigée pour signals -->
 <div class="story-board-container">
   
   <!-- Header principal -->
@@ -10,11 +10,11 @@
 
     <!-- Navigation tabs -->
     <div class="tabs-container">
-      <button class="tab-btn" [class.active]="activeTab === 'drafts'" (click)="setActiveTab('drafts')">
+      <button class="tab-btn" [class.active]="activeTab() === 'drafts'" (click)="setActiveTab('drafts')">
         BROUILLONS
         <span class="tab-count">({{drafts().length}})</span>
       </button>
-      <button class="tab-btn" [class.active]="activeTab === 'published'" (click)="setActiveTab('published')">
+      <button class="tab-btn" [class.active]="activeTab() === 'published'" (click)="setActiveTab('published')">
         PUBLIÉES
         <span class="tab-count">({{published().length}})</span>
       </button>
@@ -26,7 +26,7 @@
     <div class="stories-scroll">
 
       <!-- Section Brouillons -->
-      @if (activeTab === 'drafts') {
+      @if (activeTab() === 'drafts') {
         @if (drafts().length > 0) {
           <div class="stories-grid">
             @for (draft of drafts(); track draft.id) {
@@ -53,7 +53,7 @@
       }
 
       <!-- Section Publiées -->
-      @if (activeTab === 'published') {
+      @if (activeTab() === 'published') {
         @if (published().length > 0) {
           <div class="stories-grid">
             @for (story of published(); track story.id) {
