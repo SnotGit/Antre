@@ -1,0 +1,221 @@
+/* chroniques.component.scss */
+.chroniques-container {
+  padding: 0;
+  background-color: #121416;
+  color: #d0d0d0;
+  height: 100%; /* Hauteur fixe, pas de viewport */
+  width: 100%;
+  font-family: 'Courier New', monospace;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden; /* Pas de scroll */
+}
+
+.header {
+  margin: 30px 30px 20px 30px; /* Marges optimisées */
+  flex-shrink: 0; /* Ne pas rétrécir */
+  text-align: center; /* Centre le contenu */
+
+  h2 {
+    font-size: 32px;
+    margin-bottom: 15px;
+    color: #5d889e;
+  }
+
+  p {
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto; /* Centre le paragraphe */
+    opacity: 0.8;
+  }
+}
+
+// États de chargement et erreur
+.loading-state, .error-state, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  gap: 20px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #1a1d20;
+  border-top: 3px solid #5d889e;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-icon, .empty-icon {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.retry-btn {
+  background-color: #5d889e;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  color: #121416;
+  font-family: inherit;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #6a9bb0;
+    transform: translateY(-2px);
+  }
+}
+
+// Grille des auteurs avec ma nouvelle card - CENTRÉE
+.writers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); // Toujours 3 colonnes fixes
+  gap: 2rem;
+  margin: 2rem auto;
+  max-width: 1200px;
+  justify-items: center; // Centre les cards dans leurs colonnes
+  
+  // 2 colonnes sur tablette
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin: 1.5rem auto;
+    max-width: 800px;
+  }
+
+  // 1 colonne sur mobile
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 1rem auto;
+    max-width: 400px;
+  }
+}
+
+// Ma nouvelle card d'auteur
+.writer-card {
+  background-color: #1a1d20;
+  border: 2px solid #5d889e;
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 320px; // Largeur max pour uniformité
+  min-height: 220px; // Hauteur minimum pour uniformité
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: #5d889e;
+    box-shadow: 0 8px 25px rgba(93, 136, 158, 0.2);
+
+    .writer-avatar {
+      transform: scale(1.05);
+    }
+  }
+
+  .writer-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    background-color: #1a1d20;
+    margin: 0 auto 1rem;
+    transition: transform 0.3s ease;
+    border: 2px solid #5d889e;
+    
+    // Placeholder si pas d'image
+    background-image: linear-gradient(45deg, #1a1d20, #2a2d30);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &::after {
+      content: '👤';
+      font-size: 2rem;
+      opacity: 0.5;
+    }
+
+    // Masquer l'emoji si une vraie image est présente
+    &[style*="url"] {
+      &::after {
+        display: none;
+      }
+    }
+  }
+
+  .writer-info {
+    text-align: center;
+
+    h3 {
+      color: #5d889e;
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      font-family: 'Courier New', monospace;
+    }
+
+    .author-description {
+      color: #d0d0d0;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
+
+    .latest-story {
+      color: #fff;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+
+    .story-date {
+      color: rgba(93, 136, 158, 0.7);
+      font-size: 0.8rem;
+      display: block;
+      font-family: 'Courier New', monospace;
+    }
+  }
+}
+
+/* Terminal effect */
+.terminal-effect {
+  position: relative;
+
+  &::before {
+    content: '> ';
+    color: #b55a44;
+  }
+}
+
+/* Mars Cursor */
+.cursor {
+  display: inline-block;
+  width: 10px;
+  height: 20px;
+  background-color: #b55a44;
+  margin-left: 5px;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}

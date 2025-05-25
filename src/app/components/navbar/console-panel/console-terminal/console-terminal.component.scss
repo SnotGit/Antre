@@ -1,0 +1,113 @@
+/* console-terminal.component.scss */
+
+.terminal-panel {
+  width: 100%;
+  height: 100%;
+  background-color: #1a1d20;
+  border-radius: 12px;
+  border: 2px solid #5d889e;
+  box-shadow: none;
+  font-family: 'Courier New', monospace;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+
+  .terminal-header {
+    background-color: transparent;
+    color: #5d889e;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(93, 136, 158, 0.2);
+    flex-shrink: 0;
+
+    .terminal-title {
+      font-size: 15px;
+      letter-spacing: 1px;
+    }
+  }
+
+  .terminal-screen {
+    background-color: #1a1d20;
+    padding: 15px;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    font-size: 11px;
+    line-height: 1.4;
+    scroll-behavior: smooth;
+    max-height: 100%;
+
+    .terminal-content {
+      color: #5d889e;
+      min-height: 0;
+      
+      .command-line {
+        margin-bottom: 2px;
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+        
+        .text {
+          &.command {
+            color: #5d889e;
+            font-weight: bold;
+          }
+          
+          &.output {
+            color: #d0d0d0;
+          }
+          
+          &.error {
+            color: #e74c3c;
+          }
+          
+          &.warning {
+            color: #f39c12;
+          }
+          
+          &.info {
+            color: #5d889e;
+            font-weight: bold;
+          }
+          
+          &.data {
+            color: #d0d0d0;
+          }
+        }
+      }
+      
+      .cursor {
+        color: #5d889e;
+        animation: blink 1s infinite;
+        margin-left: 2px;
+      }
+    }
+
+    /* Scrollbar complètement invisible */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+    
+    &::-webkit-scrollbar {
+      display: none; /* Safari et Chrome */
+    }
+  }
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .terminal-panel {
+    display: none;
+  }
+}

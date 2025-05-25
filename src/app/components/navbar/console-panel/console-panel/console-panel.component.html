@@ -1,0 +1,104 @@
+<!-- console-panel.component.html -->
+<div class="console-panel">
+  <!-- Header -->
+  <div class="console-header">
+    <span class="console-title">CONSOLE V3</span>
+  </div>
+  
+  <!-- Body avec status -->
+  <div class="console-body">
+    <div class="status-line">
+      <span class="led green"></span>
+      <span>STATUS: ONLINE</span>
+    </div>
+    <div class="user-line">
+      <span>> USER: {{getCurrentUserName()}}</span>
+    </div>
+    <div class="access-line">
+      <span>> ACCESS-LVL: {{getCurrentUserLevel()}}</span>
+    </div>
+    
+    <!-- Mode dev indicator -->
+    @if (isDevMode()) {
+      <div class="dev-mode-indicator">
+        <span class="led orange"></span>
+        <span>> DEV MODE ACTIF</span>
+      </div>
+    }
+  </div>
+
+  <!-- Section Connexion (si pas connecté) -->
+  @if (!isLoggedIn()) {
+    <div class="connexion-section">
+      <button class="console-btn connexion-btn" (click)="openLogin()">
+        [⚡] CONNEXION
+      </button>
+      <button class="console-btn register-btn" (click)="openRegister()">
+        [👤] INSCRIPTION
+      </button>
+    </div>
+  }
+
+  <!-- Actions pour utilisateurs connectés -->
+  @if (isLoggedIn()) {
+    <div class="console-actions">
+      
+      <!-- Boutons admin (seulement hors chroniques) -->
+      @if (shouldShowAdminButtons()) {
+        <div class="admin-actions">
+          <div class="action-group">
+            <span class="group-title">> FONCTIONS ADMIN</span>
+            <button class="console-btn" (click)="addCategory()">[+] AJOUTER CATEGORIE</button>
+            <button class="console-btn" (click)="addList()">[+] AJOUTER LISTE</button>
+            <button class="console-btn" (click)="addItem()">[+] AJOUTER ITEM</button>
+          </div>
+        </div>
+      }
+      
+      <!-- Boutons chroniques (seulement dans chroniques) -->
+      @if (shouldShowUserButtons()) {
+        <div class="user-actions">
+          <div class="action-group">
+            <span class="group-title">> FONCTIONS ÉCRIVAIN</span>
+            <button class="console-btn" (click)="newStory()">[+] NOUVELLE HISTOIRE</button>
+            <button class="console-btn" (click)="myStories()">[📖] MES HISTOIRES</button>
+            
+            <!-- TODO: Actions contextuelles pour StoryDetail -->
+            <!-- Ces boutons apparaîtront quand on consulte une histoire -->
+            <!-- <button class="console-btn" (click)="editCurrentStory()">[✏️] ÉDITER</button> -->
+            <!-- <button class="console-btn" (click)="publishCurrentStory()">[🚀] PUBLIER</button> -->
+            <!-- <button class="console-btn" (click)="deleteCurrentStory()">[🗑️] SUPPRIMER</button> -->
+          </div>
+        </div>
+      }
+
+      <!-- Mode dev (seulement pour admin) -->
+      @if (isAdmin() && !isDevMode()) {
+        <div class="dev-actions">
+          <div class="action-group">
+            <span class="group-title">> MODE DÉVELOPPEMENT</span>
+            <button class="console-btn dev-btn" (click)="switchToElena()">
+              [🔄] SWITCH → ELENA
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (isDevMode()) {
+        <div class="dev-actions">
+          <div class="action-group">
+            <span class="group-title">> MODE DÉVELOPPEMENT</span>
+            <button class="console-btn dev-btn" (click)="exitDevMode()">
+              [🔄] RETOUR ADMIN
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Boutons communs -->
+      <div class="common-actions">
+        <button class="console-btn logout" (click)="logout()">[🔴] DECONNEXION</button>
+      </div>
+    </div>
+  }
+</div>
