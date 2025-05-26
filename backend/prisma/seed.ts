@@ -15,7 +15,7 @@ async function main() {
   const adminPassword = await bcrypt.hash('admin123', 10);
   const userPassword = await bcrypt.hash('user123', 10);
 
-  // Créer Snot (admin + dev)
+  // 1. Créer Snot (admin + dev)
   const snot = await prisma.user.upsert({
     where: { email: 'snot@antre.com' },
     update: {},
@@ -23,16 +23,14 @@ async function main() {
       username: 'Snot',
       email: 'snot@antre.com',
       passwordHash: adminPassword,
-      description: 'Administrateur de L\'Antre',
+      description: 'Développeur admin de L\'Antre',
       avatar: '/assets/images/admin-avatar.png',
       role: 'admin',
       isDev: true,
     },
   });
 
-  console.log('Snot (admin + dev) créé:', snot);
-
-  // Créer Elena Nova (utilisatrice test)
+  // 2. Créer Elena Nova (user + dev)
   const elena = await prisma.user.upsert({
     where: { email: 'elena@antre.com' },
     update: {},
@@ -40,14 +38,49 @@ async function main() {
       username: 'Elena Nova',
       email: 'elena@antre.com',
       passwordHash: userPassword,
-      description: 'Archéologue martienne.',
+      description: 'Développeuse user de L\'Antre',
       avatar: '/assets/images/Avatar-test.png',
+      role: 'user',
+      isDev: true,
+    },
+  });
+
+  // 3. Créer Sulfuro (admin seulement)
+  const sulfuro = await prisma.user.upsert({
+    where: { email: 'sulfuro@antre.com' },
+    update: {},
+    create: {
+      username: 'Sulfuro',
+      email: 'sulfuro@antre.com',
+      passwordHash: adminPassword,
+      description: 'Administrateur de L\'Antre',
+      avatar: '/assets/images/sulfuro-avatar.png',
+      role: 'admin',
+      isDev: false,
+    },
+  });
+
+  // 4. Créer Zeldator (user seulement)
+  const zeldator = await prisma.user.upsert({
+    where: { email: 'zeldator@antre.com' },
+    update: {},
+    create: {
+      username: 'Zeldator',
+      email: 'zeldator@antre.com',
+      passwordHash: userPassword,
+      description: 'Utilisateur de L\'Antre',
+      avatar: '/assets/images/zeldator-avatar.png',
       role: 'user',
       isDev: false,
     },
   });
 
-  console.log('Elena Nova (user test) créée:', elena);
+  console.log('Utilisateurs créés:');
+  console.log('- Snot (admin + dev):', snot);
+  console.log('- Elena Nova (user + dev):', elena);
+  console.log('- Sulfuro (admin):', sulfuro);
+  console.log('- Zeldator (user):', zeldator);
+
 
   // Histoires d'Elena Nova
   const stories = [

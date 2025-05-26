@@ -11,8 +11,8 @@ export interface User {
   email: string;
   description?: string;
   avatar?: string;
-  role: 'admin' | 'user';
-  isDev?: boolean; 
+  role: 'admin' | 'user' | 'dev';
+  isDev?: boolean;
   createdAt: string;
 }
 
@@ -85,10 +85,10 @@ export class AuthService {
       tap(response => {
         localStorage.setItem(this.TOKEN_KEY, response.token);
         localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
-        
+
         this._currentUser.set(response.user);
         this._isDevMode.set(false);
-        
+
         console.log('✅ Connexion réussie:', response.user.username);
       }),
       catchError(error => {
@@ -114,11 +114,11 @@ export class AuthService {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.DEV_USER_KEY);
-    
+
     this._currentUser.set(null);
     this._isDevMode.set(false);
     this._realUser.set(null);
-    
+
     this.router.navigate(['/']);
     console.log('✅ Déconnexion réussie');
   }
@@ -139,18 +139,18 @@ export class AuthService {
       headers: this.getAuthHeaders()
     }).subscribe({
       next: (response) => {
-        const targetUser = response.users.find(user => 
-          devUserType === 'elena' ? user.role === 'user' : user.role === 'admin'
+        const targetUser = response.users.find(user =>
+          devUserType === 'elena' ? user.username === 'Elena Nova' : user.username === 'Snot'
         );
 
         if (targetUser) {
           this._currentUser.set(targetUser);
           this._isDevMode.set(true);
           localStorage.setItem(this.DEV_USER_KEY, JSON.stringify(targetUser));
-          
+
           // Notifier le changement d'utilisateur
           this._userChanged.set(this._userChanged() + 1);
-          
+
           console.log(`🔄 Passage en mode dev - ${targetUser.username}`);
         } else {
           console.error('❌ Utilisateur dev non trouvé');
@@ -181,10 +181,10 @@ export class AuthService {
     this._isDevMode.set(false);
     this._realUser.set(null);
     localStorage.removeItem(this.DEV_USER_KEY);
-    
+
     // Notifier le changement d'utilisateur
     this._userChanged.set(this._userChanged() + 1);
-    
+
     console.log('🔄 Retour au mode normal -', realUser.username);
   }
 
@@ -225,12 +225,12 @@ export class AuthService {
         const parsedDevUser = JSON.parse(devUser);
         this._currentUser.set(parsedDevUser);
         this._isDevMode.set(true);
-        
+
         const savedUser = localStorage.getItem(this.USER_KEY);
         if (savedUser) {
           this._realUser.set(JSON.parse(savedUser));
         }
-        
+
         console.log('🔄 Session dev restaurée -', parsedDevUser.username);
         return;
       }
@@ -256,7 +256,7 @@ export class AuthService {
       return of(false);
     }
 
-    return this.http.get<{user: User}>(`${this.API_URL}/auth/profile`, {
+    return this.http.get<{ user: User }>(`${this.API_URL}/auth/profile`, {
       headers: this.getAuthHeaders()
     }).pipe(
       tap(response => {

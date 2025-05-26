@@ -4,7 +4,7 @@
   <div class="back-navigation">
     <button class="back-btn" (click)="goBack()">
       <span class="back-icon">←</span>
-      Retour à l'accueil
+      Retour 
     </button>
   </div>
 
@@ -27,9 +27,7 @@
       <div class="story-meta">
         <span class="meta-date">📅 {{ getFormattedDate() }}</span>
         <div class="story-stats" *ngIf="isPublished()">
-          <span class="stat-item">👁️ {{ story().views || 0 }}</span>
-          <span class="stat-item">❤️ {{ getLikesCount() }}</span>
-          <span class="stat-item">📄 {{ story().wordCount || 0 }} mots</span>
+          <span class="stat-item">❤️ {{ getLikesCount() }}</span>         
         </div>
         <div class="story-status" *ngIf="!isPublished()">
           <span class="status-badge" [attr.data-status]="getStatus().toLowerCase()">
