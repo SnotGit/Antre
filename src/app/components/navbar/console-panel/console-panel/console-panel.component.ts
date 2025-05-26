@@ -46,7 +46,8 @@ export class ConsolePanelComponent implements OnInit {
     this.updateCurrentRoute();
     this.router.events.subscribe(() => {
       this.updateCurrentRoute();
-    });
+    }
+  );
   }
 
   private updateCurrentRoute(): void {
@@ -147,4 +148,6 @@ export class ConsolePanelComponent implements OnInit {
     }
     return this.currentUser()?.role?.toUpperCase() || 'VISITOR';
   }
+  
 }
+

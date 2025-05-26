@@ -14,15 +14,16 @@
     <div class="user-line">
       <span>> USER: {{getCurrentUserName()}}</span>
     </div>
-    <div class="access-line">
-      <span>> ACCESS-LVL: {{getCurrentUserLevel()}}</span>
-    </div>
 
-    <!-- Mode dev indicator -->
+    <!-- Mode dev indicator remplace ACCESS-LVL quand actif -->
     @if (isDevMode()) {
     <div class="dev-mode-indicator">
       <span class="led orange"></span>
       <span>> DEV MODE ACTIF</span>
+    </div>
+    } @else {
+    <div class="access-line">
+      <span>> ACCESS-LVL: {{getCurrentUserLevel()}}</span>
     </div>
     }
   </div>
@@ -30,86 +31,74 @@
   <!-- 3. SECTION COMMANDES FLEXIBLE -->
   <div class="console-commands">
     @if (!isLoggedIn()) {
-      <!-- Section vide propre quand pas connecté -->
-      <div class="action-group">
-        <span class="group-title">> SYSTÈME EN ATTENTE</span>
-      </div>
+    <!-- Section vide propre quand pas connecté -->
+    <div class="action-group">
+      <span class="group-title">> SYSTÈME EN ATTENTE</span>
+    </div>
     }
 
     @if (isLoggedIn()) {
-      <!-- Boutons admin (seulement hors chroniques) -->
-      @if (shouldShowAdminButtons()) {
-        <div class="action-group">
-          <span class="group-title">> FONCTIONS ADMIN</span>
-          <button class="console-btn" (click)="addCategory()">AJOUTER CATEGORIE</button>
-          <button class="console-btn" (click)="addList()">AJOUTER LISTE</button>
-          <button class="console-btn" (click)="addItem()">AJOUTER ITEM</button>
+    <!-- Boutons admin (seulement hors chroniques) -->
+    <!-- Boutons admin (seulement hors chroniques) -->
+    @if (shouldShowAdminButtons() && currentUser()?.role === 'admin') {
+    <div class="action-group">
+      <span class="group-title">> FONCTIONS ADMIN</span>
+      <button class="console-btn" (click)="addCategory()">AJOUTER CATEGORIE</button>
+      <button class="console-btn" (click)="addList()">AJOUTER LISTE</button>
+      <button class="console-btn" (click)="addItem()">AJOUTER ITEM</button>
+    </div>
+    }
 
-          @if (canUseDev()) {
-            <span class="group-title">> MODE DEV</span>
-            <!-- Switch selon l'utilisateur actuel -->
-            @if (currentUser()?.role === 'admin') {
-              <button class="console-btn dev-btn" (click)="switchToElena()">
-                SWITCH TO ELENA
-              </button>
-            }
-            @if (currentUser()?.role === 'user') {
-              <button class="console-btn dev-btn" (click)="switchToSnot()">
-                SWITCH TO SNOT
-              </button>
-            }
-          }
-        </div>
+    <!-- Boutons chroniques (seulement dans chroniques) -->
+    @if (shouldShowUserButtons() && currentUser()?.role === 'user'){
+    <div class="action-group">
+      <span class="group-title">> FONCTIONS UTILISATEUR</span>
+      <button class="console-btn" (click)="newStory()">NOUVELLE HISTOIRE</button>
+      <button class="console-btn" (click)="myStories()">MES HISTOIRES</button>
+    </div>
+    }
+
+    <!-- Section MODE DEV - Indépendante et toujours visible si canUseDev() -->
+    @if (canUseDev()) {
+    <div class="action-group">
+      <span class="group-title">> MODE DEV</span>
+      @if (currentUser()?.username === 'Snot') {
+      <button class="console-btn dev-btn" (click)="switchToElena()">
+        SWITCH TO ELENA
+      </button>
       }
-
-      <!-- Boutons chroniques (seulement dans chroniques) -->
-      @if (shouldShowUserButtons()) {
-        <div class="action-group">
-          <span class="group-title">> FONCTIONS UTILISATEUR</span>
-          <button class="console-btn" (click)="newStory()">NOUVELLE HISTOIRE</button>
-          <button class="console-btn" (click)="myStories()">MES HISTOIRES</button>
-
-          @if (canUseDev()) {
-            <span class="group-title">> MODE DEV</span>
-            <!-- Switch selon l'utilisateur actuel -->
-            @if (currentUser()?.role === 'admin') {
-              <button class="console-btn dev-btn" (click)="switchToElena()">
-                SWITCH TO ELENA
-              </button>
-            }
-            @if (currentUser()?.role === 'user') {
-              <button class="console-btn dev-btn" (click)="switchToSnot()">
-                SWITCH TO SNOT
-              </button>
-            }
-          }
-        </div>
+      @if (currentUser()?.username === 'Elena Nova') {
+      <button class="console-btn dev-btn" (click)="switchToSnot()">
+        SWITCH TO SNOT
+      </button>
       }
+    </div>
+    }
     }
   </div>
 
   <!-- 4. FOOTER ADAPTATIF -->
   @if (isLoggedIn()) {
-    <!-- Footer pour utilisateurs connectés -->
-    <div class="console-footer">
-      <span class="group-title">> PARAMETRES DU COMPTE</span>
-      <button class="console-btn" (click)="openAccount()">
-        MON COMPTE
-      </button>
-      <button class="console-btn logout" (click)="logout()">
-        DECONNEXION
-      </button>
-    </div>
+  <!-- Footer pour utilisateurs connectés -->
+  <div class="console-footer">
+    <span class="group-title">> PARAMETRES DU COMPTE</span>
+    <button class="console-btn" (click)="openAccount()">
+      MON COMPTE
+    </button>
+    <button class="console-btn logout" (click)="logout()">
+      DECONNEXION
+    </button>
+  </div>
   } @else {
-    <!-- Footer pour visiteurs non connectés -->
-    <div class="console-footer">
-      <span class="group-title">> AUTHENTIFICATION</span>
-      <button class="console-btn" (click)="openLogin()">
-        [⚡] CONNEXION
-      </button>
-      <button class="console-btn" (click)="openRegister()">
-        [👤] INSCRIPTION
-      </button>
-    </div>
+  <!-- Footer pour visiteurs non connectés -->
+  <div class="console-footer">
+    <span class="group-title">> AUTHENTIFICATION</span>
+    <button class="console-btn" (click)="openLogin()">
+      [⚡] CONNEXION
+    </button>
+    <button class="console-btn" (click)="openRegister()">
+      [👤] INSCRIPTION
+    </button>
+  </div>
   }
 </div>
