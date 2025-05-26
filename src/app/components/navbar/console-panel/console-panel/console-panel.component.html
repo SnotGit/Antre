@@ -38,8 +38,7 @@
     }
 
     @if (isLoggedIn()) {
-    <!-- Boutons admin (seulement hors chroniques) -->
-    <!-- Boutons admin (seulement hors chroniques) -->
+    <!-- Boutons admin (seulement hors chroniques ET hors mon-compte) -->
     @if (shouldShowAdminButtons() && currentUser()?.role === 'admin') {
     <div class="action-group">
       <span class="group-title">> FONCTIONS ADMIN</span>
@@ -49,17 +48,17 @@
     </div>
     }
 
-    <!-- Boutons chroniques (seulement dans chroniques) -->
-    @if (shouldShowUserButtons() && currentUser()?.role === 'user'){
+    <!-- Boutons chroniques (pour tous les utilisateurs connectés dans chroniques) -->
+    @if (shouldShowUserButtons()) {
     <div class="action-group">
-      <span class="group-title">> FONCTIONS UTILISATEUR</span>
+      <span class="group-title">> FONCTIONS CHRONIQUES</span>
       <button class="console-btn" (click)="newStory()">NOUVELLE HISTOIRE</button>
       <button class="console-btn" (click)="myStories()">MES HISTOIRES</button>
     </div>
     }
 
-    <!-- Section MODE DEV - Indépendante et toujours visible si canUseDev() -->
-    @if (canUseDev()) {
+    <!-- Section MODE DEV - Logique corrigée -->
+    @if (isLoggedIn()) {
     <div class="action-group">
       <span class="group-title">> MODE DEV</span>
       @if (currentUser()?.username === 'Snot') {

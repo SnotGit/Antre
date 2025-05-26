@@ -9,16 +9,20 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middlewares
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+
 app.use(cors({
   origin: 'http://localhost:4200',
   credentials: true
 }));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Servir les fichiers statiques (avatars)
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// Servir les fichiers statiques (avatars) avec les bons headers CORS
+app.use('/uploads', cors(), express.static(path.join(__dirname, '../uploads')));
 
 // Routes d'authentification
 const authRoutes = require('./routes/auth');

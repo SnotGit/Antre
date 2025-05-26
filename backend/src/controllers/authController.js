@@ -66,7 +66,7 @@ const register = async (req, res) => {
   }
 };
 
-// Connexion
+// Connexion - CORRIGÉE
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -77,9 +77,20 @@ const login = async (req, res) => {
       });
     }
 
-    // Trouver l'utilisateur
+    // Trouver l'utilisateur avec TOUS les champs nécessaires
     const user = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        passwordHash: true,
+        description: true,
+        avatar: true,
+        role: true,
+        isDev: true,
+        createdAt: true
+      }
     });
 
     if (!user) {
@@ -108,6 +119,7 @@ const login = async (req, res) => {
       { expiresIn: '24h' }
     );
 
+    // Réponse COMPLÈTE avec tous les champs
     res.json({
       message: 'Connexion réussie',
       token,
@@ -116,8 +128,10 @@ const login = async (req, res) => {
         username: user.username,
         email: user.email,
         description: user.description,
+        avatar: user.avatar,
         role: user.role,
-        isDev: user.isDev
+        isDev: user.isDev,
+        createdAt: user.createdAt
       }
     });
 
@@ -127,7 +141,7 @@ const login = async (req, res) => {
   }
 };
 
-// Profil utilisateur (route protégée)
+// Profil utilisateur - CORRIGÉ (suppression doublon avatar)
 const getProfile = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
@@ -135,11 +149,11 @@ const getProfile = async (req, res) => {
       select: {
         id: true,
         username: true,
-        avatar: true,
         email: true,
         description: true,
         avatar: true,
         role: true,
+        isDev: true,
         createdAt: true,
         stories: {
           select: {

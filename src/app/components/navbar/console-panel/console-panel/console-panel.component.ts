@@ -28,14 +28,15 @@ export class ConsolePanelComponent implements OnInit {
 
   // Computed pour la logique des boutons
   isInChroniques = computed(() => this.currentRoute().includes('/chroniques'));
+  isInAccount = computed(() => this.currentRoute().includes('/mon-compte'));
 
-  // Logique des boutons
+  // Logique des boutons - exclure la page account
   showUserButtons = computed(() => {
-    return this.isLoggedIn() && this.isInChroniques();
+    return this.isLoggedIn() && this.isInChroniques() && !this.isInAccount();
   });
 
   showAdminButtons = computed(() => {
-    return this.isLoggedIn() && this.isAdmin() && !this.isInChroniques();
+    return this.isLoggedIn() && this.isAdmin() && !this.isInChroniques() && !this.isInAccount();
   });
 
   // Alias pour le template (compatibilité)
@@ -46,17 +47,11 @@ export class ConsolePanelComponent implements OnInit {
     this.updateCurrentRoute();
     this.router.events.subscribe(() => {
       this.updateCurrentRoute();
-    }
-  );
+    });
   }
 
   private updateCurrentRoute(): void {
     this.currentRoute.set(this.router.url);
-    console.log('Route actuelle:', this.router.url);
-    console.log('Dans chroniques:', this.isInChroniques());
-    console.log('Boutons user:', this.showUserButtons());
-    console.log('Boutons admin:', this.showAdminButtons());
-    console.log('Can use dev:', this.canUseDev());
   }
 
   // ============ AUTHENTIFICATION ============
@@ -90,49 +85,43 @@ export class ConsolePanelComponent implements OnInit {
   // ============ ACTIONS ADMIN (hors chroniques seulement) ============
 
   addCategory(): void {
-    console.log('Add category clicked');
+    // TODO: Implémenter ajout de catégorie
   }
 
   addList(): void {
-    console.log('Add list clicked');
+    // TODO: Implémenter ajout de liste
   }
 
   addItem(): void {
-    console.log('Add item clicked');
+    // TODO: Implémenter ajout d'item
   }
 
   // ============ ACTIONS USER (dans chroniques seulement) ============
 
   newStory(): void {
-    console.log('New story clicked');
     this.router.navigate(['/chroniques/editor/new']);
   }
 
   myStories(): void {
-    console.log('My stories clicked');
     this.router.navigate(['/chroniques/story-board']);
   }
 
   // Actions contextuelles (quand une histoire est sélectionnée)
   editCurrentStory(): void {
-    console.log('Edit current story');
-    // TODO: Implémenter selon l'histoire sélectionnée
+    // TODO: Implémenter édition d'histoire
   }
 
   deleteCurrentStory(): void {
-    console.log('Delete current story');
-    // TODO: Implémenter selon l'histoire sélectionnée
+    // TODO: Implémenter suppression d'histoire
   }
 
   publishCurrentStory(): void {
-    console.log('Publish current story');
-    // TODO: Implémenter selon l'histoire sélectionnée
+    // TODO: Implémenter publication d'histoire
   }
 
   // ============ ACTIONS COMMUNES (utilisateurs connectés) ============
 
   openAccount(): void {
-    console.log('Mon compte clicked');
     this.router.navigate(['/mon-compte']);
   }
 
@@ -148,6 +137,4 @@ export class ConsolePanelComponent implements OnInit {
     }
     return this.currentUser()?.role?.toUpperCase() || 'VISITOR';
   }
-  
 }
-
