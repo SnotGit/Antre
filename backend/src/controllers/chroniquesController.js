@@ -9,7 +9,7 @@ const getUserDrafts = async (req, res) => {
     const userId = req.user.userId;
 
     const drafts = await prisma.story.findMany({
-      where: { 
+      where: {
         userId: userId,
         status: 'DRAFT'
       },
@@ -17,7 +17,6 @@ const getUserDrafts = async (req, res) => {
         id: true,
         title: true,
         content: true,
-        wordCount: true,
         createdAt: true,
         updatedAt: true
       },
@@ -31,7 +30,6 @@ const getUserDrafts = async (req, res) => {
       id: draft.id,
       title: draft.title || 'Histoire sans titre',
       lastModified: getTimeAgo(draft.updatedAt),
-      wordCount: draft.wordCount,
       status: getStatusLabel(draft.createdAt, draft.updatedAt)
     }));
 
@@ -53,7 +51,7 @@ const getUserPublishedStories = async (req, res) => {
     const userId = req.user.userId;
 
     const stories = await prisma.story.findMany({
-      where: { 
+      where: {
         userId: userId,
         status: 'PUBLISHED'
       },
@@ -73,8 +71,6 @@ const getUserPublishedStories = async (req, res) => {
       title: story.title,
       publishDate: formatPublishDate(story.publishedAt),
       likes: story._count.likes,
-      views: story.views,
-      wordCount: story.wordCount
     }));
 
     res.json({
@@ -85,6 +81,31 @@ const getUserPublishedStories = async (req, res) => {
 
   } catch (error) {
     console.error('Erreur lors de la récupération des histoires publiées:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
+// Récupérer le nombre total de likes reçus par l'utilisateur
+const getUserTotalLikes = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const totalLikes = await prisma.like.count({
+      where: {
+        story: {
+          userId: userId,
+          status: 'PUBLISHED'
+        }
+      }
+    });
+
+    res.json({
+      message: 'Total likes récupéré avec succès',
+      totalLikes: totalLikes
+    });
+
+  } catch (error) {
+    console.error('Erreur récupération total likes:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -102,7 +123,7 @@ const publishStory = async (req, res) => {
 
     // Vérifier que l'histoire existe et appartient à l'utilisateur
     const story = await prisma.story.findFirst({
-      where: { 
+      where: {
         id: storyId,
         userId: userId,
         status: 'DRAFT'
@@ -110,21 +131,17 @@ const publishStory = async (req, res) => {
     });
 
     if (!story) {
-      return res.status(404).json({ 
-        error: 'Brouillon non trouvé ou déjà publié' 
+      return res.status(404).json({
+        error: 'Brouillon non trouvé ou déjà publié'
       });
     }
-
-    // Calculer le nombre de mots
-    const wordCount = countWords(story.content);
 
     // Publier l'histoire
     const publishedStory = await prisma.story.update({
       where: { id: storyId },
       data: {
         status: 'PUBLISHED',
-        publishedAt: new Date(),
-        wordCount: wordCount
+        publishedAt: new Date()
       },
       include: {
         user: {
@@ -162,15 +179,15 @@ const likeStory = async (req, res) => {
 
     // Vérifier que l'histoire existe et est publiée
     const story = await prisma.story.findFirst({
-      where: { 
+      where: {
         id: storyId,
         status: 'PUBLISHED'
       }
     });
 
     if (!story) {
-      return res.status(404).json({ 
-        error: 'Histoire non trouvée ou non publiée' 
+      return res.status(404).json({
+        error: 'Histoire non trouvée ou non publiée'
       });
     }
 
@@ -185,8 +202,8 @@ const likeStory = async (req, res) => {
     });
 
     if (existingLike) {
-      return res.status(400).json({ 
-        error: 'Vous avez déjà liké cette histoire' 
+      return res.status(400).json({
+        error: 'Vous avez déjà liké cette histoire'
       });
     }
 
@@ -214,33 +231,6 @@ const likeStory = async (req, res) => {
   }
 };
 
-// Incrémenter les vues d'une histoire
-const incrementViews = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const storyId = parseInt(id);
-
-    if (isNaN(storyId)) {
-      return res.status(400).json({ error: 'ID d\'histoire invalide' });
-    }
-
-    await prisma.story.update({
-      where: { id: storyId },
-      data: {
-        views: {
-          increment: 1
-        }
-      }
-    });
-
-    res.json({ message: 'Vue ajoutée' });
-
-  } catch (error) {
-    console.error('Erreur lors de l\'incrémentation des vues:', error);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-};
-
 // Archiver une histoire publiée
 const archiveStory = async (req, res) => {
   try {
@@ -254,7 +244,7 @@ const archiveStory = async (req, res) => {
 
     // Vérifier que l'histoire existe et appartient à l'utilisateur
     const story = await prisma.story.findFirst({
-      where: { 
+      where: {
         id: storyId,
         userId: userId,
         status: 'PUBLISHED'
@@ -262,8 +252,8 @@ const archiveStory = async (req, res) => {
     });
 
     if (!story) {
-      return res.status(404).json({ 
-        error: 'Histoire non trouvée ou non publiée' 
+      return res.status(404).json({
+        error: 'Histoire non trouvée ou non publiée'
       });
     }
 
@@ -295,14 +285,14 @@ const saveDraft = async (req, res) => {
     // Si ID fourni, c'est une mise à jour
     if (id) {
       const storyId = parseInt(id);
-      
+
       if (isNaN(storyId)) {
         return res.status(400).json({ error: 'ID d\'histoire invalide' });
       }
 
       // Vérifier que le brouillon existe et appartient à l'utilisateur
       const existingDraft = await prisma.story.findFirst({
-        where: { 
+        where: {
           id: storyId,
           userId: userId,
           status: 'DRAFT'
@@ -310,8 +300,8 @@ const saveDraft = async (req, res) => {
       });
 
       if (!existingDraft) {
-        return res.status(404).json({ 
-          error: 'Brouillon non trouvé' 
+        return res.status(404).json({
+          error: 'Brouillon non trouvé'
         });
       }
 
@@ -320,7 +310,6 @@ const saveDraft = async (req, res) => {
       if (title !== undefined) updateData.title = title.trim();
       if (content !== undefined) {
         updateData.content = content;
-        updateData.wordCount = countWords(content);
       }
 
       // Mettre à jour le brouillon
@@ -331,7 +320,6 @@ const saveDraft = async (req, res) => {
           id: true,
           title: true,
           content: true,
-          wordCount: true,
           updatedAt: true
         }
       });
@@ -342,7 +330,6 @@ const saveDraft = async (req, res) => {
           id: updatedDraft.id,
           title: updatedDraft.title || 'Histoire sans titre',
           content: updatedDraft.content,
-          wordCount: updatedDraft.wordCount,
           lastModified: getTimeAgo(updatedDraft.updatedAt),
           status: 'Sauvegardé'
         }
@@ -350,13 +337,10 @@ const saveDraft = async (req, res) => {
     }
 
     // Sinon, créer un nouveau brouillon
-    const wordCount = countWords(content || '');
-    
     const newDraft = await prisma.story.create({
       data: {
         title: title?.trim() || '',
         content: content || '',
-        wordCount: wordCount,
         status: 'DRAFT',
         userId: userId
       },
@@ -364,7 +348,6 @@ const saveDraft = async (req, res) => {
         id: true,
         title: true,
         content: true,
-        wordCount: true,
         createdAt: true
       }
     });
@@ -375,7 +358,6 @@ const saveDraft = async (req, res) => {
         id: newDraft.id,
         title: newDraft.title || 'Histoire sans titre',
         content: newDraft.content,
-        wordCount: newDraft.wordCount,
         lastModified: getTimeAgo(newDraft.createdAt),
         status: 'Créé'
       }
@@ -399,7 +381,7 @@ const getDraftById = async (req, res) => {
     }
 
     const draft = await prisma.story.findFirst({
-      where: { 
+      where: {
         id: storyId,
         userId: userId,
         status: 'DRAFT'
@@ -408,15 +390,14 @@ const getDraftById = async (req, res) => {
         id: true,
         title: true,
         content: true,
-        wordCount: true,
         createdAt: true,
         updatedAt: true
       }
     });
 
     if (!draft) {
-      return res.status(404).json({ 
-        error: 'Brouillon non trouvé' 
+      return res.status(404).json({
+        error: 'Brouillon non trouvé'
       });
     }
 
@@ -426,7 +407,6 @@ const getDraftById = async (req, res) => {
         id: draft.id,
         title: draft.title,
         content: draft.content,
-        wordCount: draft.wordCount,
         lastModified: getTimeAgo(draft.updatedAt),
         createdAt: draft.createdAt
       }
@@ -462,8 +442,7 @@ const getRecentAuthors = async (req, res) => {
           select: {
             id: true,
             title: true,
-            publishedAt: true,
-            wordCount: true
+            publishedAt: true
           }
         }
       },
@@ -514,14 +493,14 @@ function getTimeAgo(date) {
   if (diffHours < 1) return 'Il y a moins d\'1 heure';
   if (diffHours < 24) return `Il y a ${diffHours} heure${diffHours > 1 ? 's' : ''}`;
   if (diffDays < 7) return `Il y a ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
-  
+
   return new Date(date).toLocaleDateString('fr-FR');
 }
 
 function getStatusLabel(createdAt, updatedAt) {
   const diffMs = new Date(updatedAt) - new Date(createdAt);
   const diffHours = diffMs / (1000 * 60 * 60);
-  
+
   if (diffHours < 1) return 'Brouillon';
   if (diffHours < 24) return 'En cours';
   return 'En révision';
@@ -533,11 +512,6 @@ function formatPublishDate(date) {
     month: 'short',
     year: 'numeric'
   });
-}
-
-function countWords(text) {
-  if (!text) return 0;
-  return text.trim().split(/\s+/).filter(word => word.length > 0).length;
 }
 
 // Fonction utilitaire pour créer un slug
@@ -554,9 +528,9 @@ function createSlugFromTitle(title) {
 module.exports = {
   getUserDrafts,
   getUserPublishedStories,
+  getUserTotalLikes,
   publishStory,
   likeStory,
-  incrementViews,
   archiveStory,
   saveDraft,
   getDraftById,

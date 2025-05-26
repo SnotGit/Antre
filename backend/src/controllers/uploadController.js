@@ -19,12 +19,10 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const userId = req.user.userId;
+    // Utiliser un timestamp temporaire, on renommera après
     const timestamp = Date.now();
     const extension = path.extname(file.originalname);
-    
-    // Format: user-123-1640995200000.jpg
-    const filename = `user-${userId}-${timestamp}${extension}`;
+    const filename = `temp-${timestamp}${extension}`;
     cb(null, filename);
   }
 });
@@ -48,16 +46,45 @@ const upload = multer({
   }
 });
 
-// Contrôleur pour l'upload d'avatar
+// Contrôleur pour l'upload d'avatar - VERSION FINALE PROPRE
 const uploadAvatar = async (req, res) => {
   try {
-    const userId = req.user.userId;
+    // L'ID peut venir du token JWT OU du body (mode dev)
+    const tokenUserId = req.user.userId;
+    const requestedUserId = req.body.userId ? parseInt(req.body.userId) : tokenUserId;
     
+    // Vérifier les permissions
+    const tokenUser = await prisma.user.findUnique({
+      where: { id: tokenUserId },
+      select: { isDev: true, role: true }
+    });
+
+    // Si l'utilisateur demande l'upload pour quelqu'un d'autre, vérifier qu'il est dev
+    if (requestedUserId !== tokenUserId) {
+      if (!tokenUser || !tokenUser.isDev) {
+        return res.status(403).json({ 
+          error: 'Droits développeur requis pour modifier d\'autres utilisateurs' 
+        });
+      }
+    }
+
+    const userId = requestedUserId;
+
     if (!req.file) {
       return res.status(400).json({ 
         error: 'Aucun fichier fourni' 
       });
     }
+
+    // Renommer le fichier avec le bon userId
+    const timestamp = Date.now();
+    const extension = path.extname(req.file.originalname);
+    const newFilename = `user-${userId}-${timestamp}${extension}`;
+    const oldPath = req.file.path;
+    const newPath = path.join(path.dirname(oldPath), newFilename);
+    
+    // Renommer le fichier
+    fs.renameSync(oldPath, newPath);
 
     // Supprimer l'ancien avatar s'il existe
     const currentUser = await prisma.user.findUnique({
@@ -65,7 +92,7 @@ const uploadAvatar = async (req, res) => {
       select: { avatar: true }
     });
 
-    if (currentUser?.avatar) {
+    if (currentUser?.avatar && !currentUser.avatar.includes('/assets/')) {
       const oldAvatarPath = path.join(__dirname, '../../uploads/avatars', path.basename(currentUser.avatar));
       if (fs.existsSync(oldAvatarPath)) {
         fs.unlinkSync(oldAvatarPath);
@@ -73,9 +100,9 @@ const uploadAvatar = async (req, res) => {
     }
 
     // Chemin relatif pour la base de données
-    const avatarPath = `/uploads/avatars/${req.file.filename}`;
+    const avatarPath = `/uploads/avatars/${newFilename}`;
 
-    // Mettre à jour l'utilisateur
+    // Mettre à jour l'utilisateur CORRECT
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: { avatar: avatarPath },

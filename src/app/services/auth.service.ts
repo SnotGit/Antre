@@ -43,6 +43,12 @@ export interface DevUsersResponse {
   users: User[];
 }
 
+export interface UploadAvatarResponse {
+  message: string;
+  user: User;
+  avatarUrl: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -103,30 +109,39 @@ export class AuthService {
     );
   }
 
-  // ============ UPLOAD AVATAR ============
+  // ============ UPLOAD AVATAR - VERSION SÉCURISÉE ============
 
-  uploadAvatar(file: File): Observable<any> {
+  uploadAvatar(file: File): Observable<UploadAvatarResponse> {
     const formData = new FormData();
     formData.append('avatar', file);
+    
+    // Ajouter l'ID de l'utilisateur cible
+    const currentUser = this._currentUser();
+    if (currentUser) {
+      formData.append('userId', currentUser.id.toString());
+    }
 
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.getToken()}`
     });
 
-    return this.http.post(`${this.API_URL}/auth/upload-avatar`, formData, {
+    return this.http.post<UploadAvatarResponse>(`${this.API_URL}/auth/upload-avatar`, formData, {
       headers: headers
     }).pipe(
-      tap((response: any) => {
+      tap((response: UploadAvatarResponse) => {
         if (response.user) {
           const currentUser = this._currentUser();
-          if (currentUser) {
-            const updatedUser = { ...currentUser, avatar: response.user.avatar };
+          if (currentUser && currentUser.id === response.user.id) {
+            // Mettre à jour seulement si c'est le même utilisateur
+            const updatedUser: User = { ...currentUser, avatar: response.user.avatar };
             this._currentUser.set(updatedUser);
-            localStorage.setItem(this.USER_KEY, JSON.stringify(updatedUser));
             
             if (this._isDevMode()) {
               localStorage.setItem(this.DEV_USER_KEY, JSON.stringify(updatedUser));
+            } else {
+              localStorage.setItem(this.USER_KEY, JSON.stringify(updatedUser));
             }
+            
             this.triggerUserChange();
           }
         }
@@ -176,7 +191,7 @@ export class AuthService {
         }
       },
       error: (error) => {
-        // Gérer l'erreur
+        console.error('Erreur switch Elena:', error);
       }
     });
   }
@@ -205,7 +220,7 @@ export class AuthService {
         }
       },
       error: (error) => {
-        // Gérer l'erreur
+        console.error('Erreur switch Snot:', error);
       }
     });
   }

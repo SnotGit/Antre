@@ -3,9 +3,9 @@ const express = require('express');
 const { 
   getUserDrafts,
   getUserPublishedStories,
+  getUserTotalLikes, // NOUVEAU
   publishStory,
   likeStory,
-  incrementViews,
   archiveStory,
   saveDraft,
   getDraftById,
@@ -25,11 +25,11 @@ router.post('/drafts', authenticateToken, saveDraft);                      // PO
 router.put('/drafts/:id', authenticateToken, saveDraft);                   // PUT /api/chroniques/drafts/1 (mise à jour)
 
 router.get('/published', authenticateToken, getUserPublishedStories);      // GET /api/chroniques/published
+router.get('/my-likes-count', authenticateToken, getUserTotalLikes);       // GET /api/chroniques/my-likes-count - NOUVEAU
 router.put('/:id/publish', authenticateToken, publishStory);               // PUT /api/chroniques/1/publish
 router.put('/:id/archive', authenticateToken, archiveStory);               // PUT /api/chroniques/1/archive
 
 // Routes publiques pour les interactions
 router.post('/:id/like', authenticateToken, likeStory);                    // POST /api/chroniques/1/like
-router.post('/:id/view', incrementViews);                                  // POST /api/chroniques/1/view
 
 module.exports = router;
