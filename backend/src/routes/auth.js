@@ -2,6 +2,7 @@
 const express = require('express');
 const { register, login, getProfile } = require('../controllers/authController');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const { upload, uploadAvatar } = require('../controllers/uploadController');
 const { PrismaClient } = require('@prisma/client');
 
 const router = express.Router();
@@ -13,6 +14,9 @@ router.post('/login', login);
 
 // Routes protégées (authentification requise)
 router.get('/profile', authenticateToken, getProfile);
+
+// NOUVELLE ROUTE - Upload avatar
+router.post('/upload-avatar', authenticateToken, upload.single('avatar'), uploadAvatar);
 
 // Route pour récupérer les utilisateurs de développement
 router.get('/dev-users', authenticateToken, async (req, res) => {
@@ -42,7 +46,7 @@ router.get('/dev-users', authenticateToken, async (req, res) => {
         isDev: true,
         createdAt: true
       },
-      orderBy: { role: 'asc' } // admin d'abord, puis user
+      orderBy: { role: 'asc' }
     });
     
     res.json({ 

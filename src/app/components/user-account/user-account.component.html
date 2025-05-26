@@ -1,33 +1,24 @@
 <!-- user-account.component.html -->
 <div class="user-account-container">
-  
-  <!-- Navigation de retour -->
-  <div class="back-navigation">
-    <button class="back-btn" (click)="goBack()">
-      <span class="back-icon">←</span>
-      Retour aux chroniques
-    </button>
-  </div>
 
-  <!-- Header principal -->
+  <!-- Header principal avec effet typing -->
   <div class="account-header">
-    <h1 class="page-title">Mon Compte</h1>
-    <div class="user-info">
-      <span class="user-name">{{ userName }}</span>
-      <span class="user-role">{{ userRole }}</span>
-    </div>
+    <h1 class="page-title typing-title" [class.typing-complete]="typingComplete()">
+      <span class="typed-text">{{ displayedTitle() }}</span>
+      <span class="cursor" [class.hidden]="typingComplete()">|</span>
+    </h1>
   </div>
 
   <!-- Navigation tabs -->
   <div class="tabs-container">
+    <button class="tab-btn" [class.active]="activeTab() === 'stats'" (click)="setActiveTab('stats')">
+      STATISTIQUES
+    </button>
     <button class="tab-btn" [class.active]="activeTab() === 'profile'" (click)="setActiveTab('profile')">
       PROFIL
     </button>
-    <button class="tab-btn" [class.active]="activeTab() === 'password'" (click)="setActiveTab('password')">
-      MOT DE PASSE
-    </button>
-    <button class="tab-btn" [class.active]="activeTab() === 'stats'" (click)="setActiveTab('stats')">
-      STATISTIQUES
+    <button class="tab-btn" [class.active]="activeTab() === 'credentials'" (click)="setActiveTab('credentials')">
+      IDENTIFIANTS
     </button>
   </div>
 
@@ -36,180 +27,170 @@
 
     <!-- Messages d'erreur/succès -->
     @if (error()) {
-      <div class="message error-message">
-        {{ error() }}
-      </div>
+    <div class="message error-message">
+      {{ error() }}
+    </div>
     }
 
     @if (successMessage()) {
-      <div class="message success-message">
-        {{ successMessage() }}
+    <div class="message success-message">
+      {{ successMessage() }}
+    </div>
+    }
+
+    <!-- Onglet Statistiques (par défaut) -->
+    @if (activeTab() === 'stats') {
+    <div class="tab-content">
+      <div class="stats-section">
+        <h3 class="section-title">Vos statistiques</h3>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number">{{ getUserStats().totalStories }}</div>
+            <div class="stat-label">Histoires totales</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-number">{{ getUserStats().publishedStories }}</div>
+            <div class="stat-label">Histoires publiées</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-number">{{ getUserStats().drafts }}</div>
+            <div class="stat-label">Brouillons</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-number">{{ getUserStats().totalLikes }}</div>
+            <div class="stat-label">Likes reçus</div>
+          </div>
+        </div>
+
+        <div class="account-info">
+          <h4 class="info-title">Informations du compte</h4>
+          <div class="info-item">
+            <span class="info-label">Membre depuis :</span>
+            <span class="info-value">{{ accountCreatedDate }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Statut :</span>
+            <span class="info-value">{{ userRole }}</span>
+          </div>
+        </div>
       </div>
+    </div>
     }
 
     <!-- Onglet Profil -->
     @if (activeTab() === 'profile') {
-      <div class="tab-content">
-        <form class="profile-form" (ngSubmit)="saveProfile()" #profileForm="ngForm">
-          <div class="form-section">
-            <h3 class="section-title">Informations personnelles</h3>
-            
-            <div class="form-field">
-              <label class="field-label">Nom d'utilisateur</label>
-              <input 
-                type="text" 
-                name="username"
-                [(ngModel)]="profileData.username"
-                class="form-input"
-                required
-                minlength="3"
-                maxlength="50"
-                [disabled]="loading()">
-            </div>
+    <div class="tab-content">
+      <form class="profile-form" (ngSubmit)="saveProfile()" #profileForm="ngForm">
+        <div class="form-section">
+          <h3 class="section-title">Profil utilisateur</h3>
 
-            <div class="form-field">
-              <label class="field-label">Email</label>
-              <input 
-                type="email" 
-                name="email"
-                [(ngModel)]="profileData.email"
-                class="form-input"
-                required
-                [disabled]="loading()">
+          <!-- Upload d'avatar -->
+          <div class="avatar-section">
+            <div class="avatar-container">
+              <div class="avatar-circle" [style.background-image]="getAvatarUrl()">
+              </div>
+              <button type="button" class="avatar-upload-btn" (click)="triggerFileInput()">
+                Changer
+              </button>
             </div>
+            <input type="file" #fileInput accept="image/*" (change)="onAvatarSelected($event)" style="display: none;">
+          </div>
 
-            <div class="form-field">
-              <label class="field-label">Description</label>
-              <textarea 
-                name="description"
-                [(ngModel)]="profileData.description"
-                class="form-textarea"
-                placeholder="Parlez-nous de vous..."
-                maxlength="500"
-                rows="4"
-                [disabled]="loading()">
+          <div class="form-field">
+            <label class="field-label">Nom d'utilisateur</label>
+            <input type="text" name="username" [(ngModel)]="profileData.username" class="form-input" required
+              minlength="3" maxlength="50" [disabled]="loading()">
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">Description</label>
+            <textarea name="description" [(ngModel)]="profileData.description" class="form-textarea"
+              placeholder="Parlez-nous de vous..." maxlength="500" rows="4" [disabled]="loading()">
               </textarea>
-            </div>
-
-            <div class="form-actions">
-              <button 
-                type="submit" 
-                class="save-btn"
-                [disabled]="loading() || !profileForm.valid">
-                @if (loading()) {
-                  <span class="loading-spinner"></span>
-                  Sauvegarde en cours...
-                } @else {
-                  Sauvegarder les modifications
-                }
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-    }
-
-    <!-- Onglet Mot de passe -->
-    @if (activeTab() === 'password') {
-      <div class="tab-content">
-        <form class="password-form" (ngSubmit)="changePassword()" #passwordForm="ngForm">
-          <div class="form-section">
-            <h3 class="section-title">Changer le mot de passe</h3>
-            
-            <div class="form-field">
-              <label class="field-label">Mot de passe actuel</label>
-              <input 
-                type="password" 
-                name="currentPassword"
-                [(ngModel)]="passwordData.currentPassword"
-                class="form-input"
-                required
-                [disabled]="loading()">
-            </div>
-
-            <div class="form-field">
-              <label class="field-label">Nouveau mot de passe</label>
-              <input 
-                type="password" 
-                name="newPassword"
-                [(ngModel)]="passwordData.newPassword"
-                class="form-input"
-                required
-                minlength="6"
-                [disabled]="loading()">
-            </div>
-
-            <div class="form-field">
-              <label class="field-label">Confirmer le nouveau mot de passe</label>
-              <input 
-                type="password" 
-                name="confirmPassword"
-                [(ngModel)]="passwordData.confirmPassword"
-                class="form-input"
-                required
-                minlength="6"
-                [disabled]="loading()">
-            </div>
-
-            <div class="form-actions">
-              <button 
-                type="submit" 
-                class="save-btn password-btn"
-                [disabled]="loading() || !passwordForm.valid">
-                @if (loading()) {
-                  <span class="loading-spinner"></span>
-                  Modification en cours...
-                } @else {
-                  Changer le mot de passe
-                }
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-    }
-
-    <!-- Onglet Statistiques -->
-    @if (activeTab() === 'stats') {
-      <div class="tab-content">
-        <div class="stats-section">
-          <h3 class="section-title">Vos statistiques</h3>
-          
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-number">{{ userStats().totalStories }}</div>
-              <div class="stat-label">Histoires totales</div>
-            </div>
-            
-            <div class="stat-card">
-              <div class="stat-number">{{ userStats().publishedStories }}</div>
-              <div class="stat-label">Histoires publiées</div>
-            </div>
-            
-            <div class="stat-card">
-              <div class="stat-number">{{ userStats().drafts }}</div>
-              <div class="stat-label">Brouillons</div>
-            </div>
-            
-            <div class="stat-card">
-              <div class="stat-number">{{ userStats().totalLikes }}</div>
-              <div class="stat-label">Likes reçus</div>
-            </div>
           </div>
 
-          <div class="account-info">
-            <h4 class="info-title">Informations du compte</h4>
-            <div class="info-item">
-              <span class="info-label">Membre depuis :</span>
-              <span class="info-value">{{ accountCreatedDate }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Statut :</span>
-              <span class="info-value">{{ userRole }}</span>
-            </div>
+          <div class="form-actions">
+            <button type="submit" class="save-btn" [disabled]="loading() || !profileForm.valid">
+              @if (loading()) {
+              <span class="loading-spinner"></span>
+              Sauvegarde en cours...
+              } @else {
+              Sauvegarder les modifications
+              }
+            </button>
           </div>
         </div>
+      </form>
+    </div>
+    }
+
+    <!-- Onglet Identifiants (email + mot de passe) -->
+    @if (activeTab() === 'credentials') {
+    <div class="tab-content">
+      <div class="credentials-section">
+        <h3 class="section-title">Identifiants de connexion</h3>
+
+        <!-- Section Email -->
+        <form class="email-form" (ngSubmit)="saveEmail()" #emailForm="ngForm">
+          <div class="form-field">
+            <label class="field-label">Adresse email</label>
+            <input type="email" name="email" [(ngModel)]="profileData.email" class="form-input" required
+              [disabled]="loading()">
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="save-btn" [disabled]="loading() || !emailForm.valid">
+              @if (loading()) {
+              <span class="loading-spinner"></span>
+              Modification en cours...
+              } @else {
+              Modifier l'email
+              }
+            </button>
+          </div>
+        </form>
+
+        <!-- Séparateur -->
+        <div class="section-separator"></div>
+
+        <!-- Section Mot de passe -->
+        <form class="password-form" (ngSubmit)="changePassword()" #passwordForm="ngForm">
+          <h4 class="subsection-title">Changer le mot de passe</h4>
+
+          <div class="form-field">
+            <label class="field-label">Mot de passe actuel</label>
+            <input type="password" name="currentPassword" [(ngModel)]="passwordData.currentPassword" class="form-input"
+              required [disabled]="loading()">
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">Nouveau mot de passe</label>
+            <input type="password" name="newPassword" [(ngModel)]="passwordData.newPassword" class="form-input" required
+              minlength="6" [disabled]="loading()">
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">Confirmer le nouveau mot de passe</label>
+            <input type="password" name="confirmPassword" [(ngModel)]="passwordData.confirmPassword" class="form-input"
+              required minlength="6" [disabled]="loading()">
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="save-btn password-btn" [disabled]="loading() || !passwordForm.valid">
+              @if (loading()) {
+              <span class="loading-spinner"></span>
+              Modification en cours...
+              } @else {
+              Changer le mot de passe
+              }
+            </button>
+          </div>
+        </form>
       </div>
+    </div>
     }
 
   </div>

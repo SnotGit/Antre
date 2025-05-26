@@ -110,6 +110,41 @@ export class AuthService {
     );
   }
 
+  // ============ UPLOAD AVATAR ============
+
+  uploadAvatar(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.getToken()}`
+    });
+
+    return this.http.post(`${this.API_URL}/auth/upload-avatar`, formData, {
+      headers: headers
+    }).pipe(
+      tap((response: any) => {
+        if (response.user) {
+          const currentUser = this._currentUser();
+          if (currentUser) {
+            const updatedUser = { ...currentUser, avatar: response.user.avatar };
+            this._currentUser.set(updatedUser);
+            localStorage.setItem(this.USER_KEY, JSON.stringify(updatedUser));
+            
+            if (this._isDevMode()) {
+              localStorage.setItem(this.DEV_USER_KEY, JSON.stringify(updatedUser));
+            }
+          }
+        }
+        console.log('✅ Avatar uploadé avec succès');
+      }),
+      catchError(error => {
+        console.error('❌ Erreur upload avatar:', error);
+        throw error;
+      })
+    );
+  }
+
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
@@ -197,7 +232,8 @@ export class AuthService {
     }
 
     return new HttpHeaders({
-      'Authorization': `Bearer ${token}`
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
     });
   }
 
@@ -250,6 +286,8 @@ export class AuthService {
     }
   }
 
+  // ============ VALIDATION TOKEN CORRIGÉE ============
+
   validateToken(): Observable<boolean> {
     const token = this.getToken();
     if (!token) {
@@ -260,12 +298,24 @@ export class AuthService {
       headers: this.getAuthHeaders()
     }).pipe(
       tap(response => {
-        localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
+        console.log('✅ Données utilisateur récupérées:', response.user);
+        
+        // Mettre à jour l'utilisateur actuel
         this._currentUser.set(response.user);
+        
+        // Sauvegarder en localStorage
+        localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
+        
+        // Si en mode dev, mettre à jour aussi le dev user
+        if (this._isDevMode()) {
+          localStorage.setItem(this.DEV_USER_KEY, JSON.stringify(response.user));
+        }
+        
+        console.log('✅ Utilisateur mis à jour avec avatar:', response.user.avatar);
       }),
       switchMap(() => of(true)),
-      catchError(() => {
-        console.log('❌ Token invalide, déconnexion');
+      catchError((error) => {
+        console.error('❌ Erreur validateToken:', error);
         this.logout();
         return of(false);
       })

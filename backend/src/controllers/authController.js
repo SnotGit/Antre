@@ -135,8 +135,10 @@ const getProfile = async (req, res) => {
       select: {
         id: true,
         username: true,
+        avatar: true,
         email: true,
         description: true,
+        avatar: true,
         role: true,
         createdAt: true,
         stories: {
