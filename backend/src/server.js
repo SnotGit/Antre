@@ -2,6 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -16,6 +17,9 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Servir les fichiers statiques (avatars)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 // Routes d'authentification
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
@@ -24,7 +28,7 @@ app.use('/api/auth', authRoutes);
 const storyRoutes = require('./routes/stories');
 app.use('/api/stories', storyRoutes);
 
-// Routes des chroniques (NOUVEAU)
+// Routes des chroniques
 const chroniquesRoutes = require('./routes/chroniques.routes');
 app.use('/api/chroniques', chroniquesRoutes);
 
@@ -45,6 +49,7 @@ app.listen(PORT, () => {
   console.log(`   - POST /api/auth/register`);
   console.log(`   - POST /api/auth/login`);
   console.log(`   - GET  /api/auth/profile`);
+  console.log(`   - POST /api/auth/upload-avatar`);
   console.log(`   - GET  /api/stories`);
   console.log(`   - GET  /api/chroniques/drafts`);
   console.log(`   - GET  /api/chroniques/published`);

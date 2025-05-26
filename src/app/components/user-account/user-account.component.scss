@@ -9,93 +9,47 @@
   font-family: 'Courier New', monospace;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow-y: hidden;
 
-  // Navigation de retour
-  .back-navigation {
-    padding: 20px 30px;
-    border-bottom: 1px solid rgba(93, 136, 158, 0.2);
-    flex-shrink: 0;
-
-    .back-btn {
-      background: transparent;
-      border: 1px solid #5d889e;
-      border-radius: 6px;
-      padding: 8px 16px;
-      color: #5d889e;
-      font-family: inherit;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      &:hover {
-        background-color: rgba(93, 136, 158, 0.1);
-      }
-
-      .back-icon {
-        font-size: 16px;
-      }
-    }
-  }
-
-  // Header principal
+  // Header principal avec effet typing
   .account-header {
     padding: 30px;
-    border-bottom: 1px solid rgba(93, 136, 158, 0.2);
     flex-shrink: 0;
 
     .page-title {
       color: #5d889e;
       font-size: 32px;
       font-weight: bold;
-      margin: 0 0 15px 0;
+      margin: 0;
 
       &::before {
         content: '> ';
         color: #b55a44;
       }
-    }
 
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-
-      .user-name {
-        color: #d0d0d0;
-        font-size: 18px;
-        font-weight: bold;
-      }
-
-      .user-role {
-        background-color: rgba(93, 136, 158, 0.2);
+      .cursor {
         color: #5d889e;
-        border: 1px solid rgba(93, 136, 158, 0.3);
-        border-radius: 12px;
-        padding: 4px 10px;
-        font-size: 11px;
-        font-weight: bold;
-        text-transform: uppercase;
+        animation: blink 1s infinite;
+        margin-left: 2px;
+
+        &.hidden {
+          display: none;
+        }
       }
     }
   }
 
-  // Navigation tabs
+  // Navigation tabs SANS séparateurs
   .tabs-container {
     display: flex;
     justify-content: center;
     padding: 0 30px;
-    border-bottom: 1px solid rgba(93, 136, 158, 0.2);
     flex-shrink: 0;
 
     .tab-btn {
       background: transparent;
       border: 2px solid #5d889e;
       border-right: none;
-      border-bottom: none;
       padding: 12px 20px;
       color: #5d889e;
       font-family: inherit;
@@ -103,13 +57,12 @@
       cursor: pointer;
       transition: all 0.3s ease;
 
-      &:first-child { 
-        border-radius: 6px 0 0 0; 
-        border-left: 2px solid #5d889e;
+      &:first-child {
+        border-radius: 6px 0 0 6px;
       }
-      
-      &:last-child { 
-        border-radius: 0 6px 0 0;
+
+      &:last-child {
+        border-radius: 0 6px 6px 0;
         border-right: 2px solid #5d889e;
       }
 
@@ -128,7 +81,7 @@
   .content-container {
     flex: 1;
     padding: 30px;
-    overflow-y: auto;
+    overflow-y: hidden;
 
     // Messages
     .message {
@@ -156,120 +109,172 @@
       max-width: 600px;
       margin: 0 auto;
 
-      .form-section {
-        .section-title {
-          color: #5d889e;
-          font-size: 20px;
-          font-weight: bold;
-          margin: 0 0 25px 0;
-        }
+      .section-title {
+        color: #5d889e;
+        font-size: 20px;
+        font-weight: bold;
+        margin: 0 0 25px 0;
+      }
 
-        .form-field {
-          margin-bottom: 20px;
+      .subsection-title {
+        color: #5d889e;
+        font-size: 16px;
+        font-weight: bold;
+        margin: 25px 0 15px 0;
+      }
 
-          .field-label {
-            display: block;
-            color: #5d889e;
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 8px;
-          }
+      // Section avatar
+      .avatar-section {
+        text-align: center;
+        margin-bottom: 30px;
 
-          .form-input,
-          .form-textarea {
-            width: 100%;
-            background: rgba(26, 29, 32, 0.8);
-            border: 1px solid rgba(93, 136, 158, 0.5);
-            border-radius: 4px;
-            padding: 12px;
-            color: #d0d0d0;
-            font-family: inherit;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            box-sizing: border-box;
+        .avatar-container {
+          display: inline-block;
+          position: relative;
 
-            &::placeholder {
-              color: rgba(93, 136, 158, 0.6);
-            }
-
-            &:focus {
-              outline: none;
-              border-color: #5d889e;
-              background: rgba(26, 29, 32, 1);
-            }
-
-            &:disabled {
-              opacity: 0.6;
-              cursor: not-allowed;
-            }
-          }
-
-          .form-textarea {
-            resize: vertical;
-            min-height: 100px;
-          }
-        }
-
-        .form-actions {
-          margin-top: 30px;
-
-          .save-btn {
-            width: 100%;
-            background: #5d889e;
-            border: none;
-            border-radius: 6px;
-            padding: 14px 20px;
-            color: #121416;
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
+          .avatar-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #1a1d20;
+            border: 3px solid #5d889e;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;           // CORRECTION: Cacher le placeholder quand il y a une imag
+          }
 
-            &:hover:not(:disabled) {
+          .avatar-upload-btn {
+            background: #5d889e;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            color: #121416;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+
+            &:hover {
               background: #6a9bb0;
               transform: translateY(-2px);
-            }
-
-            &:disabled {
-              opacity: 0.6;
-              cursor: not-allowed;
-              transform: none;
-            }
-
-            &.password-btn {
-              background: #b55a44;
-
-              &:hover:not(:disabled) {
-                background: #c46650;
-              }
-            }
-
-            .loading-spinner {
-              width: 16px;
-              height: 16px;
-              border: 2px solid transparent;
-              border-top: 2px solid currentColor;
-              border-radius: 50%;
-              animation: spin 1s linear infinite;
             }
           }
         }
       }
 
-      // Section statistiques
-      .stats-section {
-        .section-title {
+      // Champs de formulaire
+      .form-field {
+        margin-bottom: 20px;
+
+        .field-label {
+          display: block;
           color: #5d889e;
-          font-size: 20px;
+          font-size: 14px;
           font-weight: bold;
-          margin: 0 0 25px 0;
+          margin-bottom: 8px;
         }
 
+        .form-input,
+        .form-textarea {
+          width: 100%;
+          background: rgba(26, 29, 32, 0.8);
+          border: 1px solid rgba(93, 136, 158, 0.5);
+          border-radius: 4px;
+          padding: 12px;
+          color: #d0d0d0;
+          font-family: inherit;
+          font-size: 14px;
+          transition: all 0.3s ease;
+          box-sizing: border-box;
+
+          &::placeholder {
+            color: rgba(93, 136, 158, 0.6);
+          }
+
+          &:focus {
+            outline: none;
+            border-color: #5d889e;
+            background: rgba(26, 29, 32, 1);
+          }
+
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+        }
+
+        .form-textarea {
+          resize: none;
+          min-height: 100px;
+        }
+      }
+
+      // Actions des formulaires
+      .form-actions {
+        margin-top: 30px;
+
+        .save-btn {
+          width: 100%;
+          background: #5d889e;
+          border: none;
+          border-radius: 6px;
+          padding: 14px 20px;
+          color: #121416;
+          font-family: inherit;
+          font-size: 14px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+
+          &:hover:not(:disabled) {
+            background: #6a9bb0;
+            transform: translateY(-2px);
+          }
+
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+          }
+
+          &.password-btn {
+            background: #b55a44;
+
+            &:hover:not(:disabled) {
+              background: #c46650;
+            }
+          }
+
+          .loading-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          }
+        }
+      }
+
+      // Séparateur dans identifiants
+      .section-separator {
+        height: 1px;
+        background: rgba(93, 136, 158, 0.3);
+        margin: 30px 0;
+      }
+
+      // Section statistiques
+      .stats-section {
         .stats-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
@@ -335,30 +340,38 @@
   }
 }
 
-// Animation loading
+// Animations
+@keyframes blink {
+
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 // Responsive
 @media (max-width: 768px) {
   .user-account-container {
-    .back-navigation {
-      padding: 15px 20px;
-    }
-
     .account-header {
       padding: 20px;
 
       .page-title {
         font-size: 24px;
-      }
-
-      .user-info {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
       }
     }
 
