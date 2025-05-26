@@ -91,7 +91,7 @@
           <!-- Upload d'avatar -->
           <div class="avatar-section">
             <div class="avatar-container">
-              <div class="avatar-circle" [style.background-image]="getAvatarUrl()">
+              <div class="avatar-circle" [style.background-image]="getAvatarUrl() ? 'url(' + getAvatarUrl() + ')' : ''">
               </div>
               <button type="button" class="avatar-upload-btn" (click)="triggerFileInput()">
                 Changer

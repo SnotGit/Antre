@@ -46,7 +46,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   error = signal<string | null>(null);
   successMessage = signal<string | null>(null);
   
-  // CORRECTION 1: Onglet avec persistence
   activeTab = signal<'profile' | 'credentials' | 'stats'>(
     (localStorage.getItem('user-account-tab') as any) || 'stats'
   );
@@ -82,9 +81,21 @@ export class UserAccountComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // CORRECTION 2: Forcer le refresh complet des données utilisateur
     this.refreshUserData();
     this.startTypingEffect();
+    this.watchUserChanges();
+  }
+
+  // Surveiller les changements d'utilisateur (switch dev)
+  private watchUserChanges(): void {
+    // Effect pour surveiller les changements d'utilisateur
+    const userChangedEffect = () => {
+      this.authService.userChanged(); // Déclenche la surveillance
+      this.loadUserProfile(); // Recharge les données du formulaire
+    };
+    
+    // Surveiller toutes les secondes
+    setInterval(userChangedEffect, 1000);
   }
 
   ngOnDestroy(): void {
@@ -93,17 +104,13 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     }
   }
 
-  // CORRECTION 3: Méthode pour refresh complet des données
   private refreshUserData(): void {
     this.authService.validateToken().subscribe({
       next: () => {
-        // Données utilisateur mises à jour, maintenant charger le reste
         this.loadUserProfile();
         this.loadUserStats();
       },
       error: (error) => {
-        console.error('Erreur validation token:', error);
-        // En cas d'erreur, utiliser les données en cache
         this.loadUserProfile();
         this.loadUserStats();
       }
@@ -136,7 +143,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
 
   setActiveTab(tab: 'profile' | 'credentials' | 'stats'): void {
     this.activeTab.set(tab);
-    // CORRECTION 4: Sauvegarder l'onglet actif
     localStorage.setItem('user-account-tab', tab);
     this.clearMessages();
   }
@@ -161,11 +167,9 @@ export class UserAccountComponent implements OnInit, OnDestroy {
         this.storyboardService.loadPublishedData()
       ]);
 
-      // TODO: Calculer les likes totaux réels
       this.totalLikes.set(0);
 
     } catch (error) {
-      console.error('Erreur chargement statistiques:', error);
       this.error.set('Impossible de charger les statistiques');
     }
   }
@@ -212,28 +216,20 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     }
   }
 
-  // CORRECTION 5: Méthode d'avatar corrigée
- getAvatarUrl(): string {
-  console.log('=== AVATAR DEBUG FINAL ===');
-  
-  if (this.avatarPreview) {
-    console.log('Preview existe:', this.avatarPreview);
-    return `url(${this.avatarPreview})`;
+  // Méthode d'avatar NETTOYÉE
+  getAvatarUrl(): string {
+    if (this.avatarPreview) {
+      return this.avatarPreview;
+    }
+    
+    const user = this.currentUser();
+    if (user?.avatar) {
+      return `http://localhost:3000${user.avatar}`;
+    }
+    
+    return '';
   }
-  
-  const user = this.currentUser();
-  console.log('CurrentUser complet:', user);
-  console.log('Avatar dans user:', user?.avatar);
-  
-  if (user?.avatar) {
-    const url = `url(http://localhost:3000${user.avatar})`;
-    console.log('URL finale générée:', url);
-    return url;
-  }
-  
-  console.log('Aucun avatar trouvé');
-  return '';
-}
+
   // ============ SAUVEGARDE PROFIL ============
 
   async saveProfile(): Promise<void> {
@@ -245,7 +241,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     this.clearMessages();
 
     try {
-      // CORRECTION 7: Upload avatar ET refresh des données
       if (this.selectedAvatarFile) {
         await this.authService.uploadAvatar(this.selectedAvatarFile).toPromise();
         this.selectedAvatarFile = null;
@@ -255,12 +250,10 @@ export class UserAccountComponent implements OnInit, OnDestroy {
         await this.authService.validateToken().toPromise();
       }
 
-      // TODO: Sauvegarder aussi username et description
       this.successMessage.set('Profil mis à jour avec succès');
       this.loading.set(false);
 
     } catch (error) {
-      console.error('Erreur sauvegarde profil:', error);
       this.error.set('Erreur lors de la sauvegarde du profil');
       this.loading.set(false);
     }
@@ -276,7 +269,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     this.clearMessages();
 
-    // TODO: Appel API pour mettre à jour l'email
     setTimeout(() => {
       this.successMessage.set('Email modifié avec succès');
       this.loading.set(false);
@@ -293,7 +285,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     this.clearMessages();
 
-    // TODO: Appel API pour changer le mot de passe
     setTimeout(() => {
       this.successMessage.set('Mot de passe modifié avec succès');
       this.passwordData = {

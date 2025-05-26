@@ -85,14 +85,11 @@ export class AuthService {
       tap(response => {
         localStorage.setItem(this.TOKEN_KEY, response.token);
         localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
-
         this._currentUser.set(response.user);
         this._isDevMode.set(false);
-
-        console.log('✅ Connexion réussie:', response.user.username);
+        this.triggerUserChange();
       }),
       catchError(error => {
-        console.error('❌ Erreur de connexion:', error);
         throw error;
       })
     );
@@ -100,11 +97,7 @@ export class AuthService {
 
   register(userData: RegisterRequest): Observable<RegisterResponse> {
     return this.http.post<RegisterResponse>(`${this.API_URL}/auth/register`, userData).pipe(
-      tap(response => {
-        console.log('✅ Inscription réussie:', response.user.username);
-      }),
       catchError(error => {
-        console.error('❌ Erreur d\'inscription:', error);
         throw error;
       })
     );
@@ -134,12 +127,11 @@ export class AuthService {
             if (this._isDevMode()) {
               localStorage.setItem(this.DEV_USER_KEY, JSON.stringify(updatedUser));
             }
+            this.triggerUserChange();
           }
         }
-        console.log('✅ Avatar uploadé avec succès');
       }),
       catchError(error => {
-        console.error('❌ Erreur upload avatar:', error);
         throw error;
       })
     );
@@ -153,62 +145,74 @@ export class AuthService {
     this._currentUser.set(null);
     this._isDevMode.set(false);
     this._realUser.set(null);
+    this.triggerUserChange();
 
     this.router.navigate(['/']);
-    console.log('✅ Déconnexion réussie');
   }
 
   // ============ MODE DÉVELOPPEMENT ============
 
-  private switchToDevUser(devUserType: 'elena' | 'snot'): void {
+  switchToElena(): void {
     const currentUser = this._currentUser();
     if (!currentUser || !currentUser.isDev) {
-      console.error('❌ Accès mode dev non autorisé');
       return;
     }
 
+    // Sauvegarder l'utilisateur réel
     this._realUser.set(currentUser);
 
-    // Appel API pour récupérer les données du dev user
+    // Appel API pour récupérer Elena
     this.http.get<DevUsersResponse>(`${this.API_URL}/auth/dev-users`, {
       headers: this.getAuthHeaders()
     }).subscribe({
       next: (response) => {
-        const targetUser = response.users.find(user =>
-          devUserType === 'elena' ? user.username === 'Elena Nova' : user.username === 'Snot'
-        );
-
-        if (targetUser) {
-          this._currentUser.set(targetUser);
+        const elena = response.users.find(user => user.username === 'Elena Nova');
+        
+        if (elena) {
+          this._currentUser.set(elena);
           this._isDevMode.set(true);
-          localStorage.setItem(this.DEV_USER_KEY, JSON.stringify(targetUser));
-
-          // Notifier le changement d'utilisateur
-          this._userChanged.set(this._userChanged() + 1);
-
-          console.log(`🔄 Passage en mode dev - ${targetUser.username}`);
-        } else {
-          console.error('❌ Utilisateur dev non trouvé');
+          localStorage.setItem(this.DEV_USER_KEY, JSON.stringify(elena));
+          this.triggerUserChange();
         }
       },
       error: (error) => {
-        console.error('❌ Erreur récupération dev users:', error);
+        // Gérer l'erreur
       }
     });
   }
 
-  switchToElena(): void {
-    this.switchToDevUser('elena');
-  }
-
   switchToSnot(): void {
-    this.switchToDevUser('snot');
+    const currentUser = this._currentUser();
+    if (!currentUser || !currentUser.isDev) {
+      return;
+    }
+
+    // Sauvegarder l'utilisateur réel
+    this._realUser.set(currentUser);
+
+    // Appel API pour récupérer Snot
+    this.http.get<DevUsersResponse>(`${this.API_URL}/auth/dev-users`, {
+      headers: this.getAuthHeaders()
+    }).subscribe({
+      next: (response) => {
+        const snot = response.users.find(user => user.username === 'Snot');
+        
+        if (snot) {
+          this._currentUser.set(snot);
+          this._isDevMode.set(true);
+          localStorage.setItem(this.DEV_USER_KEY, JSON.stringify(snot));
+          this.triggerUserChange();
+        }
+      },
+      error: (error) => {
+        // Gérer l'erreur
+      }
+    });
   }
 
   exitDevMode(): void {
     const realUser = this._realUser();
     if (!realUser) {
-      console.error('❌ Aucun utilisateur réel sauvegardé');
       return;
     }
 
@@ -216,14 +220,14 @@ export class AuthService {
     this._isDevMode.set(false);
     this._realUser.set(null);
     localStorage.removeItem(this.DEV_USER_KEY);
-
-    // Notifier le changement d'utilisateur
-    this._userChanged.set(this._userChanged() + 1);
-
-    console.log('🔄 Retour au mode normal -', realUser.username);
+    this.triggerUserChange();
   }
 
   // ============ UTILITAIRES ============
+
+  private triggerUserChange(): void {
+    this._userChanged.set(this._userChanged() + 1);
+  }
 
   getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem(this.TOKEN_KEY);
@@ -266,8 +270,6 @@ export class AuthService {
         if (savedUser) {
           this._realUser.set(JSON.parse(savedUser));
         }
-
-        console.log('🔄 Session dev restaurée -', parsedDevUser.username);
         return;
       }
 
@@ -278,15 +280,13 @@ export class AuthService {
       if (token && savedUser) {
         const user = JSON.parse(savedUser);
         this._currentUser.set(user);
-        console.log('✅ Session restaurée -', user.username);
       }
     } catch (error) {
-      console.error('❌ Erreur lors de l\'initialisation de la session:', error);
       this.logout();
     }
   }
 
-  // ============ VALIDATION TOKEN CORRIGÉE ============
+  // ============ VALIDATION TOKEN ============
 
   validateToken(): Observable<boolean> {
     const token = this.getToken();
@@ -298,8 +298,6 @@ export class AuthService {
       headers: this.getAuthHeaders()
     }).pipe(
       tap(response => {
-        console.log('✅ Données utilisateur récupérées:', response.user);
-        
         // Mettre à jour l'utilisateur actuel
         this._currentUser.set(response.user);
         
@@ -311,11 +309,10 @@ export class AuthService {
           localStorage.setItem(this.DEV_USER_KEY, JSON.stringify(response.user));
         }
         
-        console.log('✅ Utilisateur mis à jour avec avatar:', response.user.avatar);
+        this.triggerUserChange();
       }),
       switchMap(() => of(true)),
       catchError((error) => {
-        console.error('❌ Erreur validateToken:', error);
         this.logout();
         return of(false);
       })
