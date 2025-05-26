@@ -12,6 +12,9 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 })
 export class NavbarComponent {
   
+  // Signal pour l'état du menu mobile
+  mobileMenuOpen = signal<boolean>(false);
+  
   // Signals pour l'état de l'utilisateur
   private user = signal<any>(null);
   private connected = signal<boolean>(false);
@@ -23,6 +26,11 @@ export class NavbarComponent {
   constructor() {
     // TODO: Initialiser avec le service d'authentification
     this.loadUserData();
+  }
+
+  // Toggle du menu mobile
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.set(!this.mobileMenuOpen());
   }
 
   // Méthodes pour vérifier les permissions
@@ -49,37 +57,30 @@ export class NavbarComponent {
 
   // Actions de la console
   addCategory(): void {
-    console.log('Add category clicked');
     // TODO: Implémenter l'ajout de catégorie
   }
 
   addList(): void {
-    console.log('Add list clicked');
     // TODO: Implémenter l'ajout de liste
   }
 
   addItem(): void {
-    console.log('Add item clicked');
     // TODO: Implémenter l'ajout d'item
   }
 
   newStory(): void {
-    console.log('New story clicked');
     // TODO: Naviguer vers le formulaire de création d'histoire
   }
 
   myStories(): void {
-    console.log('My stories clicked');
     // TODO: Naviguer vers les histoires de l'utilisateur
   }
 
   settings(): void {
-    console.log('Settings clicked');
     // TODO: Ouvrir les paramètres utilisateur
   }
 
   logout(): void {
-    console.log('Logout clicked');
     this.user.set(null);
     this.connected.set(false);
     // TODO: Implémenter la déconnexion

@@ -8,7 +8,6 @@ export interface DraftStoryFromAPI {
   id: number;
   title: string;
   content: string;
-  wordCount: number;
   createdAt: string;
   updatedAt: string;
   lastModified: string;
@@ -20,8 +19,6 @@ export interface PublishedStoryFromAPI {
   title: string;
   publishDate: string;
   likes: number;
-  views: number;
-  wordCount: number;
 }
 
 export interface APIResponse<T> {
@@ -59,26 +56,21 @@ export class StoryboardService {
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {
-    // Pas d'effect() ici - on charge explicitement quand nécessaire
-  }
+  ) {}
 
   // Méthode publique pour initialiser les données (appelée par les composants)
   async initializeUserData(): Promise<void> {
     if (!this.authService.isLoggedIn()) {
-      console.log('❌ Utilisateur non connecté - pas de chargement des données');
       this._drafts.set([]);
       this._published.set([]);
       return;
     }
 
-    console.log('🔄 Initialisation données storyboard pour:', this.authService.currentUser()?.username);
     await this.reloadAllData();
   }
 
   // Méthode publique pour recharger quand l'utilisateur change (appelée explicitement)
   async onUserChanged(): Promise<void> {
-    console.log('🔄 Changement utilisateur détecté - Rechargement données storyboard');
     await this.initializeUserData();
   }
 
@@ -102,7 +94,6 @@ export class StoryboardService {
         this.loadPublishedData()
       ]);
     } catch (error) {
-      console.error('Erreur lors du rechargement des données:', error);
       this._error.set('Erreur lors du rechargement des données');
     }
   }
@@ -120,10 +111,8 @@ export class StoryboardService {
 
       if (response) {
         this._drafts.set(response.drafts || []);
-        console.log('📝 Brouillons chargés pour:', this.authService.currentUser()?.username, '- Count:', response.count);
       }
     } catch (error) {
-      console.error('Erreur chargement brouillons:', error);
       this._error.set('Impossible de charger vos brouillons');
       this._drafts.set([]);
     } finally {
@@ -144,10 +133,8 @@ export class StoryboardService {
 
       if (response) {
         this._published.set(response.stories || []);
-        console.log('📚 Histoires publiées chargées pour:', this.authService.currentUser()?.username, '- Count:', response.count);
       }
     } catch (error) {
-      console.error('Erreur chargement histoires publiées:', error);
       this._error.set('Impossible de charger vos histoires publiées');
       this._published.set([]);
     } finally {
@@ -164,11 +151,9 @@ export class StoryboardService {
         { headers: this.getAuthHeaders() }
       ).toPromise();
 
-      console.log('Histoire publiée:', storyId);
       // Recharger automatiquement les données
       await this.reloadAllData();
     } catch (error) {
-      console.error('Erreur publication:', error);
       this._error.set('Erreur lors de la publication');
       throw error;
     }
@@ -183,10 +168,8 @@ export class StoryboardService {
         { headers: this.getAuthHeaders() }
       ).toPromise();
 
-      console.log('Histoire archivée:', storyId);
       await this.reloadAllData();
     } catch (error) {
-      console.error('Erreur archivage:', error);
       this._error.set('Erreur lors de l\'archivage');
       throw error;
     }
@@ -200,10 +183,8 @@ export class StoryboardService {
         { headers: this.getAuthHeaders() }
       ).toPromise();
 
-      console.log('Histoire supprimée:', storyId);
       await this.reloadAllData();
     } catch (error) {
-      console.error('Erreur suppression:', error);
       this._error.set('Erreur lors de la suppression');
       throw error;
     }
@@ -224,11 +205,9 @@ export class StoryboardService {
         { headers: this.getAuthHeaders() }
       ).toPromise();
 
-      console.log('Brouillon sauvegardé:', storyId || 'nouveau');
       // Recharger seulement les brouillons
       await this.loadDraftsData();
     } catch (error) {
-      console.error('Erreur sauvegarde:', error);
       this._error.set('Erreur lors de la sauvegarde');
       throw error;
     }
@@ -243,11 +222,9 @@ export class StoryboardService {
         { headers: this.getAuthHeaders() }
       ).toPromise();
 
-      console.log('Like togglé:', storyId);
       // Optionnel: recharger pour avoir les likes à jour
       await this.loadPublishedData();
     } catch (error) {
-      console.error('Erreur toggle like:', error);
       this._error.set('Erreur lors du like');
       throw error;
     }
@@ -261,7 +238,6 @@ export class StoryboardService {
         { headers: this.getAuthHeaders() }
       ).toPromise();
     } catch (error) {
-      console.error('Erreur récupération brouillon:', error);
       this._error.set('Erreur lors de la récupération du brouillon');
       throw error;
     }
@@ -301,6 +277,5 @@ export class StoryboardService {
     this._published.set([]);
     this._error.set(null);
     this._loading.set(false);
-    console.log('🧹 Données utilisateur nettoyées');
   }
 }

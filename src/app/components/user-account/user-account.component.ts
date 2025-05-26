@@ -83,22 +83,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
 
     this.refreshUserData();
     this.startTypingEffect();
-    this.watchUserChanges();
-  }
-
-  // Surveiller les changements d'utilisateur (switch dev) - CORRIGÉ
-  private watchUserChanges(): void {
-    // Effect pour surveiller les changements d'utilisateur
-    const userChangedEffect = () => {
-      this.authService.userChanged(); // Déclenche la surveillance
-      this.loadUserProfile(); // Recharge les données du formulaire
-      
-      // NOUVEAU : Nettoyer les messages lors du switch
-      this.clearMessages();
-    };
-
-    // Surveiller toutes les secondes
-    setInterval(userChangedEffect, 1000);
   }
 
   ngOnDestroy(): void {
@@ -161,7 +145,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
         description: user.description || ''
       };
       
-      // NOUVEAU : Nettoyer les messages quand on charge un autre utilisateur
       this.clearMessages();
     }
   }
@@ -222,7 +205,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Méthode d'avatar NETTOYÉE
+  // Méthode d'avatar
   getAvatarUrl(): string {
     if (this.avatarPreview) {
       return this.avatarPreview;
@@ -251,14 +234,11 @@ export class UserAccountComponent implements OnInit, OnDestroy {
         await this.authService.uploadAvatar(this.selectedAvatarFile).toPromise();
         this.selectedAvatarFile = null;
         this.avatarPreview = null;
-
-        // PAS DE validateToken() ici ! ça écrase le mode dev
       }
 
       this.successMessage.set('Profil mis à jour avec succès');
       this.loading.set(false);
 
-      // NOUVEAU : Effacer le message après 2 secondes
       setTimeout(() => {
         this.successMessage.set(null);
       }, 2000);
@@ -283,7 +263,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
       this.successMessage.set('Email modifié avec succès');
       this.loading.set(false);
 
-      // NOUVEAU : Effacer le message après 2 secondes
       setTimeout(() => {
         this.successMessage.set(null);
       }, 2000);
@@ -309,7 +288,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
       };
       this.loading.set(false);
 
-      // NOUVEAU : Effacer le message après 2 secondes
       setTimeout(() => {
         this.successMessage.set(null);
       }, 2000);
@@ -371,7 +349,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  // ============ UTILITAIRES - CORRIGÉ ============
+  // ============ UTILITAIRES ============
   
   private clearMessages(): void {
     this.error.set(null);
@@ -387,10 +365,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   get userRole(): string {
     const user = this.currentUser();
     if (!user) return 'USER';
-
-    if (user.role === 'admin' && user.isDev) {
-      return 'ADMIN / DEV';
-    }
 
     return user.role.toUpperCase();
   }

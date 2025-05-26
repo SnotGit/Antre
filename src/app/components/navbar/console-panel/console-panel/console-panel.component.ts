@@ -20,8 +20,6 @@ export class ConsolePanelComponent implements OnInit {
   currentUser = this.authService.currentUser;
   isLoggedIn = this.authService.isLoggedIn;
   isAdmin = this.authService.isAdmin;
-  isDevMode = this.authService.isDevMode;
-  canUseDev = this.authService.canUseDev;
 
   // Signals pour l'état du composant
   private currentRoute = signal<string>('');
@@ -66,20 +64,6 @@ export class ConsolePanelComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
-  }
-
-  // ============ MODE DÉVELOPPEMENT ============
-
-  switchToElena(): void {
-    this.authService.switchToElena();
-  }
-
-  switchToSnot(): void {
-    this.authService.switchToSnot();
-  }
-
-  exitDevMode(): void {
-    this.authService.exitDevMode();
   }
 
   // ============ ACTIONS ADMIN (hors chroniques seulement) ============
@@ -132,9 +116,6 @@ export class ConsolePanelComponent implements OnInit {
   }
 
   getCurrentUserLevel(): string {
-    if (this.isDevMode()) {
-      return 'DEV-MODE';
-    }
     return this.currentUser()?.role?.toUpperCase() || 'VISITOR';
   }
 }

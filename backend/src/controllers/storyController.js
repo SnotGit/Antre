@@ -29,7 +29,6 @@ const getAllStories = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la récupération des histoires:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -68,7 +67,6 @@ const getStoryById = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la récupération de l\'histoire:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -117,7 +115,6 @@ const createStory = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la création de l\'histoire:', error);
     res.status(500).json({ error: 'Erreur serveur lors de la création' });
   }
 };
@@ -185,7 +182,6 @@ const updateStory = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la mise à jour de l\'histoire:', error);
     res.status(500).json({ error: 'Erreur serveur lors de la mise à jour' });
   }
 };
@@ -226,7 +222,6 @@ const deleteStory = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la suppression de l\'histoire:', error);
     res.status(500).json({ error: 'Erreur serveur lors de la suppression' });
   }
 };
@@ -265,7 +260,6 @@ const getStoriesByUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la récupération des histoires de l\'utilisateur:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };

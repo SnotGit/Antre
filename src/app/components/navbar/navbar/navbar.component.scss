@@ -1,4 +1,4 @@
-/* navbar.component.scss - S'adapte à son conteneur */
+/* navbar.component.scss - Menu hamburger mobile */
 
 .navbar {
   width: 100%;
@@ -135,6 +135,44 @@
     }
   }
 
+  // MENU HAMBURGER MOBILE (masqué par défaut)
+  .mobile-menu-toggle {
+    display: none;
+    background-color: rgba(93, 136, 158, 0.05);
+    border: 1px solid rgba(93, 136, 158, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    color: #d0d0d0;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    position: relative;
+
+    &:hover {
+      background-color: rgba(93, 136, 158, 0.15);
+      border-color: #5d889e;
+    }
+
+    .hamburger-icon {
+      margin-right: 10px;
+      font-size: 18px;
+    }
+
+    .dropdown-arrow {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: transform 0.3s ease;
+      
+      &.rotated {
+        transform: translateY(-50%) rotate(180deg);
+      }
+    }
+  }
+
   .menu-items {
     display: flex;
     flex-direction: column;
@@ -246,36 +284,60 @@
   }
 }
 
+// MOBILE avec menu hamburger
 @media (max-width: 768px) {
   .navbar {
-    flex-direction: row;
     height: auto;
     padding: 15px;
-    align-items: center;
-    gap: 15px;
+    gap: 0;
     
+    // Masquer le logo sur mobile
     .logo {
-      margin-bottom: 0;
-      flex-shrink: 0;
-      width: 80px;
+      display: none;
     }
     
+    // Afficher le bouton hamburger
+    .mobile-menu-toggle {
+      display: block;
+    }
+    
+    // Menu items masqués par défaut sur mobile
     .menu-items {
-      flex-direction: row;
-      flex-wrap: wrap;
+      display: none;
+      margin-top: 15px;
       gap: 10px;
       
+      &.show {
+        display: flex;
+        animation: slideDown 0.3s ease-out;
+      }
+      
       .menu-item {
-        flex: 1;
-        text-align: center;
-        min-width: 80px;
-        padding: 8px 10px;
-        font-size: 12px;
+        padding: 12px 15px;
+        font-size: 14px;
+        margin: 0;
+        border-left: none;
+        
+        &:hover {
+          transform: none;
+        }
         
         &.staff-only {
           margin-top: 0;
         }
       }
     }
+  }
+}
+
+// Animation du menu déroulant
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

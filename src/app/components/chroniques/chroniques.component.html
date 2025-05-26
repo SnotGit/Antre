@@ -31,7 +31,7 @@
     <div class="writers-grid">
       @for (author of recentAuthors(); track author.id) {
         <div class="writer-card" (click)="navigateToStory(author.username, author.latestStory.slug)">
-          <div class="writer-avatar" [style.background-image]="'url(' + author.avatar + ')'"></div>
+          <div class="writer-avatar" [style.background-image]="'url(http://localhost:3000' + author.avatar + ')'"></div>
           <div class="writer-info">
             <h3>{{ author.username }}</h3>
             <p class="author-description">{{ author.description }}</p>

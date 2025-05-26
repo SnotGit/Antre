@@ -55,7 +55,7 @@ export class ChroniquesService {
     this.loadRecentAuthors();
   }
 
-  // Charger les 6 derniers auteurs avec leur histoire la plus récente
+  // Charger les 4 derniers auteurs avec leur histoire la plus récente
   loadRecentAuthors(): void {
     this._loading.set(true);
     this._error.set(null);
@@ -63,18 +63,15 @@ export class ChroniquesService {
     this.http.get<{message: string, authors: AuthorWithLatestStory[], count: number}>
       (`${this.API_URL}/chroniques/recent-authors`).subscribe({
       next: (response) => {
-        console.log('✅ API Response:', response); // Debug
         const authors = response.authors || [];
-        console.log('✅ Authors extracted:', authors); // Debug
         this._recentAuthors.set(authors);
         this._loading.set(false);
       },
       error: (error) => {
-        console.error('❌ API Error:', error);
         this._error.set('Erreur lors du chargement des chroniques');
         this._loading.set(false);
         
-        // En cas d'erreur, utiliser des données de fallback avec Elena
+        // En cas d'erreur, utiliser des données de fallback
         this.loadFallbackData();
       }
     });
@@ -90,7 +87,6 @@ export class ChroniquesService {
         this._error.set(null);
       },
       error: (error) => {
-        console.error('Impossible de charger les données de fallback:', error);
         this._recentAuthors.set([]);
         this._error.set('Aucune chronique disponible');
       }
@@ -124,10 +120,10 @@ export class ChroniquesService {
       }
     });
     
-    // Retourner les 6 plus récents
+    // Retourner les 4 plus récents
     return Array.from(authorsMap.values())
       .sort((a, b) => new Date(b.latestStory.publishedAt).getTime() - new Date(a.latestStory.publishedAt).getTime())
-      .slice(0, 6);
+      .slice(0, 4);
   }
 
   // Méthode pour rafraîchir les données

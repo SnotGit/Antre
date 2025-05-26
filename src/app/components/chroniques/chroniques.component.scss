@@ -79,29 +79,30 @@
   }
 }
 
-// Grille des auteurs avec ma nouvelle card - CENTRÉE
+// Grille des auteurs - 2 miniatures par ligne (1 sur mobile)
 .writers-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); // Toujours 3 colonnes fixes
+  grid-template-columns: repeat(2, 1fr); // 2 colonnes par défaut
   gap: 2rem;
   margin: 2rem auto;
-  max-width: 1200px;
-  justify-items: center; // Centre les cards dans leurs colonnes
+  max-width: 800px;
+  justify-items: center;
+  padding: 0 20px;
   
-  // 2 colonnes sur tablette
+  // Espacement réduit sur tablette
   @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
     margin: 1.5rem auto;
-    max-width: 800px;
+    padding: 0 15px;
   }
 
   // 1 colonne sur mobile
   @media (max-width: 480px) {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; // 1 colonne sur mobile
     gap: 1rem;
     margin: 1rem auto;
     max-width: 400px;
+    padding: 0 20px;
   }
 }
 
@@ -118,6 +119,7 @@
   width: 100%;
   max-width: 320px; // Largeur max pour uniformité
   min-height: 220px; // Hauteur minimum pour uniformité
+  box-sizing: border-box; // AJOUTÉ: Pour inclure padding et border
 
   &:hover {
     transform: translateY(-3px);
@@ -218,4 +220,33 @@
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
+}
+
+// RESPONSIVE AMÉLIORÉ pour l'header
+@media (max-width: 768px) {
+  .header {
+    margin: 20px 15px 15px 15px; // Marges réduites sur mobile
+    
+    h2 {
+      font-size: 24px; // Titre plus petit sur mobile
+    }
+    
+    p {
+      font-size: 14px; // Texte plus petit
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    margin: 15px 10px 10px 10px; // Marges encore plus réduites
+    
+    h2 {
+      font-size: 20px;
+    }
+    
+    p {
+      font-size: 13px;
+    }
+  }
 }

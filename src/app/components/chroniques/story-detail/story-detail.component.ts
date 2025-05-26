@@ -25,8 +25,6 @@ export class StoryDetailComponent implements OnInit {
     title: '',
     content: '',
     status: 'DRAFT',
-    views: 0,
-    wordCount: 0,
     createdAt: '',
     updatedAt: '',
     user: undefined
@@ -60,28 +58,12 @@ export class StoryDetailComponent implements OnInit {
       next: (response: StoryByIdResponse) => {
         if (response.story) {
           this.story.set(response.story);
-          
-          // Incrémenter les vues si l'histoire est publiée
-          if (response.story.status === 'PUBLISHED') {
-            this.storyService.incrementViews(storyId).subscribe({
-              next: () => {
-                // Vue incrémentée avec succès
-                const updatedStory = { ...this.story(), views: this.story().views + 1 };
-                this.story.set(updatedStory);
-              },
-              error: (error: HttpErrorResponse) => {
-                console.error('Erreur lors de l\'incrémentation des vues:', error);
-                // Pas grave si ça échoue, on continue
-              }
-            });
-          }
         } else {
           this.error.set('Histoire non trouvée');
         }
         this.loading.set(false);
       },
       error: (error: HttpErrorResponse) => {
-        console.error('Erreur lors du chargement de l\'histoire:', error);
         if (error.status === 404) {
           this.error.set('Histoire non trouvée');
         } else {
@@ -98,20 +80,6 @@ export class StoryDetailComponent implements OnInit {
   }
 
   // Méthodes utilitaires pour le template
-  isPublished(): boolean {
-    return this.story().status === 'PUBLISHED';
-  }
-
-  getStatus(): string {
-    const status = this.story().status;
-    switch (status) {
-      case 'DRAFT': return 'Brouillon';
-      case 'PUBLISHED': return 'Publié';
-      case 'ARCHIVED': return 'Archivé';
-      default: return 'Inconnu';
-    }
-  }
-
   getFormattedDate(): string {
     const story = this.story();
     const dateToFormat = story.publishedAt || story.updatedAt || story.createdAt;
@@ -125,32 +93,17 @@ export class StoryDetailComponent implements OnInit {
     });
   }
 
-  getTotalStories(): number {
-    // TODO: Récupérer le nombre total d'histoires de l'auteur depuis l'API
-    // Pour l'instant, on retourne une valeur par défaut
-    return 7;
-  }
-
   getLikesCount(): number {
-    // TODO: Récupérer le nombre de likes depuis l'API
+    // TODO: Récupérer le nombre de likes de CETTE histoire depuis l'API
     // Pour l'instant, valeur simulée
     return 23;
   }
 
-  // Méthodes pour les actions (seront déplacées vers le console-panel)
-  editStory(): void {
-    this.router.navigate(['/chroniques/editor', this.story().id]);
-  }
-
-  deleteStory(): void {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette histoire ?')) {
-      // TODO: Implémenter la suppression
-      console.log('Supprimer histoire ID:', this.story().id);
+  // Méthodes pour la navigation uniquement
+  navigateToAuthor(): void {
+    const authorUsername = this.story().user?.username;
+    if (authorUsername) {
+      this.router.navigate(['/chroniques/author', authorUsername]);
     }
-  }
-
-  publishStory(): void {
-    // TODO: Implémenter la publication
-    console.log('Publier histoire ID:', this.story().id);
   }
 }
