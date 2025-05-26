@@ -25,9 +25,9 @@ interface PasswordChangeData {
   styleUrl: './user-account.component.scss'
 })
 export class UserAccountComponent implements OnInit, OnDestroy {
-  
+
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-  
+
   private router = inject(Router);
   private authService = inject(AuthService);
   private storyboardService = inject(StoryboardService);
@@ -45,7 +45,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
   successMessage = signal<string | null>(null);
-  
+
   activeTab = signal<'profile' | 'credentials' | 'stats'>(
     (localStorage.getItem('user-account-tab') as any) || 'stats'
   );
@@ -86,14 +86,17 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     this.watchUserChanges();
   }
 
-  // Surveiller les changements d'utilisateur (switch dev)
+  // Surveiller les changements d'utilisateur (switch dev) - CORRIGÉ
   private watchUserChanges(): void {
     // Effect pour surveiller les changements d'utilisateur
     const userChangedEffect = () => {
       this.authService.userChanged(); // Déclenche la surveillance
       this.loadUserProfile(); // Recharge les données du formulaire
+      
+      // NOUVEAU : Nettoyer les messages lors du switch
+      this.clearMessages();
     };
-    
+
     // Surveiller toutes les secondes
     setInterval(userChangedEffect, 1000);
   }
@@ -131,7 +134,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
         setTimeout(() => {
           this.typingComplete.set(true);
         }, 500);
-        
+
         if (this.typingInterval) {
           clearInterval(this.typingInterval);
         }
@@ -157,6 +160,9 @@ export class UserAccountComponent implements OnInit, OnDestroy {
         email: user.email,
         description: user.description || ''
       };
+      
+      // NOUVEAU : Nettoyer les messages quand on charge un autre utilisateur
+      this.clearMessages();
     }
   }
 
@@ -175,7 +181,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   }
 
   // ============ COMPUTED POUR LES STATS ============
-  
+
   getUserStats() {
     return {
       totalStories: this.totalStoriesCount(),
@@ -194,7 +200,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   onAvatarSelected(event: Event): void {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
-    
+
     if (file) {
       if (!file.type.startsWith('image/')) {
         this.error.set('Veuillez sélectionner une image valide');
@@ -207,7 +213,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
       }
 
       this.selectedAvatarFile = file;
-      
+
       const reader = new FileReader();
       reader.onload = (e) => {
         this.avatarPreview = e.target?.result as string;
@@ -221,12 +227,12 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     if (this.avatarPreview) {
       return this.avatarPreview;
     }
-    
+
     const user = this.currentUser();
     if (user?.avatar) {
       return `http://localhost:3000${user.avatar}`;
     }
-    
+
     return '';
   }
 
@@ -245,13 +251,17 @@ export class UserAccountComponent implements OnInit, OnDestroy {
         await this.authService.uploadAvatar(this.selectedAvatarFile).toPromise();
         this.selectedAvatarFile = null;
         this.avatarPreview = null;
-        
-        // Forcer le refresh des données utilisateur après upload
-        await this.authService.validateToken().toPromise();
+
+        // PAS DE validateToken() ici ! ça écrase le mode dev
       }
 
       this.successMessage.set('Profil mis à jour avec succès');
       this.loading.set(false);
+
+      // NOUVEAU : Effacer le message après 2 secondes
+      setTimeout(() => {
+        this.successMessage.set(null);
+      }, 2000);
 
     } catch (error) {
       this.error.set('Erreur lors de la sauvegarde du profil');
@@ -272,6 +282,11 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.successMessage.set('Email modifié avec succès');
       this.loading.set(false);
+
+      // NOUVEAU : Effacer le message après 2 secondes
+      setTimeout(() => {
+        this.successMessage.set(null);
+      }, 2000);
     }, 1000);
   }
 
@@ -293,6 +308,11 @@ export class UserAccountComponent implements OnInit, OnDestroy {
         confirmPassword: ''
       };
       this.loading.set(false);
+
+      // NOUVEAU : Effacer le message après 2 secondes
+      setTimeout(() => {
+        this.successMessage.set(null);
+      }, 2000);
     }, 1000);
   }
 
@@ -351,6 +371,8 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     return true;
   }
 
+  // ============ UTILITAIRES - CORRIGÉ ============
+  
   private clearMessages(): void {
     this.error.set(null);
     this.successMessage.set(null);
@@ -365,11 +387,11 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   get userRole(): string {
     const user = this.currentUser();
     if (!user) return 'USER';
-    
+
     if (user.role === 'admin' && user.isDev) {
       return 'ADMIN / DEV';
     }
-    
+
     return user.role.toUpperCase();
   }
 

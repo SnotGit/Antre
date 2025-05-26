@@ -49,6 +49,7 @@ const register = async (req, res) => {
         id: true,
         username: true,
         email: true,
+        avatar: true,
         description: true,
         role: true,
         createdAt: true
