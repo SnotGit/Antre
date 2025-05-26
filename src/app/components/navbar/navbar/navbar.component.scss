@@ -10,7 +10,7 @@
   flex-direction: column;
   gap: 20px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-  border: 2px solid rgba(93, 136, 158, 0.3);
+  border: 2px solid #5d889e;
   box-sizing: border-box;
 
   .logo {
@@ -27,14 +27,13 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      border: 1px solid #5d889e;
     }
     
     img {
       width: 100%;
       height: auto;
       border-radius: 10px;
-      border: 1px solid rgba(93, 136, 158, 0.2);
-      background-color: rgba(93, 136, 158, 0.1);
       position: relative;
       z-index: 2;
       animation: tv-flicker 0.15s infinite linear alternate;
@@ -85,7 +84,7 @@
       height: 100%;
       pointer-events: none;
       z-index: 3;
-      opacity: 0.1;
+      opacity: 1;
       background: repeating-linear-gradient(
         0deg,
         transparent,
@@ -102,7 +101,8 @@
       top: 0;
       left: 0;
       width: 100%;
-      height: 10px;
+      height: 20px;
+      opacity: 0.5;
       background: linear-gradient(
         to bottom,
         transparent 0%,
@@ -112,7 +112,7 @@
         transparent 100%
       );
       z-index: 4;
-      animation: roll-down 3s linear infinite;
+      animation: roll-down 20s linear infinite;
       border-radius: 10px;
     }
 
