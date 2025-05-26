@@ -1,6 +1,6 @@
-<!-- navbar.component.html - Supprime le div app-layout superflu -->
+<!-- navbar.component.html - Menu hamburger mobile -->
 <nav class="navbar">
-  <!-- Logo -->
+  <!-- Logo (masqué sur mobile) -->
   <div class="logo">
     <div class="logo-container">
       <div class="glitch-logo">
@@ -12,8 +12,15 @@
     </div>
   </div>
 
+  <!-- Bouton hamburger mobile (masqué sur desktop) -->
+  <div class="mobile-menu-toggle" (click)="toggleMobileMenu()">
+    <span class="hamburger-icon">☰</span>
+    Navigation
+    <span class="dropdown-arrow" [class.rotated]="mobileMenuOpen">▼</span>
+  </div>
+
   <!-- Menu principal -->
-  <div class="menu-items">
+  <div class="menu-items" [class.show]="mobileMenuOpen">
     <a routerLink="/archives" routerLinkActive="active" class="menu-item">
       Archives
     </a>

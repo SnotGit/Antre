@@ -40,7 +40,6 @@ const getUserDrafts = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la récupération des brouillons:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -80,7 +79,6 @@ const getUserPublishedStories = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la récupération des histoires publiées:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -105,7 +103,6 @@ const getUserTotalLikes = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur récupération total likes:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -161,7 +158,6 @@ const publishStory = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la publication:', error);
     res.status(500).json({ error: 'Erreur serveur lors de la publication' });
   }
 };
@@ -226,7 +222,6 @@ const likeStory = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors du like:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -270,7 +265,6 @@ const archiveStory = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de l\'archivage:', error);
     res.status(500).json({ error: 'Erreur serveur lors de l\'archivage' });
   }
 };
@@ -280,7 +274,7 @@ const saveDraft = async (req, res) => {
   try {
     const { title, content } = req.body;
     const userId = req.user.userId;
-    const { id } = req.params; // ID optionnel pour mise à jour
+    const { id } = req.params;
 
     // Si ID fourni, c'est une mise à jour
     if (id) {
@@ -364,7 +358,6 @@ const saveDraft = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la sauvegarde du brouillon:', error);
     res.status(500).json({ error: 'Erreur serveur lors de la sauvegarde' });
   }
 };
@@ -413,7 +406,6 @@ const getDraftById = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la récupération du brouillon:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -478,7 +470,6 @@ const getRecentAuthors = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la récupération des auteurs récents:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };

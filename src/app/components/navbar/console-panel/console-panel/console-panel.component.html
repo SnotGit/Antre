@@ -14,18 +14,9 @@
     <div class="user-line">
       <span>> USER: {{getCurrentUserName()}}</span>
     </div>
-
-    <!-- Mode dev indicator remplace ACCESS-LVL quand actif -->
-    @if (isDevMode()) {
-    <div class="dev-mode-indicator">
-      <span class="led orange"></span>
-      <span>> DEV MODE ACTIF</span>
-    </div>
-    } @else {
     <div class="access-line">
       <span>> ACCESS-LVL: {{getCurrentUserLevel()}}</span>
     </div>
-    }
   </div>
 
   <!-- 3. SECTION COMMANDES FLEXIBLE -->
@@ -54,23 +45,6 @@
       <span class="group-title">> FONCTIONS CHRONIQUES</span>
       <button class="console-btn" (click)="newStory()">NOUVELLE HISTOIRE</button>
       <button class="console-btn" (click)="myStories()">MES HISTOIRES</button>
-    </div>
-    }
-
-    <!-- Section MODE DEV - Logique corrigée -->
-    @if (isLoggedIn()) {
-    <div class="action-group">
-      <span class="group-title">> MODE DEV</span>
-      @if (currentUser()?.username === 'Snot') {
-      <button class="console-btn dev-btn" (click)="switchToElena()">
-        SWITCH TO ELENA
-      </button>
-      }
-      @if (currentUser()?.username === 'Elena Nova') {
-      <button class="console-btn dev-btn" (click)="switchToSnot()">
-        SWITCH TO SNOT
-      </button>
-      }
     </div>
     }
     }

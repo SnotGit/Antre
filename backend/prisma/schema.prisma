@@ -13,7 +13,6 @@ datasource db {
 enum UserRole {
   admin
   user
-  dev
 }
 
 enum StoryStatus {
@@ -30,7 +29,6 @@ model User {
   description String?  @db.Text
   avatar      String?  @db.VarChar(255)
   role        UserRole @default(user)
-  isDev       Boolean  @default(false) @map("is_dev")
   createdAt   DateTime @default(now()) @map("created_at")
   
   // Relations
@@ -46,8 +44,6 @@ model Story {
   content     String      @db.Text
   status      StoryStatus @default(DRAFT)
   userId      Int         @map("user_id")
-  views       Int         @default(0)
-  wordCount   Int         @default(0) @map("word_count")
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
   publishedAt DateTime?   @map("published_at")

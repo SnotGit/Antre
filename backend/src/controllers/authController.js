@@ -62,12 +62,11 @@ const register = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur lors de l\'inscription:', error);
     res.status(500).json({ error: 'Erreur serveur lors de l\'inscription' });
   }
 };
 
-// Connexion - CORRIGÉE
+// Connexion
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -78,7 +77,7 @@ const login = async (req, res) => {
       });
     }
 
-    // Trouver l'utilisateur avec TOUS les champs nécessaires
+    // Trouver l'utilisateur
     const user = await prisma.user.findUnique({
       where: { email },
       select: {
@@ -89,7 +88,6 @@ const login = async (req, res) => {
         description: true,
         avatar: true,
         role: true,
-        isDev: true,
         createdAt: true
       }
     });
@@ -120,7 +118,7 @@ const login = async (req, res) => {
       { expiresIn: '24h' }
     );
 
-    // Réponse COMPLÈTE avec tous les champs
+    // Réponse complète
     res.json({
       message: 'Connexion réussie',
       token,
@@ -131,18 +129,16 @@ const login = async (req, res) => {
         description: user.description,
         avatar: user.avatar,
         role: user.role,
-        isDev: user.isDev,
         createdAt: user.createdAt
       }
     });
 
   } catch (error) {
-    console.error('Erreur lors de la connexion:', error);
     res.status(500).json({ error: 'Erreur serveur lors de la connexion' });
   }
 };
 
-// Profil utilisateur - CORRIGÉ (suppression doublon avatar)
+// Profil utilisateur
 const getProfile = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
@@ -154,7 +150,6 @@ const getProfile = async (req, res) => {
         description: true,
         avatar: true,
         role: true,
-        isDev: true,
         createdAt: true,
         stories: {
           select: {
@@ -173,7 +168,6 @@ const getProfile = async (req, res) => {
     res.json({ user });
 
   } catch (error) {
-    console.error('Erreur lors de la récupération du profil:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };

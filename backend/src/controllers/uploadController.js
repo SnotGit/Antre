@@ -46,29 +46,10 @@ const upload = multer({
   }
 });
 
-// Contrôleur pour l'upload d'avatar - VERSION FINALE PROPRE
+// Contrôleur pour l'upload d'avatar
 const uploadAvatar = async (req, res) => {
   try {
-    // L'ID peut venir du token JWT OU du body (mode dev)
-    const tokenUserId = req.user.userId;
-    const requestedUserId = req.body.userId ? parseInt(req.body.userId) : tokenUserId;
-    
-    // Vérifier les permissions
-    const tokenUser = await prisma.user.findUnique({
-      where: { id: tokenUserId },
-      select: { isDev: true, role: true }
-    });
-
-    // Si l'utilisateur demande l'upload pour quelqu'un d'autre, vérifier qu'il est dev
-    if (requestedUserId !== tokenUserId) {
-      if (!tokenUser || !tokenUser.isDev) {
-        return res.status(403).json({ 
-          error: 'Droits développeur requis pour modifier d\'autres utilisateurs' 
-        });
-      }
-    }
-
-    const userId = requestedUserId;
+    const userId = req.user.userId;
 
     if (!req.file) {
       return res.status(400).json({ 
@@ -102,7 +83,7 @@ const uploadAvatar = async (req, res) => {
     // Chemin relatif pour la base de données
     const avatarPath = `/uploads/avatars/${newFilename}`;
 
-    // Mettre à jour l'utilisateur CORRECT
+    // Mettre à jour l'utilisateur
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: { avatar: avatarPath },
@@ -113,7 +94,6 @@ const uploadAvatar = async (req, res) => {
         description: true,
         avatar: true,
         role: true,
-        isDev: true,
         createdAt: true
       }
     });
@@ -125,8 +105,6 @@ const uploadAvatar = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur upload avatar:', error);
-    
     // Supprimer le fichier uploadé en cas d'erreur
     if (req.file) {
       const filePath = req.file.path;

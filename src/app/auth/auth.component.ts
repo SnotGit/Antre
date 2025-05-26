@@ -50,10 +50,6 @@ export class AuthComponent implements OnInit, OnDestroy {
     description: ''
   };
 
-  // Animation du terminal - Supprimées
-  private typingInterval?: number;
-  private cursorInterval?: number;
-
   ngOnInit(): void {
     // Détecter le mode depuis l'URL
     const url = this.router.url;
@@ -70,7 +66,7 @@ export class AuthComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Plus d'animations à nettoyer
+    // Nettoyage si nécessaire
   }
 
   // ============ NAVIGATION ============
@@ -101,8 +97,6 @@ export class AuthComponent implements OnInit, OnDestroy {
 
     this.authService.login(this.loginData.email, this.loginData.password).subscribe({
       next: (response) => {
-        console.log('✅ Connexion réussie');
-        
         // Rediriger vers les chroniques ou la page précédente
         const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/chroniques';
         this.router.navigate([returnUrl]);
@@ -110,8 +104,6 @@ export class AuthComponent implements OnInit, OnDestroy {
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('❌ Erreur de connexion:', error);
-        
         let errorMessage = 'Erreur de connexion';
         if (error.status === 401) {
           errorMessage = 'Email ou mot de passe incorrect';
@@ -143,8 +135,6 @@ export class AuthComponent implements OnInit, OnDestroy {
 
     this.authService.register(this.registerData).subscribe({
       next: (response) => {
-        console.log('✅ Inscription réussie');
-        
         this.successMessage.set('Compte créé avec succès ! Vous pouvez maintenant vous connecter.');
         
         // Réinitialiser le formulaire
@@ -163,8 +153,6 @@ export class AuthComponent implements OnInit, OnDestroy {
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('❌ Erreur d\'inscription:', error);
-        
         let errorMessage = 'Erreur lors de l\'inscription';
         if (error.status === 409) {
           errorMessage = 'Cet email ou nom d\'utilisateur est déjà utilisé';

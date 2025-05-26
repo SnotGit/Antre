@@ -66,19 +66,14 @@ export class StoryBoardComponent implements OnInit, OnDestroy {
     this.currentUser()?.username || 'Utilisateur'
   );
 
-  // Effect pour détecter les changements d'utilisateur (y compris mode dev)
+  // Effect pour détecter les changements d'utilisateur
   private userChangeEffect = effect(() => {
-    // S'abonner aux changements d'utilisateur (userChanged se met à jour lors du switch)
     this.authService.userChanged();
     const user = this.currentUser();
     
     if (user) {
-      console.log('👤 Changement utilisateur détecté dans StoryBoard:', user.username);
-      // Déclencher le rechargement des données
       this.loadUserData();
     } else {
-      console.log('👤 Utilisateur déconnecté - nettoyage des données');
-      // Optionnel: nettoyer les données locales
       this.likedStories.set(new Set());
     }
   });
@@ -89,8 +84,6 @@ export class StoryBoardComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('📊 Story Board - Initialisation pour:', this.currentUser()?.username);
-    
     // Charger les données initiales
     this.loadUserData();
   }
@@ -107,9 +100,8 @@ export class StoryBoardComponent implements OnInit, OnDestroy {
   private async loadUserData(): Promise<void> {
     try {
       await this.storyboardService.initializeUserData();
-      console.log('✅ Données chargées pour:', this.currentUser()?.username);
     } catch (error) {
-      console.error('❌ Erreur chargement données utilisateur:', error);
+      // Gestion d'erreur silencieuse
     }
   }
 
@@ -130,7 +122,14 @@ export class StoryBoardComponent implements OnInit, OnDestroy {
 
   // Actions utilisateur
   selectStory(storyId: number): void {
-    console.log('Histoire sélectionnée:', storyId);
+    // TODO: Sélection gérée par le console-panel
+    // La navigation sera faite via les boutons du console-panel
+  }
+
+  // NOUVEAU: Vérifier si c'est sa propre histoire (toujours vrai dans story-board)
+  isOwnStory(storyId: number): boolean {
+    // Dans le story-board, toutes les histoires appartiennent à l'utilisateur connecté
+    return true;
   }
 
   async toggleLike(storyId: number, event: Event): Promise<void> {
@@ -141,11 +140,15 @@ export class StoryBoardComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // PROTECTION: Empêcher de liker ses propres histoires
+    if (this.isOwnStory(storyId)) {
+      return; // Ne rien faire
+    }
+
     const currentLikes = new Set(this.likedStories());
     
     // Si déjà liké, ne rien faire
     if (currentLikes.has(storyId)) {
-      console.log('Histoire déjà likée');
       return;
     }
 
@@ -155,12 +158,10 @@ export class StoryBoardComponent implements OnInit, OnDestroy {
     
     try {
       await this.storyboardService.toggleLike(storyId);
-      console.log('Like persisté en base');
     } catch (error) {
       // Rollback en cas d'erreur
       currentLikes.delete(storyId);
       this.likedStories.set(currentLikes);
-      console.error('Erreur toggle like:', error);
     }
   }
 
@@ -176,9 +177,8 @@ export class StoryBoardComponent implements OnInit, OnDestroy {
   async publishStory(storyId: number): Promise<void> {
     try {
       await this.storyboardService.publishStory(storyId);
-      console.log('Histoire publiée avec succès');
     } catch (error) {
-      console.error('Erreur publication:', error);
+      // Gestion d'erreur silencieuse
     }
   }
 
@@ -186,9 +186,8 @@ export class StoryBoardComponent implements OnInit, OnDestroy {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette histoire ?')) {
       try {
         await this.storyboardService.deleteStory(storyId);
-        console.log('Histoire supprimée avec succès');
       } catch (error) {
-        console.error('Erreur suppression:', error);
+        // Gestion d'erreur silencieuse
       }
     }
   }
@@ -196,9 +195,8 @@ export class StoryBoardComponent implements OnInit, OnDestroy {
   async archiveStory(storyId: number): Promise<void> {
     try {
       await this.storyboardService.archiveStory(storyId);
-      console.log('Histoire archivée avec succès');
     } catch (error) {
-      console.error('Erreur archivage:', error);
+      // Gestion d'erreur silencieuse
     }
   }
 }

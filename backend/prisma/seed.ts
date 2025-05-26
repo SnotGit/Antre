@@ -4,18 +4,12 @@ import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-function countWords(text: string): number {
-  return text.trim().split(/\s+/).filter(word => word.length > 0).length;
-}
-
 async function main() {
-  console.log('Début du seeding...');
-
   // Hasher les mots de passe
   const adminPassword = await bcrypt.hash('admin123', 10);
   const userPassword = await bcrypt.hash('user123', 10);
 
-  // 1. Créer Snot (admin + dev)
+  // 1. Créer Snot (admin)
   const snot = await prisma.user.upsert({
     where: { email: 'snot@antre.com' },
     update: {},
@@ -23,14 +17,13 @@ async function main() {
       username: 'Snot',
       email: 'snot@antre.com',
       passwordHash: adminPassword,
-      description: 'Développeur admin de L\'Antre',
+      description: 'Administrateur de L\'Antre',
       avatar: '/assets/images/admin-avatar.png',
       role: 'admin',
-      isDev: true,
     },
   });
 
-  // 2. Créer Elena Nova (user + dev)
+  // 2. Créer Elena Nova (user)
   const elena = await prisma.user.upsert({
     where: { email: 'elena@antre.com' },
     update: {},
@@ -38,14 +31,13 @@ async function main() {
       username: 'Elena Nova',
       email: 'elena@antre.com',
       passwordHash: userPassword,
-      description: 'Développeuse user de L\'Antre',
+      description: 'Écrivaine martienne passionnée',
       avatar: '/assets/images/Avatar-test.png',
       role: 'user',
-      isDev: true,
     },
   });
 
-  // 3. Créer Sulfuro (admin seulement)
+  // 3. Créer Sulfuro (admin)
   const sulfuro = await prisma.user.upsert({
     where: { email: 'sulfuro@antre.com' },
     update: {},
@@ -56,11 +48,10 @@ async function main() {
       description: 'Administrateur de L\'Antre',
       avatar: '/assets/images/sulfuro-avatar.png',
       role: 'admin',
-      isDev: false,
     },
   });
 
-  // 4. Créer Zeldator (user seulement)
+  // 4. Créer Zeldator (user)
   const zeldator = await prisma.user.upsert({
     where: { email: 'zeldator@antre.com' },
     update: {},
@@ -71,16 +62,8 @@ async function main() {
       description: 'Utilisateur de L\'Antre',
       avatar: '/assets/images/zeldator-avatar.png',
       role: 'user',
-      isDev: false,
     },
   });
-
-  console.log('Utilisateurs créés:');
-  console.log('- Snot (admin + dev):', snot);
-  console.log('- Elena Nova (user + dev):', elena);
-  console.log('- Sulfuro (admin):', sulfuro);
-  console.log('- Zeldator (user):', zeldator);
-
 
   // Histoires d'Elena Nova
   const stories = [
@@ -182,7 +165,6 @@ C'est cette nuit-là que nous avons décidé de prendre les choses en main. Si l
   // Créer les histoires d'Elena
   for (let i = 0; i < stories.length; i++) {
     const storyData = stories[i];
-    const wordCount = countWords(storyData.content);
     
     await prisma.story.upsert({
       where: { id: i + 1 },
@@ -192,16 +174,14 @@ C'est cette nuit-là que nous avons décidé de prendre les choses en main. Si l
         content: storyData.content,
         status: storyData.status as 'DRAFT' | 'PUBLISHED',
         publishedAt: storyData.publishedAt,
-        wordCount: wordCount,
         userId: elena.id,
       },
     });
   }
 
-  console.log('Histoires d\'Elena Nova créées');
   console.log('Seeding terminé avec succès !');
   console.log('Connexions:');
-  console.log('   Admin + Dev: snot@antre.com / admin123');
+  console.log('   Admin: snot@antre.com / admin123');
   console.log('   User test: elena@antre.com / user123');
   console.log('Données créées:');
   console.log('   - 3 histoires publiées par Elena');

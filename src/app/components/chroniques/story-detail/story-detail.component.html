@@ -15,7 +15,7 @@
     </div>
     <div class="author-info">
       <h2 class="author-name">{{ story().user?.username || 'Auteur Inconnu' }}</h2>
-      <p class="author-description">{{ story().user?.description || 'Écrivain martien' }} • {{ getTotalStories() }} histoires</p>
+      <p class="author-description">{{ story().user?.description || 'Écrivain martien' }}</p>
     </div>
   </div>
 
@@ -26,13 +26,8 @@
       <h1 class="story-title">{{ story().title }}</h1>
       <div class="story-meta">
         <span class="meta-date">📅 {{ getFormattedDate() }}</span>
-        <div class="story-stats" *ngIf="isPublished()">
+        <div class="story-stats">
           <span class="stat-item">❤️ {{ getLikesCount() }}</span>         
-        </div>
-        <div class="story-status" *ngIf="!isPublished()">
-          <span class="status-badge" [attr.data-status]="getStatus().toLowerCase()">
-            {{ getStatus() }}
-          </span>
         </div>
       </div>
     </header>
