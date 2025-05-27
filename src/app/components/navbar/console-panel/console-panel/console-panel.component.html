@@ -1,11 +1,11 @@
-<!-- console-panel.component.html -->
+<!-- console-panel.component.html - Version adaptative -->
 <div class="console-panel">
-  <!-- 1. HEADER FIXE -->
+  <!-- 1. HEADER FIXE - visible sur desktop/tablette seulement -->
   <div class="console-header">
     <span class="console-title">CONSOLE V3</span>
   </div>
 
-  <!-- 2. SECTION STATUS FIXE -->
+  <!-- 2. SECTION STATUS FIXE - visible sur desktop/tablette seulement -->
   <div class="console-body">
     <div class="status-line">
       <span class="led green"></span>
@@ -41,8 +41,8 @@
 
     <!-- Boutons chroniques (pour tous les utilisateurs connectés dans chroniques) -->
     @if (shouldShowUserButtons()) {
-    <div class="action-group">
-      <span class="group-title">> FONCTIONS CHRONIQUES</span>
+    <div class="action-group no-separator">
+      <span class="group-title">> FONCTIONS UTILISATEUR</span>
       <button class="console-btn" (click)="newStory()">NOUVELLE HISTOIRE</button>
       <button class="console-btn" (click)="myStories()">MES HISTOIRES</button>
     </div>
@@ -50,7 +50,7 @@
     }
   </div>
 
-  <!-- 4. FOOTER ADAPTATIF -->
+  <!-- FOOTER ADAPTATIF -->
   @if (isLoggedIn()) {
   <!-- Footer pour utilisateurs connectés -->
   <div class="console-footer">

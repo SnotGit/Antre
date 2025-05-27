@@ -32,6 +32,7 @@ export class StoryDetailComponent implements OnInit {
 
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
+author: any;
 
   ngOnInit(): void {
     // Récupérer l'ID depuis l'URL

@@ -15,17 +15,6 @@
     </div>
   }
   
-  <!-- État d'erreur -->
-  @else if (error()) {
-    <div class="error-state">
-      <div class="error-icon">⚠️</div>
-      <p>{{ error() }}</p>
-      <button class="retry-btn" (click)="refreshAuthors()">
-        Réessayer
-      </button>
-    </div>
-  }
-  
   <!-- Grille des auteurs -->
   @else if (recentAuthors().length > 0) {
     <div class="writers-grid">

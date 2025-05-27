@@ -18,7 +18,6 @@ export class ChroniquesComponent implements OnInit {
   // Signals depuis le service
   recentAuthors = this.chroniquesService.recentAuthors;
   loading = this.chroniquesService.loading;
-  error = this.chroniquesService.error;
 
   ngOnInit(): void {
     // Les données se chargent automatiquement via le service constructor

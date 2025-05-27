@@ -1,4 +1,4 @@
-/* console-panel.component.scss */
+// console-panel.component.scss 
 
 .console-panel {
   width: 100%;
@@ -12,7 +12,7 @@
   flex-direction: column;
   box-sizing: border-box;
 
-  // 1. HEADER FIXE
+  // 1. HEADER FIXE - masqué sur mobile
   .console-header {
     flex-shrink: 0;
     background-color: #70737500;
@@ -32,7 +32,7 @@
     }
   }
 
-  // 2. SECTION STATUS 
+  // 2. SECTION STATUS - masquée sur mobile
   .console-body {
     flex-shrink: 0;
     padding: 20px;
@@ -69,7 +69,7 @@
     }
   }
 
-  // 3. SECTION COMMANDES 
+  // 3. SECTION COMMANDES
   .console-commands {
     flex: 1;
     display: flex;
@@ -78,8 +78,14 @@
     padding: 0;
 
     .action-group {
-      padding: 15px 20px;
+      padding: 12px 16px 10px 16px; // Réduire padding vertical et horizontal
       border-bottom: 1px solid rgba(93, 136, 158, 0.2);
+
+      // Classe spéciale pour supprimer le séparateur sous "FONCTIONS CHRONIQUES"
+      &.no-separator {
+        border-bottom: none;
+        padding-bottom: 10px;
+      }
 
       &:last-child {
         border-bottom: none;
@@ -88,30 +94,29 @@
       .group-title {
         display: block;
         color: #b55a44;
-        font-size: 11px;
+        font-size: 12px; // Augmenter la taille
         font-weight: bold;
-        margin-bottom: 10px;
-        margin-top: 15px;
+        margin-bottom: 12px; // Réduire l'espacement
+        margin-top: 0;
         letter-spacing: 0.5px;
-
-        &:first-child {
-          margin-top: 0;
-        }
+        // Alignement à gauche (pas centré)
+        text-align: left;
       }
     }
 
-    // Boutons standards
+    // Boutons standards - améliorer les tailles
     .console-btn {
       display: block;
       width: 100%;
       background: transparent;
       border: 1px solid #5d889e;
       color: #5d889e;
-      padding: 8px 10px;
-      margin-bottom: 10px;
+      padding: 10px 12px; // Augmenter le padding
+      margin-bottom: 8px; // Réduire l'espacement
       border-radius: 4px;
       font-family: inherit;
-      font-size: 13px;
+      font-size: 14px; // Augmenter la taille du texte
+      font-weight: 500; // Ajouter du poids
       cursor: pointer;
       transition: all 0.2s ease;
 
@@ -131,19 +136,21 @@
     }
   }
 
-  // 4. SECTION FOOTER 
+  // SECTION FOOTER 
   .console-footer {
     flex-shrink: 0;
-    padding: 15px 20px;
+    padding: 12px 16px 16px 16px; // Réduire et harmoniser les paddings
     border-top: 1px solid rgba(93, 136, 158, 0.2);
 
     .group-title {
       display: block;
       color: #b55a44;
-      font-size: 11px;
+      font-size: 12px; // Harmoniser avec les autres titres
       font-weight: bold;
-      margin-bottom: 10px;
+      margin-bottom: 12px; // Harmoniser l'espacement
       letter-spacing: 0.5px;
+      // Alignement à gauche pour cohérence
+      text-align: left;
     }
 
     .console-btn {
@@ -152,11 +159,12 @@
       background: transparent;
       border: 1px solid #5d889e;
       color: #5d889e;
-      padding: 8px 10px;
-      margin-bottom: 10px;
+      padding: 10px 12px; // Harmoniser avec les autres boutons
+      margin-bottom: 8px; // Harmoniser l'espacement
       border-radius: 4px;
       font-family: inherit;
-      font-size: 13px;
+      font-size: 14px; // Harmoniser la taille du texte
+      font-weight: 500; // Harmoniser le poids
       cursor: pointer;
       transition: all 0.2s ease;
 
@@ -177,7 +185,7 @@
     }
   }
 
-  // LED Indicators
+  // LED Indicators (conservés pour compatibilité)
   .led {
     width: 10px;
     height: 10px;
@@ -195,42 +203,52 @@
     }
   }
 
-  // Responsive
+  // Responsive - MODE MOBILE UNIQUEMENT
   @media (max-width: 768px) {
+    // 🎯 MASQUER header et status sur mobile
     .console-header {
-      padding: 8px 12px;
-      font-size: 12px;
-
-      .console-title {
-        font-size: 13px;
-      }
+      display: none;
     }
-
+    
     .console-body {
-      padding: 10px 12px;
-      font-size: 11px;
-
-      .status-line,
-      .user-line,
-      .access-line {
-        margin-bottom: 4px;
-      }
+      display: none;
     }
-
+    
+    // Réorganiser pour mobile
     .console-commands {
       .action-group {
-        padding: 10px 12px;
+        padding: 15px 12px 10px 12px;
+        
+        // Première section sans séparateur sur mobile
+        &:first-child {
+          padding-top: 20px;
+          border-bottom: none;
+          
+          .group-title {
+            margin-bottom: 15px;
+          }
+        }
+        
+        &.no-separator {
+          padding-bottom: 10px;
+        }
       }
 
       .console-btn {
         padding: 6px 8px;
-        margin-bottom: 4px;
-        font-size: 10px;
+        margin-bottom: 6px;
+        font-size: 11px;
       }
     }
 
     .console-footer {
-      padding: 10px 12px;
+      padding: 12px 12px 15px 12px;
+      
+      .console-btn {
+        padding: 6px 8px;
+        margin-bottom: 6px;
+        font-size: 11px;
+      }
     }
   }
 }
