@@ -1,7 +1,8 @@
-// navbar.component.ts
-import { Component, signal, computed } from '@angular/core';
+// navbar.component.ts 
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-navbar',
@@ -12,7 +13,9 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 })
 export class NavbarComponent {
   
-  // Signal pour l'état du menu mobile
+  private router = inject(Router);
+  
+  // Signal pour l'état du menu mobile - replié par défaut
   mobileMenuOpen = signal<boolean>(false);
   
   // Signals pour l'état de l'utilisateur
@@ -24,13 +27,33 @@ export class NavbarComponent {
   userLevel = computed(() => this.user()?.role?.toUpperCase() || 'VISITOR');
 
   constructor() {
-    // TODO: Initialiser avec le service d'authentification
+    // Initialiser avec le service d'authentification
     this.loadUserData();
+    
+    //  FERMER LE MENU AUTOMATIQUEMENT LORS DE LA NAVIGATION
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.closeMobileMenu();
+    });
   }
 
   // Toggle du menu mobile
   toggleMobileMenu(): void {
     this.mobileMenuOpen.set(!this.mobileMenuOpen());
+  }
+
+  // Fermer le menu mobile
+  closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
+  }
+
+  // GÉRER LE CLIC SUR UN LIEN DE NAVIGATION
+  onNavigationClick(): void {
+    // Fermer le menu après un court délai pour permettre l'animation de clic
+    setTimeout(() => {
+      this.closeMobileMenu();
+    }, 150);
   }
 
   // Méthodes pour vérifier les permissions
@@ -65,7 +88,7 @@ export class NavbarComponent {
   }
 
   addItem(): void {
-    // TODO: Implémenter l'ajout d'item
+    // TODO: Implémenter ajout d'item
   }
 
   newStory(): void {

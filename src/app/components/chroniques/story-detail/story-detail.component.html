@@ -10,7 +10,7 @@
 
   <!-- En-tête auteur -->
   <div class="author-header">
-    <div class="author-avatar" [style.background-image]="'url(' + story().user?.avatar + ')'">
+    <div class="author-avatar" [style.background-image]="'url(http://localhost:3000' + author.avatar + ')'">
       <span class="avatar-placeholder" *ngIf="!story().user?.avatar">👤</span>
     </div>
     <div class="author-info">
