@@ -1,217 +1,106 @@
-@import '../styles/index';
-
 .story-card {
-  @include card-base;
-  @include card-padding;
+  background-color: #1a1d20;
+  border: 2px solid #5d889e;
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
   position: relative;
-  @include flex-column;
-  gap: $spacing-lg;
+  overflow: hidden;
+  width: 100%;
+  max-width: 320px;
+  min-height: 220px;
+  box-sizing: border-box;
+  text-align: center;
 
-  &.clickable {
-    cursor: pointer;
-    @include card-hover;
+  &:hover {
+    border-color: #5d889e;
+    box-shadow: 0 0 25px rgba(93, 136, 158, 0.4);
   }
 
-  // ============ VARIANTES D'AFFICHAGE ============
-  &--compact {
-    min-height: 180px;
-  }
-
-  &--detailed {
-    min-height: 220px;
-  }
-
-  &--draft {
-    border-color: rgba($secondary-border, 0.3);
-
-    &:hover {
-      border-color: $secondary-border;
+  // ============ AVATAR CENTRÉ COMME ELENA NOVA ============
+  .writer-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    background-color: #1a1d20;
+    margin: 0 auto 1rem;
+    transition: transform 0.3s ease;
+    border: 2px solid #5d889e;
+    
+    background-image: linear-gradient(45deg, #1a1d20, #2a2d30);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &::after {
+      content: '👤';
+      font-size: 2rem;
+      opacity: 0.5;
     }
-  }
 
-  // ============ HEADER AVEC AUTEUR ============
-  .card-header {
-    .author-info {
-      @include flex-between;
-      gap: $spacing-md;
-
-      .author-avatar {
-        @include avatar-base;
-        
-        .avatar-image {
-          @include avatar-image;
-        }
-
-        .avatar-placeholder {
-          @include avatar-placeholder;
-        }
-      }
-
-      .author-details {
-        @include flex-column;
-        flex: 1;
-        gap: $spacing-xs;
-
-        .author-name {
-          @include text-accent;
-          cursor: pointer;
-          transition: $transition-normal;
-
-          &:hover {
-            color: lighten($primary-border, 15%);
-          }
-        }
-
-        .author-description {
-          @include text-meta;
-          font-style: italic;
-        }
+    &[style*="url"] {
+      &::after {
+        display: none;
       }
     }
   }
 
-  // ============ CONTENU PRINCIPAL ============
-  .card-content {
-    flex: 1;
+  // ============ INFO CENTRÉE COMME ELENA NOVA ============
+  .writer-info {
+    text-align: center;
+
+    .author-name {
+      color: #5d889e;
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      font-family: 'Courier New', monospace;
+    }
+
+    .author-description {
+      color: #d0d0d0;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
 
     .story-title {
-      color: $text-primary;
-      font-size: $font-size-lg;
-      font-weight: $font-weight-bold;
-      margin: 0 0 $spacing-sm 0;
+      color: #fff;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
       line-height: 1.3;
     }
 
-    .story-excerpt {
-      color: rgba($text-primary, 0.8);
-      font-size: $font-size-base;
-      line-height: 1.5;
-      margin: 0;
+    .story-date {
+      color: rgba(93, 136, 158, 0.7);
+      font-size: 0.8rem;
+      display: block;
+      font-family: 'Courier New', monospace;
     }
   }
 
-  // ============ FOOTER AVEC MÉTADONNÉES ============
-  .card-footer {
-    .story-meta {
-      @include flex-between;
-
-      .meta-left {
-        @include flex-center;
-        gap: $spacing-sm;
-
-        .story-date {
-          @include text-accent;
-        }
-
-        .status-badge {
-          background-color: rgba($primary-border, 0.2);
-          color: $primary-border;
-          border: 1px solid rgba($primary-border, 0.3);
-          border-radius: $border-radius-md;
-          padding: $spacing-xs $spacing-sm;
-          font-size: $font-size-xs;
-          font-weight: $font-weight-bold;
-          text-transform: uppercase;
-        }
-      }
-
-      .meta-right {
-        .likes-display {
-          @include flex-center;
-          gap: $spacing-xs;
-
-          .heart-icon {
-            color: $primary-border;
-            font-size: $font-size-md;
-          }
-
-          .likes-count {
-            @include text-accent;
-          }
-        }
-      }
-    }
-  }
-
-  // ============ ACTIONS AVEC BOUTONS ============
+  // ============ MASQUER LES ÉLÉMENTS NON UTILISÉS ============
+  .card-header,
+  .card-content,
+  .card-footer,
   .card-actions {
-    position: absolute;
-    top: $spacing-sm;
-    right: $spacing-sm;
-    @include flex-center;
-    gap: $spacing-xs;
-    opacity: 0;
-    transition: $transition-normal;
-
-    .action-btn {
-      @include button-base;
-      padding: $spacing-xs $spacing-sm;
-      font-size: $font-size-xs;
-      font-weight: $font-weight-bold;
-      background: rgba($secondary-bg, 0.9);
-
-      &:hover {
-        background: rgba($primary-border, 0.2);
-        transform: scale(1.05);
-      }
-
-      &.delete-btn:hover {
-        background: $error-bg;
-        border-color: $error-color;
-        color: $error-color;
-      }
-
-      &.publish-btn:hover {
-        background: $success-bg;
-        border-color: $success-color;
-        color: $success-color;
-      }
-
-      &.like-btn:hover {
-        background: $like-bg;
-        border-color: $like-color;
-        color: $like-color;
-      }
-    }
-  }
-
-  &:hover .card-actions {
-    opacity: 1;
+    display: none;
   }
 }
 
-// ============ RESPONSIVE AVEC MIXINS CENTRALISÉS ============
-@include mobile {
+// ============ RESPONSIVE IDENTIQUE À L'ORIGINAL ============
+@media (max-width: 1399px) and (min-width: 1200px) {
   .story-card {
-    @include card-padding;
-    gap: $spacing-md;
+    max-width: 100%;
+  }
+}
 
-    .card-header .author-info {
-      gap: $spacing-sm;
-
-      .author-avatar {
-        @include avatar-base(35px);
-      }
-
-      .author-details .author-name {
-        font-size: $font-size-base;
-      }
-    }
-
-    .card-content .story-title {
-      font-size: $font-size-md;
-    }
-
-    .card-actions {
-      position: static;
-      opacity: 1;
-      justify-content: flex-end;
-      margin-top: $spacing-sm;
-
-      .action-btn {
-        font-size: $font-size-xs;
-        padding: $spacing-xs $spacing-sm;
-      }
-    }
+@media (max-width: 1199px) {
+  .story-card {
+    max-width: 400px;
   }
 }

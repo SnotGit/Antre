@@ -18,10 +18,18 @@
   text-align: center;
 
   h2 {
-    font-size: 32px;
-    margin-bottom: 15px;
-    color: #5d889e;
-  }
+      font-size: 32px;
+      margin-bottom: 15px;
+      color: #5d889e;
+      
+      // ============ TYPING CENTRÉ SANS MOUVEMENT ============
+      display: inline-block;
+      width: 800px;
+      text-align: left;
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
+    }
 
   p {
     font-size: 16px;
