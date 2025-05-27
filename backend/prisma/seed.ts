@@ -65,9 +65,9 @@ async function main() {
     },
   });
 
-  // Histoires d'Elena Nova
+  // Histoires d'Elena Nova avec dates corrigées
   const stories = [
-    // Histoire publiée 1
+    // Histoire ID 1 - LA PLUS ANCIENNE
     {
       title: 'Les Glyphes de Cydonia',
       content: `Les excavations dans le secteur 7 de Cydonia n'avaient rien donné pendant des mois. La théorie du "visage sur Mars" avait été démystifiée depuis longtemps, mais quelque chose dans les formations géologiques de la région continuait d'intriguer les scientifiques.
@@ -78,10 +78,10 @@ Nous avons élargi la zone de forage et déployé des scanners souterrains. Les 
 
 Le Dr. Yamamoto a été le premier à suggérer qu'il pouvait s'agir d'une forme d'écriture. Je pensais qu'il exagérait, jusqu'à ce que je remarque les répétitions, les motifs... Une séquence mathématique précise. Nous avions découvert soit la preuve d'une intelligence extraterrestre ancienne, soit un phénomène géologique totalement inconnu. Dans les deux cas, l'histoire de Mars allait devoir être réécrite...`,
       status: 'PUBLISHED',
-      publishedAt: new Date('2025-01-15'),
+      publishedAt: new Date('2024-12-20'),
     },
     
-    // Histoire publiée 2
+    // Histoire ID 2 - INTERMÉDIAIRE
     {
       title: 'Tempête sur Olympus Mons',
       content: `La saison des tempêtes était arrivée plus tôt que prévu cette année. Les vents de poussière rouge balayaient déjà les flancs d'Olympus Mons quand nous avons reçu l'ordre d'évacuation d'urgence de la station de recherche.
@@ -95,7 +95,7 @@ Alors que nous rassemblions nos équipements essentiels, j'ai aperçu quelque ch
       publishedAt: new Date('2025-01-08'),
     },
 
-    // Histoire publiée 3
+    // Histoire ID 3 - LA PLUS RÉCENTE
     {
       title: 'Le Signal de Phobos',
       content: `Phobos avait toujours été notre lune silencieuse, un rocher déformé gravitant autour de Mars en 7 heures et 39 minutes. Jusqu'à ce mardi de l'an 2387.
@@ -108,7 +108,7 @@ Les signaux provenaient de l'intérieur de Phobos. Nos sondes n'avaient jamais d
 
 Le commandant Torres a pris la décision : mission d'exploration immédiate vers Phobos. Nous allions être les premiers humains à poser le pied sur cette lune mystérieuse. Ce que nous y avons découvert a changé notre vision de l'univers...`,
       status: 'PUBLISHED',
-      publishedAt: new Date('2024-12-28'),
+      publishedAt: new Date('2025-01-15'),
     },
 
     // Brouillon 1
@@ -184,7 +184,9 @@ C'est cette nuit-là que nous avons décidé de prendre les choses en main. Si l
   console.log('   Admin: snot@antre.com / admin123');
   console.log('   User test: elena@antre.com / user123');
   console.log('Données créées:');
-  console.log('   - 3 histoires publiées par Elena');
+  console.log('   - ID 1: Les Glyphes de Cydonia (2024-12-20) - PLUS ANCIENNE');
+  console.log('   - ID 2: Tempête sur Olympus Mons (2025-01-08) - INTERMÉDIAIRE');
+  console.log('   - ID 3: Le Signal de Phobos (2025-01-15) - PLUS RÉCENTE');
   console.log('   - 3 brouillons par Elena');
 }
 
