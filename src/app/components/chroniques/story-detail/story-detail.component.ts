@@ -2,9 +2,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { StoryService, StoryFromAPI, StoryByIdResponse } from '../../../services/story.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-story-detail',
@@ -16,8 +16,8 @@ export class StoryDetailComponent implements OnInit {
   
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private location = inject(Location);
   private storyService = inject(StoryService);
+  private authService = inject(AuthService);
 
   // Signals pour l'état du composant
   story = signal<StoryFromAPI>({
@@ -32,10 +32,13 @@ export class StoryDetailComponent implements OnInit {
 
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
-author: any;
+
+  // Signals pour les likes
+  isLiked = signal<boolean>(false);
+  likesCount = signal<number>(0);
+  showConnectionBanner = signal<boolean>(false);
 
   ngOnInit(): void {
-    // Récupérer l'ID depuis l'URL
     const storyId = this.route.snapshot.paramMap.get('id');
     if (storyId) {
       this.loadStory(parseInt(storyId));
@@ -54,11 +57,11 @@ author: any;
     this.loading.set(true);
     this.error.set(null);
 
-    // Appel API réel
     this.storyService.getStoryById(storyId).subscribe({
       next: (response: StoryByIdResponse) => {
         if (response.story) {
           this.story.set(response.story);
+          this.likesCount.set(23); // Valeur temporaire
         } else {
           this.error.set('Histoire non trouvée');
         }
@@ -75,12 +78,26 @@ author: any;
     });
   }
 
-  // Navigation
-  goBack(): void {
-    this.location.back();
+  // Navigation entre histoires du même auteur
+  hasPreviousStory(): boolean {
+    return true; // Temporaire pour test
   }
 
-  // Méthodes utilitaires pour le template
+  hasNextStory(): boolean {
+    return true; // Temporaire pour test
+  }
+
+  goToPreviousStory(): void {
+    console.log('Navigation vers histoire précédente');
+    // TODO: Logique de navigation
+  }
+
+  goToNextStory(): void {
+    console.log('Navigation vers histoire suivante');
+    // TODO: Logique de navigation
+  }
+
+  // Formatage de la date
   getFormattedDate(): string {
     const story = this.story();
     const dateToFormat = story.publishedAt || story.updatedAt || story.createdAt;
@@ -94,17 +111,40 @@ author: any;
     });
   }
 
-  getLikesCount(): number {
-    // TODO: Récupérer le nombre de likes de CETTE histoire depuis l'API
-    // Pour l'instant, valeur simulée
-    return 23;
+  // Système de likes
+  showConnectionRequired(): boolean {
+    return this.showConnectionBanner();
   }
 
-  // Méthodes pour la navigation uniquement
-  navigateToAuthor(): void {
-    const authorUsername = this.story().user?.username;
-    if (authorUsername) {
-      this.router.navigate(['/chroniques/author', authorUsername]);
+  isOwnStory(): boolean {
+    const currentUser = this.authService.currentUser();
+    const storyUser = this.story().user;
+    return currentUser?.id === storyUser?.id;
+  }
+
+  toggleLike(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.showConnectionBanner.set(true);
+      setTimeout(() => {
+        this.router.navigate(['/auth/login']);
+      }, 2000);
+      return;
     }
+
+    if (this.isOwnStory()) {
+      return;
+    }
+
+    // Simulation temporaire
+    this.isLiked.set(!this.isLiked());
+    if (this.isLiked()) {
+      this.likesCount.set(this.likesCount() + 1);
+    } else {
+      this.likesCount.set(this.likesCount() - 1);
+    }
+  }
+
+  getLikesCount(): number {
+    return this.likesCount();
   }
 }

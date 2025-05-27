@@ -63,23 +63,6 @@
                   <div class="meta-date">
                     <span>{{story.publishDate}}</span>
                   </div>
-                  <!-- BOUTON LIKE MASQUÉ pour ses propres histoires -->
-                  @if (!isOwnStory(story.id)) {
-                    <div class="meta-likes">
-                      <button class="like-btn" (click)="toggleLike(story.id, $event)">
-                        <span class="heart-icon" [style.color]="isStoryLiked(story.id) ? '#DC143C' : '#5d889e'">
-                          {{ isStoryLiked(story.id) ? '♥' : '♡' }}
-                        </span>
-                      </button>
-                      <span class="likes-count">{{story.likes}}</span>
-                    </div>
-                  } @else {
-                    <!-- Afficher juste le nombre de likes sans bouton -->
-                    <div class="meta-likes">
-                      <span class="heart-icon" style="color: #5d889e;">♥</span>
-                      <span class="likes-count">{{story.likes}}</span>
-                    </div>
-                  }
                 </div>
               </div>
             }
@@ -91,7 +74,6 @@
           </div>
         }
       }
-
     </div>
   </div>
 </div>

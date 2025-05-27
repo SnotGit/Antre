@@ -6,41 +6,41 @@
     <p>Les terraformers y racontent leurs aventures sur la planète rouge.</p>
     <p>Découvrez les histoires de nos écrivains et plongez dans leurs récits.</p>
   </div>
-  
+
   <!-- État de chargement -->
   @if (loading()) {
-    <div class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>Chargement des chroniques martiennes...</p>
-    </div>
+  <div class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Chargement des chroniques martiennes...</p>
+  </div>
   }
-  
+
   <!-- Grille des auteurs -->
   @else if (recentAuthors().length > 0) {
-    <div class="writers-grid">
-      @for (author of recentAuthors(); track author.id) {
-        <div class="writer-card" (click)="navigateToStory(author.username, author.latestStory.slug)">
-          <div class="writer-avatar" [style.background-image]="'url(http://localhost:3000' + author.avatar + ')'"></div>
-          <div class="writer-info">
-            <h3>{{ author.username }}</h3>
-            <p class="author-description">{{ author.description }}</p>
-            <p class="latest-story">{{ author.latestStory.title }}</p>
-            <span class="story-date">{{ author.latestStory.publishedAt | date:'dd/MM/yyyy' }}</span>
-          </div>
-        </div>
-      }
+  <div class="writers-grid">
+    @for (author of recentAuthors(); track author.id) {
+    <div class="writer-card" (click)="navigateToStory(author.latestStory.id)">
+      <div class="writer-avatar" [style.background-image]="'url(http://localhost:3000' + author.avatar + ')'"></div>
+      <div class="writer-info">
+        <h3>{{ author.username }}</h3>
+        <p class="author-description">{{ author.description }}</p>
+        <p class="latest-story">{{ author.latestStory.title }}</p>
+        <span class="story-date">{{ author.latestStory.publishedAt | date:'dd/MM/yyyy' }}</span>
+      </div>
     </div>
+    }
+  </div>
   }
-  
+
   <!-- État vide -->
   @else {
-    <div class="empty-state">
-      <div class="empty-icon">📖</div>
-      <h3>Aucune chronique disponible</h3>
-      <p>Les aventures martiennes n'ont pas encore commencé...</p>
-      <button class="retry-btn" (click)="refreshAuthors()">
-        Actualiser
-      </button>
-    </div>
+  <div class="empty-state">
+    <div class="empty-icon">📖</div>
+    <h3>Aucune chronique disponible</h3>
+    <p>Les aventures martiennes n'ont pas encore commencé...</p>
+    <button class="retry-btn" (click)="refreshAuthors()">
+      Actualiser
+    </button>
+  </div>
   }
 </div>
