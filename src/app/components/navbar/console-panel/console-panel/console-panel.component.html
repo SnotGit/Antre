@@ -21,13 +21,6 @@
 
   <!-- 3. SECTION COMMANDES FLEXIBLE -->
   <div class="console-commands">
-    @if (!isLoggedIn()) {
-    <!-- Section vide propre quand pas connecté -->
-    <div class="action-group">
-      <span class="group-title">> SYSTÈME EN ATTENTE</span>
-    </div>
-    }
-
     @if (isLoggedIn()) {
     <!-- Boutons admin (seulement hors chroniques ET hors mon-compte) -->
     @if (shouldShowAdminButtons() && currentUser()?.role === 'admin') {
@@ -65,7 +58,7 @@
   } @else {
   <!-- Footer pour visiteurs non connectés -->
   <div class="console-footer">
-    <span class="group-title">> AUTHENTIFICATION</span>
+    <span class="group-title">> SYSTÈME D'AUTHENTIFICATION...</span>
     <button class="console-btn" (click)="openLogin()">
       [⚡] CONNEXION
     </button>

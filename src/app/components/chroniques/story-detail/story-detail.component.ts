@@ -3,7 +3,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { StoryService, StoryFromAPI, StoryByIdResponse } from '../../../services/story.service';
+import { StoryService, StoryFromAPI, StoryByIdResponse, LikeResponse } from '../../../services/story.service';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -38,13 +38,20 @@ export class StoryDetailComponent implements OnInit {
   likesCount = signal<number>(0);
   showConnectionBanner = signal<boolean>(false);
 
+  // Nouveaux signals pour la navigation
+  authorStories = signal<StoryFromAPI[]>([]);
+  currentStoryIndex = signal<number>(-1);
+
   ngOnInit(): void {
-    const storyId = this.route.snapshot.paramMap.get('id');
-    if (storyId) {
-      this.loadStory(parseInt(storyId));
-    } else {
-      this.error.set('ID d\'histoire manquant');
-    }
+    // Écouter les changements de paramètres de route
+    this.route.params.subscribe(params => {
+      const storyId = params['id'];
+      if (storyId) {
+        this.loadStory(parseInt(storyId));
+      } else {
+        this.error.set('ID d\'histoire manquant');
+      }
+    });
   }
 
   loadStory(id?: number): void {
@@ -61,7 +68,14 @@ export class StoryDetailComponent implements OnInit {
       next: (response: StoryByIdResponse) => {
         if (response.story) {
           this.story.set(response.story);
-          this.likesCount.set(23); // Valeur temporaire
+          
+          // Charger les autres histoires de l'auteur pour la navigation
+          if (response.story.user?.id) {
+            this.loadAuthorStories(response.story.user.id);
+          }
+
+          // Charger le statut des likes
+          this.loadLikeStatus();
         } else {
           this.error.set('Histoire non trouvée');
         }
@@ -78,23 +92,63 @@ export class StoryDetailComponent implements OnInit {
     });
   }
 
-  // Navigation entre histoires du même auteur
+  // Nouvelle méthode pour charger les histoires de l'auteur
+  private loadAuthorStories(authorId: number): void {
+    this.storyService.getStoriesByAuthor(authorId).subscribe({
+      next: (response) => {
+        if (response.stories) {
+          // Filtrer seulement les histoires publiées et trier par DATE CROISSANTE (plus ancien vers plus récent)
+          const publishedStories = response.stories
+            .filter(story => story.status === 'PUBLISHED' && story.publishedAt)
+            .sort((a, b) => new Date(a.publishedAt!).getTime() - new Date(b.publishedAt!).getTime());
+          
+          this.authorStories.set(publishedStories);
+          
+          // Trouver l'index de l'histoire actuelle DANS CE TRI PAR DATE
+          const currentId = this.story().id;
+          const index = publishedStories.findIndex(story => story.id === currentId);
+          this.currentStoryIndex.set(index);
+        }
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des histoires de l\'auteur:', error);
+      }
+    });
+  }
+
+  // Navigation entre histoires du même auteur - NOUVELLES MÉTHODES
   hasPreviousStory(): boolean {
-    return true; // Temporaire pour test
+    return this.currentStoryIndex() > 0;
   }
 
   hasNextStory(): boolean {
-    return true; // Temporaire pour test
+    const stories = this.authorStories();
+    const currentIndex = this.currentStoryIndex();
+    return currentIndex >= 0 && currentIndex < stories.length - 1;
   }
 
   goToPreviousStory(): void {
-    console.log('Navigation vers histoire précédente');
-    // TODO: Logique de navigation
+    if (this.hasPreviousStory()) {
+      const stories = this.authorStories();
+      const newIndex = this.currentStoryIndex() - 1;
+      const previousStory = stories[newIndex];
+      
+      if (previousStory) {
+        this.router.navigate(['/chroniques/story', previousStory.id]);
+      }
+    }
   }
 
   goToNextStory(): void {
-    console.log('Navigation vers histoire suivante');
-    // TODO: Logique de navigation
+    if (this.hasNextStory()) {
+      const stories = this.authorStories();
+      const newIndex = this.currentStoryIndex() + 1;
+      const nextStory = stories[newIndex];
+      
+      if (nextStory) {
+        this.router.navigate(['/chroniques/story', nextStory.id]);
+      }
+    }
   }
 
   // Formatage de la date
@@ -111,7 +165,7 @@ export class StoryDetailComponent implements OnInit {
     });
   }
 
-  // Système de likes
+  // Système de likes - VRAIE LOGIQUE
   showConnectionRequired(): boolean {
     return this.showConnectionBanner();
   }
@@ -126,8 +180,8 @@ export class StoryDetailComponent implements OnInit {
     if (!this.authService.isLoggedIn()) {
       this.showConnectionBanner.set(true);
       setTimeout(() => {
-        this.router.navigate(['/auth/login']);
-      }, 2000);
+        this.showConnectionBanner.set(false);
+      }, 3000);
       return;
     }
 
@@ -135,16 +189,58 @@ export class StoryDetailComponent implements OnInit {
       return;
     }
 
-    // Simulation temporaire
-    this.isLiked.set(!this.isLiked());
-    if (this.isLiked()) {
-      this.likesCount.set(this.likesCount() + 1);
-    } else {
-      this.likesCount.set(this.likesCount() - 1);
-    }
+    // VRAIE LOGIQUE avec API
+    const token = this.authService.getToken();
+    const storyId = this.story().id;
+    
+    if (!token || !storyId) return;
+
+    this.storyService.toggleLike(storyId, token).subscribe({
+      next: (response) => {
+        this.isLiked.set(response.isLiked);
+        this.likesCount.set(response.likesCount);
+      },
+      error: (error) => {
+        console.error('Erreur lors du like:', error);
+      }
+    });
   }
 
   getLikesCount(): number {
     return this.likesCount();
+  }
+
+  // Charger le statut initial des likes
+  private loadLikeStatus(): void {
+    if (!this.authService.isLoggedIn()) {
+      // Si pas connecté, charger juste le nombre total de likes (public)
+      this.likesCount.set(0); // Temporaire - à remplacer par un appel API public
+      return;
+    }
+    
+    const token = this.authService.getToken();
+    const storyId = this.story().id;
+    
+    if (!token || !storyId) return;
+
+    this.storyService.checkIfLiked(storyId, token).subscribe({
+      next: (response) => {
+        this.isLiked.set(response.isLiked);
+        this.likesCount.set(response.likesCount);
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement du statut like:', error);
+        // Garder les valeurs par défaut
+        this.likesCount.set(0);
+      }
+    });
+  }
+
+  // Navigation vers le profil de l'auteur
+  goToAuthorProfile(): void {
+    const authorId = this.story().user?.id;
+    if (authorId) {
+      this.router.navigate(['/chroniques/author', authorId]);
+    }
   }
 }

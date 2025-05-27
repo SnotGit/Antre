@@ -24,107 +24,127 @@
     display: flex;
     flex-direction: column;
 
-
-    // ============ HEADER AVEC ALIGNEMENT AIMANTS ============
+    // ============ HEADER TETRIS STRUCTURE ============
     .card-header {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
+      gap: 15px;
       padding: 25px 30px 15px 30px;
       flex-shrink: 0;
 
-      .author-info {
+      .author-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-size: cover;
+        background-position: center;
+        background-color: #1a1d20;
+        border: 2px solid #5d889e;
         display: flex;
         align-items: center;
-        gap: 15px;
-        flex: 0 0 auto;
+        justify-content: center;
+        flex-shrink: 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
 
-        .author-avatar {
-          width: 60px;
-          height: 60px;
-          border-radius: 50%;
-          background-size: cover;
-          background-position: center;
-          background-color: #1a1d20;
-          border: 2px solid #5d889e;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-
-          .avatar-placeholder {
-            font-size: 1.5rem;
-            color: #5d889e;
-            opacity: 0.5;
-          }
-
-          &[style*="url"] .avatar-placeholder {
-            display: none;
-          }
+        &:hover {
+          border-color: #7ba3c0;
+          box-shadow: 0 0 10px rgba(93, 136, 158, 0.4);
         }
 
-        .author-details {
+        .avatar-placeholder {
+          font-size: 1.5rem;
+          color: #5d889e;
+          opacity: 0.5;
+        }
+
+        &[style*="url"] .avatar-placeholder {
+          display: none;
+        }
+      }
+
+      .author-content {
+        flex: 1;
+
+        .author-top-line {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 4px;
+
           .author-name {
             color: #5d889e;
             font-size: 25px;
             font-weight: bold;
-            margin: 0 0 5px 0;
-          }
-
-          .author-description {
-            color: rgba(93, 136, 158, 0.7);
-            font-size: 16px;
             margin: 0;
-            font-style: italic;
-          }
-        }
-      }
-
-      .header-like-section {
-        flex: 0 0 auto;
-
-        .connection-banner {
-          background: rgba(93, 136, 158, 0.2);
-          border: 1px solid rgba(93, 136, 158, 0.5);
-          color: #5d889e;
-          padding: 6px 12px;
-          border-radius: 6px;
-          font-size: 12px;
-          font-weight: bold;
-        }
-
-        .like-display {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-
-          .like-btn {
-            background: transparent;
-            border: none;
+            line-height: 1.2;
             cursor: pointer;
-            padding: 4px;
-            transition: transform 0.2s ease;
+            transition: all 0.3s ease;
 
-            &:hover:not(:disabled) {
-              transform: scale(1.1);
+            &:hover {
+              color: #7ba3c0;
+              text-shadow: 0 0 5px rgba(93, 136, 158, 0.3);
+            }
+          }
+
+          .header-like-section {
+            display: flex;
+            align-items: center;
+            pointer-events: auto;
+
+            .connection-banner {
+              background: rgba(93, 136, 158, 0.2);
+              border: 1px solid rgba(93, 136, 158, 0.5);
+              color: #5d889e;
+              padding: 6px 12px;
+              border-radius: 6px;
+              font-size: 12px;
+              font-weight: bold;
             }
 
-            .heart-icon {
-              font-size: 30px;
-              color: #5d889e;
-              transition: color 0.3s ease;
+            .like-display {
+              display: flex;
+              align-items: center;
+              gap: 8px;
 
-              &.liked {
-                color: #DC143C;
+              .like-btn {
+                background: transparent;
+                border: none;
+                cursor: pointer;
+                padding: 4px;
+                transition: transform 0.2s ease;
+
+                &:hover:not(:disabled) {
+                  transform: scale(1.1);
+                }
+
+                .heart-icon {
+                  font-size: 30px;
+                  color: #5d889e;
+                  transition: color 0.3s ease;
+
+                  &.liked {
+                    color: #DC143C;
+                  }
+                }
+              }
+
+              .likes-count {
+                color: #5d889e;
+                font-size: 18px;
+                font-weight: bold;
               }
             }
           }
+        }
 
-          .likes-count {
-            color: #5d889e;
-            font-size: 18px;
-            font-weight: bold;
-          }
+        .author-description {
+          color: rgba(93, 136, 158, 0.7);
+          font-size: 16px;
+          margin: 0;
+          font-style: italic;
+          line-height: 1.2;
+          cursor: default;
+          pointer-events: none;
         }
       }
     }
@@ -322,43 +342,38 @@
       max-width: 100%;
       height: calc(100vh - 20px);
 
+      .card-separator {
+        display: none;
+      }
+
       .card-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 15px;
         padding: 20px;
 
-        .author-info {
+        .author-avatar {
+          width: 50px;
+          height: 50px;
+
+          .avatar-placeholder {
+            font-size: 1.2rem;
+          }
+        }
+
+        .author-content {
           width: 100%;
 
-          .author-avatar {
-            width: 50px;
-            height: 50px;
-
-            .avatar-placeholder {
-              font-size: 1.2rem;
-            }
-          }
-
-          .author-details {
+          .author-top-line {
             .author-name {
               font-size: 18px;
             }
+          }
 
-            .author-description {
-              font-size: 12px;
-            }
+          .author-description {
+            font-size: 12px;
           }
         }
-
-        .header-like-section {
-          align-self: flex-end;
-          margin-top: -40px;
-        }
-      }
-
-      .card-separator {
-        margin: 0 20px;
       }
 
       .title-section {

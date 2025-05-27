@@ -4,34 +4,35 @@
   <!-- Carte centrale de l'histoire -->
   <div class="story-card">
     
-    <!-- Header de la carte avec auteur + like -->
+    <!-- Header TETRIS avec zones cliquables séparées -->
     <div class="card-header">
-      <div class="author-info">
-        <div class="author-avatar" [style.background-image]="story().user?.avatar ? 'url(http://localhost:3000' + story().user?.avatar + ')' : ''">
-          <span class="avatar-placeholder" *ngIf="!story().user?.avatar">👤</span>
-        </div>
-        <div class="author-details">
-          <h2 class="author-name">{{ story().user?.username || 'Auteur Inconnu' }}</h2>
-          <p class="author-description">{{ story().user?.description || 'Écrivain martien' }}</p>
-        </div>
+      <div class="author-avatar" (click)="goToAuthorProfile()" [style.background-image]="story().user?.avatar ? 'url(http://localhost:3000' + story().user?.avatar + ')' : ''">
+        <span class="avatar-placeholder" *ngIf="!story().user?.avatar">👤</span>
       </div>
       
-      <!-- Like déplacé dans le header -->
-      <div class="header-like-section">
-        @if (showConnectionRequired()) {
-          <div class="connection-banner">
-            <span>Connexion requise</span>
+      <div class="author-content">
+        <div class="author-top-line">
+          <span class="author-name" (click)="goToAuthorProfile()">{{ story().user?.username || 'Auteur Inconnu' }}</span>
+          
+          <div class="header-like-section">
+            @if (showConnectionRequired()) {
+              <div class="connection-banner">
+                <span>Connexion requise</span>
+              </div>
+            } @else {
+              <div class="like-display">
+                <button class="like-btn" (click)="toggleLike()" [disabled]="isOwnStory()">
+                  <span class="heart-icon" [class.liked]="isLiked()">
+                    {{ isLiked() ? '♥' : '♡' }}
+                  </span>
+                </button>
+                <span class="likes-count">{{ getLikesCount() }}</span>
+              </div>
+            }
           </div>
-        } @else {
-          <div class="like-display">
-            <button class="like-btn" (click)="toggleLike()" [disabled]="isOwnStory()">
-              <span class="heart-icon" [class.liked]="isLiked()">
-                {{ isLiked() ? '♥' : '♡' }}
-              </span>
-            </button>
-            <span class="likes-count">{{ getLikesCount() }}</span>
-          </div>
-        }
+        </div>
+        
+        <div class="author-description">{{ story().user?.description || 'Écrivain martien' }}</div>
       </div>
     </div>
 
@@ -48,7 +49,7 @@
       </div>
     </div>
 
-    <!-- Contenu de l'histoire (plus d'espace maintenant) -->
+    <!-- Contenu de l'histoire -->
     <div class="content-section">
       <div class="story-text">{{ story().content }}</div>
     </div>
@@ -56,24 +57,24 @@
     <!-- Séparateur -->
     <div class="card-separator"></div>
 
-    <!-- Footer avec navigation intégrée -->
-<div class="card-footer">
-  <button class="nav-btn prev-btn" 
-          [disabled]="!hasPreviousStory()" 
-          (click)="goToPreviousStory()"
-          [class.hidden]="!hasPreviousStory()">
-    <span class="nav-arrow">←</span>
-    <span class="nav-text">Histoire précédente</span>
-  </button>
-  
-  <button class="nav-btn next-btn" 
-          [disabled]="!hasNextStory()" 
-          (click)="goToNextStory()"
-          [class.hidden]="!hasNextStory()">
-    <span class="nav-text">Histoire suivante</span>
-    <span class="nav-arrow">→</span>
-  </button>
-</div>
+    <!-- Footer avec navigation -->
+    <div class="card-footer">
+      <button class="nav-btn prev-btn" 
+              [disabled]="!hasPreviousStory()" 
+              (click)="goToPreviousStory()"
+              [class.hidden]="!hasPreviousStory()">
+        <span class="nav-arrow">←</span>
+        <span class="nav-text">Histoire précédente</span>
+      </button>
+      
+      <button class="nav-btn next-btn" 
+              [disabled]="!hasNextStory()" 
+              (click)="goToNextStory()"
+              [class.hidden]="!hasNextStory()">
+        <span class="nav-text">Histoire suivante</span>
+        <span class="nav-arrow">→</span>
+      </button>
+    </div>
 
   </div>
 

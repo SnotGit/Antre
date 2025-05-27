@@ -264,11 +264,126 @@ const getStoriesByUser = async (req, res) => {
   }
 };
 
+// Liker/Unliker une histoire (authentifié)
+const likeStory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const storyId = parseInt(id);
+    const userId = req.user.userId;
+
+    if (isNaN(storyId)) {
+      return res.status(400).json({ error: 'ID d\'histoire invalide' });
+    }
+
+    // Vérifier que l'histoire existe et est publiée
+    const story = await prisma.story.findFirst({
+      where: {
+        id: storyId,
+        status: 'PUBLISHED'
+      }
+    });
+
+    if (!story) {
+      return res.status(404).json({
+        error: 'Histoire non trouvée ou non publiée'
+      });
+    }
+
+    // Vérifier si l'utilisateur a déjà liké cette histoire
+    const existingLike = await prisma.like.findUnique({
+      where: {
+        userId_storyId: {
+          userId: userId,
+          storyId: storyId
+        }
+      }
+    });
+
+    let isLiked;
+    
+    if (existingLike) {
+      // Supprimer le like (unlike)
+      await prisma.like.delete({
+        where: {
+          userId_storyId: {
+            userId: userId,
+            storyId: storyId
+          }
+        }
+      });
+      isLiked = false;
+    } else {
+      // Créer le like
+      await prisma.like.create({
+        data: {
+          userId: userId,
+          storyId: storyId
+        }
+      });
+      isLiked = true;
+    }
+
+    // Récupérer le nouveau nombre de likes
+    const likesCount = await prisma.like.count({
+      where: { storyId: storyId }
+    });
+
+    res.json({
+      message: isLiked ? 'Histoire likée avec succès' : 'Like retiré avec succès',
+      isLiked: isLiked,
+      likesCount: likesCount
+    });
+
+  } catch (error) {
+    console.error('Erreur lors du like:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
+// Récupérer le statut de like d'une histoire (authentifié)
+const getLikeStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const storyId = parseInt(id);
+    const userId = req.user.userId;
+
+    if (isNaN(storyId)) {
+      return res.status(400).json({ error: 'ID d\'histoire invalide' });
+    }
+
+    // Vérifier si l'utilisateur a liké cette histoire
+    const existingLike = await prisma.like.findUnique({
+      where: {
+        userId_storyId: {
+          userId: userId,
+          storyId: storyId
+        }
+      }
+    });
+
+    // Récupérer le nombre total de likes
+    const likesCount = await prisma.like.count({
+      where: { storyId: storyId }
+    });
+
+    res.json({
+      isLiked: !!existingLike,
+      likesCount: likesCount
+    });
+
+  } catch (error) {
+    console.error('Erreur lors de la récupération du statut like:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
 module.exports = {
   getAllStories,
   getStoryById,
   createStory,
   updateStory,
   deleteStory,
-  getStoriesByUser
+  getStoriesByUser,
+  likeStory,
+  getLikeStatus
 };
