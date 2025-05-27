@@ -15,7 +15,7 @@
   </div>
   }
 
-  <!-- Grille des auteurs -->
+  <!-- Grille des auteurs ORIGINALE -->
   @else if (recentAuthors().length > 0) {
   <div class="writers-grid">
     @for (author of recentAuthors(); track author.id) {
@@ -28,6 +28,22 @@
         <span class="story-date">{{ author.latestStory.publishedAt | date:'dd/MM/yyyy' }}</span>
       </div>
     </div>
+    }
+  </div>
+
+  <!-- TEST - Nouvelle story-card -->
+  <div class="test-section" style="margin-top: 50px; padding: 20px; border: 2px dashed #5d889e;">
+    <h3 style="color: #5d889e; text-align: center;">🧪 TEST - Nouveau composant story-card</h3>
+    
+    @if (testStory()) {
+      <div style="max-width: 400px; margin: 0 auto;">
+        <app-story-card 
+          [story]="testStory()!"
+          displayMode="compact"
+          [showAuthor]="true"
+          (onCardClick)="navigateToStory($event.id)">
+        </app-story-card>
+      </div>
     }
   </div>
   }
