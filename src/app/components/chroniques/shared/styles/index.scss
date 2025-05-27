@@ -1,0 +1,111 @@
+// ============ STYLES CENTRALISÉS ============
+@import './variables';
+@import './responsive'; 
+@import './mixins';
+
+// ============ CLASSES UTILITAIRES GLOBALES ============
+.story-card-base {
+  @include card-base;
+  @include card-padding;
+  
+  &.clickable {
+    cursor: pointer;
+    @include card-hover;
+  }
+  
+  &--compact {
+    min-height: 180px;
+  }
+  
+  &--detailed {
+    min-height: 220px;
+  }
+  
+  &--draft {
+    border-color: rgba($secondary-border, 0.3);
+    
+    &:hover {
+      border-color: $secondary-border;
+    }
+  }
+}
+
+.story-grid-container {
+  @include story-grid-responsive;
+  @include container-padding;
+}
+
+.author-grid-container {
+  margin: 2rem auto;  
+  @include author-grid-responsive;
+}
+
+.loading-spinner {
+  @include loading-spinner;
+}
+
+.btn-primary {
+  @include button-base;
+  padding: $spacing-md $spacing-lg;
+  font-size: $font-size-base;
+}
+
+.btn-secondary {
+  @include button-base;
+  border-color: $secondary-border;
+  color: $secondary-border;
+  
+  &:hover:not(:disabled) {
+    background-color: rgba($secondary-border, 0.1);
+  }
+}
+
+.btn-small {
+  @include button-base;
+  padding: $spacing-xs $spacing-sm;
+  font-size: $font-size-xs;
+}
+
+.message-success {
+  @include message-success;
+}
+
+.message-error {
+  @include message-error;
+}
+
+.message-warning {
+  @include message-warning;
+}
+
+.avatar-small {
+  @include avatar-base(35px);
+}
+
+.avatar-medium {
+  @include avatar-base(50px);
+}
+
+.avatar-large {
+  @include avatar-base(80px);
+}
+
+.text-title-primary {
+  @include title-primary;
+}
+
+.text-title-secondary {
+  @include title-secondary;
+}
+
+.text-meta {
+  @include text-meta;
+}
+
+.text-accent {
+  @include text-accent;
+}
+
+.scroll-hidden {
+  @include scrollbar-hidden;
+}

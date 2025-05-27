@@ -16,18 +16,10 @@ export const routes: Routes = [
   },
 
   // Éditeur pour créer une nouvelle histoire
-  {
-    path: 'editor/new',
-    loadComponent: () => import('./story-editor/story-editor.component').then(m => m.StoryEditorComponent),
-    // canActivate: [AuthGuard]
-  },
+  
 
   // Éditeur pour modifier une histoire existante
-  {
-    path: 'editor/:id',
-    loadComponent: () => import('./story-editor/story-editor.component').then(m => m.StoryEditorComponent),
-    // canActivate: [AuthGuard]
-  },
+  
 
   // Lire une histoire 
   {
@@ -36,9 +28,5 @@ export const routes: Routes = [
   },
 
   // Liste des histoires d'un auteur 
-  {
-    path: 'author/:username',
-    loadComponent: () => import('./story-list/story-list.component').then(m => m.StoryListComponent)
-  }
-
+  
 ];

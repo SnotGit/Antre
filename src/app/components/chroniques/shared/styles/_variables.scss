@@ -1,0 +1,78 @@
+// ============ COULEURS PRINCIPALES ============
+$primary-bg: #121416;           
+$secondary-bg: #1a1d20;         
+$tertiary-bg: #2a2d30;          
+
+$primary-border: #5d889e;       
+$secondary-border: #b55a44;     
+$border-alpha: rgba(93, 136, 158, 0.3); 
+
+$text-primary: #d0d0d0;         
+$text-secondary: #5d889e;       
+$text-accent: #b55a44;          
+$text-muted: rgba(93, 136, 158, 0.7); 
+
+// ============ COULEURS D'ÉTAT ============
+$success-color: #2ecc71;
+$success-bg: rgba(46, 204, 113, 0.2);
+$success-border: rgba(46, 204, 113, 0.5);
+
+$error-color: #e74c3c;
+$error-bg: rgba(231, 76, 60, 0.2);
+$error-border: rgba(231, 76, 60, 0.5);
+
+$warning-color: #f39c12;
+$warning-bg: rgba(243, 156, 18, 0.2);
+$warning-border: rgba(243, 156, 18, 0.5);
+
+$like-color: #DC143C;           
+$like-bg: rgba(220, 20, 60, 0.2);
+
+// ============ TYPOGRAPHIE ============
+$font-family: 'Courier New', monospace;
+$font-size-xs: 10px;
+$font-size-sm: 12px;
+$font-size-base: 14px;
+$font-size-md: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 20px;
+$font-size-2xl: 24px;
+$font-size-3xl: 32px;
+
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-bold: 700;
+
+// ============ ESPACEMENTS ============
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 20px;
+$spacing-2xl: 24px;
+$spacing-3xl: 30px;
+$spacing-4xl: 40px;
+
+// ============ BORDURES ET RAYONS ============
+$border-width: 2px;
+$border-radius-sm: 6px;
+$border-radius-md: 12px;
+$border-radius-lg: 15px;
+$border-radius-full: 50%;
+
+// ============ OMBRES ============
+$shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.4);
+$shadow-md: 0 8px 25px rgba(93, 136, 158, 0.2);
+$shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.6);
+$shadow-xl: 0 16px 50px rgba(0, 0, 0, 0.8);
+
+// ============ TRANSITIONS ============
+$transition-fast: all 0.2s ease;
+$transition-normal: all 0.3s ease;
+$transition-slow: all 0.5s ease;
+
+// ============ Z-INDEX ============
+$z-dropdown: 100;
+$z-modal: 200;
+$z-overlay: 300;
+$z-tooltip: 400;
