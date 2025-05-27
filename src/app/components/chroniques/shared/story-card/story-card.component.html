@@ -1,93 +1,17 @@
 <div class="story-card" 
-     [class]="'story-card--' + displayMode()"
      [class.clickable]="clickable()"
      (click)="handleStoryClick()">
 
-  <!-- Header avec auteur (conditionnel) -->
-  @if (showAuthor() && story().user) {
-    <div class="card-header">
-      <div class="author-info">
-        <div class="author-avatar" (click)="handleAuthorClick($event)">
-          @if (hasAvatar()) {
-            <div class="avatar-image" [style.background-image]="'url(' + avatarUrl() + ')'"></div>
-          } @else {
-            <span class="avatar-placeholder">👤</span>
-          }
-        </div>
-        <div class="author-details">
-          <span class="author-name" (click)="handleAuthorClick($event)">
-            {{ story().user!.username }}
-          </span>
-          @if (displayMode() === 'detailed') {
-            <span class="author-description">
-              {{ getAuthorDescription() }}
-            </span>
-          }
-        </div>
-      </div>
-    </div>
-  }
-
-  <!-- Contenu principal -->
-  <div class="card-content">
-    <!-- Template literal dans l'interpolation (Angular 19.2) -->
-    <h3 class="story-title">{{ cardTitle() }}</h3>
-    
-    @if (displayMode() === 'detailed' && storyExcerpt()) {
-      <p class="story-excerpt">{{ storyExcerpt() }}</p>
-    }
+  <!-- Avatar centré comme Elena Nova -->
+  <div class="writer-avatar" [style.background-image]="hasAvatar() ? 'url(' + avatarUrl() + ')' : ''">
+  </div>
+  
+  <!-- Infos centrées comme Elena Nova -->
+  <div class="writer-info">
+    <h3 class="author-name">{{ story().user?.username || 'Auteur Inconnu' }}</h3>
+    <p class="author-description">{{ story().user?.description || 'Écrivain martien' }}</p>
+    <p class="story-title">{{ cardTitle() }}</p>
+    <span class="story-date">{{ displayDate() }}</span>
   </div>
 
-  <!-- Footer avec métadonnées -->
-  <div class="card-footer">
-    <div class="story-meta">
-      <div class="meta-left">
-        <span class="story-date">{{ displayDate() }}</span>
-        @if (displayMode() === 'draft' && statusBadge()) {
-          <span class="status-badge">{{ statusBadge() }}</span>
-        }
-      </div>
-      
-      <div class="meta-right">
-        @if (story().likes !== undefined && displayMode() !== 'draft') {
-          <div class="likes-display">
-            <!-- Template literal pour les likes (Angular 19.2) -->
-            <span class="heart-icon">♡</span>
-            <span class="likes-count">{{ getLikesCount() }}</span>
-          </div>
-        }
-      </div>
-    </div>
-  </div>
-
-  <!-- Actions (conditionnelles avec nouvelles APIs) -->
-  @if (showActions()) {
-    <div class="card-actions">
-      @if (isOwnStory()) {
-        <button class="action-btn edit-btn" 
-                (click)="handleEditClick($event)" 
-                title="Éditer">
-          EDIT
-        </button>
-        @if (displayMode() === 'draft') {
-          <button class="action-btn publish-btn" 
-                  (click)="handlePublishClick($event)" 
-                  title="Publier">
-            PUB
-          </button>
-        }
-        <button class="action-btn delete-btn" 
-                (click)="handleDeleteClick($event)" 
-                title="Supprimer">
-          DEL
-        </button>
-      } @else {
-        <button class="action-btn like-btn" 
-                (click)="handleLikeClick($event)" 
-                title="Liker">
-          LIKE
-        </button>
-      }
-    </div>
-  }
 </div>

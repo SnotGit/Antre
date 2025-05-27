@@ -1,11 +1,13 @@
-// user-account.component.ts
 import { Component, OnInit, OnDestroy, inject, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { StoryboardService } from '../../services/storyboard.service';
+import { TypingEffectService } from '../../services/typing-effect.service';
+import { PasswordValidatorComponent } from '../../shared/password-validator/password-validator.component';
 
+// ============ INTERFACES ============
 interface UserProfileData {
   username: string;
   email: string;
@@ -18,9 +20,18 @@ interface PasswordChangeData {
   confirmPassword: string;
 }
 
+interface ApiError {
+  status?: number;
+  error?: {
+    error?: string;
+  };
+}
+
+type TabType = 'profile' | 'credentials' | 'stats';
+
 @Component({
   selector: 'app-user-account',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PasswordValidatorComponent],
   templateUrl: './user-account.component.html',
   styleUrl: './user-account.component.scss'
 })
@@ -28,113 +39,109 @@ export class UserAccountComponent implements OnInit, OnDestroy {
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
+  // ============ SERVICES ============
   private router = inject(Router);
   private authService = inject(AuthService);
   private storyboardService = inject(StoryboardService);
+  private typingService = inject(TypingEffectService);
 
-  // Signals depuis AuthService
+  // ============ DONNÉES UTILISATEUR ============
   currentUser = this.authService.currentUser;
   isLoggedIn = this.authService.isLoggedIn;
-
-  // Signals depuis StoryboardService pour les stats
-  draftsCount = this.storyboardService.draftsCount;
-  publishedCount = this.storyboardService.publishedCount;
-  totalStoriesCount = this.storyboardService.totalStories;
-
-  // Signals pour l'état du composant
-  loading = signal<boolean>(false);
-  error = signal<string | null>(null);
-  successMessage = signal<string | null>(null);
-
-  activeTab = signal<'profile' | 'credentials' | 'stats'>(
-    (localStorage.getItem('user-account-tab') as any) || 'stats'
-  );
-
-  // Signals pour l'effet de typing
-  displayedTitle = signal<string>('');
-  typingComplete = signal<boolean>(false);
-  private typingInterval?: number;
-
-  // Signal pour les likes totaux
-  totalLikes = signal<number>(0);
-
-  // Données des formulaires
-  profileData: UserProfileData = {
-    username: '',
-    email: '',
-    description: ''
+  
+  // ============ STATISTIQUES ============
+  private userStats = {
+    drafts: this.storyboardService.draftsCount,
+    published: this.storyboardService.publishedCount,
+    total: this.storyboardService.totalStories,
+    likes: signal<number>(0)
   };
 
-  passwordData: PasswordChangeData = {
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+  // ============ ÉTAT COMPOSANT ============
+  private state = {
+    loading: signal<boolean>(false),
+    error: signal<string | null>(null),
+    success: signal<string | null>(null)
   };
 
-  // Avatar
-  selectedAvatarFile: File | null = null;
-  avatarPreview: string | null = null;
+  activeTab = signal<TabType>('stats');
 
+  constructor() {
+    // Initialiser l'onglet depuis localStorage
+    const saved = localStorage.getItem('user-account-tab');
+    if (saved === 'profile' || saved === 'credentials' || saved === 'stats') {
+      this.activeTab.set(saved as TabType);
+    }
+  }
+
+  // ============ EFFET TYPING ============
+  private typingEffect = this.typingService.createTypingEffect({
+    text: 'Mon Compte',
+    speed: 200,
+    cursorColor: '#5d889e',
+    finalBlinks: 3
+  });
+
+  displayedTitle = this.typingEffect.displayedTitle;
+  typingComplete = this.typingEffect.isComplete;
+
+  // ============ FORMULAIRES ============
+  profileData: UserProfileData = { username: '', email: '', description: '' };
+  passwordData: PasswordChangeData = { currentPassword: '', newPassword: '', confirmPassword: '' };
+  
+  // ============ AVATAR ============
+  private avatarState = {
+    selectedFile: null as File | null,
+    preview: null as string | null
+  };
+
+  // ============ GETTERS PUBLICS ============
+  loading = this.state.loading.asReadonly();
+  error = this.state.error.asReadonly();
+  successMessage = this.state.success.asReadonly();
+
+  getUserStats() {
+    return {
+      totalStories: this.userStats.total(),
+      publishedStories: this.userStats.published(),
+      drafts: this.userStats.drafts(),
+      totalLikes: this.userStats.likes()
+    };
+  }
+
+  get userName(): string {
+    return this.currentUser()?.username || '';
+  }
+
+  get userRole(): string {
+    return this.currentUser()?.role?.toUpperCase() || 'USER';
+  }
+
+  get accountCreatedDate(): string {
+    const user = this.currentUser();
+    return user?.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR') : '';
+  }
+
+  // ============ LIFECYCLE ============
   ngOnInit(): void {
     if (!this.isLoggedIn()) {
       this.router.navigate(['/auth/login']);
       return;
     }
 
-    this.refreshUserData();
-    this.startTypingEffect();
+    this.initializeUserData();
+    this.typingEffect.startTyping();
   }
 
   ngOnDestroy(): void {
-    if (this.typingInterval) {
-      clearInterval(this.typingInterval);
-    }
+    this.typingEffect.cleanup();
   }
 
-  private refreshUserData(): void {
-    this.authService.validateToken().subscribe({
-      next: () => {
-        this.loadUserProfile();
-        this.loadUserStats();
-      },
-      error: (error) => {
-        this.loadUserProfile();
-        this.loadUserStats();
-      }
-    });
+  // ============ INITIALISATION ============
+  private async initializeUserData(): Promise<void> {
+    this.loadUserProfile();
+    await this.loadUserStats();
   }
-
-  // ============ EFFET DE TYPING ============
-
-  private startTypingEffect(): void {
-    const fullTitle = 'Mon Compte';
-    let currentIndex = 0;
-
-    this.typingInterval = window.setInterval(() => {
-      if (currentIndex < fullTitle.length) {
-        this.displayedTitle.set(fullTitle.substring(0, currentIndex + 1));
-        currentIndex++;
-      } else {
-        setTimeout(() => {
-          this.typingComplete.set(true);
-        }, 500);
-
-        if (this.typingInterval) {
-          clearInterval(this.typingInterval);
-        }
-      }
-    }, 200);
-  }
-
-  // ============ GESTION DES TABS ============
-
-  setActiveTab(tab: 'profile' | 'credentials' | 'stats'): void {
-    this.activeTab.set(tab);
-    localStorage.setItem('user-account-tab', tab);
-    this.clearMessages();
-  }
-
-  // ============ CHARGEMENT DES DONNÉES ============
 
   private loadUserProfile(): void {
     const user = this.currentUser();
@@ -144,8 +151,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
         email: user.email,
         description: user.description || ''
       };
-      
-      this.clearMessages();
     }
   }
 
@@ -155,27 +160,23 @@ export class UserAccountComponent implements OnInit, OnDestroy {
         this.storyboardService.loadDraftsData(),
         this.storyboardService.loadPublishedData()
       ]);
-
-      this.totalLikes.set(0);
-
-    } catch (error) {
-      this.error.set('Impossible de charger les statistiques');
+    } catch {
+      this.setError('Impossible de charger les statistiques');
     }
   }
 
-  // ============ COMPUTED POUR LES STATS ============
-
-  getUserStats() {
-    return {
-      totalStories: this.totalStoriesCount(),
-      publishedStories: this.publishedCount(),
-      drafts: this.draftsCount(),
-      totalLikes: this.totalLikes()
-    };
+  // ============ NAVIGATION TABS ============
+  setActiveTab(tab: TabType): void {
+    this.activeTab.set(tab);
+    localStorage.setItem('user-account-tab', tab);
+    this.clearMessages();
   }
 
-  // ============ GESTION DE L'AVATAR ============
+  goToStoryBoard(): void {
+    this.router.navigate(['/chroniques/story-board']);
+  }
 
+  // ============ GESTION AVATAR ============
   triggerFileInput(): void {
     this.fileInput.nativeElement.click();
   }
@@ -184,140 +185,113 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
 
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        this.error.set('Veuillez sélectionner une image valide');
-        return;
-      }
+    if (!file) return;
 
-      if (file.size > 500 * 1024) {
-        this.error.set('L\'image doit faire moins de 500KB');
-        return;
-      }
+    if (!this.validateAvatarFile(file)) return;
 
-      this.selectedAvatarFile = file;
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.avatarPreview = e.target?.result as string;
-      };
-      reader.readAsDataURL(file);
-    }
+    this.avatarState.selectedFile = file;
+    this.createAvatarPreview(file);
   }
 
-  // Méthode d'avatar
-  getAvatarUrl(): string {
-    if (this.avatarPreview) {
-      return this.avatarPreview;
-    }
-
-    const user = this.currentUser();
-    if (user?.avatar) {
-      return `http://localhost:3000${user.avatar}`;
-    }
-
-    return '';
-  }
-
-  // ============ SAUVEGARDE PROFIL - VRAIE API ============
-
-  async saveProfile(): Promise<void> {
-    if (!this.validateProfile()) {
-      return;
-    }
-
-    this.loading.set(true);
-    this.clearMessages();
-
-    try {
-      // Sauvegarder le profil (username + description)
-      await this.authService.updateProfile(
-        this.profileData.username,
-        this.profileData.description
-      ).toPromise();
-
-      // Upload avatar si sélectionné
-      if (this.selectedAvatarFile) {
-        await this.authService.uploadAvatar(this.selectedAvatarFile).toPromise();
-        this.selectedAvatarFile = null;
-        this.avatarPreview = null;
-      }
-
-      this.successMessage.set('Profil mis à jour avec succès');
-      this.loading.set(false);
-
-      setTimeout(() => {
-        this.successMessage.set(null);
-      }, 2000);
-
-    } catch (error: any) {
-      let errorMessage = 'Erreur lors de la sauvegarde du profil';
-      if (error.status === 409) {
-        errorMessage = 'Ce nom d\'utilisateur est déjà pris';
-      } else if (error.error?.error) {
-        errorMessage = error.error.error;
-      }
-      
-      this.error.set(errorMessage);
-      this.loading.set(false);
-    }
-  }
-
-  // ============ SAUVEGARDE EMAIL ============
-
-  saveEmail(): void {
-    if (!this.validateEmail()) {
-      return;
-    }
-
-    this.loading.set(true);
-    this.clearMessages();
-
-    setTimeout(() => {
-      this.successMessage.set('Email modifié avec succès');
-      this.loading.set(false);
-
-      setTimeout(() => {
-        this.successMessage.set(null);
-      }, 2000);
-    }, 1000);
-  }
-
-  // ============ CHANGEMENT MOT DE PASSE ============
-
-  changePassword(): void {
-    if (!this.validatePassword()) {
-      return;
-    }
-
-    this.loading.set(true);
-    this.clearMessages();
-
-    setTimeout(() => {
-      this.successMessage.set('Mot de passe modifié avec succès');
-      this.passwordData = {
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      };
-      this.loading.set(false);
-
-      setTimeout(() => {
-        this.successMessage.set(null);
-      }, 2000);
-    }, 1000);
-  }
-
-  // ============ VALIDATIONS ============
-
-  private validateProfile(): boolean {
-    if (!this.profileData.username.trim()) {
-      this.error.set('Le nom d\'utilisateur est requis');
+  private validateAvatarFile(file: File): boolean {
+    if (!file.type.startsWith('image/')) {
+      this.setError('Veuillez sélectionner une image valide');
       return false;
     }
 
-    if (this.profileData.username.length < 3) {
-      this.error.set('Le nom d\'utilisateur doit contenir au moins 3 caractères');
+    if (file.size > 500 * 1024) {
+      this.setError('L\'image doit faire moins de 500KB');
+      return false;
+    }
+
+    return true;
+  }
+
+  private createAvatarPreview(file: File): void {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.avatarState.preview = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  getAvatarUrl(): string {
+    if (this.avatarState.preview) return this.avatarState.preview;
+    
+    const user = this.currentUser();
+    return user?.avatar ? `http://localhost:3000${user.avatar}` : '';
+  }
+
+  // ============ SAUVEGARDE PROFIL ============
+  async saveProfile(): Promise<void> {
+    if (!this.validateProfile()) return;
+
+    this.setLoading(true);
+
+    try {
+      await this.authService.updateProfile(
+        this.sanitizeInput(this.profileData.username),
+        this.sanitizeInput(this.profileData.description)
+      ).toPromise();
+
+      if (this.avatarState.selectedFile) {
+        await this.uploadAvatar();
+      }
+
+      this.setSuccess('Profil mis à jour avec succès');
+    } catch (error: unknown) {
+      this.handleApiError(error, 'Erreur lors de la sauvegarde du profil');
+    } finally {
+      this.setLoading(false);
+    }
+  }
+
+  private async uploadAvatar(): Promise<void> {
+    if (!this.avatarState.selectedFile) return;
+
+    await this.authService.uploadAvatar(this.avatarState.selectedFile).toPromise();
+    this.avatarState.selectedFile = null;
+    this.avatarState.preview = null;
+  }
+
+  // ============ AUTRES ACTIONS ============
+  saveEmail(): void {
+    if (!this.validateEmail()) return;
+
+    this.simulateAsyncAction('Email modifié avec succès');
+  }
+
+  changePassword(): void {
+    if (!this.validatePassword()) return;
+
+    this.simulateAsyncAction('Mot de passe modifié avec succès');
+    this.resetPasswordForm();
+  }
+
+  private simulateAsyncAction(message: string): void {
+    this.setLoading(true);
+
+    setTimeout(() => {
+      this.setSuccess(message);
+      this.setLoading(false);
+    }, 1000);
+  }
+
+  private resetPasswordForm(): void {
+    this.passwordData = { currentPassword: '', newPassword: '', confirmPassword: '' };
+  }
+
+  // ============ VALIDATION ============
+  private validateProfile(): boolean {
+    const username = this.profileData.username.trim();
+    
+    if (!username) {
+      this.setError('Le nom d\'utilisateur est requis');
+      return false;
+    }
+
+    if (username.length < 3) {
+      this.setError('Le nom d\'utilisateur doit contenir au moins 3 caractères');
       return false;
     }
 
@@ -325,14 +299,15 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   }
 
   private validateEmail(): boolean {
-    if (!this.profileData.email.trim()) {
-      this.error.set('L\'email est requis');
+    const email = this.profileData.email.trim();
+    
+    if (!email) {
+      this.setError('L\'email est requis');
       return false;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(this.profileData.email)) {
-      this.error.set('Format d\'email invalide');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      this.setError('Format d\'email invalide');
       return false;
     }
 
@@ -340,59 +315,75 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   }
 
   private validatePassword(): boolean {
-    if (!this.passwordData.currentPassword) {
-      this.error.set('Le mot de passe actuel est requis');
+    const { currentPassword, newPassword, confirmPassword } = this.passwordData;
+
+    if (!currentPassword) {
+      this.setError('Le mot de passe actuel est requis');
       return false;
     }
 
-    if (!this.passwordData.newPassword) {
-      this.error.set('Le nouveau mot de passe est requis');
+    if (!newPassword) {
+      this.setError('Le nouveau mot de passe est requis');
       return false;
     }
 
-    if (this.passwordData.newPassword.length < 6) {
-      this.error.set('Le nouveau mot de passe doit contenir au moins 6 caractères');
+    if (newPassword.length < 8) {
+      this.setError('Le nouveau mot de passe doit contenir au moins 8 caractères');
       return false;
     }
 
-    if (this.passwordData.newPassword !== this.passwordData.confirmPassword) {
-      this.error.set('Les mots de passe ne correspondent pas');
+    if (!/[A-Z]/.test(newPassword)) {
+      this.setError('Le nouveau mot de passe doit contenir au moins 1 majuscule');
+      return false;
+    }
+
+    if (newPassword !== confirmPassword) {
+      this.setError('Les mots de passe ne correspondent pas');
       return false;
     }
 
     return true;
   }
 
-  // ============ UTILITAIRES ============
-
-  // Navigation vers le storyboard
-  goToStoryBoard(): void {
-    this.router.navigate(['/chroniques/story-board']);
-  }
-  
-  private clearMessages(): void {
-    this.error.set(null);
-    this.successMessage.set(null);
+  // ============ SÉCURITÉ ============
+  private sanitizeInput(input: string): string {
+    return input.trim().replace(/[<>]/g, '');
   }
 
-  // ============ GETTERS TEMPLATE ============
+  private handleApiError(error: unknown, defaultMessage: string): void {
+    const apiError = error as ApiError;
+    let message = defaultMessage;
 
-  get userName(): string {
-    return this.currentUser()?.username || '';
-  }
-
-  get userRole(): string {
-    const user = this.currentUser();
-    if (!user) return 'USER';
-
-    return user.role.toUpperCase();
-  }
-
-  get accountCreatedDate(): string {
-    const user = this.currentUser();
-    if (user?.createdAt) {
-      return new Date(user.createdAt).toLocaleDateString('fr-FR');
+    if (apiError.status === 409) {
+      message = 'Ce nom d\'utilisateur est déjà pris';
+    } else if (apiError.error?.error) {
+      message = apiError.error.error;
     }
-    return '';
+
+    this.setError(message);
+  }
+
+  // ============ ÉTAT MANAGEMENT ============
+  private setLoading(loading: boolean): void {
+    this.state.loading.set(loading);
+  }
+
+  private setError(message: string): void {
+    this.clearMessages();
+    this.state.error.set(message);
+  }
+
+  private setSuccess(message: string): void {
+    this.clearMessages();
+    this.state.success.set(message);
+    
+    setTimeout(() => {
+      this.state.success.set(null);
+    }, 3000);
+  }
+
+  private clearMessages(): void {
+    this.state.error.set(null);
+    this.state.success.set(null);
   }
 }

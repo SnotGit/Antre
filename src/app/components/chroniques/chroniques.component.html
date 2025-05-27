@@ -1,13 +1,14 @@
-<!-- chroniques.component.html -->
 <div class="chroniques-container">
   <div class="header">
-    <h2 class="terminal-effect">Les Chroniques de Mars <span class="cursor"></span></h2>
+    <h2 class="terminal-effect">
+      <span class="typed-text">{{ displayedTitle() }}</span>
+      <span class="typing-cursor cursor-chroniques" [class.hidden]="!showCursor()">|</span>
+    </h2>
     <p>Bienvenue dans un univers de fiction apocalyptique et dystopique.</p>
     <p>Les terraformers y racontent leurs aventures sur la planète rouge.</p>
     <p>Découvrez les histoires de nos écrivains et plongez dans leurs récits.</p>
   </div>
 
-  <!-- État de chargement -->
   @if (loading()) {
   <div class="loading-state">
     <div class="loading-spinner"></div>
@@ -15,40 +16,29 @@
   </div>
   }
 
-  <!-- Grille des auteurs ORIGINALE -->
   @else if (recentAuthors().length > 0) {
   <div class="writers-grid">
     @for (author of recentAuthors(); track author.id) {
-    <div class="writer-card" (click)="navigateToStory(author.latestStory.id)">
-      <div class="writer-avatar" [style.background-image]="'url(http://localhost:3000' + author.avatar + ')'"></div>
-      <div class="writer-info">
-        <h3>{{ author.username }}</h3>
-        <p class="author-description">{{ author.description }}</p>
-        <p class="latest-story">{{ author.latestStory.title }}</p>
-        <span class="story-date">{{ author.latestStory.publishedAt | date:'dd/MM/yyyy' }}</span>
-      </div>
-    </div>
-    }
-  </div>
-
-  <!-- TEST - Nouvelle story-card -->
-  <div class="test-section" style="margin-top: 50px; padding: 20px; border: 2px dashed #5d889e;">
-    <h3 style="color: #5d889e; text-align: center;">🧪 TEST - Nouveau composant story-card</h3>
-    
-    @if (testStory()) {
-      <div style="max-width: 400px; margin: 0 auto;">
-        <app-story-card 
-          [story]="testStory()!"
-          displayMode="compact"
-          [showAuthor]="true"
-          (onCardClick)="navigateToStory($event.id)">
-        </app-story-card>
-      </div>
+      <app-story-card 
+        [story]="{
+          id: author.latestStory.id,
+          title: author.latestStory.title,
+          publishedAt: author.latestStory.publishedAt,
+          user: {
+            id: author.id,
+            username: author.username,
+            description: author.description,
+            avatar: author.avatar
+          }
+        }"
+        displayMode="compact"
+        [showAuthor]="true"
+        (onCardClick)="navigateToStory($event.id)">
+      </app-story-card>
     }
   </div>
   }
 
-  <!-- État vide -->
   @else {
   <div class="empty-state">
     <div class="empty-icon">📖</div>
