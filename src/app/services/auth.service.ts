@@ -125,6 +125,27 @@ export class AuthService {
     );
   }
 
+  // ============ MISE À JOUR PROFIL ============
+
+  updateProfile(username: string, description: string): Observable<{message: string, user: User}> {
+    const profileData = { username, description };
+    
+    return this.http.put<{message: string, user: User}>(`${this.API_URL}/auth/profile`, profileData, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      tap((response) => {
+        if (response.user) {
+          this._currentUser.set(response.user);
+          localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
+          this.triggerUserChange();
+        }
+      }),
+      catchError(error => {
+        throw error;
+      })
+    );
+  }
+
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);

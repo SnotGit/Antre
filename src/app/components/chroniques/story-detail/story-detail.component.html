@@ -1,4 +1,4 @@
-<!-- story-detail.component.html -->
+<!-- story-detail.component.html - Version optimisée -->
 <div class="story-detail-container">
 
   <!-- Carte centrale de l'histoire -->
@@ -6,8 +6,12 @@
     
     <!-- Header TETRIS avec zones cliquables séparées -->
     <div class="card-header">
-      <div class="author-avatar" (click)="goToAuthorProfile()" [style.background-image]="story().user?.avatar ? 'url(http://localhost:3000' + story().user?.avatar + ')' : ''">
-        <span class="avatar-placeholder" *ngIf="!story().user?.avatar">👤</span>
+      <div class="author-avatar" (click)="goToAuthorProfile()">
+        @if (hasAvatar()) {
+          <div class="avatar-image" [style.background-image]="'url(' + getAvatarUrl() + ')'"></div>
+        } @else {
+          <span class="avatar-placeholder">👤</span>
+        }
       </div>
       
       <div class="author-content">
@@ -15,20 +19,14 @@
           <span class="author-name" (click)="goToAuthorProfile()">{{ story().user?.username || 'Auteur Inconnu' }}</span>
           
           <div class="header-like-section">
-            @if (showConnectionRequired()) {
-              <div class="connection-banner">
-                <span>Connexion requise</span>
-              </div>
-            } @else {
-              <div class="like-display">
-                <button class="like-btn" (click)="toggleLike()" [disabled]="isOwnStory()">
-                  <span class="heart-icon" [class.liked]="isLiked()">
-                    {{ isLiked() ? '♥' : '♡' }}
-                  </span>
-                </button>
-                <span class="likes-count">{{ getLikesCount() }}</span>
-              </div>
-            }
+            <div class="like-display">
+              <button class="like-btn" (click)="toggleLike()" [disabled]="isOwnStory()">
+                <span class="heart-icon" [class.liked]="isLiked()">
+                  {{ isLiked() ? '♥' : '♡' }}
+                </span>
+              </button>
+              <span class="likes-count">{{ getLikesCount() }}</span>
+            </div>
           </div>
         </div>
         
@@ -45,7 +43,7 @@
         <h1>{{ story().title }}</h1>
       </div>
       <div class="date-wrapper">
-        <p>{{ getFormattedDate() }}</p>
+        <p>{{ formattedDate() }}</p>
       </div>
     </div>
 
