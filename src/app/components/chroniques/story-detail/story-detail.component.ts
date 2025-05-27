@@ -1,5 +1,5 @@
 // story-detail.component.ts
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -36,11 +36,41 @@ export class StoryDetailComponent implements OnInit {
   // Signals pour les likes
   isLiked = signal<boolean>(false);
   likesCount = signal<number>(0);
-  showConnectionBanner = signal<boolean>(false);
 
   // Nouveaux signals pour la navigation
   authorStories = signal<StoryFromAPI[]>([]);
   currentStoryIndex = signal<number>(-1);
+
+  // Computed signals pour optimiser les performances
+  currentUser = computed(() => this.authService.currentUser());
+  isUserLoggedIn = computed(() => this.authService.isLoggedIn());
+  
+  // Computed pour l'avatar
+  avatarUrl = computed(() => {
+    const avatar = this.story().user?.avatar;
+    return avatar ? `http://localhost:3000${avatar}` : null;
+  });
+  
+  // Computed pour vérifier si c'est sa propre histoire
+  isCurrentUserStory = computed(() => {
+    const currentUser = this.currentUser();
+    const storyUser = this.story().user;
+    return currentUser?.id === storyUser?.id;
+  });
+  
+  // Computed pour la date formatée
+  formattedDate = computed(() => {
+    const story = this.story();
+    const dateToFormat = story.publishedAt || story.updatedAt || story.createdAt;
+    
+    if (!dateToFormat) return '';
+    
+    return new Date(dateToFormat).toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  });
 
   ngOnInit(): void {
     // Écouter les changements de paramètres de route
@@ -151,41 +181,22 @@ export class StoryDetailComponent implements OnInit {
     }
   }
 
-  // Formatage de la date
+  // Formatage de la date - OPTIMISÉ avec computed
   getFormattedDate(): string {
-    const story = this.story();
-    const dateToFormat = story.publishedAt || story.updatedAt || story.createdAt;
-    
-    if (!dateToFormat) return '';
-    
-    return new Date(dateToFormat).toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+    return this.formattedDate();
   }
 
-  // Système de likes - VRAIE LOGIQUE
-  showConnectionRequired(): boolean {
-    return this.showConnectionBanner();
-  }
-
+  // Système de likes - LOGIQUE SIMPLIFIÉE
   isOwnStory(): boolean {
-    const currentUser = this.authService.currentUser();
-    const storyUser = this.story().user;
-    return currentUser?.id === storyUser?.id;
+    return this.isCurrentUserStory();
   }
 
   toggleLike(): void {
-    if (!this.authService.isLoggedIn()) {
-      this.showConnectionBanner.set(true);
-      setTimeout(() => {
-        this.showConnectionBanner.set(false);
-      }, 3000);
-      return;
+    if (!this.isUserLoggedIn()) {
+      return; // Pas de like si pas connecté, c'est tout
     }
 
-    if (this.isOwnStory()) {
+    if (this.isCurrentUserStory()) {
       return;
     }
 
@@ -210,18 +221,21 @@ export class StoryDetailComponent implements OnInit {
     return this.likesCount();
   }
 
-  // Charger le statut initial des likes
+  // Charger le statut initial des likes - CORRIGÉ
   private loadLikeStatus(): void {
-    if (!this.authService.isLoggedIn()) {
-      // Si pas connecté, charger juste le nombre total de likes (public)
-      this.likesCount.set(0); // Temporaire - à remplacer par un appel API public
+    const storyId = this.story().id;
+    
+    if (!storyId) return;
+
+    if (!this.isUserLoggedIn()) {
+      // Si pas connecté, initialiser à 0 (on pourrait ajouter un appel API public plus tard)
+      this.isLiked.set(false);
+      this.likesCount.set(0);
       return;
     }
     
     const token = this.authService.getToken();
-    const storyId = this.story().id;
-    
-    if (!token || !storyId) return;
+    if (!token) return;
 
     this.storyService.checkIfLiked(storyId, token).subscribe({
       next: (response) => {
@@ -230,10 +244,20 @@ export class StoryDetailComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erreur lors du chargement du statut like:', error);
-        // Garder les valeurs par défaut
+        // Valeurs par défaut en cas d'erreur
+        this.isLiked.set(false);
         this.likesCount.set(0);
       }
     });
+  }
+
+  // Méthodes utilitaires pour le template - OPTIMISÉES
+  getAvatarUrl(): string | null {
+    return this.avatarUrl();
+  }
+  
+  hasAvatar(): boolean {
+    return this.avatarUrl() !== null;
   }
 
   // Navigation vers le profil de l'auteur

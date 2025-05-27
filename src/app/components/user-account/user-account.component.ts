@@ -219,7 +219,7 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  // ============ SAUVEGARDE PROFIL ============
+  // ============ SAUVEGARDE PROFIL - VRAIE API ============
 
   async saveProfile(): Promise<void> {
     if (!this.validateProfile()) {
@@ -230,6 +230,13 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     this.clearMessages();
 
     try {
+      // Sauvegarder le profil (username + description)
+      await this.authService.updateProfile(
+        this.profileData.username,
+        this.profileData.description
+      ).toPromise();
+
+      // Upload avatar si sélectionné
       if (this.selectedAvatarFile) {
         await this.authService.uploadAvatar(this.selectedAvatarFile).toPromise();
         this.selectedAvatarFile = null;
@@ -243,8 +250,15 @@ export class UserAccountComponent implements OnInit, OnDestroy {
         this.successMessage.set(null);
       }, 2000);
 
-    } catch (error) {
-      this.error.set('Erreur lors de la sauvegarde du profil');
+    } catch (error: any) {
+      let errorMessage = 'Erreur lors de la sauvegarde du profil';
+      if (error.status === 409) {
+        errorMessage = 'Ce nom d\'utilisateur est déjà pris';
+      } else if (error.error?.error) {
+        errorMessage = error.error.error;
+      }
+      
+      this.error.set(errorMessage);
       this.loading.set(false);
     }
   }
@@ -350,6 +364,11 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   }
 
   // ============ UTILITAIRES ============
+
+  // Navigation vers le storyboard
+  goToStoryBoard(): void {
+    this.router.navigate(['/chroniques/story-board']);
+  }
   
   private clearMessages(): void {
     this.error.set(null);

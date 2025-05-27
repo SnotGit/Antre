@@ -172,8 +172,65 @@ const getProfile = async (req, res) => {
   }
 };
 
+// Mettre à jour le profil utilisateur
+const updateProfile = async (req, res) => {
+  try {
+    const { username, description } = req.body;
+    const userId = req.user.userId;
+
+    // Vérifications
+    if (!username || username.trim().length < 3) {
+      return res.status(400).json({ 
+        error: 'Le nom d\'utilisateur doit contenir au moins 3 caractères' 
+      });
+    }
+
+    // Vérifier si le username est déjà pris (par un autre utilisateur)
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        username: username.trim(),
+        NOT: { id: userId }
+      }
+    });
+
+    if (existingUser) {
+      return res.status(409).json({ 
+        error: 'Ce nom d\'utilisateur est déjà pris' 
+      });
+    }
+
+    // Mettre à jour le profil
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        username: username.trim(),
+        description: description?.trim() || ''
+      },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        description: true,
+        avatar: true,
+        role: true,
+        createdAt: true
+      }
+    });
+
+    res.json({
+      message: 'Profil mis à jour avec succès',
+      user: updatedUser
+    });
+
+  } catch (error) {
+    console.error('Erreur update profile:', error);
+    res.status(500).json({ error: 'Erreur serveur lors de la mise à jour' });
+  }
+};
+
 module.exports = {
   register,
   login,
-  getProfile
+  getProfile,
+  updateProfile
 };
