@@ -25,9 +25,9 @@ export class ChroniquesComponent implements OnInit {
     // this.chroniquesService.refresh();
   }
 
-  navigateToStory(authorUsername: string, storySlug: string): void {
-    this.router.navigate(['/chroniques', authorUsername, storySlug]);
-  }
+  navigateToStory(storyId: number): void {
+  this.router.navigate(['/chroniques/story', storyId]);
+}
 
   // Méthode pour rafraîchir manuellement
   refreshAuthors(): void {

@@ -126,43 +126,10 @@ export class StoryBoardComponent implements OnInit, OnDestroy {
     // La navigation sera faite via les boutons du console-panel
   }
 
-  // NOUVEAU: Vérifier si c'est sa propre histoire (toujours vrai dans story-board)
+  // Vérifier si c'est sa propre histoire (toujours vrai dans story-board)
   isOwnStory(storyId: number): boolean {
     // Dans le story-board, toutes les histoires appartiennent à l'utilisateur connecté
     return true;
-  }
-
-  async toggleLike(storyId: number, event: Event): Promise<void> {
-    event.stopPropagation();
-    
-    if (!this.isLoggedIn()) {
-      this.router.navigate(['/auth/login']);
-      return;
-    }
-
-    // PROTECTION: Empêcher de liker ses propres histoires
-    if (this.isOwnStory(storyId)) {
-      return; // Ne rien faire
-    }
-
-    const currentLikes = new Set(this.likedStories());
-    
-    // Si déjà liké, ne rien faire
-    if (currentLikes.has(storyId)) {
-      return;
-    }
-
-    // Optimistic update
-    currentLikes.add(storyId);
-    this.likedStories.set(currentLikes);
-    
-    try {
-      await this.storyboardService.toggleLike(storyId);
-    } catch (error) {
-      // Rollback en cas d'erreur
-      currentLikes.delete(storyId);
-      this.likedStories.set(currentLikes);
-    }
   }
 
   isStoryLiked(storyId: number): boolean {

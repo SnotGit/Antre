@@ -1,42 +1,81 @@
 <!-- story-detail.component.html -->
 <div class="story-detail-container">
-  <!-- Navigation de retour -->
-  <div class="back-navigation">
-    <button class="back-btn" (click)="goBack()">
-      <span class="back-icon">←</span>
-      Retour 
-    </button>
-  </div>
 
-  <!-- En-tête auteur -->
-  <div class="author-header">
-    <div class="author-avatar" [style.background-image]="'url(http://localhost:3000' + author.avatar + ')'">
-      <span class="avatar-placeholder" *ngIf="!story().user?.avatar">👤</span>
-    </div>
-    <div class="author-info">
-      <h2 class="author-name">{{ story().user?.username || 'Auteur Inconnu' }}</h2>
-      <p class="author-description">{{ story().user?.description || 'Écrivain martien' }}</p>
-    </div>
-  </div>
-
-  <!-- Article principal -->
-  <article class="story-article">
-    <!-- Titre de l'histoire -->
-    <header class="story-header">
-      <h1 class="story-title">{{ story().title }}</h1>
-      <div class="story-meta">
-        <span class="meta-date">📅 {{ getFormattedDate() }}</span>
-        <div class="story-stats">
-          <span class="stat-item">❤️ {{ getLikesCount() }}</span>         
+  <!-- Carte centrale de l'histoire -->
+  <div class="story-card">
+    
+    <!-- Header de la carte avec auteur + like -->
+    <div class="card-header">
+      <div class="author-info">
+        <div class="author-avatar" [style.background-image]="story().user?.avatar ? 'url(http://localhost:3000' + story().user?.avatar + ')' : ''">
+          <span class="avatar-placeholder" *ngIf="!story().user?.avatar">👤</span>
+        </div>
+        <div class="author-details">
+          <h2 class="author-name">{{ story().user?.username || 'Auteur Inconnu' }}</h2>
+          <p class="author-description">{{ story().user?.description || 'Écrivain martien' }}</p>
         </div>
       </div>
-    </header>
-
-    <!-- Contenu de l'histoire -->
-    <div class="story-content">
-      <div class="content-text">{{ story().content }}</div>
+      
+      <!-- Like déplacé dans le header -->
+      <div class="header-like-section">
+        @if (showConnectionRequired()) {
+          <div class="connection-banner">
+            <span>Connexion requise</span>
+          </div>
+        } @else {
+          <div class="like-display">
+            <button class="like-btn" (click)="toggleLike()" [disabled]="isOwnStory()">
+              <span class="heart-icon" [class.liked]="isLiked()">
+                {{ isLiked() ? '♥' : '♡' }}
+              </span>
+            </button>
+            <span class="likes-count">{{ getLikesCount() }}</span>
+          </div>
+        }
+      </div>
     </div>
-  </article>
+
+    <!-- Séparateur -->
+    <div class="card-separator"></div>
+
+    <!-- Titre et date -->
+    <div class="title-section">
+      <div class="title-wrapper">
+        <h1>{{ story().title }}</h1>
+      </div>
+      <div class="date-wrapper">
+        <p>{{ getFormattedDate() }}</p>
+      </div>
+    </div>
+
+    <!-- Contenu de l'histoire (plus d'espace maintenant) -->
+    <div class="content-section">
+      <div class="story-text">{{ story().content }}</div>
+    </div>
+
+    <!-- Séparateur -->
+    <div class="card-separator"></div>
+
+    <!-- Footer avec navigation intégrée -->
+<div class="card-footer">
+  <button class="nav-btn prev-btn" 
+          [disabled]="!hasPreviousStory()" 
+          (click)="goToPreviousStory()"
+          [class.hidden]="!hasPreviousStory()">
+    <span class="nav-arrow">←</span>
+    <span class="nav-text">Histoire précédente</span>
+  </button>
+  
+  <button class="nav-btn next-btn" 
+          [disabled]="!hasNextStory()" 
+          (click)="goToNextStory()"
+          [class.hidden]="!hasNextStory()">
+    <span class="nav-text">Histoire suivante</span>
+    <span class="nav-arrow">→</span>
+  </button>
+</div>
+
+  </div>
 
   <!-- États de chargement et d'erreur -->
   <div class="loading-state" *ngIf="loading()">
@@ -51,4 +90,5 @@
       Réessayer
     </button>
   </div>
+
 </div>
