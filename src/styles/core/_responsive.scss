@@ -1,0 +1,61 @@
+// ============ BREAKPOINTS ============
+$mobile: 768px;
+$tablet-portrait: 1024px;  
+$tablet-landscape: 1366px;
+$desktop: 1400px;
+
+// ============ MIXINS RESPONSIVE ============
+@mixin mobile {
+  @media (max-width: #{$mobile - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet-portrait {
+  @media (min-width: $mobile) and (max-width: #{$tablet-portrait - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet-landscape {
+  @media (min-width: $tablet-portrait) and (max-width: #{$tablet-landscape - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: $mobile) and (max-width: #{$tablet-landscape - 1px}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: $desktop) {
+    @content;
+  }
+}
+
+// ============ MIXINS SPÉCIALISÉS ============
+@mixin mobile-only {
+  @media (max-width: #{$mobile - 1px}) {
+    @content;
+  }
+}
+
+@mixin desktop-up {
+  @media (min-width: $tablet-landscape) {
+    @content;
+  }
+}
+
+@mixin max-width($width) {
+  @media (max-width: #{$width - 1px}) {
+    @content;
+  }
+}
+
+@mixin min-width($width) {
+  @media (min-width: $width) {
+    @content;
+  }
+}

@@ -4,11 +4,11 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: 'login',
-    loadComponent: () => import('./auth.component').then(m => m.AuthComponent)
+    loadComponent: () => import('../components/auth/auth.component').then(m => m.AuthComponent)
   },
   {
     path: 'register', 
-    loadComponent: () => import('./auth.component').then(m => m.AuthComponent)
+    loadComponent: () => import('../components/auth/auth.component').then(m => m.AuthComponent)
   },
   // Redirection par défaut vers login
   {

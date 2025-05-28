@@ -1,52 +1,101 @@
 <div class="chroniques-container">
-  <div class="header">
+  
+  <!-- HEADER TITRE : 100% largeur, text-align start -->
+  <div class="title-header">
     <h2 class="terminal-effect">
       <span class="typed-text">{{ displayedTitle() }}</span>
       <span class="typing-cursor cursor-chroniques" [class.hidden]="!showCursor()">|</span>
     </h2>
+  </div>
+
+  <!-- DESCRIPTION : 100% largeur, centré -->
+  <div class="description-section">
     <p>Bienvenue dans un univers de fiction apocalyptique et dystopique.</p>
     <p>Les terraformers y racontent leurs aventures sur la planète rouge.</p>
     <p>Découvrez les histoires de nos écrivains et plongez dans leurs récits.</p>
   </div>
 
-  @if (loading()) {
-  <div class="loading-state">
-    <div class="loading-spinner"></div>
-    <p>Chargement des chroniques martiennes...</p>
-  </div>
-  }
-
-  @else if (recentAuthors().length > 0) {
-  <div class="writers-grid">
-    @for (author of recentAuthors(); track author.id) {
-      <app-story-card 
-        [story]="{
-          id: author.latestStory.id,
-          title: author.latestStory.title,
-          publishedAt: author.latestStory.publishedAt,
-          user: {
-            id: author.id,
-            username: author.username,
-            description: author.description,
-            avatar: author.avatar
-          }
+  <!-- SEARCHBAR : 20% | 60% | 20% -->
+  <div class="search-container">
+    <div class="search-spacer"></div>
+    <div class="search-content">
+      <app-search-bar
+        [config]="{
+          placeholder: 'Rechercher...',
+          minLength: 2,
+          maxLength: 50,
+          debounceTime: 300
         }"
-        displayMode="compact"
-        [showAuthor]="true"
-        (onCardClick)="navigateToStory($event.id)">
-      </app-story-card>
+        (onSearch)="onSearch($event)"
+        (onEnter)="onSearchEnter($event)"
+        (onClear)="onSearchClear()">
+      </app-search-bar>
+    </div>
+    <div class="search-spacer"></div>
+  </div>  <!-- CARDS et contenu -->
+  <div class="content-section">
+    
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Chargement des chroniques martiennes...</p>
+      </div>
     }
-  </div>
-  }
 
-  @else {
-  <div class="empty-state">
-    <div class="empty-icon">📖</div>
-    <h3>Aucune chronique disponible</h3>
-    <p>Les aventures martiennes n'ont pas encore commencé...</p>
-    <button class="retry-btn" (click)="refreshAuthors()">
-      Actualiser
-    </button>
+    @else if (displayedAuthors().length > 0) {
+      <!-- Grille des auteurs -->
+      <div class="writers-grid">
+        @for (author of displayedAuthors(); track author.id) {
+          <app-story-card 
+            [story]="{
+              id: author.latestStory.id,
+              title: author.latestStory.title,
+              publishedAt: author.latestStory.publishedAt,
+              user: {
+                id: author.id,
+                username: author.username,
+                description: author.description,
+                avatar: author.avatar
+              }
+            }"
+            displayMode="compact"
+            [showAuthor]="true"
+            (onCardClick)="navigateToStory($event.id)">
+          </app-story-card>
+        }
+      </div>
+
+      <!-- Informations de recherche -->
+      @if (isSearching()) {
+        <div class="search-results-info">
+          {{ filteredAuthors().length }} résultat{{ filteredAuthors().length > 1 ? 's' : '' }} trouvé{{ filteredAuthors().length > 1 ? 's' : '' }}
+        </div>
+      }
+    }
+
+    @else if (isSearching()) {
+      <!-- Aucun résultat de recherche -->
+      <div class="no-results-state">
+        <div class="no-results-icon">🔍</div>
+        <h3>Aucun résultat trouvé</h3>
+        <p>Essayez avec d'autres mots-clés...</p>
+        <button class="clear-search-btn" (click)="onSearchClear()">
+          Effacer la recherche
+        </button>
+      </div>
+    }
+
+    @else {
+      <!-- État vide -->
+      <div class="empty-state">
+        <div class="empty-icon">📖</div>
+        <h3>Aucune chronique disponible</h3>
+        <p>Les aventures martiennes n'ont pas encore commencé...</p>
+        <button class="retry-btn" (click)="refreshAuthors()">
+          Actualiser
+        </button>
+      </div>
+    }
+
   </div>
-  }
 </div>

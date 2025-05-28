@@ -1,0 +1,69 @@
+@use 'core/variables' as *;
+
+// ============ TITRES ============
+@mixin title-primary {
+  color: $text-accent;
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  margin: 0;
+  
+  &::before {
+    content: '> ';
+    color: $primary-border;
+  }
+}
+
+@mixin title-secondary {
+  color: $primary-border;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  margin: 0;
+}
+
+@mixin title-centered {
+  text-align: center;
+  margin-bottom: $spacing-xl;
+}
+
+// ============ TEXTES ============
+@mixin text-meta {
+  color: $text-muted;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+@mixin text-accent {
+  color: $primary-border;
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+}
+
+@mixin text-centered {
+  text-align: center;
+}
+
+@mixin description-text {
+  color: $text-muted;
+  font-size: $font-size-md;
+  line-height: 1.6;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+// ============ EFFETS SPÉCIAUX ============
+@mixin terminal-prompt {
+  &::before {
+    content: '> ';
+    color: $primary-border;
+    font-weight: $font-weight-bold;
+  }
+}
+
+@mixin typing-cursor {
+  &::after {
+    content: '|';
+    color: $primary-border;
+    animation: blink 1s infinite;
+    margin-left: 2px;
+  }
+}
