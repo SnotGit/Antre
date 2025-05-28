@@ -3,7 +3,7 @@ import { Injectable, signal } from '@angular/core';
 export interface TypingConfig {
   text: string;
   speed?: number;
-  cursorColor?: string;
+  cursorColor: string; 
   showCursor?: boolean;
   finalBlinks?: number;
   onComplete?: () => void;
@@ -45,7 +45,6 @@ export class TypingEffectService {
             clearInterval(cursorInterval);
           }
           
-          // ============ CLIGNOTEMENTS FINAUX ============
           const finalBlinks = config.finalBlinks || 3;
           let blinkCount = 0;
           showCursor.set(true);
@@ -80,7 +79,7 @@ export class TypingEffectService {
     };
 
     const getCursorClass = () => {
-      const color = config.cursorColor || '#5d889e';
+      const color = config.cursorColor;
       return `cursor-${color.replace('#', '')}`;
     };
 

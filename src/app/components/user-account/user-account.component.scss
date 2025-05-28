@@ -9,16 +9,24 @@
   flex-direction: column;
   overflow-y: auto;
   box-sizing: border-box;
+  
+  // ============ SCROLLBAR INVISIBLE ============
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
-  //============ HEADER : 30% | 40% | 30% ============
+  // ============ HEADER : 50% | 50% ============
   .header {
     display: grid;
-    grid-template-columns: 30% 40% 30%;
-    margin-bottom: 40px;
+    grid-template-columns: 50% 50%;
+    margin-bottom: 30px;
     align-items: center;
 
     .header-box1 {
-      text-align: center;
+      text-align: start;
 
       .page-title {
         color: #5d889e;
@@ -34,26 +42,63 @@
     }
 
     .header-box2 {
-      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
 
-      .tabs-container {
-        display: inline-flex;
+      .message {
+        padding: 12px 20px;
+        border-radius: 6px;
+        font-weight: bold;
+        text-align: center;
+        min-width: 200px;
+        max-width: 350px;
+
+        &.error-message {
+          background: rgba(231, 76, 60, 0.2);
+          border: 1px solid rgba(231, 76, 60, 0.5);
+          color: #e74c3c;
+        }
+
+        &.success-message {
+          background: rgba(46, 204, 113, 0.2);
+          border: 1px solid rgba(46, 204, 113, 0.5);
+          color: #2ecc71;
+        }
+      }
+    }
+  }
+
+  // ============ TABS CONTAINER : 30% | 40% | 30% ============
+  .tabs-container {
+    display: grid;
+    grid-template-columns: 30% 40% 30%;
+    align-items: center;
+
+    .tabs-box2 {
+      display: flex;
+      justify-content: center;
+
+      .tabs-nav {
+        display: flex;
         border: 2px solid #5d889e;
         border-radius: 6px;
         overflow: hidden;
+        width: 100%;
 
         .tab-btn {
+          flex: 1;
           background: transparent;
           border: none;
           border-right: 1px solid #5d889e;
-          padding: 12px 40px;
+          padding: 12px 20px;
           color: #5d889e;
           font-family: inherit;
           font-weight: bold;
           cursor: pointer;
           transition: all 0.3s ease;
           font-size: 14px;
-          min-width: 100px;
+          text-align: center;
 
           &:last-child {
             border-right: none;
@@ -70,38 +115,13 @@
         }
       }
     }
-
   }
 
-  //============ CONTENU PRINCIPAL ============
+  // ============ CONTENU PRINCIPAL ============
   .content-container {
     flex: 1;
 
-    //============ MESSAGES ============
-    .message {
-      padding: 15px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      font-weight: bold;
-      text-align: center;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
-
-      &.error-message {
-        background: rgba(231, 76, 60, 0.2);
-        border: 1px solid rgba(231, 76, 60, 0.5);
-        color: #e74c3c;
-      }
-
-      &.success-message {
-        background: rgba(46, 204, 113, 0.2);
-        border: 1px solid rgba(46, 204, 113, 0.5);
-        color: #2ecc71;
-      }
-    }
-
-    //============ TITRE 1 : 50% | 50% ============
+    // ============ TITRE 1 : 50% | 50% ============
     .titre1 {
       display: grid;
       grid-template-columns: 50% 50%;
@@ -118,15 +138,13 @@
           margin: 0;
         }
       }
-
     }
 
-    //============ CARD 1 : 30% | 40% | 30% ============
+    // ============ CARD 1 : 30% | 40% | 30% ============
     .card1 {
       display: grid;
       grid-template-columns: 30% 40% 30%;
       margin-bottom: 40px;
-
 
       .card1-box2 {
         .stats-grid {
@@ -211,7 +229,7 @@
           }
         }
 
-        //============ AVATAR SECTION ============
+        // ============ AVATAR SECTION ============
         .avatar-section {
           text-align: center;
           margin-bottom: 30px;
@@ -261,7 +279,7 @@
           }
         }
 
-        //============ FORMULAIRES ============
+        // ============ FORMULAIRES ============
         .email-form,
         .password-form,
         .profile-form {
@@ -383,7 +401,7 @@
       }
     }
 
-    //============ SÉPARATEUR ============
+    // ============ SÉPARATEUR ============
     .separateur {
       text-align: center;
       margin: 40px 0;
@@ -391,13 +409,13 @@
       .line {
         width: 60%;
         height: 2px;
-        background: #5d889e;
+        background: linear-gradient(90deg, transparent, #5d889e, transparent);
         margin: 0 auto;
         border-radius: 1px;
       }
     }
 
-    //============ TITRE : 50% | 50% ============
+    // ============ TITRE : 50% | 50% ============
     .titre {
       display: grid;
       grid-template-columns: 50% 50%;
@@ -426,11 +444,10 @@
       }
     }
 
-    //============ CARD 2 : 30% | 40% | 30% ============
+    // ============ CARD 2 : 30% | 40% | 30% ============
     .card2 {
       display: grid;
       grid-template-columns: 30% 40% 30%;
-
 
       .card2-box2 {
         .password-form {
@@ -520,7 +537,7 @@
   }
 }
 
-//============ ANIMATIONS ============
+// ============ ANIMATIONS ============
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -530,7 +547,7 @@
   }
 }
 
-//============ RESPONSIVE ============
+// ============ RESPONSIVE ============
 @media (max-width: 768px) {
   .user-account-container {
     padding: 20px;
@@ -544,8 +561,16 @@
         font-size: 24px;
       }
 
-      .header-box2 .tabs-container .tab-btn {
-        min-width: 80px;
+      .header-box2 .message {
+        min-width: auto;
+        max-width: 100%;
+      }
+    }
+
+    .tabs-container {
+      grid-template-columns: 1fr;
+      
+      .tabs-box2 .tabs-nav .tab-btn {
         padding: 10px 15px;
         font-size: 12px;
       }

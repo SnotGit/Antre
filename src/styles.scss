@@ -22,7 +22,7 @@ app-root {
   margin-left: 2px;
   font-weight: normal;
   display: inline-block;
-  width: 3px;
+  width: 4px;
   
   &:not(.hidden) {
     animation: blink 1s infinite;
@@ -34,23 +34,31 @@ app-root {
   }
   
   &.cursor-chroniques {
-    color: #b55a44;
+    color: #b55a44; 
   }
   
   &.cursor-account {
-    color: #5d889e;
+    color: #b55a44;
   }
   
   &.cursor-archives {
-    color: #f39c12;
+    color: #f39c12; 
   }
   
   &.cursor-marsball {
-    color: #e74c3c;
+    color: #e74c3c; 
   }
   
   &.cursor-terraformars {
-    color: #27ae60;
+    color: #27ae60; 
+  }
+  
+  &.cursor-staff {
+    color: #b55a44; 
+  }
+  
+  &.cursor-default {
+    color: #b55a44; 
   }
 }
 

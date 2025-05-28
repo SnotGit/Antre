@@ -24,7 +24,7 @@ export const routes: Routes = [
   // Lire une histoire 
   {
     path: 'story/:id',
-    loadComponent: () => import('./story-detail/story-detail.component').then(m => m.StoryDetailComponent)
+    loadComponent: () => import('./pages/story-detail/story-detail.component').then(m => m.StoryDetailComponent)
   },
 
   // Liste des histoires d'un auteur 
