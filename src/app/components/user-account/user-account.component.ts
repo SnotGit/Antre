@@ -5,9 +5,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { StoryboardService } from '../../services/storyboard.service';
 import { TypingEffectService } from '../../services/typing-effect.service';
-import { PasswordValidatorComponent } from '../../shared/password-validator/password-validator.component';
 
-// ============ INTERFACES ============
 interface UserProfileData {
   username: string;
   email: string;
@@ -27,11 +25,11 @@ interface ApiError {
   };
 }
 
-type TabType = 'profile' | 'credentials' | 'stats';
+type TabType = 'stats' | 'profile' | 'identifiants';
 
 @Component({
   selector: 'app-user-account',
-  imports: [CommonModule, FormsModule, PasswordValidatorComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './user-account.component.html',
   styleUrl: './user-account.component.scss'
 })
@@ -39,17 +37,14 @@ export class UserAccountComponent implements OnInit, OnDestroy {
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  // ============ SERVICES ============
   private router = inject(Router);
   private authService = inject(AuthService);
   private storyboardService = inject(StoryboardService);
   private typingService = inject(TypingEffectService);
 
-  // ============ DONNÉES UTILISATEUR ============
   currentUser = this.authService.currentUser;
   isLoggedIn = this.authService.isLoggedIn;
   
-  // ============ STATISTIQUES ============
   private userStats = {
     drafts: this.storyboardService.draftsCount,
     published: this.storyboardService.publishedCount,
@@ -57,26 +52,23 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     likes: signal<number>(0)
   };
 
-  // ============ ÉTAT COMPOSANT ============
   private state = {
     loading: signal<boolean>(false),
     error: signal<string | null>(null),
     success: signal<string | null>(null)
   };
 
-  activeTab = signal<TabType>('stats');
+  activeTab = signal<TabType>('identifiants');
 
   constructor() {
-    // Initialiser l'onglet depuis localStorage
     const saved = localStorage.getItem('user-account-tab');
-    if (saved === 'profile' || saved === 'credentials' || saved === 'stats') {
+    if (saved === 'stats' || saved === 'profile' || saved === 'identifiants') {
       this.activeTab.set(saved as TabType);
     }
   }
 
-  // ============ EFFET TYPING ============
   private typingEffect = this.typingService.createTypingEffect({
-    text: 'Mon Compte',
+    text: 'Mon compte',
     speed: 200,
     cursorColor: '#5d889e',
     finalBlinks: 3
@@ -85,17 +77,14 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   displayedTitle = this.typingEffect.displayedTitle;
   typingComplete = this.typingEffect.isComplete;
 
-  // ============ FORMULAIRES ============
   profileData: UserProfileData = { username: '', email: '', description: '' };
   passwordData: PasswordChangeData = { currentPassword: '', newPassword: '', confirmPassword: '' };
   
-  // ============ AVATAR ============
   private avatarState = {
     selectedFile: null as File | null,
     preview: null as string | null
   };
 
-  // ============ GETTERS PUBLICS ============
   loading = this.state.loading.asReadonly();
   error = this.state.error.asReadonly();
   successMessage = this.state.success.asReadonly();
@@ -122,7 +111,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     return user?.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR') : '';
   }
 
-  // ============ LIFECYCLE ============
   ngOnInit(): void {
     if (!this.isLoggedIn()) {
       this.router.navigate(['/auth/login']);
@@ -137,7 +125,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     this.typingEffect.cleanup();
   }
 
-  // ============ INITIALISATION ============
   private async initializeUserData(): Promise<void> {
     this.loadUserProfile();
     await this.loadUserStats();
@@ -165,7 +152,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ============ NAVIGATION TABS ============
   setActiveTab(tab: TabType): void {
     this.activeTab.set(tab);
     localStorage.setItem('user-account-tab', tab);
@@ -176,7 +162,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     this.router.navigate(['/chroniques/story-board']);
   }
 
-  // ============ GESTION AVATAR ============
   triggerFileInput(): void {
     this.fileInput.nativeElement.click();
   }
@@ -222,7 +207,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     return user?.avatar ? `http://localhost:3000${user.avatar}` : '';
   }
 
-  // ============ SAUVEGARDE PROFIL ============
   async saveProfile(): Promise<void> {
     if (!this.validateProfile()) return;
 
@@ -254,7 +238,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     this.avatarState.preview = null;
   }
 
-  // ============ AUTRES ACTIONS ============
   saveEmail(): void {
     if (!this.validateEmail()) return;
 
@@ -281,7 +264,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     this.passwordData = { currentPassword: '', newPassword: '', confirmPassword: '' };
   }
 
-  // ============ VALIDATION ============
   private validateProfile(): boolean {
     const username = this.profileData.username.trim();
     
@@ -345,7 +327,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  // ============ SÉCURITÉ ============
   private sanitizeInput(input: string): string {
     return input.trim().replace(/[<>]/g, '');
   }
@@ -363,7 +344,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     this.setError(message);
   }
 
-  // ============ ÉTAT MANAGEMENT ============
   private setLoading(loading: boolean): void {
     this.state.loading.set(loading);
   }
