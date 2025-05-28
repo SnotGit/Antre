@@ -1,6 +1,6 @@
 <div class="user-account-container">
 
-  <!-- ============ HEADER : 30% | 40% | 30% ============ -->
+  <!-- ============ HEADER : 50% | 50% ============ -->
   <div class="header">
     <div class="header-box1">
       <h1 class="page-title">
@@ -10,7 +10,28 @@
     </div>
     
     <div class="header-box2">
-      <div class="tabs-container">
+      <!-- Messages d'erreur/succès dans le header -->
+      @if (error()) {
+        <div class="message error-message">
+          {{ error() }}
+        </div>
+      }
+
+      @if (successMessage()) {
+        <div class="message success-message">
+          {{ successMessage() }}
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ============ TABS CONTAINER : 30% | 40% | 30% ============ -->
+  <div class="tabs-container">
+    <div class="tabs-box1">
+      <!-- VIDE -->
+    </div>
+    <div class="tabs-box2">
+      <div class="tabs-nav">
         <button 
           class="tab-btn" 
           [class.active]="activeTab() === 'stats'" 
@@ -31,27 +52,13 @@
         </button>
       </div>
     </div>
-    
-    <div class="header-box3">
+    <div class="tabs-box3">
       <!-- VIDE -->
     </div>
   </div>
 
   <!-- ============ CONTENU PRINCIPAL ============ -->
   <div class="content-container">
-
-    <!-- Messages d'erreur/succès -->
-    @if (error()) {
-      <div class="message error-message">
-        {{ error() }}
-      </div>
-    }
-
-    @if (successMessage()) {
-      <div class="message success-message">
-        {{ successMessage() }}
-      </div>
-    }
 
     <!-- ============ ONGLET STATS ============ -->
     @if (activeTab() === 'stats') {
@@ -203,7 +210,7 @@
       </div>
     }
 
-    <!-- ============ ONGLET IDENTIFIANTS SELON LE SCHEMA ============ -->
+    <!-- ============ ONGLET IDENTIFIANTS ============ -->
     @if (activeTab() === 'identifiants') {
       <div class="tab-content">
         
