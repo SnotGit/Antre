@@ -1,0 +1,95 @@
+@use 'core/variables' as *;
+@use 'core/responsive' as *;
+@use 'sass:color';
+
+// ============ MIXINS DE BASE ============
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+// ============ BOUTONS ============
+@mixin button-base {
+  background: transparent;
+  border: $border-width solid $primary-border;
+  border-radius: $border-radius-sm;
+  color: $primary-border;
+  font-family: $font-family;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  transition: $transition-normal;
+  
+  &:hover:not(:disabled) {
+    background-color: rgba($primary-border, 0.1);
+    transform: translateY(-2px);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+@mixin button-primary {
+  @include button-base;
+  padding: $spacing-md $spacing-lg;
+  font-size: $font-size-base;
+}
+
+@mixin button-secondary {
+  @include button-base;
+  border-color: $secondary-border;
+  color: $secondary-border;
+  padding: $spacing-md $spacing-lg;
+  font-size: $font-size-base;
+  
+  &:hover:not(:disabled) {
+    background-color: rgba($secondary-border, 0.1);
+  }
+}
+
+@mixin button-small {
+  @include button-base;
+  padding: $spacing-xs $spacing-sm;
+  font-size: $font-size-xs;
+}
+
+// ============ SCROLLBAR INVISIBLE ============
+@mixin scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// ============ SPINNER DE CHARGEMENT ============
+@mixin loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid $secondary-bg;
+  border-top: 3px solid $primary-border;
+  border-radius: $border-radius-full;
+  animation: spin 1s linear infinite;
+}

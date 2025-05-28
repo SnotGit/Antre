@@ -10,7 +10,6 @@
     </div>
     
     <div class="header-box2">
-      <!-- Messages d'erreur/succès dans le header -->
       @if (error()) {
         <div class="message error-message">
           {{ error() }}
@@ -95,7 +94,7 @@
 
               <div class="stat-card no-hover">
                 <div class="stat-number">{{ getUserStats().totalLikes }}</div>
-                <div class="stat-label">Likes reçus</div>
+                <div class="stat-label">Likes</div>
               </div>
             </div>
 

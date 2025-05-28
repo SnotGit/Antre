@@ -1,0 +1,113 @@
+@use 'index' as *;
+@use 'core/responsive' as *;
+@use 'mixins/shared/base' as *;
+
+
+
+// ============ BARRE DE RECHERCHE ============
+@mixin search-container {
+  @include flex-center;
+  padding: $spacing-xl;
+  
+  @include mobile {
+    padding: $spacing-md;
+  }
+}
+
+@mixin search-input {
+  width: 100%;
+  max-width: 500px;
+  background: $secondary-bg;
+  border: $border-width solid $border-alpha;
+  border-radius: $border-radius-md;
+  padding: $spacing-md $spacing-lg;
+  color: $text-primary;
+  font-family: $font-family;
+  font-size: $font-size-md;
+  transition: $transition-normal;
+  
+  &::placeholder {
+    color: $text-muted;
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-border;
+    box-shadow: 0 0 0 2px rgba($primary-border, 0.2);
+  }
+}
+
+@mixin search-button {
+  @include button-primary;
+  margin-left: $spacing-md;
+  
+  @include mobile {
+    margin-left: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+    font-size: $font-size-sm;
+  }
+}
+
+@mixin search-filters {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-lg;
+  flex-wrap: wrap;
+  justify-content: center;
+  
+  @include mobile {
+    gap: $spacing-sm;
+    margin-top: $spacing-md;
+  }
+}
+
+@mixin filter-tag {
+  background: rgba($primary-border, 0.1);
+  border: 1px solid $primary-border;
+  color: $primary-border;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  transition: $transition-normal;
+  
+  &:hover {
+    background: rgba($primary-border, 0.2);
+  }
+  
+  &.active {
+    background: $primary-border;
+    color: $primary-bg;
+  }
+}
+
+// ============ RÉSULTATS DE RECHERCHE ============
+@mixin search-results-info {
+  @include info-badge;
+  margin: $spacing-lg 0;
+  text-align: center;
+}
+
+@mixin search-results-grid {
+  @include card-grid-responsive(300px);
+  padding: $spacing-lg;
+  
+  @include mobile {
+    padding: $spacing-md;
+  }
+}
+
+@mixin no-results {
+  @include empty-state;
+  
+  .no-results-icon {
+    font-size: $font-size-3xl;
+    margin-bottom: $spacing-md;
+    opacity: 0.7;
+  }
+  
+  .clear-search-btn {
+    @include button-secondary;
+    margin-top: $spacing-lg;
+  }
+}

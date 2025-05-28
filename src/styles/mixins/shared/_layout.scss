@@ -1,0 +1,84 @@
+@use 'core/variables' as *;
+@use 'core/responsive' as *;
+@use 'base' as *;
+
+// ============ LAYOUT GÉNÉRAL ============
+@mixin full-container {
+  width: 100vw;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+@mixin section-padding {
+  padding: 2rem 1.5rem;
+}
+
+@mixin container-padding {
+  & {
+    padding: $spacing-3xl;
+  }
+  
+  @include tablet {
+    & {
+      padding: $spacing-2xl;
+    }
+  }
+  
+  @include mobile {
+    & {
+      padding: $spacing-lg;
+    }
+  }
+}
+
+// ============ GRILLES RESPONSIVE ============
+@mixin story-grid-responsive {
+  display: grid;
+  gap: $spacing-xl;
+  
+  grid-template-columns: repeat(3, 1fr);
+  
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-lg;
+  }
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+  }
+}
+
+@mixin archive-grid-responsive {
+  display: grid;
+  gap: $spacing-lg;
+  
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+  }
+}
+
+@mixin card-grid-responsive($min-width: 280px) {
+  display: grid;
+  gap: $spacing-lg;
+  grid-template-columns: repeat(auto-fit, minmax($min-width, 1fr));
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+  }
+}
+
+// ============ CONTENEURS SPÉCIALISÉS ============
+@mixin search-layout {
+  padding: $spacing-xl $spacing-2xl;
+  @include flex-center;
+  
+  .search-content {
+    width: 100%;
+    max-width: 600px;
+  }
+}

@@ -1,0 +1,38 @@
+<div class="search-bar-container">
+  <div class="search-input-wrapper" [class.error]="hasError" [class.active]="searchValue()">
+    
+    <input 
+      type="text"
+      class="search-input"
+      [placeholder]="placeholder"
+      [attr.maxlength]="maxLength"
+      [value]="searchValue()"
+      (input)="onInputChange($event)"
+      (keydown)="onKeyDown($event)"
+      autocomplete="off"
+      spellcheck="false">
+    
+    @if (searchValue()) {
+      <button 
+        class="clear-btn" 
+        (click)="clearSearch()"
+        type="button"
+        aria-label="Effacer la recherche">
+        ×
+      </button>
+    }
+  </div>
+  
+  @if (hasError) {
+    <div class="error-message">
+      {{ errorMessage() }}
+    </div>
+  }
+  
+  @if (searchValue() && isValid() && searchStats.isActive) {
+    <div class="search-info">
+      {{ searchStats.filteredAuthors }} résultat{{ searchStats.filteredAuthors > 1 ? 's' : '' }} 
+      sur {{ searchStats.totalAuthors }}
+    </div>
+  }
+</div>
