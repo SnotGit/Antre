@@ -1,0 +1,23 @@
+@use 'core/responsive' as *;
+
+// ============ RESPONSIVE CARD ============
+@mixin card-responsive {
+  @include max-width(1399px) {
+    @media (min-width: 1200px) {
+      max-width: 100%;
+    }
+  }
+
+  @include max-width(1199px) {
+    max-width: 400px;
+  }
+}
+
+@mixin hide-unused-elements {
+  .card-header,
+  .card-content,
+  .card-footer,
+  .card-actions {
+    display: none;
+  }
+}

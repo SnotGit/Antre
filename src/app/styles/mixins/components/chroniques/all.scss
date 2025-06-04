@@ -1,0 +1,106 @@
+@use 'core/variables' as *;
+@use 'core/responsive' as *;
+@use 'mixins/shared/base' as *;
+
+// ============ LAYOUT CHRONIQUES ============
+@mixin chroniques-container {
+  @include flex-column;
+  background-color: $primary-bg;
+  color: $text-primary;
+  overflow: hidden;
+  height: 100vh;
+  font-family: $font-family;
+}
+
+@mixin chroniques-header {
+  flex-shrink: 0;
+  text-align: start;
+  padding: $spacing-3xl;
+  
+  @include mobile {
+    padding: $spacing-lg;
+  }
+}
+
+@mixin chroniques-description {
+  padding: 0 $spacing-3xl $spacing-3xl;
+  text-align: center;
+  flex-shrink: 0;
+  
+  @include mobile {
+    padding: 0 $spacing-lg $spacing-lg;
+  }
+}
+
+@mixin chroniques-content {
+  flex: 1;
+  @include scrollbar-hidden;
+  overflow-y: auto;
+}
+
+// ============ GRILLE DES AUTEURS ============
+@mixin writers-grid-responsive {
+  display: grid;
+  gap: 2rem;
+  padding: 2rem;
+  justify-items: center;
+  margin: 0 auto;
+  
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 1200px;
+  
+  @include tablet-landscape {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.5rem;
+    max-width: 800px;
+  }
+  
+  @include tablet-portrait {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    max-width: 700px;
+  }
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    max-width: 400px;
+    padding: 1rem;
+  }
+}
+
+// ============ SEARCH LAYOUT CHRONIQUES (renommé) ============
+@mixin chroniques-search-layout {
+  display: grid;
+  grid-template-columns: 20% 60% 20%;
+  padding: $spacing-xl 0;
+  flex-shrink: 0;
+  
+  @include mobile {
+    grid-template-columns: 10% 80% 10%;
+    padding: $spacing-md 0;
+  }
+  
+  .search-content {
+    @include flex-center;
+  }
+}
+
+// ============ RESPONSIVE CHRONIQUES ============
+@mixin responsive-chroniques {
+  @include tablet {
+    .title-header h2 {
+      font-size: $font-size-2xl;
+    }
+  }
+  
+  @include mobile {
+    .title-header h2 {
+      font-size: $font-size-2xl;
+    }
+    
+    .description-section p {
+      font-size: $font-size-base;
+    }
+  }
+}

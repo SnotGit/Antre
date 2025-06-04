@@ -1,0 +1,137 @@
+@use 'core/variables' as *;
+@use 'mixins/shared/base' as *;
+@use 'mixins/shared/typography' as *;
+@use 'mixins/shared/states' as *;
+@use 'mixins/shared/cards' as *;
+
+// ============ CLASSES UTILITAIRES GLOBALES ============
+.story-card-base {
+  @include story-card-compact;
+  
+  &.clickable {
+    cursor: pointer;
+  }
+  
+  &--compact {
+    min-height: 180px;
+  }
+  
+  &--detailed {
+    @include story-card-detailed;
+  }
+  
+  &--draft {
+    @include story-card-draft;
+  }
+}
+
+.archive-card {
+  @include archive-card;
+}
+
+// ============ BOUTONS ============
+.btn-primary {
+  @include button-primary;
+}
+
+.btn-secondary {
+  @include button-secondary;
+}
+
+.btn-small {
+  @include button-small;
+}
+
+// ============ MESSAGES ============
+.message-success {
+  @include message-success;
+}
+
+.message-error {
+  @include message-error;
+}
+
+.message-warning {
+  @include message-warning;
+}
+
+.info-badge {
+  @include info-badge;
+}
+
+// ============ AVATARS ============
+.avatar-small {
+  @include avatar-base(35px);
+}
+
+.avatar-medium {
+  @include avatar-base(50px);
+}
+
+.avatar-large {
+  @include avatar-base(80px);
+}
+
+// ============ TYPOGRAPHIE ============
+.text-title-primary {
+  @include title-primary;
+}
+
+.text-title-secondary {
+  @include title-secondary;
+}
+
+.text-meta {
+  @include text-meta;
+}
+
+.text-accent {
+  @include text-accent;
+}
+
+.text-centered {
+  @include text-centered;
+}
+
+// ============ ÉTATS ============
+.loading-spinner {
+  @include loading-spinner;
+}
+
+.empty-icon {
+  @include empty-icon;
+}
+
+// ============ UTILITAIRES ============
+.scroll-hidden {
+  @include scrollbar-hidden;
+}
+
+.full-container {
+  width: 100vw;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+// ============ SPACING UTILITAIRES ============
+.p-xs { padding: $spacing-xs; }
+.p-sm { padding: $spacing-sm; }
+.p-md { padding: $spacing-md; }
+.p-lg { padding: $spacing-lg; }
+.p-xl { padding: $spacing-xl; }
+
+.m-xs { margin: $spacing-xs; }
+.m-sm { margin: $spacing-sm; }
+.m-md { margin: $spacing-md; }
+.m-lg { margin: $spacing-lg; }
+.m-xl { margin: $spacing-xl; }
+
+// ============ DISPLAY UTILITAIRES ============
+.d-flex { display: flex; }
+.d-grid { display: grid; }
+.d-block { display: block; }
+.d-none { display: none; }
+
+.flex-center { @include flex-center; }
+.flex-between { @include flex-between; }
+.flex-column { @include flex-column; }

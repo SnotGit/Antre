@@ -1,0 +1,4 @@
+@use 'mixins/chroniques' as *;
+
+
+.story-card { @include story-card; }

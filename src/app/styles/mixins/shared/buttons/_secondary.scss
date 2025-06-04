@@ -1,0 +1,51 @@
+@use 'core/colors' as *;
+@use 'base' as *;
+
+// ============ BOUTONS SECONDAIRES ============
+@mixin nav-button {
+  @include button-base;
+  background: transparent;
+  border: 2px solid $color-border-primary;
+  color: $color-text-secondary;
+  padding: 10px 20px;
+  border-radius: 8px;
+  min-width: 120px;
+  
+  &:hover:not(:disabled) {
+    background-color: $color-hover;
+    transform: translateY(-2px);
+  }
+  
+  &.prev-btn {
+    justify-content: flex-start;
+  }
+  
+  &.next-btn {
+    justify-content: flex-end;
+  }
+  
+  .nav-arrow {
+    font-size: 25px;
+  }
+}
+
+@mixin like-button {
+  @include button-base;
+  background: transparent;
+  border: none;
+  padding: 4px;
+  
+  &:hover:not(:disabled) {
+    transform: scale(1.1);
+  }
+  
+  .heart-icon {
+    font-size: 20px;
+    color: $color-text-secondary;
+    transition: color 0.3s ease;
+    
+    &.liked {
+      color: $color-like;
+    }
+  }
+}

@@ -1,0 +1,403 @@
+@use 'core/colors' as *;
+@use 'core/responsive' as *;
+
+// ============ MIXINS LAYOUTS ============
+
+// ============ APP LAYOUT PRINCIPAL ============
+@mixin app-layout-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr 280px;
+  grid-template-areas: "navbar content panels";
+  height: 100vh;
+  width: 100vw;
+  background-color: $color-bg-primary;
+  padding: 30px;
+  gap: 30px;
+  box-sizing: border-box;
+  overflow: hidden;
+  
+  .navbar-zone {
+    grid-area: navbar;
+    height: 100%;
+    min-height: 0;
+  }
+  
+  .content-zone {
+    grid-area: content;
+    background-color: $color-bg-secondary;
+    border-radius: 15px;
+    border: 2px solid $blue-alpha-3;
+    overflow: hidden;
+    color: $color-text-primary;
+    min-height: 0;
+  }
+  
+  .panels-zone {
+    grid-area: panels;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    
+    app-console-panel {
+      flex: 7;
+      min-height: 0;
+    }
+    
+    app-console-terminal {
+      flex: 3;
+      min-height: 0;
+    }
+  }
+  
+  @include tablet {
+    padding: 20px;
+    gap: 20px;
+    
+    .panels-zone {
+      gap: 15px;
+    }
+  }
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas: 
+      "navbar"
+      "content"
+      "panels";
+    padding: 15px;
+    gap: 15px;
+    overflow-y: auto;
+    
+    .panels-zone {
+      flex-direction: row;
+      height: auto;
+      gap: 15px;
+      
+      app-console-terminal {
+        display: none;
+      }
+    }
+  }
+}
+
+// ============ GRILLES DE CONTENU ============
+@mixin writers-grid {
+  display: grid;
+  gap: 2rem;
+  padding: 2rem;
+  justify-items: center;
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 1400px;
+  margin: 0 auto;
+  
+  @include tablet-landscape {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.5rem;
+    padding: 1.5rem;
+  }
+  
+  @include tablet-portrait {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    padding: 1.5rem;
+  }
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1rem;
+  }
+}
+
+@mixin stats-grid {
+  display: grid;
+  gap: 2rem;
+  margin: 2rem auto;
+  max-width: 600px;
+  justify-items: center;
+  grid-template-columns: repeat(2, 1fr);
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 1.5rem auto;
+    max-width: 300px;
+  }
+}
+
+@mixin stories-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 10px 0;
+  
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ============ CONTAINERS SPÉCIALISÉS ============
+@mixin chroniques-container {
+  display: flex;
+  flex-direction: column;
+  background-color: $color-bg-primary;
+  color: $color-text-primary;
+  overflow: hidden;
+  height: 100vh;
+  
+  .title-header {
+    flex-shrink: 0;
+    text-align: center;
+    padding: 30px 30px 20px;
+    
+    h2 {
+      color: $color-text-accent;
+      font-size: 32px;
+      margin: 0;
+      
+      &::before {
+        content: '> ';
+        color: $color-border-primary;
+      }
+    }
+    
+    @include mobile {
+      padding: 20px;
+      
+      h2 {
+        font-size: 24px;
+      }
+    }
+  }
+  
+  .description-section {
+    flex-shrink: 0;
+    text-align: center;
+    padding: 0 30px 20px;
+    
+    p {
+      color: $color-text-muted;
+      font-size: 16px;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto 8px;
+    }
+    
+    @include mobile {
+      padding: 0 20px 15px;
+      
+      p {
+        font-size: 14px;
+      }
+    }
+  }
+  
+  .search-container {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    padding: 20px 30px;
+    
+    .search-content {
+      width: 100%;
+      max-width: 500px;
+    }
+    
+    @include mobile {
+      padding: 15px 20px;
+    }
+  }
+  
+  .content-section {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+@mixin story-detail-container {
+  background-color: $color-bg-primary;
+  height: 100vh;
+  width: 100%;
+  font-family: $font-family;
+  padding: 20px;
+  overflow: hidden;
+  
+  .story-card {
+    background-color: $color-bg-secondary;
+    border: 2px solid $color-border-primary;
+    border-radius: 15px;
+    max-width: 800px;
+    margin: 0 auto;
+    height: calc(100vh - 100px);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  @include tablet {
+    padding: 15px;
+    
+    .story-card {
+      max-width: 100%;
+      height: 85vh;
+    }
+  }
+  
+  @include mobile {
+    padding: 10px;
+    
+    .story-card {
+      height: calc(100vh - 20px);
+    }
+  }
+}
+
+// ============ STORYBOARD LAYOUT ============
+@mixin storyboard-container {
+  padding: 30px;
+  background: $color-bg-primary;
+  color: $color-text-primary;
+  font-family: $font-family;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  
+  .main-header {
+    flex-shrink: 0;
+    margin-bottom: 30px;
+    
+    .title-section {
+      text-align: center;
+      margin-bottom: 30px;
+      
+      .main-title {
+        font-size: 32px;
+        color: $color-text-secondary;
+        margin: 0 0 10px 0;
+        
+        &::before {
+          content: '> ';
+          color: $color-text-accent;
+        }
+      }
+      
+      .subtitle {
+        color: $color-text-secondary;
+        opacity: 0.7;
+        font-size: 16px;
+        margin: 0;
+      }
+    }
+  }
+  
+  .stories-container {
+    flex: 1;
+    overflow: hidden;
+    
+    .stories-scroll {
+      height: 100%;
+      overflow-y: auto;
+      padding-right: 10px;
+      margin-right: -10px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  }
+  
+  @include mobile {
+    padding: 20px;
+    
+    .main-header .title-section .main-title {
+      font-size: 24px;
+    }
+  }
+}
+
+// ============ USER ACCOUNT LAYOUT ============
+@mixin user-account-layout {
+  padding: 30px;
+  background-color: $color-bg-primary;
+  color: $color-text-primary;
+  height: 100%;
+  width: 100%;
+  font-family: $font-family;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  box-sizing: border-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .header {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    margin-bottom: 30px;
+    align-items: center;
+    
+    .page-title {
+      color: $color-text-secondary;
+      font-size: 32px;
+      font-weight: bold;
+      margin: 0;
+      
+      &::before {
+        content: '> ';
+        color: $color-text-accent;
+      }
+    }
+    
+    @include mobile {
+      grid-template-columns: 1fr;
+      gap: 20px;
+      text-align: center;
+      
+      .page-title {
+        font-size: 24px;
+      }
+    }
+  }
+  
+  .tabs-container {
+    display: grid;
+    grid-template-columns: 30% 40% 30%;
+    align-items: center;
+    
+    .tabs-nav {
+      display: flex;
+      border: 2px solid $color-border-primary;
+      border-radius: 6px;
+      overflow: hidden;
+      width: 100%;
+    }
+    
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @include mobile {
+    padding: 20px;
+  }
+}
