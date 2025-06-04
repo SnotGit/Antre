@@ -1,0 +1,95 @@
+@use 'core/colors' as *;
+@use 'base' as *;
+
+// ============ BOUTONS PRIMAIRES ============
+@mixin console-button {
+  @include button-base;
+  background: transparent;
+  border: 1px solid $color-border-primary;
+  color: $color-text-secondary;
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  
+  &:hover:not(:disabled) {
+    background-color: $color-hover;
+    transform: translateX(2px);
+  }
+  
+  &.dev-btn {
+    border-color: $color-warning;
+    color: $color-warning;
+    
+    &:hover:not(:disabled) {
+      background-color: $warning-alpha-1;
+    }
+  }
+  
+  &.logout {
+    border-color: $color-border-secondary;
+    color: $color-border-secondary;
+    
+    &:hover:not(:disabled) {
+      background-color: $orange-alpha-1;
+    }
+  }
+}
+
+@mixin submit-button {
+  @include button-base;
+  width: 100%;
+  background: $color-border-primary;
+  color: $color-bg-primary;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  
+  &:hover:not(:disabled) {
+    background: $blue-light;
+    transform: translateY(-2px);
+  }
+  
+  &.register-btn {
+    background: $color-border-secondary;
+    
+    &:hover:not(:disabled) {
+      background: $orange-light;
+    }
+  }
+  
+  &.password-btn {
+    background: $color-border-secondary;
+    
+    &:hover:not(:disabled) {
+      background: $orange-light;
+    }
+  }
+}
+
+@mixin tab-button {
+  @include button-base;
+  background: transparent;
+  border: 2px solid $color-border-primary;
+  color: $color-text-secondary;
+  padding: 12px 20px;
+  font-weight: bold;
+  border-right: none;
+  
+  &:first-child {
+    border-radius: 6px 0 0 6px;
+  }
+  
+  &:last-child {
+    border-radius: 0 6px 6px 0;
+    border-right: 2px solid $color-border-primary;
+  }
+  
+  &:hover:not(.active):not(:disabled) {
+    background-color: $color-hover;
+  }
+  
+  &.active {
+    background: $color-border-primary;
+    color: $color-bg-primary;
+  }
+}

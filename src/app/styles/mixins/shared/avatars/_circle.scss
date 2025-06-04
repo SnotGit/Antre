@@ -1,0 +1,33 @@
+@use 'core/colors' as *;
+@use 'core/variables' as *;
+
+// ============ AVATAR CERCLE ============
+@mixin avatar-circle($size: 80px) {
+  .writer-avatar {
+    width: $size;
+    height: $size;
+    border-radius: $border-radius-full;
+    background-size: cover;
+    background-position: center;
+    background-color: $bg-secondary;
+    margin: 0 auto 1rem;
+    transition: transform $transition-normal;
+    border: 2px solid $border-primary;
+    background-image: linear-gradient(45deg, $bg-secondary, $bg-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &::after {
+      content: '👤';
+      font-size: 2rem;
+      opacity: 0.5;
+    }
+
+    &[style*="url"] {
+      &::after {
+        display: none;
+      }
+    }
+  }
+}

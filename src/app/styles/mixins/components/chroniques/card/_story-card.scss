@@ -1,0 +1,21 @@
+@use 'avatars/circle' as *;
+@use 'cards/base' as *;
+@use 'typography/story-info' as *;
+@use 'effects/hover-glow' as *;
+@use 'grids/responsive-card' as *;
+
+// ============ STORY-CARD ============
+@mixin story-card {
+  @include card-base;
+  @include card-sizing;
+  @include card-interactive;
+  @include avatar-circle;
+  @include story-info-layout;
+  @include author-name-style;
+  @include author-description-style;
+  @include story-title-style;
+  @include story-date-style;
+  @include hover-glow;
+  @include card-responsive;
+  @include hide-unused-elements;
+}

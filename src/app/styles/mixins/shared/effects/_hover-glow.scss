@@ -1,0 +1,9 @@
+@use '../../core/colors' as *;
+
+// ============ HOVER GLOW EFFECT ============
+@mixin hover-glow {
+  &:hover {
+    border-color: $border-primary;
+    box-shadow: 0 0 25px rgba($border-primary, 0.4);
+  }
+}

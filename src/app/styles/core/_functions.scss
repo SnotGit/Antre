@@ -1,0 +1,31 @@
+@use 'sass:color';
+
+//============ FONCTIONS COULEURS ============
+@function make-light($color, $amount: 10%) {
+  @return color.adjust($color, $lightness: $amount);
+}
+
+@function make-dark($color, $amount: 10%) {
+  @return color.adjust($color, $lightness: -$amount);
+}
+
+@function make-alpha($color, $opacity: 0.5) {
+  @return rgba($color, $opacity);
+}
+
+@function make-hover($color) {
+  @return rgba($color, 0.1);
+}
+
+//============ FONCTIONS UTILITAIRES ============
+@function strip-unit($value) {
+  @return $value / ($value * 0 + 1);
+}
+
+@function em($pixels, $context: 16) {
+  @return #{$pixels / $context}em;
+}
+
+@function rem($pixels) {
+  @return #{$pixels / 16}rem;
+}
