@@ -1,17 +1,11 @@
-<div class="story-card" 
-     [class.clickable]="clickable()"
-     (click)="handleStoryClick()">
+<div class="story-card" (click)="clickCard()">
 
-  <!-- Avatar centré comme Elena Nova -->
-  <div class="writer-avatar" [style.background-image]="hasAvatar() ? 'url(' + avatarUrl() + ')' : ''">
+  <div class="avatar-small" [style.background-image]="hasAvatar() ? 'url(' + avatarUrl() + ')' : ''">
   </div>
   
-  <!-- Infos centrées comme Elena Nova -->
-  <div class="writer-info">
-    <h3 class="author-name">{{ story().user?.username }}</h3>
-    <p class="author-description">{{ story().user?.description }}</p>
-    <p class="story-title">{{ cardTitle() }}</p>
-    <span class="story-date">{{ displayDate() }}</span>
-  </div>
+  <div class="username">{{ story().username }}</div>
+  <div class="user-description">{{ story().userDescription }}</div>
+  <div class="story-title">{{ story().storyTitle }}</div>
+  <div class="publish-date">{{ story().publishedAt | date:'dd/MM/yyyy' }}</div>
 
 </div>

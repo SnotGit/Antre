@@ -1,0 +1,24 @@
+@use 'core/variables' as *;
+@use 'mixins/effects' as *;
+
+// ============ CARD SMALL ============
+@mixin card-small {
+  background-color: $bg-gray-dark;
+  border: $border-2 solid $blue;
+  border-radius: $radius-12;
+  padding: $padding-24;
+  width: 100%;
+  max-width: $width-320;
+  text-align: center;
+  transition: $transition-0_3s;
+  cursor: pointer;
+  
+  &:hover {
+    @include hover-white;
+  }
+}
+
+// ============ CARD MEDIUM ============
+
+
+// ============ CARD LARGE ============

@@ -1,4 +1,4 @@
-@use 'mixins/components/chroniques' as *;
+@use 'chroniques' as *;
 
 
 .story-card { @include story-card; }

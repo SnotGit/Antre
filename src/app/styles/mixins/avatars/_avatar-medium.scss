@@ -1,0 +1,26 @@
+@use 'core/variables' as *;
+
+
+
+@mixin avatar-medium {
+  .avatar-medium {
+    width: $avatar-medium-width;
+    height: $avatar-medium-height;
+    border-radius: $radius-50;
+    background-size: cover;
+    background-position: center;
+    background-color: $bg-gray-dark;
+    transition: transform $transition-03;
+    border: $border-2, $blue;
+    display: $flex;
+    align-items: $center;
+    justify-content: $center;
+    
+
+    &[style*="url"] {
+      &::after {
+        display: $none;
+      }
+    }
+  }
+}
