@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { AuthorWithLatestStory } from './chroniques.service';
-import { SearchResult, SearchableItem } from '../shared/components/search-bar/search-bar.types';
+import { SearchResult } from '../../components/shared/search-bar/search-bar.types';
 
 @Injectable({
   providedIn: 'root'

@@ -17,7 +17,7 @@ export const routes: Routes = [
 
   {
     path: 'home',
-    loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent)
+    loadComponent: () => import('./components/features/home/home.component').then(m => m.HomeComponent)
   },
 
   {
@@ -27,7 +27,7 @@ export const routes: Routes = [
 
   {
     path: 'mon-compte',
-    loadComponent: () => import('./features/user-account/user-account.component').then(m => m.UserAccountComponent)
+    loadComponent: () => import('./components/features/user-account/user-account.component').then(m => m.UserAccountComponent)
   },
 
   {
@@ -57,6 +57,6 @@ export const routes: Routes = [
 
   {
     path: '**',
-    loadComponent: () => import('./features/not-found/not-found.component').then(m => m.NotFoundComponent)
+    loadComponent: () => import('./components/features/not-found/not-found.component').then(m => m.NotFoundComponent)
   }
 ];
