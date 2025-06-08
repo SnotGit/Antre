@@ -1,0 +1,14 @@
+//============ USERNAME CONTEXT ============
+$default: (size: $font-size-18, color: $blue);
+$console: (size: $font-size-14, color: $gray);
+$profile: (size: $font-size-24, color: $white);
+
+//============ USER DESCRIPTION CONTEXT ============
+$description-default: (size: $font-size-12, color: $gray);
+$description-console: (size: $font-size-10, color: $gray);
+$description-profile: (size: $font-size-14, color: $gray);
+
+//============ STORY TITLE CONTEXT ============
+$story-card-title: (size: $font-size-16, color: $white);
+$story-detail-title: (size: $font-size-24, color: $white);
+$story-board-title: (size: $font-size-20, color: $white);

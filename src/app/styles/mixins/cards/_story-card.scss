@@ -2,13 +2,13 @@
 @use 'mixins/effects' as *;
 
 // ============ CARD SMALL ============
-@mixin card-small {
+@mixin story-card {
   background-color: $bg-gray-dark;
   border: $border-2 solid $blue;
   border-radius: $radius-12;
   padding: $padding-24;
   width: 100%;
-  max-width: $width-320;
+  max-width: $story-card-width;
   text-align: center;
   transition: $transition-0_3s;
   cursor: pointer;

@@ -1,0 +1,11 @@
+@use 'core/variables/typography' as *;
+@use 'core/variables/colors' as *;
+
+//============ PUBLISH DATE ============
+@mixin publish-date {
+  font-weight: $font-weight-400;
+  text-align: center;
+  font-size: $font-size-10;
+  color: $blue;
+  opacity: 0.8;
+}
