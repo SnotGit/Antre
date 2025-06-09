@@ -1,11 +1,10 @@
 @use 'core/variables/contexts' as *;
 @use 'core/variables/typography' as *;
 
-//============ USER DESCRIPTION ============
-@mixin user-description($context: $description-default) {
-  font-weight: $font-weight-400;
+//============ USERNAME ============
+@mixin username($context) {
+  font-weight: $font-weight-700;
   text-align: center;
-  font-style: italic;
   font-size: map-get($context, size);
   color: map-get($context, color);
 }

@@ -59,7 +59,7 @@
             "scripts": [],
             "stylePreprocessorOptions": {
               "includePaths": [
-                "src/styles"
+                "src/app/styles"
               ]
             }
           },
@@ -123,7 +123,7 @@
             "scripts": [],
             "stylePreprocessorOptions": {
               "includePaths": [
-                "src/styles"
+                "src/app/styles"
               ]
             }
           }

@@ -1,7 +1,6 @@
 // ============ POINT D'ENTRÉE PRINCIPAL============
-@forward 'core';
-@forward 'mixins';
-@forward 'utilities';
+@forward 'core/core.scss';
+@forward 'mixins/mixins.scss';
 
 
 

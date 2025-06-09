@@ -1,0 +1,18 @@
+@use "core/variables/variables" as *;
+
+//============ BORDERS ============
+@mixin border-blue {
+  border: $border-2 solid $blue;
+}
+
+@mixin border-orange {
+  border: $border-2 solid $orange;
+}
+
+@mixin border-white {
+  border: $border-2 solid $white;
+}
+
+@mixin border-gray {
+  border: $border-1 solid $gray;
+}

@@ -1,8 +1,7 @@
-@use 'core/variables/contexts' as *;
-@use 'core/variables/typography' as *;
+@use 'core/variables/variables' as *;
 
 //============ STORY TITLE ============
-@mixin story-title($context: $story-card-title) {
+@mixin story-title($context) {
   font-weight: $font-weight-700;
   text-align: center;
   font-size: map-get($context, size);

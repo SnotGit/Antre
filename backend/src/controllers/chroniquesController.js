@@ -1,10 +1,62 @@
-// src/controllers/chroniquesController.js
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-// Récupérer les brouillons de l'utilisateur connecté
-const getUserDrafts = async (req, res) => {
+//============ GET LATEST STORIES ============
+const getLatestStories = async (req, res) => {
+  try {
+    const usersWithStories = await prisma.user.findMany({
+      where: {
+        stories: {
+          some: {
+            status: 'PUBLISHED'
+          }
+        }
+      },
+      include: {
+        stories: {
+          where: {
+            status: 'PUBLISHED'
+          },
+          orderBy: {
+            publishedAt: 'desc'
+          },
+          take: 1,
+          select: {
+            id: true,
+            title: true,
+            publishedAt: true
+          }
+        }
+      },
+      take: 6
+    });
+
+    const formattedData = usersWithStories.map(user => ({
+      id: user.id,
+      username: user.username,
+      description: user.description || 'Écrivain martien',
+      avatar: user.avatar || null,
+      latestStory: {
+        id: user.stories[0].id,
+        title: user.stories[0].title,
+        slug: createSlug(user.stories[0].title),
+        publishedAt: user.stories[0].publishedAt
+      }
+    }));
+
+    res.json({
+      message: 'Dernières histoires récupérées avec succès',
+      users: formattedData
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
+//============ GET DRAFTS ============
+const getDrafts = async (req, res) => {
   try {
     const userId = req.user.userId;
 
@@ -25,7 +77,6 @@ const getUserDrafts = async (req, res) => {
       }
     });
 
-    // Formater les données pour le frontend
     const formattedDrafts = drafts.map(draft => ({
       id: draft.id,
       title: draft.title || 'Histoire sans titre',
@@ -44,8 +95,8 @@ const getUserDrafts = async (req, res) => {
   }
 };
 
-// Récupérer les histoires publiées de l'utilisateur connecté
-const getUserPublishedStories = async (req, res) => {
+//============ GET PUBLISHED STORIES ============
+const getPublishedStories = async (req, res) => {
   try {
     const userId = req.user.userId;
 
@@ -64,7 +115,6 @@ const getUserPublishedStories = async (req, res) => {
       }
     });
 
-    // Formater les données pour le frontend
     const formattedStories = stories.map(story => ({
       id: story.id,
       title: story.title,
@@ -83,8 +133,8 @@ const getUserPublishedStories = async (req, res) => {
   }
 };
 
-// Récupérer le nombre total de likes reçus par l'utilisateur
-const getUserTotalLikes = async (req, res) => {
+//============ GET TOTAL LIKES ============
+const getTotalLikes = async (req, res) => {
   try {
     const userId = req.user.userId;
 
@@ -107,7 +157,7 @@ const getUserTotalLikes = async (req, res) => {
   }
 };
 
-// Publier un brouillon
+//============ PUBLISH STORY ============
 const publishStory = async (req, res) => {
   try {
     const { id } = req.params;
@@ -118,7 +168,6 @@ const publishStory = async (req, res) => {
       return res.status(400).json({ error: 'ID d\'histoire invalide' });
     }
 
-    // Vérifier que l'histoire existe et appartient à l'utilisateur
     const story = await prisma.story.findFirst({
       where: {
         id: storyId,
@@ -133,7 +182,6 @@ const publishStory = async (req, res) => {
       });
     }
 
-    // Publier l'histoire
     const publishedStory = await prisma.story.update({
       where: { id: storyId },
       data: {
@@ -162,7 +210,7 @@ const publishStory = async (req, res) => {
   }
 };
 
-// Liker une histoire
+//============ LIKE STORY ============
 const likeStory = async (req, res) => {
   try {
     const { id } = req.params;
@@ -173,7 +221,6 @@ const likeStory = async (req, res) => {
       return res.status(400).json({ error: 'ID d\'histoire invalide' });
     }
 
-    // Vérifier que l'histoire existe et est publiée
     const story = await prisma.story.findFirst({
       where: {
         id: storyId,
@@ -187,7 +234,6 @@ const likeStory = async (req, res) => {
       });
     }
 
-    // Vérifier si l'utilisateur a déjà liké cette histoire
     const existingLike = await prisma.like.findUnique({
       where: {
         userId_storyId: {
@@ -203,7 +249,6 @@ const likeStory = async (req, res) => {
       });
     }
 
-    // Créer le like
     await prisma.like.create({
       data: {
         userId: userId,
@@ -211,7 +256,6 @@ const likeStory = async (req, res) => {
       }
     });
 
-    // Récupérer le nouveau nombre de likes
     const likesCount = await prisma.like.count({
       where: { storyId: storyId }
     });
@@ -226,57 +270,14 @@ const likeStory = async (req, res) => {
   }
 };
 
-// Archiver une histoire publiée
-const archiveStory = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const storyId = parseInt(id);
-    const userId = req.user.userId;
 
-    if (isNaN(storyId)) {
-      return res.status(400).json({ error: 'ID d\'histoire invalide' });
-    }
 
-    // Vérifier que l'histoire existe et appartient à l'utilisateur
-    const story = await prisma.story.findFirst({
-      where: {
-        id: storyId,
-        userId: userId,
-        status: 'PUBLISHED'
-      }
-    });
-
-    if (!story) {
-      return res.status(404).json({
-        error: 'Histoire non trouvée ou non publiée'
-      });
-    }
-
-    // Archiver l'histoire
-    await prisma.story.update({
-      where: { id: storyId },
-      data: {
-        status: 'ARCHIVED'
-      }
-    });
-
-    res.json({
-      message: 'Histoire archivée avec succès'
-    });
-
-  } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur lors de l\'archivage' });
-  }
-};
-
-// Créer ou sauvegarder un brouillon
 const saveDraft = async (req, res) => {
   try {
     const { title, content } = req.body;
     const userId = req.user.userId;
     const { id } = req.params;
 
-    // Si ID fourni, c'est une mise à jour
     if (id) {
       const storyId = parseInt(id);
 
@@ -284,7 +285,6 @@ const saveDraft = async (req, res) => {
         return res.status(400).json({ error: 'ID d\'histoire invalide' });
       }
 
-      // Vérifier que le brouillon existe et appartient à l'utilisateur
       const existingDraft = await prisma.story.findFirst({
         where: {
           id: storyId,
@@ -299,14 +299,12 @@ const saveDraft = async (req, res) => {
         });
       }
 
-      // Préparer les données à mettre à jour
       const updateData = {};
       if (title !== undefined) updateData.title = title.trim();
       if (content !== undefined) {
         updateData.content = content;
       }
 
-      // Mettre à jour le brouillon
       const updatedDraft = await prisma.story.update({
         where: { id: storyId },
         data: updateData,
@@ -330,7 +328,6 @@ const saveDraft = async (req, res) => {
       });
     }
 
-    // Sinon, créer un nouveau brouillon
     const newDraft = await prisma.story.create({
       data: {
         title: title?.trim() || '',
@@ -362,7 +359,7 @@ const saveDraft = async (req, res) => {
   }
 };
 
-// Récupérer un brouillon spécifique pour édition
+//============ GET DRAFT BY ID ============
 const getDraftById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -410,71 +407,7 @@ const getDraftById = async (req, res) => {
   }
 };
 
-// Récupérer les 6 derniers auteurs avec leur histoire la plus récente (public)
-const getRecentAuthors = async (req, res) => {
-  try {
-    // Récupérer les 6 utilisateurs ayant publié le plus récemment
-    const recentAuthors = await prisma.user.findMany({
-      where: {
-        stories: {
-          some: {
-            status: 'PUBLISHED'
-          }
-        }
-      },
-      include: {
-        stories: {
-          where: {
-            status: 'PUBLISHED'
-          },
-          orderBy: {
-            publishedAt: 'desc'
-          },
-          take: 1,
-          select: {
-            id: true,
-            title: true,
-            publishedAt: true
-          }
-        }
-      },
-      orderBy: {
-        stories: {
-          _count: 'desc'
-        }
-      },
-      take: 6
-    });
-
-    // Formatter les données pour le frontend
-    const formattedAuthors = recentAuthors
-      .filter(author => author.stories.length > 0)
-      .map(author => ({
-        id: author.id,
-        username: author.username,
-        description: author.description || 'Écrivain martien',
-        avatar: author.avatar || 'assets/images/default-avatar.png',
-        latestStory: {
-          id: author.stories[0].id,
-          title: author.stories[0].title,
-          slug: createSlugFromTitle(author.stories[0].title),
-          publishedAt: author.stories[0].publishedAt?.toISOString() || new Date().toISOString()
-        }
-      }))
-      .sort((a, b) => new Date(b.latestStory.publishedAt).getTime() - new Date(a.latestStory.publishedAt).getTime());
-
-    res.json({
-      message: 'Auteurs récents récupérés avec succès',
-      authors: formattedAuthors,
-      count: formattedAuthors.length
-    });
-
-  } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-};
-
-// Fonctions utilitaires
+//============ UTILITY FUNCTIONS ============
 function getTimeAgo(date) {
   const now = new Date();
   const diffMs = now - new Date(date);
@@ -497,16 +430,7 @@ function getStatusLabel(createdAt, updatedAt) {
   return 'En révision';
 }
 
-function formatPublishDate(date) {
-  return new Date(date).toLocaleDateString('fr-FR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  });
-}
-
-// Fonction utilitaire pour créer un slug
-function createSlugFromTitle(title) {
+function createSlug(title) {
   return title
     .toLowerCase()
     .normalize('NFD')
@@ -517,13 +441,12 @@ function createSlugFromTitle(title) {
 }
 
 module.exports = {
-  getUserDrafts,
-  getUserPublishedStories,
-  getUserTotalLikes,
+  getLatestStories,
+  getDrafts,
+  getPublishedStories,
+  getTotalLikes,
   publishStory,
   likeStory,
-  archiveStory,
   saveDraft,
-  getDraftById,
-  getRecentAuthors
+  getDraftById
 };
