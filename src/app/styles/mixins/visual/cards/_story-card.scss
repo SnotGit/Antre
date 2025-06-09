@@ -1,10 +1,12 @@
 @use 'core/variables' as *;
-@use 'mixins/effects' as *;
+@use 'mixins/visual/backgrounds' as *;
+@use 'mixins/visual/borders' as *;
+@use 'mixins/visual/effects' as *;
 
-// ============ CARD SMALL ============
-@mixin story-card {
-  background-color: $bg-gray-dark;
-  border: $border-2 solid $blue;
+//============ STORY CARD BASE ============
+@mixin story-card-base {
+  @include background-2;
+  @include border-blue;
   border-radius: $radius-12;
   padding: $padding-24;
   width: 100%;
@@ -17,8 +19,3 @@
     @include hover-white;
   }
 }
-
-// ============ CARD MEDIUM ============
-
-
-// ============ CARD LARGE ============

@@ -1,0 +1,42 @@
+@use 'core/variables' as *;
+
+//============ AVATAR ============
+@mixin avatar($context) {
+  width: map-get($context, size);
+  height: map-get($context, size);
+  border-radius: $radius-50;
+  border: $border-2 solid $blue;
+  background-color: $bg-gray-dark;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &::after {
+    content: '👤';
+    font-size: $font-size-20;
+    opacity: 0.5;
+  }
+  
+  &[style*="url"] {
+    &::after {
+      display: none;
+    }
+  }
+}
+
+//============ AVATAR SMALL ============
+@mixin avatar-small {
+  @include avatar($avatar-small);
+}
+
+//============ AVATAR MEDIUM ============  
+@mixin avatar-medium {
+  @include avatar($avatar-medium);
+}
+
+//============ AVATAR LARGE ============
+@mixin avatar-large {
+  @include avatar($avatar-large);
+}

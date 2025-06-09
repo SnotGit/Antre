@@ -2,13 +2,17 @@ import { Component, computed, inject, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
-export interface StoryCardData {
+export interface UserLatestStory {
   id: number;
-  avatar: string;
   username: string;
-  userDescription: string;
-  storyTitle: string;
-  publishedAt: string;
+  description: string;
+  avatar: string | null;
+  latestStory: {
+    id: number;
+    title: string;
+    slug: string;
+    publishedAt: string;
+  };
 }
 
 @Component({
@@ -22,19 +26,16 @@ export class StoryCardComponent {
   
   private router = inject(Router);
 
-  // ============ INPUT ============
-  story = input.required<StoryCardData>();
+  user = input.required<UserLatestStory>();
 
-  // ============ COMPUTED ============
   avatarUrl = computed(() => {
-    const avatar = this.story().avatar;
+    const avatar = this.user().avatar;
     return avatar ? `http://localhost:3000${avatar}` : '';
   });
 
-  hasAvatar = computed(() => !!this.story().avatar);
+  hasAvatar = computed(() => !!this.user().avatar);
 
-  // ============ NAVIGATION ============
   clickCard(): void {
-    this.router.navigate(['/chroniques/story', this.story().id]);
+    this.router.navigate(['/chroniques/story', this.user().latestStory.slug]);
   }
 }

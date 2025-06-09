@@ -1,0 +1,20 @@
+@use 'core/variables' as *;
+
+//============ BACKGROUND 1 ============
+@mixin background-1 {
+  background-color: $bg-dark;
+  background-size: cover;
+  background-position: center;
+}
+
+//============ BACKGROUND 2 ============
+@mixin background-2 {
+  background-color: $bg-gray-dark;
+  background-size: cover;
+  background-position: center;
+}
+
+//============ BACKGROUND 3 ============
+@mixin background-3 {
+  background-color: transparent;
+}
