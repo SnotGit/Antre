@@ -1,0 +1,23 @@
+@use 'core/variables/spacing' as *;
+@use 'mixins/utilities/responsive/breakpoints' as *;
+
+//============ GRIDS============
+@mixin grid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  
+  @include tablet-landscape {
+    grid-template-columns: repeat(3, 1fr);
+    gap: $gap-20;
+  }
+
+  @include tablet-portrait {
+    grid-template-columns: 1fr;
+    gap: $gap-20;
+  }
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $gap-16;
+  }
+}

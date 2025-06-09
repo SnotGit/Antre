@@ -1,0 +1,63 @@
+@use 'core/variables' as *;
+
+//============ CENTER ============
+@mixin center {
+  display: $flex;
+  align-items: $center;
+  justify-content: $center;
+}
+
+//============ LEFT ============
+@mixin left {
+  display: $flex;
+  align-items: $center;
+  justify-content: $start;
+}
+
+//============ RIGHT ============
+@mixin right {
+  display: $flex;
+  align-items: $center;
+  justify-content: $end;
+}
+
+//============ BETWEEN ============
+@mixin between {
+  display: $flex;
+  align-items: $center;
+  justify-content: $between;
+}
+
+//============ AROUND ============
+@mixin around {
+  display: $flex;
+  align-items: $center;
+  justify-content: $around;
+}
+
+//============ ROW ============
+@mixin row {
+  display: $flex;
+  flex-direction: $row;
+}
+
+//============ COLUMN ============
+@mixin column {
+  display: $flex;
+  flex-direction: $column;
+}
+
+//============ GRID ============
+@mixin grid {
+  display: $grid;
+}
+
+//============ BLOCK ============
+@mixin block {
+  display: $block;
+}
+
+//============ NONE ============
+@mixin none {
+  display: $none;
+}

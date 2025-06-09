@@ -1,22 +1,16 @@
 //============ DISPLAY ============
-$display-flex: flex;
-$display-grid: grid;
-$display-block: block;
-$display-none: none;
+$flex: flex;
+$grid: grid;
+$block: block;
+$none: none;
 
-//============ ALIGN-ITEMS ============
-$align-center: center;
-$align-start: flex-start;
-$align-end: flex-end;
-
-//============ JUSTIFY-CONTENT ============
-$justify-center: center;
-$justify-between: space-between;
-$justify-around: space-around;
+//============ POSITIONS ============
+$center: center;
+$start: flex-start;
+$end: flex-end;
+$between: space-between;
+$around: space-around;
 
 //============ FLEX-DIRECTION ============
-$flex-row: row;
-$flex-column: column;
-
-
-
+$row: row;
+$column: column;

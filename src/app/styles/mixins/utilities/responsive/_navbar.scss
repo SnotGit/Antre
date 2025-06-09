@@ -1,0 +1,24 @@
+@use 'mixins/utilities/responsive/breakpoints' as *;
+
+//============ NAVBAR RESPONSIVE ============
+@mixin navbar-responsive {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 280px;
+  height: 100vh;
+  
+  @include mobile {
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: auto;
+  }
+  
+  @include tablet-portrait {
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: auto;
+  }
+}

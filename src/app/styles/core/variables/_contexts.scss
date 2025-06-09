@@ -1,7 +1,13 @@
+//============ AVATAR CONTEXT ============
+$avatar-small: (size: $avatar-small, border: $border-2);
+$avatar-medium: (size: $avatar-medium, border: $border-2);  
+$avatar-large: (size: $avatar-large, border: $border-2);
+
+
 //============ USERNAME CONTEXT ============
-$default: (size: $font-size-18, color: $blue);
-$console: (size: $font-size-14, color: $gray);
-$profile: (size: $font-size-24, color: $white);
+$username-default: (size: $font-size-18, color: $blue);
+$username-console: (size: $font-size-14, color: $gray);
+$username-profile: (size: $font-size-24, color: $white);
 
 //============ USER DESCRIPTION CONTEXT ============
 $description-default: (size: $font-size-12, color: $gray);
