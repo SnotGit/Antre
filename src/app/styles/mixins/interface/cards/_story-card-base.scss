@@ -1,7 +1,7 @@
-@use 'core/variables' as *;
-@use 'mixins/visual/backgrounds' as *;
-@use 'mixins/visual/borders' as *;
-@use 'mixins/visual/effects' as *;
+@use 'core/variables/variables' as *;
+@use 'mixins/interface/backgrounds/backgrounds' as *;
+@use 'mixins/interface/borders/borders' as *;
+@use 'mixins/interface/effects/effects' as *;
 
 //============ STORY CARD BASE ============
 @mixin story-card-base {

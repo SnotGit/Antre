@@ -1,8 +1,8 @@
 @use 'core/variables/spacing' as *;
-@use 'mixins/utilities/responsive/breakpoints' as *;
+@use 'mixins/utilities/responsive/responsive' as *;
 
 //============ GRIDS============
-@mixin grid{
+@mixin grids{
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   

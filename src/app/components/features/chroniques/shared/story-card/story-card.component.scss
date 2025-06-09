@@ -1,9 +1,9 @@
-@use 'mixins/visual/cards/story-card' as *;
-@use 'mixins/visual/avatars' as *;
-@use 'mixins/content/typography' as *;
+@use "core/variables/variables" as *;
+@use 'mixins/interface/interface' as *;
+
 
 .story-card {
-  @include story-card;
+  @include story-card-base;
   
   .avatar-small {
     @include avatar($avatar-small);

@@ -1,8 +1,7 @@
-@use 'core/variables/contexts' as *;
-@use 'core/variables/typography' as *;
+@use 'core/variables/variables' as *;
 
 //============ HEADER TITLE ============
-@mixin header-title($context: $header-title-chroniques) {
+@mixin header-title($context) {
   font-size: map-get($context, size);
   font-weight: $font-weight-700;
   color: map-get($context, color);

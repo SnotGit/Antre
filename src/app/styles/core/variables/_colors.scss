@@ -12,55 +12,11 @@ $bg-dark: #121416;
 $bg-gray-dark: #1a1d20;
 $bg-gray: #2a2d30;
 
-
 //============ STATES ============
 $success: #2ecc71;
 $error: #e74c3c;
 $warning: #f39c12;
 $like: #dc143c;
 
-//============ STATES BACKGROUNDS ============
-$bg-success: make-alpha($success, 0.2);
-$bg-error: make-alpha($error, 0.2);
-$bg-warning: make-alpha($warning, 0.2);
-
-$border-success: make-alpha($success, 0.5);
-$border-error: make-alpha($error, 0.5);
-$border-warning: make-alpha($warning, 0.5);
-
 //============ HOVERS ============
-$hover: make-alpha($color-border-primary, 0.1);
-
-//============ FORMS ============
-$input-bg: make-alpha($bg-dark-gray, 0.8);
-$input-border: make-alpha($blue, 0.5);
-$input-focus: $blue;
-$input-placeholder: make-alpha($blue, 0.6);
-
-//============ ALPHAS ============
-$blue-alpha-1: make-alpha($blue, 0.1);
-$blue-alpha-2: make-alpha($blue, 0.2);
-$blue-alpha-3: make-alpha($blue, 0.3);
-$blue-alpha-4: make-alpha($blue, 0.4);
-$blue-alpha-5: make-alpha($blue, 0.5);
-
-$blue-light: make-light($blue);
-
-$orange-alpha-1: make-alpha($orange, 0.1);
-$orange-alpha-2: make-alpha($orange, 0.2);
-$orange-alpha-3: make-alpha($orange, 0.3);
-
-$green-alpha-2: make-alpha($green, 0.2);
-$green-alpha-5: make-alpha($green, 0.5);
-
-$red-alpha-2: make-alpha($red, 0.2);
-$red-alpha-3: make-alpha($red, 0.3);
-$red-alpha-5: make-alpha($red, 0.5);
-
-$warning-alpha-1: make-alpha($warning, 0.1);
-$warning-alpha-2: make-alpha($warning, 0.2);
-$warning-alpha-5: make-alpha($warning, 0.5);
-
-$gray-alpha-8: rgba(0, 0, 0, 0.8);
-
-
+$hover-color-white: #ffffff;

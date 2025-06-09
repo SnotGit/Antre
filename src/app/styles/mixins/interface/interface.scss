@@ -1,5 +1,8 @@
 //====== 📱 INTERFACE ======
 
-@forward 'buttons';
-@forward 'forms';
-@forward 'navigation';
+@forward 'mixins/interface/backgrounds/backgrounds';
+@forward "mixins/interface/borders/borders";
+@forward 'mixins/interface/cards/cards';
+@forward 'mixins/interface/effects/effects';
+@forward 'mixins/interface/user-avatar/user-avatar';
+@forward 'mixins/interface/typography/typography';
