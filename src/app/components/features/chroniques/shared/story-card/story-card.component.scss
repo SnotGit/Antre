@@ -4,28 +4,32 @@
 
 .story-card {
   @include story-card-base;
-  
-  
+
+
   .avatar-small {
     @include avatar($avatar-small);
-    
+
   }
-  
-  .username {
-    @include username($username-default);
-    
+
+  .user-data {
+    .username {
+      @include username($username-default);
+    }
+
+    .user-description {
+      @include user-description($description-default);
+    }
   }
-  
-  .user-description {
-    @include user-description($description-default);
+
+  .story-data {
+    .story-title {
+      @include story-title($story-card-title);
+    }
+
+    .publish-date {
+      @include publish-date;
+      font-size: 15px;
+    }
   }
-  
-  .story-title {
-    @include story-title($story-card-title);
-  }
-  
-  .publish-date {
-    @include publish-date;
-    font-size: 15px;
-  }
+
 }
