@@ -2,5 +2,9 @@
 
 //============ HOVERS ============
 @mixin hover-white {
-  box-shadow: 0 0 0 2px $hover-color-white;
+  box-shadow: 0 0 0 1px $hover-color-white;
+}
+
+@mixin hover-orange {
+  box-shadow: 0 0 0 2px $hover-color-orange;
 }
