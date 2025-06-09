@@ -2,10 +2,15 @@
 
   <div class="avatar-small" [style.background-image]="hasAvatar() ? 'url(' + avatarUrl() + ')' : ''">
   </div>
-  
-  <div class="username">{{ user().username }}</div>
-  <div class="user-description">{{ user().description }}</div>
-  <div class="story-title">{{ user().latestStory.title }}</div>
-  <div class="publish-date">{{ user().latestStory.publishedAt | date:'dd/MM/yyyy' }}</div>
 
+  <div class="user-data">
+    <div class="username">{{ user().username }}</div>
+    <div class="user-description">{{ user().description }}</div>
+  </div>
+
+  <div class="story-data">
+    <div class="story-title">{{ user().latestStory.title }}</div>
+    <div class="publish-date">{{ user().latestStory.publishedAt | date:'dd/MM/yyyy' }}</div>
+  </div>
+  
 </div>

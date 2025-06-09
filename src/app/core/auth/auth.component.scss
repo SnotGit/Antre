@@ -1,4 +1,6 @@
-/* auth.component.scss - Version simple et élégante */
+
+@use "mixins/interface/buttons/back-button" as *;
+
 
 .auth-container {
     padding: 0;
@@ -12,35 +14,7 @@
     overflow-y: auto;
 
     // Navigation de retour
-    .back-navigation {
-        padding: 20px 30px;
-        flex-shrink: 0;
-
-        .back-btn {
-            background: transparent;
-            border: 1px solid #5d889e;
-            border-radius: 6px;
-            padding: 8px 16px;
-            color: #5d889e;
-            font-family: inherit;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-
-            &:hover {
-                border-color: #5d889e;
-                background-color: rgba(93, 136, 158, 0.1);
-                transform: translateX(-2px);
-            }
-
-            .back-icon {
-                font-size: 16px;
-            }
-        }
-    }
+    @include back-button;
 
     // Terminal principal - Plus simple
     .auth-terminal {
@@ -108,7 +82,7 @@
                 }
             }
 
-            // Formulaires - Plus épurés
+            // Formulaires 
             .forms-container {
                 .auth-form {
                     .form-header {
@@ -172,7 +146,7 @@
                         }
                     }
 
-                    // Messages - Plus simples
+                    // Messages 
                     .error-message,
                     .success-message {
                         padding: 10px 12px;
@@ -195,7 +169,7 @@
                         color: #2ecc71;
                     }
 
-                    // Boutons - Style simple comme console-panel
+                    // Boutons 
                     .form-actions {
                         .submit-btn {
                             width: 100%;
@@ -238,7 +212,7 @@
                 }
             }
 
-            // Footer - Plus simple
+            // Footer 
             .terminal-footer {
                 margin-top: 30px;
                 padding-top: 20px;
@@ -312,7 +286,7 @@
     }
 }
 
-et succès .error-message,
+.error-message,
 .success-message {
     display: flex;
     align-items: center;
@@ -399,7 +373,7 @@ et succès .error-message,
 }
 
 
-// Footer du terminal
+// Footer 
 .terminal-footer {
     margin-top: 30px;
     padding-top: 20px;
