@@ -5,5 +5,5 @@
   font-weight: $font-weight-700;
   text-align: center;
   font-size: map-get($context, size);
-  color: map-get($context, color);
+  color: $gray;
 }

@@ -5,12 +5,15 @@
 .story-card {
   @include story-card-base;
   
+  
   .avatar-small {
     @include avatar($avatar-small);
+    
   }
   
   .username {
     @include username($username-default);
+    
   }
   
   .user-description {
@@ -23,5 +26,6 @@
   
   .publish-date {
     @include publish-date;
+    font-size: 15px;
   }
 }

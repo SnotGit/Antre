@@ -1,4 +1,4 @@
-.chroniques-container {
+.container {
   padding: 0;
   background-color: #121416;
   color: #d0d0d0;
@@ -11,7 +11,7 @@
   overflow: hidden;
 }
 
-.title-header {
+.header {
   width: 100%;
   padding: 30px;
   flex-shrink: 0;
@@ -25,7 +25,7 @@
   }
 }
 
-.description-section {
+.description {
   width: 100%;
   padding: 0 30px 20px 30px;
   flex-shrink: 0;
@@ -56,7 +56,7 @@
   }
 }
 
-.content-section {
+.content {
   flex: 1;
   overflow-y: auto;
   scrollbar-width: none;
@@ -67,7 +67,7 @@
   }
 }
 
-.writers-grid {
+.grid {
   display: grid;
   gap: 2rem;
   margin: 2rem auto;
@@ -92,72 +92,7 @@
   }
 }
 
-.search-results-info {
-  text-align: center;
-  margin: 20px 0;
-  padding: 10px 20px;
-  background: rgba(93, 136, 158, 0.1);
-  border: 1px solid rgba(93, 136, 158, 0.3);
-  border-radius: 6px;
-  color: #5d889e;
-  font-size: 14px;
-  font-weight: 500;
-  max-width: 400px;
-  margin: 20px auto;
-}
 
-.loading-state, 
-.empty-state, 
-.no-results-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  text-align: center;
-  gap: 20px;
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #1a1d20;
-  border-top: 3px solid #5d889e;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-.empty-icon, 
-.no-results-icon {
-  font-size: 3rem;
-  margin-bottom: 10px;
-}
-
-.retry-btn, 
-.clear-search-btn {
-  background-color: #5d889e;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 20px;
-  color: #121416;
-  font-family: inherit;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background-color: #6a9bb0;
-    transform: translateY(-2px);
-  }
-}
-
-.clear-search-btn {
-  background-color: #b55a44;
-  
-  &:hover {
-    background-color: #c46650;
-  }
-}
 
 .terminal-effect {
   position: relative;
@@ -173,52 +108,3 @@
   100% { transform: rotate(360deg); }
 }
 
-@media (max-width: 1024px) {
-  .chroniques-container {
-    .title-header {
-      padding: 25px 20px;
-      
-      h2 {
-        font-size: 28px;
-      }
-    }
-    
-    .description-section {
-      padding: 0 20px 15px 20px;
-      
-      p {
-        font-size: 15px;
-      }
-    }
-    
-    .search-container {
-      grid-template-columns: 15% 70% 15%;
-      padding: 0 15px 25px 15px;
-    }
-  }
-}
-
-@media (max-width: 768px) {
-  .chroniques-container {
-    .title-header {
-      padding: 20px 15px;
-      
-      h2 {
-        font-size: 24px;
-      }
-    }
-    
-    .description-section {
-      padding: 0 15px 15px 15px;
-      
-      p {
-        font-size: 14px;
-      }
-    }
-    
-    .search-container {
-      grid-template-columns: 10% 80% 10%;
-      padding: 0 10px 20px 10px;
-    }
-  }
-}

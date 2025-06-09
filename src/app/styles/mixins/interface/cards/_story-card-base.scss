@@ -8,14 +8,18 @@
   @include background-2;
   @include border-blue;
   border-radius: $radius-12;
-  padding: $padding-24;
-  width: 100%;
-  max-width: $story-card-width;
-  text-align: center;
+  width: $story-card-width;
+  height: $story-card-height;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 24px;
   transition: $transition-0_3s;
   cursor: pointer;
   
   &:hover {
-    @include hover-white;
+    border-color: $orange;
   }
 }
