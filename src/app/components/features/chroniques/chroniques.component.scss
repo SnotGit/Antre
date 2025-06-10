@@ -1,110 +1,27 @@
-.container {
-  padding: 0;
-  background-color: #121416;
-  color: #d0d0d0;
-  height: 100%;
-  width: 100%;
-  font-family: 'Courier New', monospace;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  overflow: hidden;
+@use "core/variables/variables" as *;
+@use 'mixins/components/main-component/main' as *;
+
+//============ SQUELETTE MAIN ============
+.main-container {
+  @include main-container;
 }
 
-.header {
-  width: 100%;
-  padding: 30px;
-  flex-shrink: 0;
-
-  h2 {
-    font-size: 32px;
-    margin: 0;
-    color: #5d889e;
-    text-align: start;
-    width: 100%;
-  }
-}
-
-.description {
-  width: 100%;
-  padding: 0 30px 20px 30px;
-  flex-shrink: 0;
-  text-align: center;
-
-  p {
-    font-size: 16px;
-    line-height: 1.6;
-    margin: 0 auto 8px auto;
-    opacity: 0.8;
-    max-width: 800px;
-  }
-}
-
-.search-container {
-  display: grid;
-  grid-template-columns: 20% 60% 20%;
-  width: 100%;
-  padding: 0 20px 30px 20px;
-  flex-shrink: 0;
-
- 
-
-  .search-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-}
-
-.content {
-  flex: 1;
-  overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+.main-header {
+  @include main-header;
   
-  &::-webkit-scrollbar {
-    display: none;
+  .header-title {
+    @include main-header-title($chroniques-title);
   }
 }
 
-.grid {
-  display: grid;
-  gap: 2rem;
-  margin: 2rem auto;
-  max-width: 1200px;
-  justify-items: center;
-  padding: 0 20px;
+.main-description {
+  @include main-description;
+}
+
+.main-content {
+  @include main-content;
   
-  grid-template-columns: repeat(3, 1fr);
-  
-  @media (max-width: 1399px) and (min-width: 1200px) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2.5rem;
-    max-width: 800px;
-  }
-  
-  @media (max-width: 1199px) {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    margin: 1.5rem auto;
-    max-width: 400px;
-    padding: 0 20px;
+  .main-grid {
+    @include main-grid;
   }
 }
-
-
-
-.terminal-effect {
-  position: relative;
-
-  &::before {
-    content: '> ';
-    color: #b55a44;
-  }
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-

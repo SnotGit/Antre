@@ -1,0 +1,21 @@
+@use 'core/variables/variables' as *;
+@use 'mixins/utilities/responsive/responsive' as *;
+
+//============ MAIN HEADER ============
+@mixin main-header {
+  width: 100%;
+  padding: $padding-30;
+  flex-shrink: 0;
+
+  @include tablet-landscape {
+    padding: $padding-24;
+  }
+
+  @include tablet-portrait {
+    padding: $padding-20;
+  }
+
+  @include mobile {
+    padding: $padding-16;
+  }
+}

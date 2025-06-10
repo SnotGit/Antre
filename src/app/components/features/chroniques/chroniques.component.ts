@@ -23,7 +23,6 @@ export class ChroniquesComponent implements OnInit, OnDestroy {
   private typingEffect = this.typingService.createTypingEffect({
     text: 'Les Chroniques de Mars',
     speed: 150,
-    cursorColor: 'default',
     finalBlinks: 3
   });
 

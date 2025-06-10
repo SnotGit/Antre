@@ -1,0 +1,21 @@
+@use 'core/variables/variables' as *;
+@use 'mixins/utilities/responsive/responsive' as *;
+
+//============ MAIN CONTAINER ============
+@mixin main-container {
+  padding: 0;
+  background-color: $bg-dark;
+  color: $gray;
+  font-family: $font-family-mono;
+  display: $flex;
+  flex-direction: $column;
+  box-sizing: border-box;
+  overflow: hidden;
+  height: 100vh;
+  flex: 1;
+
+  @include mobile {
+    width: 100%;
+    min-height: 100vh;
+  }
+}
