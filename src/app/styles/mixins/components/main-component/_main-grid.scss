@@ -1,0 +1,35 @@
+@use 'core/variables/spacing' as *;
+@use 'mixins/utilities/responsive/responsive' as *;
+
+//============ MAIN GRID ============
+@mixin main-grid {
+  display: grid;
+  gap: $gap-20;
+  margin: $margin-20 auto;
+  max-width: 1200px;
+  justify-items: center;
+  padding: 0 $padding-20;
+  grid-template-columns: repeat(3, 1fr);
+  
+  @include tablet-landscape {
+    grid-template-columns: repeat(3, 1fr);
+    gap: $gap-20;
+    max-width: 1000px;
+    padding: 0 $padding-16;
+  }
+
+  @include tablet-portrait {
+    grid-template-columns: 1fr;
+    gap: $gap-20;
+    max-width: 400px;
+    padding: 0 $padding-16;
+  }
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $gap-16;
+    max-width: 100%;
+    padding: 0 $padding-12;
+    margin: $margin-16 auto;
+  }
+}

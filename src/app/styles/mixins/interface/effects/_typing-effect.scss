@@ -1,0 +1,28 @@
+@use 'core/variables/variables' as *;
+
+//============ TYPING EFFECT ============
+@mixin typing-effect($context-title) {
+  &::before {
+    content: '> ';
+    color: map-get($context-title, prompt);
+    font-weight: $font-weight-700;
+  }
+  
+  &::after {
+    content: '|';
+    color: map-get($context-title, prompt);
+    animation: blink 1s 3;
+  }
+
+  &.hidden {
+    &::after {
+      opacity: 0;
+    }
+  }
+}
+
+//============ ANIMATION BLINK SIMPLE ============
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}

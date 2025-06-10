@@ -70,7 +70,6 @@ export class UserAccountComponent implements OnInit, OnDestroy {
   private typingEffect = this.typingService.createTypingEffect({
     text: 'Mon compte',
     speed: 200,
-    cursorColor: '#5d889e',
     finalBlinks: 3
   });
 

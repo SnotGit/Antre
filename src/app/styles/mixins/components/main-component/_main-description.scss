@@ -1,0 +1,35 @@
+@use 'core/variables/variables' as *;
+@use 'mixins/utilities/responsive/responsive' as *;
+
+//============ MAIN DESCRIPTION ============
+@mixin main-description {
+  width: 100%;
+  padding: 0 $padding-30 $padding-20 $padding-30;
+  flex-shrink: 0;
+  text-align: $center;
+
+  @include tablet-landscape {
+    padding: 0 $padding-24 $padding-16 $padding-24;
+  }
+
+  @include tablet-portrait {
+    padding: 0 $padding-20 $padding-16 $padding-20;
+    
+    p {
+      font-size: $font-size-14;
+      margin: 0 auto $margin-4 auto;
+    }
+  }
+
+  @include mobile {
+    display: $none;
+  }
+
+  p {
+    font-size: $font-size-16;
+    line-height: 1.6;
+    margin: 0 auto $margin-8 auto;
+    opacity: 0.8;
+    max-width: 800px;
+  }
+}
