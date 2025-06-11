@@ -49,12 +49,12 @@
   overflow: hidden;
   background-color: transparent;
   
-  app-console-panel {
+  app-console-v3 {
     flex: 7;
     min-height: 0;
   }
 
-  app-console-terminal {
+  app-terminal {
     flex: 3;
     min-height: 0;
   }

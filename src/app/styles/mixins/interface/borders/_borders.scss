@@ -1,8 +1,12 @@
 @use "core/variables/variables" as *;
 
-//============ BORDERS ============
+//============ BORDER STYLES ============
 @mixin border-blue {
   border: $border-2 solid $blue;
+}
+
+@mixin border-blue-light {
+  border: $border-2 solid rgba($blue, 0.3);
 }
 
 @mixin border-orange {
@@ -15,4 +19,42 @@
 
 @mixin border-gray {
   border: $border-1 solid $gray;
+}
+
+//============ BORDER RADIUS ============
+@mixin radius-4 {
+  border-radius: $radius-4;
+}
+
+@mixin radius-6 {
+  border-radius: $radius-6;
+}
+
+@mixin radius-8 {
+  border-radius: $radius-8;
+}
+
+@mixin radius-10 {
+  border-radius: $radius-10;
+}
+
+@mixin radius-12 {
+  border-radius: $radius-12;
+}
+
+@mixin radius-15 {
+  border-radius: $radius-15;
+}
+
+@mixin radius-50 {
+  border-radius: $radius-50;
+}
+
+//============ SHADOWS ============
+@mixin shadow-12 {
+  box-shadow: $shadow-12;
+}
+
+@mixin shadow-16 {
+  box-shadow: $shadow-16;
 }

@@ -8,10 +8,10 @@ import { filter } from 'rxjs/operators';
   selector: 'app-navbar',
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive],
-  templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.scss']
+  templateUrl: './navbar.html',
+  styleUrls: ['./navbar.scss']
 })
-export class NavbarComponent {
+export class Navbar {
   
   private router = inject(Router);
   
