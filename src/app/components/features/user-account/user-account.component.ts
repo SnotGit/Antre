@@ -73,8 +73,8 @@ export class UserAccountComponent implements OnInit, OnDestroy {
     finalBlinks: 3
   });
 
-  displayedTitle = this.typingEffect.displayedTitle;
-  typingComplete = this.typingEffect.isComplete;
+  headerTitle = this.typingEffect.headerTitle;
+  typingComplete = this.typingEffect.typingComplete;
 
   profileData: UserProfileData = { username: '', email: '', description: '' };
   passwordData: PasswordChangeData = { currentPassword: '', newPassword: '', confirmPassword: '' };

@@ -1,7 +1,7 @@
 @use "core/variables/variables" as *;
-@use 'mixins/components/main-component/main' as *;
+@use 'mixins/components/components' as *;
 
-//============ SQUELETTE MAIN ============
+//============ CHRONIQUES ASSEMBLY ============
 .main-container {
   @include main-container;
 }
@@ -21,7 +21,7 @@
 .main-content {
   @include main-content;
   
-  .main-grid {
-    @include main-grid;
+  .chroniques-grid {
+    @include chroniques-grid;
   }
 }

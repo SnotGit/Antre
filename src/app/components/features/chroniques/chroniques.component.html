@@ -2,8 +2,8 @@
   
   <!-- HEADER TITRE -->
   <div class="main-header">
-    <h2 class="header-title" [class.hidden]="!showCursor()">
-      {{ displayedTitle() }}
+    <h2 class="header-title" [class.typing-complete]="typingComplete()">
+      {{ headerTitle() }}
     </h2>
   </div>
 
@@ -17,7 +17,7 @@
   <!-- CONTENU -->
   <div class="main-content">
     @if (users().length > 0) {
-      <div class="main-grid">
+      <div class="chroniques-grid">
         @for (user of users(); track user.id) {
           <app-story-card [user]="user"></app-story-card>
         }

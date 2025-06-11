@@ -14,7 +14,7 @@ export class TypingEffectService {
   createTypingEffect(config: TypingConfig) {
     const displayedText = signal<string>('');
     const showCursor = signal<boolean>(true);
-    const isComplete = signal<boolean>(false);
+    const typingComplete = signal<boolean>(false);
     
     let typingInterval: number | undefined;
 
@@ -27,28 +27,22 @@ export class TypingEffectService {
           displayedText.set(config.text.substring(0, currentIndex + 1));
           currentIndex++;
         } else {
-          // Arrêt du typing
           clearInterval(typingInterval);
-          
-          // 3 blinks puis cache le curseur
-          setTimeout(() => {
-            showCursor.set(false);
-            isComplete.set(true);
-          }, (config.finalBlinks || 3) * 1000);
+          typingComplete.set(true);
         }
       }, speed);
     };
 
     const cleanup = () => {
       if (typingInterval) {
-        clearInterval(typingInterval as number);
+        clearInterval(typingInterval);
       }
     };
 
     return {
-      displayedTitle: displayedText.asReadonly(),
+      headerTitle: displayedText.asReadonly(),
       showCursor: showCursor.asReadonly(),
-      isComplete: isComplete.asReadonly(),
+      typingComplete: typingComplete.asReadonly(),
       startTyping,
       cleanup
     };

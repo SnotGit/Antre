@@ -1,0 +1,38 @@
+@use "core/variables/variables" as *;
+@use 'mixins/utilities/utilities' as *;
+
+
+//============ CHRONIQUES GRID ============
+@mixin chroniques-grid {
+    display: $grid;
+    gap: $gap-20;
+    max-width: 100%;
+    margin: $margin-20 auto;
+    justify-items: $center;
+    padding: 0 $padding-20;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    @include tablet-landscape {
+        grid-template-columns: repeat(2, 1fr);
+        gap: $gap-16;
+        max-width: 100%;
+
+    }
+
+    @include tablet-portrait {
+        grid-template-columns: 1fr;
+        max-width: 100%;
+
+        gap: $gap-16;
+        padding: 0 $padding-16;
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+        gap: $gap-12;
+        margin: $margin-16 auto;
+        max-width: 100%;
+        padding: 0 $padding-12;
+    }
+}

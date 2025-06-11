@@ -1,60 +1,14 @@
 @use 'core/variables/variables' as *;
-@use 'mixins/utilities/responsive/responsive' as *;
 
-//============ MAIN CONTENT (CONTAINER + RESPONSIVE) ============
+//============ MAIN CONTENT ============
 @mixin main-content {
   flex: 1;
   overflow-y: auto;
   scrollbar-width: $none;
   -ms-overflow-style: $none;
-  
+
   &::-webkit-scrollbar {
     display: $none;
   }
 
-  // Responsive padding
-  @include tablet-landscape {
-    padding: 0 $padding-16;
-  }
-
-  @include tablet-portrait {
-    padding: 0 $padding-12;
-  }
-
-  @include mobile {
-    padding: 0 $padding-8;
-  }
-}
-
-//============ CONTENT GRID ============
-@mixin content-grid {
-  display: $grid;
-  gap: $gap-20;
-  margin: $margin-20 auto;
-  max-width: 1200px;
-  justify-items: $center;
-  padding: 0 $padding-20;
-  
-  grid-template-columns: repeat(3, 1fr);
-  
-  @include tablet-landscape {
-    grid-template-columns: repeat(2, 1fr);
-    gap: $gap-16;
-    max-width: 800px;
-  }
-  
-  @include tablet-portrait {
-    grid-template-columns: 1fr;
-    gap: $gap-16;
-    max-width: 400px;
-    padding: 0 $padding-16;
-  }
-  
-  @include mobile {
-    grid-template-columns: 1fr;
-    gap: $gap-12;
-    margin: $margin-16 auto;
-    max-width: 100%;
-    padding: 0 $padding-12;
-  }
 }

@@ -23,11 +23,13 @@ export class ChroniquesComponent implements OnInit, OnDestroy {
   private typingEffect = this.typingService.createTypingEffect({
     text: 'Les Chroniques de Mars',
     speed: 150,
-    finalBlinks: 3
+    finalBlinks: 4
   });
 
-  displayedTitle = this.typingEffect.displayedTitle;
+  headerTitle = this.typingEffect.headerTitle;
   showCursor = this.typingEffect.showCursor;
+  typingComplete = this.typingEffect.typingComplete;
+
 
   ngOnInit(): void {
     this.typingEffect.startTyping();
