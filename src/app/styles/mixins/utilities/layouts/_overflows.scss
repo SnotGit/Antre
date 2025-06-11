@@ -1,0 +1,25 @@
+@use 'core/variables/variables' as *;
+
+//============ OVERFLOWS ============
+@mixin hidden {
+  overflow: hidden;
+}
+
+@mixin overflow-y-auto {
+  overflow-y: auto;
+}
+
+@mixin overflow-x-hidden {
+  overflow-x: hidden;
+}
+
+//============ SCROLL INVISIBLE ============
+@mixin hidden-scroll {
+  overflow-y: auto;
+  scrollbar-width: $none;
+  -ms-overflow-style: $none;
+  
+  &::-webkit-scrollbar {
+    display: $none;
+  }
+}

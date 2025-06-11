@@ -1,5 +1,5 @@
 @use 'core/variables/variables' as *;
-@use 'mixins/utilities/responsive/responsive' as *;
+@use 'mixins/utilities/layouts/layouts' as *;
 
 //============ MAIN HEADER ============
 @mixin main-header {

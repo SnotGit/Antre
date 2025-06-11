@@ -8,13 +8,13 @@ interface TerminalLine {
 }
 
 @Component({
-  selector: 'app-console-terminal',
+  selector: 'app-terminal',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './console-terminal.component.html',
-  styleUrl: './console-terminal.component.scss'
+  templateUrl: './terminal.html',
+  styleUrl: './terminal.scss'
 })
-export class ConsoleTerminalComponent implements OnInit, OnDestroy {
+export class Terminal implements OnInit, OnDestroy {
   @ViewChild('terminalContent') terminalContent!: ElementRef;
 
   terminalLines: TerminalLine[] = [];

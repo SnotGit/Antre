@@ -2,16 +2,16 @@
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../services/auth.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-console-panel',
+  selector: 'app-console-v3',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './console-panel.component.html',
-  styleUrls: ['./console-panel.component.scss']
+  templateUrl: './console-v3.html',
+  styleUrls: ['./console-v3.scss']
 })
-export class ConsolePanelComponent implements OnInit {
+export class ConsoleV3 implements OnInit {
 
   private router = inject(Router);
   private authService = inject(AuthService);

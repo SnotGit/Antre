@@ -1,0 +1,15 @@
+@use 'core/variables/variables' as *;
+@use 'mixins/interface/interface' as *;
+@use 'mixins/utilities' as *;
+
+//============ NAVBAR CONTAINER============
+@mixin navbar-main {
+  @include full-size;
+  @include background-2;
+  @include border-blue;
+  @include column;
+  @include spacing-30-20;
+  @include radius-15;
+  @include shadow-12;
+  @include border-box;
+}

@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { NavbarComponent } from "./core/navbar/navbar/navbar.component";
-import { ConsolePanelComponent } from "./core/navbar/console-panel/console-panel/console-panel.component";
-import { ConsoleTerminalComponent } from "./core/navbar/console-panel/console-terminal/console-terminal.component";
+import { Navbar } from './core/navigation/navbar/navbar';
+import { ConsoleV3 } from './core/navigation/console-v3/console-v3';
+import { Terminal } from './core/navigation/terminal/terminal';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NavbarComponent, ConsolePanelComponent, ConsoleTerminalComponent],
+  imports: [RouterOutlet, Navbar, ConsoleV3, Terminal],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

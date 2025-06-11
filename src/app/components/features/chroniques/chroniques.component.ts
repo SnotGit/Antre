@@ -45,7 +45,7 @@ export class ChroniquesComponent implements OnInit, OnDestroy {
   }
 
   navigateToStory(storyId: number): void {
-    this.router.navigate(['/chroniques/story', storyId]);
+    this.router.navigate(['/chroniques/pages/story-detail', storyId]);
   }
 
   refresh(): void {
