@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { AuthorWithLatestStory } from './chroniques.service';
+import { UserLatestStory } from './chroniques.service';
 import { SearchResult } from '../../components/shared/search-bar/search-bar.types';
 
 @Injectable({
@@ -8,7 +8,7 @@ import { SearchResult } from '../../components/shared/search-bar/search-bar.type
 export class SearchChroniqueService {
   
   private _searchQuery = signal<string>('');
-  private _allAuthors = signal<AuthorWithLatestStory[]>([]);
+  private _allAuthors = signal<UserLatestStory[]>([]);
   private _isSearching = signal<boolean>(false);
 
   searchQuery = this._searchQuery.asReadonly();
@@ -32,7 +32,7 @@ export class SearchChroniqueService {
   hasResults = computed(() => this.filteredAuthors().length > 0);
   resultCount = computed(() => this.filteredAuthors().length);
   
-  setAuthors(authors: AuthorWithLatestStory[]): void {
+  setAuthors(authors: UserLatestStory[]): void {
     this._allAuthors.set(authors);
   }
 

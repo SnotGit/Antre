@@ -11,18 +11,25 @@
   &::after {
     content: '|';
     color: map-get($context-title, prompt);
-    animation: blink 1s 3;
+    animation: blink 1s infinite;
+    margin-left: -20px;
   }
 
-  &.hidden {
+  &.typing-complete {
     &::after {
-      opacity: 0;
+      animation: blink-and-hide 1s 4 forwards;
     }
   }
 }
 
-//============ ANIMATION BLINK SIMPLE ============
+//============ ANIMATIONS ============
 @keyframes blink {
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0; }
+}
+
+@keyframes blink-and-hide {
+  0%, 50% { opacity: 1; }
+  51%, 99% { opacity: 0; }
+  100% { opacity: 0; }
 }
