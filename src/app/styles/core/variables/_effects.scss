@@ -1,11 +1,9 @@
 //============ TRANSITIONS ============
-$transition-0_2s: all 0.2s ease;
-$transition-0_3s: all 0.3s ease;
-$transition-0_5s: all 0.5s ease;
+$transition-2: all 0.2s ease;
+$transition-3: all 0.3s ease;
+$transition-5: all 0.5s ease;
 
 //============ TRANSFORMS ============
 $transform-lift-2: translateY(-2px);
 $transform-scale-1_1: scale(1.1);
 
-//============ HOVER COLORS ============
-$hover-white: white;

@@ -1,5 +1,5 @@
-import { Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Injectable, computed } from '@angular/core';
+import { httpResource } from '@angular/common/http';
 
 export interface UserLatestStory {
   id: number;
@@ -19,39 +19,14 @@ export interface UserLatestStory {
 })
 export class ChroniquesService {
   private readonly API_URL = 'http://localhost:3000/api';
-  
-  private _users = signal<UserLatestStory[]>([]);
-  private _loading = signal<boolean>(false);
-  private _error = signal<string | null>(null);
 
-  users = this._users.asReadonly();
-  loading = this._loading.asReadonly();
-  error = this._error.asReadonly();
+  //============ HTTP RESOURCE ============
+  private resource = httpResource<{message: string, users: UserLatestStory[]}>(() => 
+    `${this.API_URL}/chroniques/latest-stories`
+  );
 
-  constructor(private http: HttpClient) {
-    this.loadUsers();
-  }
-
-  loadUsers(): void {
-    this._loading.set(true);
-    this._error.set(null);
-
-    this.http.get<{message: string, users: UserLatestStory[]}>
-      (`${this.API_URL}/chroniques/latest-stories`).subscribe({
-      next: (response) => {
-        const users = response.users || [];
-        this._users.set(users);
-        this._loading.set(false);
-      },
-      error: (error) => {
-        this._error.set('Erreur lors du chargement des chroniques');
-        this._loading.set(false);
-        this._users.set([]);
-      }
-    });
-  }
-
-  refresh(): void {
-    this.loadUsers();
-  }
+  //============ SIGNALS ============
+  users = computed(() => this.resource.value()?.users ?? []);
+  loading = this.resource.isLoading;
+  error = this.resource.error;
 }

@@ -1,6 +1,6 @@
 @use 'core/variables/variables' as *;
 @use 'mixins/interface/interface' as *;
-@use 'mixins/utilities' as *;
+@use 'mixins/utilities/utilities' as*;
 
 //============ NAVBAR CONTAINER============
 @mixin navbar-main {

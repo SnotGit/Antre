@@ -1,0 +1,17 @@
+@use 'core/variables/colors' as *;
+@use 'mixins/interface/interface' as *;
+@use 'mixins/utilities/layouts' as *;
+
+
+@mixin console-button {
+    @include background-0;
+    @include border-1-blue;
+    @include color-blue;
+    @include padding-10-12;
+    @include radius-4;
+    @include font-14;
+    @include pointer;
+    @include transition-3;
+
+    @include hover-btn;
+}

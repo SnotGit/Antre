@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 export interface StoryFromAPI {
   id: number;
@@ -10,6 +10,7 @@ export interface StoryFromAPI {
   createdAt: string;
   updatedAt: string;
   publishedAt?: string;
+  slug?: string;
   user?: {
     id: number;
     username: string;
@@ -18,19 +19,24 @@ export interface StoryFromAPI {
   };
 }
 
-export interface StoryByIdResponse {
+interface StoryResponse {
   message: string;
   story: StoryFromAPI;
 }
 
-export interface AllStoriesResponse {
+interface AllStoriesResponse {
   message: string;
   stories: StoryFromAPI[];
   count: number;
 }
 
-export interface LikeResponse {
+interface LikeResponse {
   message: string;
+  isLiked: boolean;
+  likesCount: number;
+}
+
+interface LikeStatusResponse {
   isLiked: boolean;
   likesCount: number;
 }
@@ -40,28 +46,33 @@ export interface LikeResponse {
 })
 export class StoryService {
   private readonly API_URL = 'http://localhost:3000/api';
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
-
-  getStoryById(id: number): Observable<StoryByIdResponse> {
-    return this.http.get<StoryByIdResponse>(`${this.API_URL}/stories/${id}`);
+  //============ LECTURE HISTOIRES ============
+  async getStoryBySlug(slug: string): Promise<StoryResponse> {
+    return firstValueFrom(this.http.get<StoryResponse>(`${this.API_URL}/stories/slug/${slug}`));
   }
 
-  getAllStories(): Observable<AllStoriesResponse> {
-    return this.http.get<AllStoriesResponse>(`${this.API_URL}/stories`);
+  async getStoryById(id: number): Promise<StoryResponse> {
+    return firstValueFrom(this.http.get<StoryResponse>(`${this.API_URL}/stories/${id}`));
   }
 
-  getStoriesByAuthor(authorId: number): Observable<AllStoriesResponse> {
-    return this.http.get<AllStoriesResponse>(`${this.API_URL}/stories/user/${authorId}`);
+  async getStoriesByUser(userId: number): Promise<AllStoriesResponse> {
+    return firstValueFrom(this.http.get<AllStoriesResponse>(`${this.API_URL}/stories/user/${userId}`));
   }
 
-  toggleLike(storyId: number, token: string): Observable<LikeResponse> {
+  //============ LIKES ============
+  async toggleLike(storyId: number, token: string): Promise<LikeResponse> {
     const headers = { 'Authorization': `Bearer ${token}` };
-    return this.http.post<LikeResponse>(`${this.API_URL}/stories/${storyId}/like`, {}, { headers });
+    return firstValueFrom(
+      this.http.post<LikeResponse>(`${this.API_URL}/stories/${storyId}/like`, {}, { headers })
+    );
   }
 
-  checkIfLiked(storyId: number, token: string): Observable<{isLiked: boolean, likesCount: number}> {
+  async checkIfLiked(storyId: number, token: string): Promise<LikeStatusResponse> {
     const headers = { 'Authorization': `Bearer ${token}` };
-    return this.http.get<{isLiked: boolean, likesCount: number}>(`${this.API_URL}/stories/${storyId}/like-status`, { headers });
+    return firstValueFrom(
+      this.http.get<LikeStatusResponse>(`${this.API_URL}/stories/${storyId}/like-status`, { headers })
+    );
   }
 }
