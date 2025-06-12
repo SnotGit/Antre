@@ -1,6 +1,9 @@
-@forward 'mixins/interface/backgrounds/backgrounds';
-@forward "mixins/interface/borders/borders";
-@forward 'mixins/interface/cards/cards';
-@forward 'mixins/interface/effects/effects';
-@forward 'mixins/interface/user-avatar/user-avatar';
-@forward 'mixins/interface/typography/typography';
+@forward 'backgrounds/backgrounds';
+@forward "borders/borders";
+@forward 'buttons/buttons';
+@forward 'cards/cards';
+@forward 'colors/colors';
+@forward 'effects/effects';
+
+@forward 'typography/typography';
+@forward 'user-avatar/user-avatar';

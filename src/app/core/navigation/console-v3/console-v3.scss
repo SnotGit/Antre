@@ -49,24 +49,6 @@
       gap: 10px;
       margin-bottom: 8px;
     }
-
-    .dev-mode-indicator {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 8px;
-      color: #f39c12;
-      font-weight: bold;
-
-      .led {
-        margin-top: -1px;
-      }
-    }
-
-    // Alignement LED et chevron
-    .led {
-      flex-shrink: 0;
-    }
   }
 
   // 3. SECTION COMMANDES
@@ -78,10 +60,9 @@
     padding: 0;
 
     .action-group {
-      padding: 12px 16px 10px 16px; // Réduire padding vertical et horizontal
+      padding: 12px 16px 10px 16px;
       border-bottom: 1px solid rgba(93, 136, 158, 0.2);
 
-      // Classe spéciale pour supprimer le séparateur sous "FONCTIONS CHRONIQUES"
       &.no-separator {
         border-bottom: none;
         padding-bottom: 10px;
@@ -94,29 +75,27 @@
       .group-title {
         display: block;
         color: #b55a44;
-        font-size: 12px; // Augmenter la taille
+        font-size: 12px;
         font-weight: bold;
-        margin-bottom: 12px; // Réduire l'espacement
+        margin-bottom: 12px;
         margin-top: 0;
         letter-spacing: 0.5px;
-        // Alignement à gauche (pas centré)
         text-align: left;
       }
     }
 
-    // Boutons standards - améliorer les tailles
     .console-btn {
       display: block;
       width: 100%;
       background: transparent;
       border: 1px solid #5d889e;
       color: #5d889e;
-      padding: 10px 12px; // Augmenter le padding
-      margin-bottom: 8px; // Réduire l'espacement
+      padding: 10px 12px;
+      margin-bottom: 8px;
       border-radius: 4px;
       font-family: inherit;
-      font-size: 14px; // Augmenter la taille du texte
-      font-weight: 500; // Ajouter du poids
+      font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
       transition: all 0.2s ease;
 
@@ -124,32 +103,22 @@
         background-color: rgba(93, 136, 158, 0.1);
         transform: translateX(2px);
       }
-
-      &.dev-btn {
-        border-color: #f39c12;
-        color: #f39c12;
-
-        &:hover {
-          background-color: rgba(243, 156, 18, 0.1);
-        }
-      }
     }
   }
 
   // SECTION FOOTER 
   .console-footer {
     flex-shrink: 0;
-    padding: 12px 16px 16px 16px; // Réduire et harmoniser les paddings
+    padding: 12px 16px 16px 16px;
     border-top: 1px solid rgba(93, 136, 158, 0.2);
 
     .group-title {
       display: block;
       color: #b55a44;
-      font-size: 12px; // Harmoniser avec les autres titres
+      font-size: 12px;
       font-weight: bold;
-      margin-bottom: 12px; // Harmoniser l'espacement
+      margin-bottom: 12px;
       letter-spacing: 0.5px;
-      // Alignement à gauche pour cohérence
       text-align: left;
     }
 
@@ -159,12 +128,12 @@
       background: transparent;
       border: 1px solid #5d889e;
       color: #5d889e;
-      padding: 10px 12px; // Harmoniser avec les autres boutons
-      margin-bottom: 8px; // Harmoniser l'espacement
+      padding: 10px 12px;
+      margin-bottom: 8px;
       border-radius: 4px;
       font-family: inherit;
-      font-size: 14px; // Harmoniser la taille du texte
-      font-weight: 500; // Harmoniser le poids
+      font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
       transition: all 0.2s ease;
 
@@ -185,7 +154,7 @@
     }
   }
 
-  // LED Indicators (conservés pour compatibilité)
+  // LED Indicators
   .led {
     width: 10px;
     height: 10px;
@@ -205,7 +174,6 @@
 
   // Responsive - MODE MOBILE UNIQUEMENT
   @media (max-width: 768px) {
-    // 🎯 MASQUER header et status sur mobile
     .console-header {
       display: none;
     }
@@ -214,12 +182,10 @@
       display: none;
     }
     
-    // Réorganiser pour mobile
     .console-commands {
       .action-group {
         padding: 15px 12px 10px 12px;
         
-        // Première section sans séparateur sur mobile
         &:first-child {
           padding-top: 20px;
           border-bottom: none;

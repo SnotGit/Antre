@@ -1,0 +1,14 @@
+@use 'core/variables/variables' as *;
+
+//============ TRANSITIONS ============
+@mixin transition-2 {
+  transition: $transition-2;
+}
+
+@mixin transition-3 {
+  transition: $transition-3;
+}
+
+@mixin transition-5 {
+  transition: $transition-5;
+}

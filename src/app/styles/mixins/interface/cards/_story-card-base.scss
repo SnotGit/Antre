@@ -1,25 +1,24 @@
-@use 'core/variables/variables' as *;
-@use 'mixins/interface/backgrounds/backgrounds' as *;
-@use 'mixins/interface/borders/borders' as *;
-@use 'mixins/interface/effects/effects' as *;
+@use 'core/variables/variables' as* ;
+@use 'mixins/interface/backgrounds/backgrounds' as* ;
+@use 'mixins/interface/borders/borders' as* ;
+@use 'mixins/interface/effects/effects' as* ;
+@use 'mixins/utilities/layouts/layouts' as* ;
+
 
 //============ STORY CARD BASE ============
 @mixin story-card-base {
+  @include column-center;
   @include background-2;
-  @include border-blue;
-  border-radius: $radius-12;
+  @include border-2-blue;
+  @include radius-12;
+  @include gap-8;
+  @include spacing-24;
+  @include transition-3;
+  @include pointer;
   width: $story-card-width;
   height: $story-card-height;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  padding: 24px;
-  transition: $transition-0_3s;
-  cursor: pointer;
-  
+
   &:hover {
-    border-color: rgba(180, 178, 29, 0.863);
+    @include border-2-orange;
   }
 }

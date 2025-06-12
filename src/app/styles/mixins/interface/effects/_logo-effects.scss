@@ -22,14 +22,12 @@
             animation: glitch-1 0.2s infinite;
             clip-path: polygon(0 2%, 100% 2%, 100% 5%, 0 5%);
             transform: translate(-1px);
-            background: rgba(93, 136, 158, 0.4);
         }
 
         &::after {
             animation: glitch-2 0.25s infinite;
             clip-path: polygon(0 78%, 100% 78%, 100% 82%, 0 82%);
             transform: translate(1px);
-            background: rgba(93, 136, 158, 0.6);
         }
     }
 

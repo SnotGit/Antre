@@ -30,25 +30,15 @@ export class ChroniquesComponent implements OnInit, OnDestroy {
   showCursor = this.typingEffect.showCursor;
   typingComplete = this.typingEffect.typingComplete;
 
-
   ngOnInit(): void {
     this.typingEffect.startTyping();
-    this.loadUsers();
   }
 
   ngOnDestroy(): void {
     this.typingEffect.cleanup();
   }
 
-  private loadUsers(): void {
-    this.chroniquesService.loadUsers();
-  }
-
   navigateToStory(storyId: number): void {
-    this.router.navigate(['/chroniques/pages/story-detail', storyId]);
-  }
-
-  refresh(): void {
-    this.chroniquesService.refresh();
+    this.router.navigate(['/chroniques/story', storyId]);
   }
 }

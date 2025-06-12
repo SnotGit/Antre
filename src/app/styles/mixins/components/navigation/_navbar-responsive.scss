@@ -1,4 +1,4 @@
-@use 'mixins/utilities/responsive/breakpoints' as *;
+@use 'mixins/utilities/layouts/layouts' as*;
 
 //============ NAVBAR RESPONSIVE ============
 @mixin navbar-responsive {

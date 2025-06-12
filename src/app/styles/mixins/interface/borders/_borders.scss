@@ -1,24 +1,38 @@
 @use "core/variables/variables" as *;
 
-//============ BORDER STYLES ============
-@mixin border-blue {
+//============ BORDER 1PX ============
+@mixin border-1-blue {
+  border: $border-1 solid $blue;
+}
+
+@mixin border-1-blue-03 {
+  border: $border-1 solid rgba($blue, 0.3);
+}
+
+@mixin border-1-orange {
+  border: $border-1 solid $orange;
+}
+
+
+//============ BORDER 2PX ============
+@mixin border-2-blue {
   border: $border-2 solid $blue;
 }
 
-@mixin border-blue-light {
+@mixin border-2-blue-03 {
   border: $border-2 solid rgba($blue, 0.3);
 }
 
-@mixin border-orange {
+@mixin border-2-orange {
   border: $border-2 solid $orange;
 }
 
-@mixin border-white {
+@mixin border-2-white {
   border: $border-2 solid $white;
 }
 
-@mixin border-gray {
-  border: $border-1 solid $gray;
+@mixin border-2-gray {
+  border: $border-2 solid $gray;
 }
 
 //============ BORDER RADIUS ============

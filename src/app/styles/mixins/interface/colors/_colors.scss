@@ -1,0 +1,48 @@
+@use "core/variables/colors" as *;
+
+//=========== BLUE COLORS ===========
+
+@mixin color-blue{
+    color: $blue;
+}
+
+@mixin color-blue-03{
+    color: $blue-03;
+}
+//=========== ORANGE COLORS ===========
+
+@mixin color-orange{
+    color: $orange;
+}
+
+@mixin color-orange-03{
+    color: $orange-03;
+}
+
+
+//=========== OTHER COLORS ===========
+
+@mixin color-gray{
+    color: $gray;
+}
+
+@mixin color-white{
+    color: $white;
+}
+
+@mixin color-black{
+    color: $black;
+}
+
+@mixin color-red{
+    color: $red;
+}
+
+@mixin color-green{
+    color: $green;
+}
+
+@mixin color-yellow{
+    color: $yellow;
+}
+

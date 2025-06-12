@@ -2,6 +2,7 @@ const express = require('express');
 const { 
   getAllStories, 
   getStoryById, 
+  getStoryBySlug,
   createStory, 
   updateStory, 
   deleteStory,
@@ -13,17 +14,18 @@ const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Routes publiques (pas d'authentification requise)
+//============ ROUTES PUBLIQUES ============
 router.get('/', getAllStories);                    
-router.get('/:id', getStoryById);                  
 router.get('/user/:userId', getStoriesByUser);     
+router.get('/slug/:slug', getStoryBySlug);
+router.get('/:id', getStoryById);                  
 
-// Routes protégées (authentification requise)
+//============ ROUTES PROTÉGÉES ============
 router.post('/', authenticateToken, createStory);               
 router.put('/:id', authenticateToken, updateStory);             
 router.delete('/:id', authenticateToken, deleteStory);          
 
-// Routes pour le système de likes (authentifié)
+//============ ROUTES LIKES ============
 router.post('/:id/like', authenticateToken, likeStory);         
 router.get('/:id/like-status', authenticateToken, getLikeStatus); 
 
