@@ -1,0 +1,57 @@
+# PROMPT 2 - TECHNIQUE (Projet Antre)
+
+## 🔬 AUDIT CODE EXISTANT
+**Méthode obligatoire :**
+- Analyser chaque fichier : identifier sur-complexités vs bonnes pratiques
+- Mesurer : lignes de code, complexité, redondances
+- Proposer plan de simplification avec justifications
+- **Validation requise** avant toute modification
+
+**Conserver :**
+- Code lisible et auto-documenté
+- Architecture logique évidente
+- Patterns Angular modernes bien utilisés
+- API REST cohérente
+
+**Simplifier :**
+- Composants sur-responsabilisés
+- Services sur-abstraits
+- Code dupliqué
+- Over-engineering sans valeur
+
+## ⚙️ STANDARDS ANGULAR 20
+- **Standalone Components** : Élimination boilerplate modules
+- **Signals** : Migration intelligente des observables
+- **OnPush** : Change Detection optimisée
+- **Lazy loading** : Routes organisées intelligemment
+- **Fichiers séparés** : TypeScript + HTML + SCSS (jamais inline)
+
+## 🏗️ ARCHITECTURE FULLSTACK
+**Backend Express + Prisma :**
+- Routes RESTful simples
+- Controllers avec logique évidente
+- Middleware auth/validation uniquement
+- Modèles Prisma optimisés
+
+**Rôles contextuels (défi principal) :**
+- Admin = User dans chroniques + modération
+- Tous éditent leurs chroniques
+- Seuls admins éditent archives
+
+## 🎨 INTERFACE CARDS + MIXINS
+- Système cards unifié pour tous types contenu
+- Architecture SCSS selon organisation existante
+- Composants réutilisables par props
+- Performance fluide sans optimisations excessives
+
+## 📊 MÉTRIQUES SUCCÈS
+- Réduction 30-50% lignes code
+- Bundle < 500KB
+- Lighthouse > 95
+- Time to Interactive < 2s
+
+## 🚫 INTERDICTIONS
+- Complexité pour montrer compétences
+- Patterns avancés sans justification business
+- Over-engineer par anticipation
+- Optimisation prématurée sans mesures
