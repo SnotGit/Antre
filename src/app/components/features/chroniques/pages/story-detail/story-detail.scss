@@ -1,4 +1,3 @@
-// story-detail.component.scss - Version corrigée
 
 .story-detail-container {
   background-color: #121416;
@@ -31,7 +30,7 @@
       padding: 25px 30px 15px 30px;
       flex-shrink: 0;
 
-      .author-avatar {
+      .user-avatar {
         width: 60px;
         height: 60px;
         border-radius: 50%;
@@ -66,16 +65,16 @@
         }
       }
 
-      .author-content {
+      .user-content {
         flex: 1;
 
-        .author-top-line {
+        .user-top-line {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 4px;
 
-          .author-name {
+          .username {
             color: #5d889e;
             font-size: 25px;
             font-weight: bold;
@@ -136,7 +135,7 @@
           }
         }
 
-        .author-description {
+        .user-description {
           color: rgba(93, 136, 158, 0.7);
           font-size: 16px;
           margin: 0;

@@ -20,17 +20,17 @@
       
       <!-- Header avec avatar intégré dans le content -->
       <div class="card-header">
-        <div class="author-content">
-          <div class="author-top-line">
-            <div class="author-left">
-              <div class="author-avatar">
+        <div class="user-content">
+          <div class="user-top-line">
+            <div class="user-left">
+              <div class="user-avatar">
                 @if (avatarUrl()) {
                   <div class="avatar-image" [style.background-image]="'url(' + avatarUrl() + ')'"></div>
                 } @else {
                   <span class="avatar-placeholder">👤</span>
                 }
               </div>
-              <span class="author-name">{{ story()!.user?.username || 'Auteur Inconnu' }}</span>
+              <span class="username">{{ story()!.user?.username || 'Auteur Inconnu' }}</span>
             </div>
             
             <div class="header-like-section">
@@ -45,7 +45,7 @@
             </div>
           </div>
           
-          <div class="author-description">{{ story()!.user?.description || 'Écrivain martien' }}</div>
+          <div class="user-description">{{ story()!.user?.description || 'Écrivain martien' }}</div>
         </div>
       </div>
 
