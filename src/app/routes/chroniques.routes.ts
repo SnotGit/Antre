@@ -3,14 +3,14 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('../components/features/chroniques/chroniques.component').then(m => m.ChroniquesComponent)
+    loadComponent: () => import('../components/features/chroniques/chroniques').then(m => m.Chroniques)
   },
   {
     path: 'story-board',
-    loadComponent: () => import('../components/features/chroniques/storyboard/story-board.component').then(m => m.StoryBoardComponent)
+    loadComponent: () => import('../components/features/chroniques/storyboard/story-board').then(m => m.StoryBoard)
   },
   {
     path: 'story/:slug',
-    loadComponent: () => import('../components/features/chroniques/pages/story-detail/story-detail.component').then(m => m.StoryDetailComponent)
+    loadComponent: () => import('../components/features/chroniques/pages/story-detail/story-detail').then(m => m.StoryDetail)
   }
 ];

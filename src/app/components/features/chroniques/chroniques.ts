@@ -8,10 +8,10 @@ import { StoryCardComponent } from './shared/story-card/story-card.component';
 @Component({
   selector: 'app-chroniques',
   imports: [CommonModule, StoryCardComponent],
-  templateUrl: './chroniques.component.html',
-  styleUrl: './chroniques.component.scss'
+  templateUrl: './chroniques.html',
+  styleUrl: './chroniques.scss'
 })
-export class ChroniquesComponent implements OnInit, OnDestroy {
+export class Chroniques implements OnInit, OnDestroy {
 
   private router = inject(Router);
   private chroniquesService = inject(ChroniquesService);

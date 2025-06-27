@@ -30,10 +30,10 @@ type TabType = 'stats' | 'profile' | 'identifiants';
 @Component({
   selector: 'app-user-account',
   imports: [CommonModule, FormsModule],
-  templateUrl: './user-account.component.html',
-  styleUrl: './user-account.component.scss'
+  templateUrl: './user-account.html',
+  styleUrl: './user-account.scss'
 })
-export class UserAccountComponent implements OnInit, OnDestroy {
+export class UserAccount implements OnInit, OnDestroy {
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 

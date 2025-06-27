@@ -5,10 +5,10 @@ import { CommonModule } from '@angular/common';
   selector: 'app-password-validator',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './password-validator.component.html',
-  styleUrl: './password-validator.component.scss'
+  templateUrl: './password-validator.html',
+  styleUrl: './password-validator.scss'
 })
-export class PasswordValidatorComponent {
+export class PasswordValidator {
   password = input<string>('');
 
   availableCharsText = 'Caractères spéciaux disponibles : @ # $ % ^ & * ! ? + - = _';

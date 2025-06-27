@@ -9,10 +9,10 @@ import { AuthService } from '../../../../../core/services/auth.service';
 @Component({
   selector: 'app-story-detail',
   imports: [CommonModule],
-  templateUrl: './story-detail.component.html',
-  styleUrl: './story-detail.component.scss'
+  templateUrl: './story-detail.html',
+  styleUrl: './story-detail.scss'
 })
-export class StoryDetailComponent {
+export class StoryDetail {
   
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -20,7 +20,7 @@ export class StoryDetailComponent {
   private authService = inject(AuthService);
 
   private storyId = signal<number>(0);
-  private authorStories = signal<StoryFromAPI[]>([]);
+  private userStories = signal<StoryFromAPI[]>([]);
   isLiked = signal<boolean>(false);
   likesCount = signal<number>(0);
 
@@ -56,7 +56,7 @@ export class StoryDetailComponent {
   });
 
   currentStoryIndex = computed(() => {
-    const stories = this.authorStories();
+    const stories = this.userStories();
     const currentId = this.storyId();
     return stories.findIndex(s => s.id === currentId);
   });
@@ -73,22 +73,22 @@ export class StoryDetailComponent {
       const story = this.story();
       if (story) {
         this.storyId.set(story.id);
-        this.loadAuthorStories(story.user?.id || 0);
+        this.loadUserStories(story.user?.id || 0);
         this.loadLikeStatus(story.id);
       }
     });
   }
 
-  async loadAuthorStories(userId: number): Promise<void> {
+  async loadUserStories(userId: number): Promise<void> {
     if (!userId) return;
     try {
       const response = await this.storyService.getStoriesByUser(userId);
       const publishedStories = response.stories
         .filter(story => story.status === 'PUBLISHED')
         .sort((a, b) => new Date(a.publishedAt!).getTime() - new Date(b.publishedAt!).getTime());
-      this.authorStories.set(publishedStories);
+      this.userStories.set(publishedStories);
     } catch (error) {
-      this.authorStories.set([]);
+      this.userStories.set([]);
     }
   }
 
@@ -129,7 +129,7 @@ export class StoryDetailComponent {
   }
 
   goToPreviousStory(): void {
-    const stories = this.authorStories();
+    const stories = this.userStories();
     const currentIndex = this.currentStoryIndex();
     
     if (currentIndex > 0) {
@@ -141,7 +141,7 @@ export class StoryDetailComponent {
   }
 
   goToNextStory(): void {
-    const stories = this.authorStories();
+    const stories = this.userStories();
     const currentIndex = this.currentStoryIndex();
     
     if (currentIndex >= 0 && currentIndex < stories.length - 1) {
@@ -157,12 +157,12 @@ export class StoryDetailComponent {
   }
 
   hasNextStory(): boolean {
-    const stories = this.authorStories();
+    const stories = this.userStories();
     const currentIndex = this.currentStoryIndex();
     return currentIndex >= 0 && currentIndex < stories.length - 1;
   }
 
-  goToAuthorProfile(): void {
+  goToUserrProfile(): void {
     const userId = this.story()?.user?.id;
     if (userId) {
       this.router.navigate(['/chroniques/user', userId]);

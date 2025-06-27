@@ -23,10 +23,10 @@ interface PublishedStory {
 @Component({
   selector: 'app-story-board',
   imports: [CommonModule],
-  templateUrl: './story-board.component.html',
-  styleUrl: './story-board.component.scss'
+  templateUrl: './story-board.html',
+  styleUrl: './story-board.scss'
 })
-export class StoryBoardComponent implements OnInit, OnDestroy {
+export class StoryBoard implements OnInit, OnDestroy {
   
   private router = inject(Router);
   private authService = inject(AuthService);
