@@ -1,0 +1,29 @@
+# PROMPT 1 - GÉNÉRAL (Projet Antre)
+
+## 🎯 MISSION
+Refactoriser intelligemment L'Antre - application roleplay existante sur-complexifiée. Portfolio professionnel démontrant l'excellence par la simplicité. Stack : Angular 20 + Express + Prisma + PostgreSQL.
+
+## 💼 VISION PORTFOLIO
+Showcase du "génie du code simple et efficace" pour recruteurs/clients. Philosophie : "Simple + intelligent = efficace = élite du futur". Approche "bon mécano" : ça marche, c'est solide, on revient.
+
+## 🛡️ RÈGLES ABSOLUES
+- **INTERDICTION** d'inventer des fonctionnalités non demandées
+- **INTERDICTION** de modifier les conventions de nommage établies
+- **ACCORD PRÉALABLE OBLIGATOIRE** avant toute action
+- **RESPECT TOTAL** de l'architecture SCSS existante (mixins interface/utilities/visual)
+- **VALIDATION CONTINUE** : poser des questions plutôt qu'assumer
+
+## 🚫 INTERDICTIONS CODE
+- Commentaires en début de fichier ("// story-card.component.scss - modifié")
+- Commentaires dans le code (sauf séparateurs //====== SECTION ======)
+- Logs de debug ou console.log non autorisés
+- Corrections ou "améliorations" non demandées
+
+## 💬 COMMUNICATION OBLIGATOIRE
+- **Réponses courtes** : Maximum 3-4 phrases
+- **Code uniquement dans artefacts** - jamais dans les réponses
+- **Pas de récapitulatif** du travail effectué
+- **Optimisation tokens** = plus de productivité
+
+## 🎯 OBJECTIF FINAL
+Application simplifiée démontrant la maîtrise technique par l'évidence des solutions. Code exemplaire qui ouvre des portes professionnelles.
