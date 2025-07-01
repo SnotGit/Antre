@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Navbar } from './core/navigation/navbar/navbar';
-import { ConsoleV3 } from './core/navigation/console-v3/console-v3';
-import { Terminal } from './core/navigation/terminal/terminal';
+import { Navbar } from './components/navigation/navbar/navbar';
+import { ConsoleV3 } from './components/navigation/console-v3/console-v3';
+import { Terminal } from './components/navigation/terminal/terminal';
 
 @Component({
   selector: 'app-root',

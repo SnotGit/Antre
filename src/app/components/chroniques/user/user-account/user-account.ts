@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { AuthService } from '../../../core/services/auth.service';
-import { PrivateStoriesService } from '../../../core/services/private-stories.service';
-import { TypingEffectService } from '../../../core/services/typing-effect.service';
+import { AuthService } from '../../../../services/auth.service';
+import { PrivateStoriesService } from '../../../../services/private-stories.service';
+import { TypingEffectService } from '../../../../services/typing-effect.service';
 
 interface UserProfileData {
   username: string;

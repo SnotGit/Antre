@@ -30,7 +30,7 @@
                   <span class="avatar-placeholder">👤</span>
                 }
               </div>
-              <span class="username">{{ story()!.user?.username || 'Auteur Inconnu' }}</span>
+              <span class="username">{{ story()!.user.username }}</span>
             </div>
             
             <div class="header-like-section">
@@ -45,7 +45,7 @@
             </div>
           </div>
           
-          <div class="user-description">{{ story()!.user?.description || 'Écrivain martien' }}</div>
+          <div class="user-description">{{ story()!.user.description }}</div>
         </div>
       </div>
 

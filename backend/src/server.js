@@ -27,18 +27,14 @@ app.use('/uploads', cors(), express.static(path.join(__dirname, '../uploads')));
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
-// Routes publiques des histoires
+// Routes publiques des histoires (chroniques + profils)
 const publicStoriesRoutes = require('./routes/publicStories.routes');
 app.use('/api/public-stories', publicStoriesRoutes);
 app.use('/api/users', publicStoriesRoutes);
 
-// Routes privées des histoires
+// Routes privées des histoires (storyboard + CRUD)
 const privateStoriesRoutes = require('./routes/privateStories.routes');
 app.use('/api/private-stories', privateStoriesRoutes);
-
-// Routes pour stories détaillées
-const storiesRoutes = require('./routes/stories');
-app.use('/api/stories', storiesRoutes);
 
 // Route de test
 app.get('/api/health', (req, res) => {
@@ -53,17 +49,18 @@ app.get('/api/health', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 L'Antre API démarrée sur http://localhost:${PORT}`);
   console.log(`📋 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`📖 Routes disponibles:`);
+  console.log(`📖 Architecture API Public/Privé:`);
   console.log(`   🔐 AUTHENTIFICATION:`);
   console.log(`     - POST /api/auth/register`);
   console.log(`     - POST /api/auth/login`);
   console.log(`     - GET  /api/auth/profile`);
   console.log(`     - PUT  /api/auth/profile`);
   console.log(`     - POST /api/auth/upload-avatar`);
-  console.log(`   🌍 PUBLIC (chroniques + user-profile):`);
-  console.log(`     - GET  /api/public-stories`);
-  console.log(`     - GET  /api/users/:id`);
-  console.log(`   🔒 PRIVÉ (storyboard + CRUD):`);
+  console.log(`   🌍 PUBLIC STORIES (lecture seule):`);
+  console.log(`     - GET  /api/public-stories (liste chroniques)`);
+  console.log(`     - GET  /api/users/:id (profil utilisateur)`);
+  console.log(`     - GET  /api/public-stories/story/:slug (détail histoire)`);
+  console.log(`   🔒 PRIVATE STORIES (CRUD + interactions):`);
   console.log(`     - GET  /api/private-stories/drafts`);
   console.log(`     - GET  /api/private-stories/published`);
   console.log(`     - GET  /api/private-stories/stats`);
@@ -71,8 +68,5 @@ app.listen(PORT, () => {
   console.log(`     - PUT  /api/private-stories/draft/:id`);
   console.log(`     - POST /api/private-stories/publish/:id`);
   console.log(`     - DELETE /api/private-stories/story/:id`);
-  console.log(`   📖 STORIES DÉTAILLÉES:`);
-  console.log(`     - GET  /api/stories/slug/:slug`);
-  console.log(`     - GET  /api/stories/:id/like-status`);
-  console.log(`     - POST /api/stories/:id/like`);
+  console.log(`     - POST /api/private-stories/story/:id/like (toggle like)`);
 });

@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../../services/auth.service';
 
 interface LoginData {
   email: string;
@@ -21,10 +21,10 @@ interface RegisterData {
 @Component({
   selector: 'app-auth',
   imports: [CommonModule, FormsModule],
-  templateUrl: './auth.component.html',
-  styleUrl: './auth.component.scss'
+  templateUrl: './auth.html',
+  styleUrl: './auth.scss'
 })
-export class AuthComponent implements OnInit, OnDestroy {
+export class Auth implements OnInit, OnDestroy {
   
   private router = inject(Router);
   private route = inject(ActivatedRoute);

@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { PublicStoriesService } from '../../../core/services/public-stories.service';
-import { TypingEffectService } from '../../../core/services/typing-effect.service';
+import { PublicStoriesService } from '../../services/public-stories.service';
+import { TypingEffectService } from '../../services/typing-effect.service';
 import { StoryCard } from './stories/story-card/story-card';
 
 interface UserLatestStory {
