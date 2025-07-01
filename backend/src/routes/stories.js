@@ -9,7 +9,7 @@ const {
   getStoriesByUser,
   likeStory,        
   getLikeStatus     
-} = require('../controllers/storyController');
+} = require('../controllers/publicStoriesController');
 const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();

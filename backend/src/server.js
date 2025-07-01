@@ -1,4 +1,3 @@
-// src/server.js
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -28,20 +27,21 @@ app.use('/uploads', cors(), express.static(path.join(__dirname, '../uploads')));
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
-// Routes des histoires
-const storyRoutes = require('./routes/stories');
-app.use('/api/stories', storyRoutes);
+// Routes publiques des histoires
+const publicStoriesRoutes = require('./routes/publicStories.routes');
+app.use('/api/public-stories', publicStoriesRoutes);
+app.use('/api/users', publicStoriesRoutes);
 
-// Routes des chroniques
-const chroniquesRoutes = require('./routes/chroniques.routes');
-app.use('/api/chroniques', chroniquesRoutes);
+// Routes privées des histoires
+const privateStoriesRoutes = require('./routes/privateStories.routes');
+app.use('/api/private-stories', privateStoriesRoutes);
 
 // Route de test
 app.get('/api/health', (req, res) => {
   res.json({ 
     message: 'L\'Antre API fonctionne !', 
     timestamp: new Date().toISOString(),
-    version: '1.0.0'
+    version: '2.0.0'
   });
 });
 
@@ -50,11 +50,21 @@ app.listen(PORT, () => {
   console.log(`🚀 L'Antre API démarrée sur http://localhost:${PORT}`);
   console.log(`📋 Health check: http://localhost:${PORT}/api/health`);
   console.log(`📖 Routes disponibles:`);
-  console.log(`   - POST /api/auth/register`);
-  console.log(`   - POST /api/auth/login`);
-  console.log(`   - GET  /api/auth/profile`);
-  console.log(`   - POST /api/auth/upload-avatar`);
-  console.log(`   - GET  /api/stories`);
-  console.log(`   - GET  /api/chroniques/drafts`);
-  console.log(`   - GET  /api/chroniques/published`);
+  console.log(`   🔐 AUTHENTIFICATION:`);
+  console.log(`     - POST /api/auth/register`);
+  console.log(`     - POST /api/auth/login`);
+  console.log(`     - GET  /api/auth/profile`);
+  console.log(`     - PUT  /api/auth/profile`);
+  console.log(`     - POST /api/auth/upload-avatar`);
+  console.log(`   🌍 PUBLIC (chroniques + user-profile):`);
+  console.log(`     - GET  /api/public-stories`);
+  console.log(`     - GET  /api/users/:id`);
+  console.log(`   🔒 PRIVÉ (storyboard + CRUD):`);
+  console.log(`     - GET  /api/private-stories/drafts`);
+  console.log(`     - GET  /api/private-stories/published`);
+  console.log(`     - GET  /api/private-stories/stats`);
+  console.log(`     - POST /api/private-stories/draft`);
+  console.log(`     - PUT  /api/private-stories/draft/:id`);
+  console.log(`     - POST /api/private-stories/publish/:id`);
+  console.log(`     - DELETE /api/private-stories/story/:id`);
 });

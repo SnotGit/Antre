@@ -1,0 +1,71 @@
+@use 'responsive' as *;
+
+//============ GRID MAIN - GRILLE RESPONSIVE UNIQUEMENT ============
+@mixin grid-main {
+  display: grid;
+  grid-template-columns: 300px 1fr 300px;
+  grid-template-areas: "navbar content panels";
+
+  @include tablet-large-portrait {
+    grid-template-areas: 
+      "navbar"
+      "content" 
+      "panels";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  @include tablet-medium-portrait {
+    grid-template-areas: 
+      "navbar"
+      "content" 
+      "panels";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  @include tablet-small-portrait {
+    grid-template-areas: 
+      "navbar"
+      "content" 
+      "panels";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  @include mobile-large-portrait {
+    grid-template-areas: 
+      "navbar"
+      "content" 
+      "panels";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  @include mobile-small-portrait {
+    grid-template-areas: 
+      "navbar"
+      "content" 
+      "panels";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  @include mobile-large-landscape {
+    grid-template-areas: 
+      "navbar"
+      "content" 
+      "panels";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  @include mobile-small-landscape {
+    grid-template-areas: 
+      "navbar"
+      "content" 
+      "panels";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+  }
+}

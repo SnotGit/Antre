@@ -1,6 +1,5 @@
-// src/routes/auth.js
 const express = require('express');
-const { register, login, getProfile, updateProfile } = require('../controllers/authController');
+const { register, login, getProfile, updateProfile, changePassword } = require('../controllers/authController');
 const { authenticateToken } = require('../middleware/auth');
 const { upload, uploadAvatar } = require('../controllers/uploadController');
 
@@ -13,6 +12,7 @@ router.post('/login', login);
 // Routes protégées (authentification requise)
 router.get('/profile', authenticateToken, getProfile);
 router.put('/profile', authenticateToken, updateProfile);
+router.put('/change-password', authenticateToken, changePassword);
 
 // Upload avatar
 router.post('/upload-avatar', authenticateToken, upload.single('avatar'), uploadAvatar);

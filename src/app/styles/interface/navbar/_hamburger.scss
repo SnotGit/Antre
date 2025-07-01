@@ -1,0 +1,142 @@
+@mixin hamburger {
+  .mobile-menu-toggle {
+    display: none;
+    background-color: rgba(93, 136, 158, 0.05);
+    border: 1px solid rgba(93, 136, 158, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    color: #d0d0d0;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    position: relative;
+
+    &:hover {
+      background-color: rgba(93, 136, 158, 0.15);
+      border-color: #5d889e;
+    }
+
+    .hamburger-icon {
+      margin-right: 10px;
+      font-size: 18px;
+    }
+
+    .dropdown-arrow {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: transform 0.3s ease;
+      
+      &.rotated {
+        transform: translateY(-50%) rotate(180deg);
+      }
+    }
+  }
+
+  @media (max-width: 767px) {
+    height: auto;
+    padding: 15px;
+    gap: 0;
+    
+    .logo {
+      display: none;
+    }
+    
+    .mobile-menu-toggle {
+      display: block;
+    }
+    
+    .menu-items {
+      display: none;
+      margin-top: 15px;
+      gap: 10px;
+      
+      &.show {
+        display: flex;
+        animation: slideDown 0.3s ease-out;
+      }
+      
+      .menu-item {
+        padding: 12px 15px;
+        font-size: 14px;
+        margin: 0;
+        border-left: none;
+        
+        &:hover {
+          transform: none;
+        }
+        
+        &.staff-only {
+          margin-top: 0;
+        }
+      }
+    }
+  }
+
+  @media (orientation: portrait) and (min-width: 768px) and (max-width: 1366px) {
+    height: auto;
+    padding: 15px;
+    gap: 0;
+    
+    .logo {
+      display: none;
+    }
+    
+    .mobile-menu-toggle {
+      display: block;
+    }
+    
+    .menu-items {
+      display: none;
+      margin-top: 15px;
+      gap: 10px;
+      
+      &.show {
+        display: flex;
+        animation: slideDown 0.3s ease-out;
+      }
+      
+      .menu-item {
+        padding: 12px 15px;
+        font-size: 14px;
+        margin: 0;
+        border-left: none;
+        
+        &:hover {
+          transform: none;
+        }
+        
+        &.staff-only {
+          margin-top: 0;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 1200px) {
+    padding: 20px 15px;
+    
+    .logo {
+      margin-bottom: 20px;
+    }
+    
+    .menu-item {
+      padding: 12px 15px;
+      font-size: 14px;
+    }
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

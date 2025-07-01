@@ -18,12 +18,16 @@ Showcase du "génie du code simple et efficace" pour recruteurs/clients. Philoso
 - Commentaires dans le code (sauf séparateurs //====== SECTION ======)
 - Logs de debug ou console.log non autorisés
 - Corrections ou "améliorations" non demandées
+- **INTERDICTION ABSOLUE D'INVENTION** : Ne jamais interpréter ou inventer du code qui n'apparaît pas dans les résultats de recherche
+- Si résultats incomplets → DIRE "résultats incomplets, impossible de déterminer"
+- Se baser UNIQUEMENT sur ce qui est explicitement trouvé
 
 ## 💬 COMMUNICATION OBLIGATOIRE
 - **Réponses courtes** : Maximum 3-4 phrases
 - **Code uniquement dans artefacts** - jamais dans les réponses
 - **Pas de récapitulatif** du travail effectué
 - **Optimisation tokens** = plus de productivité
+- **Langage facile** : Utilisateur débutant programmation
 
 ## 🎯 OBJECTIF FINAL
 Application simplifiée démontrant la maîtrise technique par l'évidence des solutions. Code exemplaire qui ouvre des portes professionnelles.

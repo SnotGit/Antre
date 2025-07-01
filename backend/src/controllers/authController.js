@@ -1,4 +1,3 @@
-// src/controllers/authController.js
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -77,60 +76,48 @@ const login = async (req, res) => {
       });
     }
 
-    // Trouver l'utilisateur
+    // Chercher l'utilisateur
     const user = await prisma.user.findUnique({
-      where: { email },
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        passwordHash: true,
-        description: true,
-        avatar: true,
-        role: true,
-        createdAt: true
-      }
+      where: { email: email }
     });
 
     if (!user) {
       return res.status(401).json({ 
-        error: 'Email ou mot de passe incorrect' 
+        error: 'Identifiants invalides' 
       });
     }
 
     // Vérifier le mot de passe
-    const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
 
-    if (!isValidPassword) {
+    if (!isPasswordValid) {
       return res.status(401).json({ 
-        error: 'Email ou mot de passe incorrect' 
+        error: 'Identifiants invalides' 
       });
     }
 
-    // Créer le token JWT
+    // Générer le token JWT
     const token = jwt.sign(
-      { 
-        userId: user.id, 
-        email: user.email,
-        role: user.role 
-      },
-      process.env.JWT_SECRET || 'votre-secret-jwt-temporaire',
-      { expiresIn: '24h' }
+      { userId: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
     );
 
-    // Réponse complète
+    // Retourner les données utilisateur (sans le hash du password)
+    const userData = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+      description: user.description,
+      role: user.role,
+      createdAt: user.createdAt
+    };
+
     res.json({
       message: 'Connexion réussie',
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        description: user.description,
-        avatar: user.avatar,
-        role: user.role,
-        createdAt: user.createdAt
-      }
+      token: token,
+      user: userData
     });
 
   } catch (error) {
@@ -138,11 +125,13 @@ const login = async (req, res) => {
   }
 };
 
-// Profil utilisateur
+// Récupérer le profil utilisateur
 const getProfile = async (req, res) => {
   try {
+    const userId = req.user.userId;
+
     const user = await prisma.user.findUnique({
-      where: { id: req.user.userId },
+      where: { id: userId },
       select: {
         id: true,
         username: true,
@@ -228,10 +217,68 @@ const updateProfile = async (req, res) => {
   }
 };
 
+// Changer le mot de passe
+const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.userId;
+
+    // Vérifications
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ 
+        error: 'Mot de passe actuel et nouveau mot de passe sont requis' 
+      });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ 
+        error: 'Le nouveau mot de passe doit contenir au moins 8 caractères' 
+      });
+    }
+
+    // Récupérer l'utilisateur avec son hash de mot de passe
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    }
+
+    // Vérifier le mot de passe actuel
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.passwordHash);
+
+    if (!isCurrentPasswordValid) {
+      return res.status(401).json({ 
+        error: 'Mot de passe actuel incorrect' 
+      });
+    }
+
+    // Hasher le nouveau mot de passe
+    const newHashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Mettre à jour le mot de passe
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        passwordHash: newHashedPassword
+      }
+    });
+
+    res.json({
+      message: 'Mot de passe modifié avec succès'
+    });
+
+  } catch (error) {
+    console.error('Erreur change password:', error);
+    res.status(500).json({ error: 'Erreur serveur lors du changement de mot de passe' });
+  }
+};
+
 module.exports = {
   register,
   login,
   getProfile,
-  updateProfile
+  updateProfile,
+  changePassword
 };
-
