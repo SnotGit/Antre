@@ -36,7 +36,7 @@ const getLatestStories = async (req, res) => {
         return {
           id: story.id,
           title: story.title,
-          publishDate: formatPublishDate(story.updatedAt),
+          publishDate: formatPublishDate(story.publishedAt || story.createdAt),
           likes: story._count.likes,
           slug: story.slug,
           user: {
@@ -91,7 +91,7 @@ const getStoryBySlug = async (req, res) => {
       id: story.id,
       title: story.title,
       content: story.content,
-      publishDate: formatPublishDate(story.updatedAt),
+      publishDate: formatPublishDate(story.publishedAt || story.createdAt),
       likes: story._count.likes,
       slug: story.slug,
       user: {
@@ -154,7 +154,7 @@ const getUserProfile = async (req, res) => {
     const formattedStories = userStories.map(story => ({
       id: story.id,
       title: story.title,
-      publishDate: formatPublishDate(story.updatedAt),
+      publishDate: formatPublishDate(story.publishedAt || story.createdAt),
       likes: story._count.likes,
       slug: story.slug
     }));

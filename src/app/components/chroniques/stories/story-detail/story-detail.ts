@@ -3,9 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
-import { PublicStoriesService } from '../../../../../core/services/public-stories.service';
-import { AuthService } from '../../../../../core/services/auth.service';
-
+import { PublicStoriesService } from '../../../../services/public-stories.service';
+import { AuthService } from '../../../../services/auth.service';
 interface StoryData {
   id: number;
   title: string;
