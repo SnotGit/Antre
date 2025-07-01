@@ -15,9 +15,9 @@
 
   <!-- CONTENU -->
   <div class="main-content">
-    @if (users().length > 0) {
+    @if (stories().length > 0) {
       <div class="chroniques-grid">
-        @for (user of users(); track user.id) {
+        @for (user of stories(); track user.id) {
           <app-story-card [user]="user"></app-story-card>
         }
       </div>

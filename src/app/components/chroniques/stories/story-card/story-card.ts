@@ -19,10 +19,10 @@ export interface UserLatestStory {
   selector: 'app-story-card',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './story-card.component.html',
-  styleUrl: './story-card.component.scss'
+  templateUrl: './story-card.html',
+  styleUrl: './story-card.scss'
 })
-export class StoryCardComponent {
+export class StoryCard {
   
   private router = inject(Router);
 
