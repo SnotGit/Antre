@@ -1,9 +1,23 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { ChroniquesService } from '../../../core/services/chroniques.service';
+import { PublicStoriesService } from '../../../core/services/public-stories.service';
 import { TypingEffectService } from '../../../core/services/typing-effect.service';
 import { StoryCardComponent } from './shared/story-card/story-card.component';
+
+interface UserLatestStory {
+  id: number;
+  title: string;
+  publishDate: string;
+  likes: number;
+  slug: string;
+  user: {
+    id: number;
+    username: string;
+    avatar: string;
+    description: string;
+  };
+}
 
 @Component({
   selector: 'app-chroniques',
@@ -14,11 +28,11 @@ import { StoryCardComponent } from './shared/story-card/story-card.component';
 export class Chroniques implements OnInit, OnDestroy {
 
   private router = inject(Router);
-  private chroniquesService = inject(ChroniquesService);
+  private publicStoriesService = inject(PublicStoriesService);
   private typingService = inject(TypingEffectService);
 
-  users = this.chroniquesService.users;
-  loading = this.chroniquesService.loading;
+  stories = signal<UserLatestStory[]>([]);
+  loading = signal(false);
 
   private typingEffect = this.typingService.createTypingEffect({
     text: 'Les Chroniques de Mars',
@@ -32,13 +46,30 @@ export class Chroniques implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.typingEffect.startTyping();
+    this.loadLatestStories();
   }
 
   ngOnDestroy(): void {
     this.typingEffect.cleanup();
   }
 
-  navigateToStory(storyId: number): void {
-    this.router.navigate(['/chroniques/story', storyId]);
+  private async loadLatestStories(): Promise<void> {
+    this.loading.set(true);
+    try {
+      const latestStories = await this.publicStoriesService.getLatestStories();
+      this.stories.set(latestStories);
+    } catch (error) {
+      this.stories.set([]);
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  navigateToStory(slug: string): void {
+    this.router.navigate(['/chroniques/story', slug]);
+  }
+
+  navigateToUserProfile(username: string): void {
+    this.router.navigate(['/user-profile', username]);
   }
 }

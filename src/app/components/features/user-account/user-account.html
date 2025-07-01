@@ -77,17 +77,17 @@
           </div>
           <div class="card1-box2">
             <div class="stats-grid">
-              <div class="stat-card" (click)="goToStoryBoard()">
+              <div class="stat-card" (click)="showMyStories()">
                 <div class="stat-number">{{ getUserStats().totalStories }}</div>
                 <div class="stat-label">Mes Histoires</div>
               </div>
 
-              <div class="stat-card" (click)="goToStoryBoard()">
+              <div class="stat-card" (click)="showMyStories()">
                 <div class="stat-number">{{ getUserStats().publishedStories }}</div>
                 <div class="stat-label">Histoires publiées</div>
               </div>
 
-              <div class="stat-card" (click)="goToStoryBoard()">
+              <div class="stat-card" (click)="showMyStories()">
                 <div class="stat-number">{{ getUserStats().drafts }}</div>
                 <div class="stat-label">Brouillons</div>
               </div>

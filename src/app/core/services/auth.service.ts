@@ -1,4 +1,3 @@
-// src/app/services/auth.service.ts
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -42,6 +41,15 @@ export interface UploadAvatarResponse {
   message: string;
   user: User;
   avatarUrl: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ChangePasswordResponse {
+  message: string;
 }
 
 @Injectable({
@@ -140,6 +148,18 @@ export class AuthService {
           this.triggerUserChange();
         }
       }),
+      catchError(error => {
+        throw error;
+      })
+    );
+  }
+
+  // ============ CHANGEMENT MOT DE PASSE ============
+
+  changePassword(passwordData: ChangePasswordRequest): Observable<ChangePasswordResponse> {
+    return this.http.put<ChangePasswordResponse>(`${this.API_URL}/auth/change-password`, passwordData, {
+      headers: this.getAuthHeaders()
+    }).pipe(
       catchError(error => {
         throw error;
       })

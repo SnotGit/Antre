@@ -25,21 +25,6 @@
 - Architecture Decision Records : Pourquoi ces choix vs alternatives
 - Métriques performance mesurables
 
-## 🎨 DÉMO INTERACTIVE
-
-**Fonctionnalités qui impressionnent par simplicité :**
-- Connexion fluide et sécurisée
-- Écriture chronique ergonomique
-- Rôles contextuels évidents
-- Navigation sections fluide
-- Système likes réactif
-
-**Points excellence visibles :**
-- Code source propre (dev tools)
-- Requêtes optimisées (network tab)
-- Console zéro erreur
-- Responsive parfait
-
 ## 🔍 VALIDATION QUALITÉ
 
 **Tests régression :**
@@ -59,15 +44,3 @@
 - Humain valide et affine solutions
 - Optimisation mesurable
 - Réduction lignes code sans perte fonctionnelle
-
-## 🎯 IMPACT PORTFOLIO
-
-**Impression recruteurs/clients :**
-- "Code fiable qu'on peut confier à l'équipe"
-- "Architecture évolutive sans sur-engineering"
-- "Innovation par simplicité intelligente"
-
-**Différenciation :**
-- Maîtrise technique par élégance solutions
-- Vision moderne collaboration productive AI
-- Standards excellence mesurables

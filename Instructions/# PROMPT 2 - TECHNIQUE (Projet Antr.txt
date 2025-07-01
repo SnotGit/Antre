@@ -19,6 +19,11 @@
 - Code dupliqué
 - Over-engineering sans valeur
 
+**RÈGLE SIMPLIFICATION FONDAMENTALE :**
+- **FUSION INTERDITE** : Ne jamais fusionner du code existant (cause erreurs)
+- **RÉVISION À NEUF AUTORISÉE** : Réécrire complètement la logique pour simplicité
+- **Approche révision** : Repenser architecture depuis zéro plutôt que patcher
+
 ## ⚙️ STANDARDS ANGULAR 20
 - **Standalone Components** : Élimination boilerplate modules
 - **Signals** : Migration intelligente des observables
@@ -49,9 +54,3 @@
 - Bundle < 500KB
 - Lighthouse > 95
 - Time to Interactive < 2s
-
-## 🚫 INTERDICTIONS
-- Complexité pour montrer compétences
-- Patterns avancés sans justification business
-- Over-engineer par anticipation
-- Optimisation prématurée sans mesures

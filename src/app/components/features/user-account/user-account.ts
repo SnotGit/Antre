@@ -2,8 +2,9 @@ import { Component, OnInit, OnDestroy, inject, signal, ViewChild, ElementRef } f
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
-import { StoryboardService } from '../../../core/services/storyboard.service';
+import { PrivateStoriesService } from '../../../core/services/private-stories.service';
 import { TypingEffectService } from '../../../core/services/typing-effect.service';
 
 interface UserProfileData {
@@ -18,13 +19,6 @@ interface PasswordChangeData {
   confirmPassword: string;
 }
 
-interface ApiError {
-  status?: number;
-  error?: {
-    error?: string;
-  };
-}
-
 type TabType = 'stats' | 'profile' | 'identifiants';
 
 @Component({
@@ -34,38 +28,29 @@ type TabType = 'stats' | 'profile' | 'identifiants';
   styleUrl: './user-account.scss'
 })
 export class UserAccount implements OnInit, OnDestroy {
-
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   private router = inject(Router);
   private authService = inject(AuthService);
-  private storyboardService = inject(StoryboardService);
+  private privateStoriesService: PrivateStoriesService = inject(PrivateStoriesService);
   private typingService = inject(TypingEffectService);
+
+  private readonly API_BASE_URL = 'http://localhost:3000';
 
   currentUser = this.authService.currentUser;
   isLoggedIn = this.authService.isLoggedIn;
-  
-  private userStats = {
-    drafts: this.storyboardService.draftsCount,
-    published: this.storyboardService.publishedCount,
-    total: this.storyboardService.totalStories,
-    likes: signal<number>(0)
-  };
-
-  private state = {
-    loading: signal<boolean>(false),
-    error: signal<string | null>(null),
-    success: signal<string | null>(null)
-  };
+  stats = this.privateStoriesService.stats;
+  drafts = this.privateStoriesService.drafts;
+  published = this.privateStoriesService.published;
 
   activeTab = signal<TabType>('identifiants');
+  loading = signal(false);
+  error = signal<string | null>(null);
+  successMessage = signal<string | null>(null);
 
-  constructor() {
-    const saved = localStorage.getItem('user-account-tab');
-    if (saved === 'stats' || saved === 'profile' || saved === 'identifiants') {
-      this.activeTab.set(saved as TabType);
-    }
-  }
+  profileData: UserProfileData = { username: '', email: '', description: '' };
+  passwordData: PasswordChangeData = { currentPassword: '', newPassword: '', confirmPassword: '' };
+  private avatarState = { selectedFile: null as File | null, preview: null as string | null };
 
   private typingEffect = this.typingService.createTypingEffect({
     text: 'Mon compte',
@@ -76,24 +61,35 @@ export class UserAccount implements OnInit, OnDestroy {
   headerTitle = this.typingEffect.headerTitle;
   typingComplete = this.typingEffect.typingComplete;
 
-  profileData: UserProfileData = { username: '', email: '', description: '' };
-  passwordData: PasswordChangeData = { currentPassword: '', newPassword: '', confirmPassword: '' };
-  
-  private avatarState = {
-    selectedFile: null as File | null,
-    preview: null as string | null
-  };
+  constructor() {
+    const saved = localStorage.getItem('user-account-tab');
+    if (saved === 'stats' || saved === 'profile' || saved === 'identifiants') {
+      this.activeTab.set(saved as TabType);
+    }
+  }
 
-  loading = this.state.loading.asReadonly();
-  error = this.state.error.asReadonly();
-  successMessage = this.state.success.asReadonly();
+  ngOnInit(): void {
+    if (!this.isLoggedIn()) {
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+
+    this.loadUserProfile();
+    this.privateStoriesService.initializeUserData();
+    this.typingEffect.startTyping();
+  }
+
+  ngOnDestroy(): void {
+    this.typingEffect.cleanup();
+  }
 
   getUserStats() {
+    const stats = this.stats();
     return {
-      totalStories: this.userStats.total(),
-      publishedStories: this.userStats.published(),
-      drafts: this.userStats.drafts(),
-      totalLikes: this.userStats.likes()
+      totalStories: stats.drafts + stats.published,
+      publishedStories: stats.published,
+      drafts: stats.drafts,
+      totalLikes: stats.totalLikes
     };
   }
 
@@ -110,23 +106,91 @@ export class UserAccount implements OnInit, OnDestroy {
     return user?.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR') : '';
   }
 
-  ngOnInit(): void {
-    if (!this.isLoggedIn()) {
-      this.router.navigate(['/auth/login']);
-      return;
+  setActiveTab(tab: TabType): void {
+    this.activeTab.set(tab);
+    localStorage.setItem('user-account-tab', tab);
+    this.clearMessages();
+  }
+
+  showMyStories(): void {
+    console.log('Toutes mes histoires:', { 
+      brouillons: this.drafts(), 
+      publiées: this.published() 
+    });
+  }
+
+  triggerFileInput(): void {
+    this.fileInput.nativeElement.click();
+  }
+
+  onAvatarSelected(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+
+    if (!file || !this.validateAvatarFile(file)) return;
+
+    this.avatarState.selectedFile = file;
+    this.createAvatarPreview(file);
+  }
+
+  getAvatarUrl(): string {
+    if (this.avatarState.preview) return this.avatarState.preview;
+    
+    const user = this.currentUser();
+    return user?.avatar ? `${this.API_BASE_URL}${user.avatar}` : '';
+  }
+
+  async saveProfile(): Promise<void> {
+    if (!this.validateProfileData()) return;
+
+    this.clearMessages();
+    this.loading.set(true);
+
+    try {
+      if (this.avatarState.selectedFile) {
+        await firstValueFrom(this.authService.uploadAvatar(this.avatarState.selectedFile));
+      }
+
+      await firstValueFrom(this.authService.updateProfile(
+        this.profileData.username.trim(),
+        this.profileData.description.trim()
+      ));
+
+      this.setSuccess('Profil mis à jour avec succès');
+      this.avatarState.selectedFile = null;
+      this.avatarState.preview = null;
+
+    } catch (error) {
+      this.handleApiError(error, 'Erreur lors de la mise à jour du profil');
+    } finally {
+      this.loading.set(false);
     }
-
-    this.initializeUserData();
-    this.typingEffect.startTyping();
   }
 
-  ngOnDestroy(): void {
-    this.typingEffect.cleanup();
+  saveEmail(): void {
+    this.setSuccess('Fonctionnalité bientôt disponible');
   }
 
-  private async initializeUserData(): Promise<void> {
-    this.loadUserProfile();
-    await this.loadUserStats();
+  async changePassword(): Promise<void> {
+    if (!this.validatePasswordData()) return;
+
+    this.clearMessages();
+    this.loading.set(true);
+
+    try {
+      await firstValueFrom(this.authService.changePassword({
+        currentPassword: this.passwordData.currentPassword,
+        newPassword: this.passwordData.newPassword
+      }));
+
+      this.setSuccess('Mot de passe modifié avec succès');
+      this.resetPasswordForm();
+
+    } catch (error) {
+      this.handleApiError(error, 'Erreur lors du changement de mot de passe');
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   private loadUserProfile(): void {
@@ -138,43 +202,6 @@ export class UserAccount implements OnInit, OnDestroy {
         description: user.description || ''
       };
     }
-  }
-
-  private async loadUserStats(): Promise<void> {
-    try {
-      await Promise.all([
-        this.storyboardService.loadDraftsData(),
-        this.storyboardService.loadPublishedData()
-      ]);
-    } catch {
-      this.setError('Impossible de charger les statistiques');
-    }
-  }
-
-  setActiveTab(tab: TabType): void {
-    this.activeTab.set(tab);
-    localStorage.setItem('user-account-tab', tab);
-    this.clearMessages();
-  }
-
-  goToStoryBoard(): void {
-    this.router.navigate(['/chroniques/story-board']);
-  }
-
-  triggerFileInput(): void {
-    this.fileInput.nativeElement.click();
-  }
-
-  onAvatarSelected(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const file = target.files?.[0];
-
-    if (!file) return;
-
-    if (!this.validateAvatarFile(file)) return;
-
-    this.avatarState.selectedFile = file;
-    this.createAvatarPreview(file);
   }
 
   private validateAvatarFile(file: File): boolean {
@@ -199,79 +226,13 @@ export class UserAccount implements OnInit, OnDestroy {
     reader.readAsDataURL(file);
   }
 
-  getAvatarUrl(): string {
-    if (this.avatarState.preview) return this.avatarState.preview;
-    
-    const user = this.currentUser();
-    return user?.avatar ? `http://localhost:3000${user.avatar}` : '';
-  }
-
-  async saveProfile(): Promise<void> {
-    if (!this.validateProfile()) return;
-
-    this.setLoading(true);
-
-    try {
-      await this.authService.updateProfile(
-        this.sanitizeInput(this.profileData.username),
-        this.sanitizeInput(this.profileData.description)
-      ).toPromise();
-
-      if (this.avatarState.selectedFile) {
-        await this.uploadAvatar();
-      }
-
-      this.setSuccess('Profil mis à jour avec succès');
-    } catch (error: unknown) {
-      this.handleApiError(error, 'Erreur lors de la sauvegarde du profil');
-    } finally {
-      this.setLoading(false);
-    }
-  }
-
-  private async uploadAvatar(): Promise<void> {
-    if (!this.avatarState.selectedFile) return;
-
-    await this.authService.uploadAvatar(this.avatarState.selectedFile).toPromise();
-    this.avatarState.selectedFile = null;
-    this.avatarState.preview = null;
-  }
-
-  saveEmail(): void {
-    if (!this.validateEmail()) return;
-
-    this.simulateAsyncAction('Email modifié avec succès');
-  }
-
-  changePassword(): void {
-    if (!this.validatePassword()) return;
-
-    this.simulateAsyncAction('Mot de passe modifié avec succès');
-    this.resetPasswordForm();
-  }
-
-  private simulateAsyncAction(message: string): void {
-    this.setLoading(true);
-
-    setTimeout(() => {
-      this.setSuccess(message);
-      this.setLoading(false);
-    }, 1000);
-  }
-
-  private resetPasswordForm(): void {
-    this.passwordData = { currentPassword: '', newPassword: '', confirmPassword: '' };
-  }
-
-  private validateProfile(): boolean {
-    const username = this.profileData.username.trim();
-    
-    if (!username) {
+  private validateProfileData(): boolean {
+    if (!this.profileData.username.trim()) {
       this.setError('Le nom d\'utilisateur est requis');
       return false;
     }
 
-    if (username.length < 3) {
+    if (this.profileData.username.trim().length < 3) {
       this.setError('Le nom d\'utilisateur doit contenir au moins 3 caractères');
       return false;
     }
@@ -279,90 +240,63 @@ export class UserAccount implements OnInit, OnDestroy {
     return true;
   }
 
-  private validateEmail(): boolean {
-    const email = this.profileData.email.trim();
-    
-    if (!email) {
-      this.setError('L\'email est requis');
-      return false;
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      this.setError('Format d\'email invalide');
-      return false;
-    }
-
-    return true;
-  }
-
-  private validatePassword(): boolean {
-    const { currentPassword, newPassword, confirmPassword } = this.passwordData;
-
-    if (!currentPassword) {
+  private validatePasswordData(): boolean {
+    if (!this.passwordData.currentPassword) {
       this.setError('Le mot de passe actuel est requis');
       return false;
     }
 
-    if (!newPassword) {
+    if (!this.passwordData.newPassword) {
       this.setError('Le nouveau mot de passe est requis');
       return false;
     }
 
-    if (newPassword.length < 8) {
+    if (this.passwordData.newPassword.length < 8) {
       this.setError('Le nouveau mot de passe doit contenir au moins 8 caractères');
       return false;
     }
 
-    if (!/[A-Z]/.test(newPassword)) {
-      this.setError('Le nouveau mot de passe doit contenir au moins 1 majuscule');
-      return false;
-    }
-
-    if (newPassword !== confirmPassword) {
-      this.setError('Les mots de passe ne correspondent pas');
+    if (this.passwordData.newPassword !== this.passwordData.confirmPassword) {
+      this.setError('La confirmation du mot de passe ne correspond pas');
       return false;
     }
 
     return true;
   }
 
-  private sanitizeInput(input: string): string {
-    return input.trim().replace(/[<>]/g, '');
-  }
-
-  private handleApiError(error: unknown, defaultMessage: string): void {
-    const apiError = error as ApiError;
-    let message = defaultMessage;
-
-    if (apiError.status === 409) {
-      message = 'Ce nom d\'utilisateur est déjà pris';
-    } else if (apiError.error?.error) {
-      message = apiError.error.error;
-    }
-
-    this.setError(message);
-  }
-
-  private setLoading(loading: boolean): void {
-    this.state.loading.set(loading);
+  private resetPasswordForm(): void {
+    this.passwordData = {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    };
   }
 
   private setError(message: string): void {
-    this.clearMessages();
-    this.state.error.set(message);
+    this.error.set(message);
+    this.successMessage.set(null);
   }
 
   private setSuccess(message: string): void {
-    this.clearMessages();
-    this.state.success.set(message);
-    
-    setTimeout(() => {
-      this.state.success.set(null);
-    }, 3000);
+    this.successMessage.set(message);
+    this.error.set(null);
   }
 
   private clearMessages(): void {
-    this.state.error.set(null);
-    this.state.success.set(null);
+    this.error.set(null);
+    this.successMessage.set(null);
+  }
+
+  private handleApiError(error: unknown, defaultMessage: string): void {
+    const apiError = error as { status?: number; error?: { error?: string } };
+    
+    if (apiError?.error?.error) {
+      this.setError(apiError.error.error);
+    } else if (apiError?.status === 401) {
+      this.setError('Session expirée, veuillez vous reconnecter');
+      this.router.navigate(['/auth/login']);
+    } else {
+      this.setError(defaultMessage);
+    }
   }
 }
