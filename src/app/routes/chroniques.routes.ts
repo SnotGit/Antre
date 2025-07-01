@@ -9,6 +9,6 @@ export const routes: Routes = [
 
   {
     path: 'story/:slug',
-    loadComponent: () => import('../components/features/chroniques/pages/story-detail/story-detail').then(m => m.StoryDetail)
+    loadComponent: () => import('../components/features/chroniques/stories/story-detail/story-detail').then(m => m.StoryDetail)
   }
 ];

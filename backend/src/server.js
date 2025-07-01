@@ -36,6 +36,10 @@ app.use('/api/users', publicStoriesRoutes);
 const privateStoriesRoutes = require('./routes/privateStories.routes');
 app.use('/api/private-stories', privateStoriesRoutes);
 
+// Routes pour stories détaillées
+const storiesRoutes = require('./routes/stories');
+app.use('/api/stories', storiesRoutes);
+
 // Route de test
 app.get('/api/health', (req, res) => {
   res.json({ 
@@ -67,4 +71,8 @@ app.listen(PORT, () => {
   console.log(`     - PUT  /api/private-stories/draft/:id`);
   console.log(`     - POST /api/private-stories/publish/:id`);
   console.log(`     - DELETE /api/private-stories/story/:id`);
+  console.log(`   📖 STORIES DÉTAILLÉES:`);
+  console.log(`     - GET  /api/stories/slug/:slug`);
+  console.log(`     - GET  /api/stories/:id/like-status`);
+  console.log(`     - POST /api/stories/:id/like`);
 });

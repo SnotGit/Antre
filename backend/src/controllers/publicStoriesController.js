@@ -2,60 +2,95 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const formatPublishDate = (date) => {
-  const publishDate = new Date(date);
-  return publishDate.toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
+  return new Date(date).toLocaleDateString('fr-FR');
 };
 
 const getLatestStories = async (req, res) => {
   try {
-    const latestUserStories = await prisma.story.groupBy({
-      by: ['userId'],
+    const latestStories = await prisma.user.findMany({
       where: {
-        status: 'PUBLISHED'
-      },
-      _max: {
-        updatedAt: true
-      },
-      orderBy: {
-        _max: {
-          updatedAt: 'desc'
+        stories: {
+          some: {
+            status: 'PUBLISHED'
+          }
         }
       },
-      take: 6
-    });
-
-    const storiesData = await Promise.all(
-      latestUserStories.map(async (group) => {
-        return await prisma.story.findFirst({
-          where: {
-            userId: group.userId,
-            status: 'PUBLISHED',
-            updatedAt: group._max.updatedAt
-          },
+      include: {
+        stories: {
+          where: { status: 'PUBLISHED' },
+          orderBy: { updatedAt: 'desc' },
+          take: 1,
           include: {
-            user: {
-              select: {
-                id: true,
-                username: true,
-                avatar: true,
-                description: true
-              }
-            },
             _count: {
               select: { likes: true }
             }
           }
-        });
-      })
-    );
+        }
+      }
+    });
 
-    const formattedStories = storiesData.map(story => ({
+    const formattedStories = latestStories
+      .filter(user => user.stories.length > 0)
+      .map(user => {
+        const story = user.stories[0];
+        return {
+          id: story.id,
+          title: story.title,
+          publishDate: formatPublishDate(story.updatedAt),
+          likes: story._count.likes,
+          slug: story.slug,
+          user: {
+            id: user.id,
+            username: user.username,
+            avatar: user.avatar,
+            description: user.description
+          }
+        };
+      });
+
+    res.json({
+      message: 'Dernières chroniques récupérées avec succès',
+      stories: formattedStories,
+      count: formattedStories.length
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
+const getStoryBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    const story = await prisma.story.findUnique({
+      where: { 
+        slug: slug,
+        status: 'PUBLISHED'
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+            description: true
+          }
+        },
+        _count: {
+          select: { likes: true }
+        }
+      }
+    });
+
+    if (!story) {
+      return res.status(404).json({ error: 'Histoire non trouvée' });
+    }
+
+    const formattedStory = {
       id: story.id,
       title: story.title,
+      content: story.content,
       publishDate: formatPublishDate(story.updatedAt),
       likes: story._count.likes,
       slug: story.slug,
@@ -65,16 +100,14 @@ const getLatestStories = async (req, res) => {
         avatar: story.user.avatar,
         description: story.user.description
       }
-    }));
+    };
 
     res.json({
-      message: 'Dernières chroniques récupérées avec succès',
-      stories: formattedStories,
-      count: formattedStories.length
+      message: 'Histoire récupérée avec succès',
+      story: formattedStory
     });
 
   } catch (error) {
-    console.error('Erreur getLatestStories:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -103,92 +136,96 @@ const getUserProfile = async (req, res) => {
       return res.status(404).json({ error: 'Utilisateur non trouvé' });
     }
 
-    // Vérifier si l'user a des catégories
-    const userCategories = await prisma.category.findMany({
-      where: { userId: userId },
+    const userStories = await prisma.story.findMany({
+      where: {
+        userId: userId,
+        status: 'PUBLISHED'
+      },
       include: {
-        stories: {
-          where: { status: 'PUBLISHED' },
-          include: {
-            _count: {
-              select: { likes: true }
-            }
-          },
-          orderBy: {
-            updatedAt: 'desc'
-          }
+        _count: {
+          select: { likes: true }
         }
       },
       orderBy: {
-        name: 'asc'
+        updatedAt: 'desc'
       }
     });
 
-    if (userCategories.length > 0) {
-      // Mode catégories : grille par catégories alphabétiques
-      const formattedCategories = userCategories.map(category => ({
-        id: category.id,
-        name: category.name,
-        stories: category.stories.map(story => ({
-          id: story.id,
-          title: story.title,
-          publishDate: formatPublishDate(story.updatedAt),
-          likes: story._count.likes,
-          slug: story.slug
-        }))
-      }));
+    const formattedStories = userStories.map(story => ({
+      id: story.id,
+      title: story.title,
+      publishDate: formatPublishDate(story.updatedAt),
+      likes: story._count.likes,
+      slug: story.slug
+    }));
 
-      const totalStories = userCategories.reduce((total, cat) => total + cat.stories.length, 0);
-
-      res.json({
-        message: 'Profil utilisateur récupéré avec succès',
-        user: user,
-        displayMode: 'categories',
-        categories: formattedCategories,
-        storiesCount: totalStories
-      });
-
-    } else {
-      // Mode histoires : grille par date (comme avant)
-      const userStories = await prisma.story.findMany({
-        where: {
-          userId: userId,
-          status: 'PUBLISHED'
-        },
-        include: {
-          _count: {
-            select: { likes: true }
-          }
-        },
-        orderBy: {
-          updatedAt: 'desc'
-        }
-      });
-
-      const formattedStories = userStories.map(story => ({
-        id: story.id,
-        title: story.title,
-        publishDate: formatPublishDate(story.updatedAt),
-        likes: story._count.likes,
-        slug: story.slug
-      }));
-
-      res.json({
-        message: 'Profil utilisateur récupéré avec succès',
-        user: user,
-        displayMode: 'stories',
-        stories: formattedStories,
-        storiesCount: formattedStories.length
-      });
-    }
+    res.json({
+      message: 'Profil utilisateur récupéré avec succès',
+      user: user,
+      displayMode: 'stories',
+      stories: formattedStories,
+      storiesCount: formattedStories.length
+    });
 
   } catch (error) {
-    console.error('Erreur getUserProfile:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
+const toggleLike = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const storyId = parseInt(id);
+    const userId = req.user.userId;
+
+    if (isNaN(storyId)) {
+      return res.status(400).json({ error: 'ID histoire invalide' });
+    }
+
+    const existingLike = await prisma.like.findUnique({
+      where: {
+        userId_storyId: {
+          userId: userId,
+          storyId: storyId
+        }
+      }
+    });
+
+    let isLiked;
+    
+    if (existingLike) {
+      await prisma.like.delete({
+        where: { id: existingLike.id }
+      });
+      isLiked = false;
+    } else {
+      await prisma.like.create({
+        data: {
+          userId: userId,
+          storyId: storyId
+        }
+      });
+      isLiked = true;
+    }
+
+    const totalLikes = await prisma.like.count({
+      where: { storyId: storyId }
+    });
+
+    res.json({
+      success: true,
+      liked: isLiked,
+      totalLikes: totalLikes
+    });
+
+  } catch (error) {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
 
 module.exports = {
   getLatestStories,
-  getUserProfile
+  getUserProfile,
+  getStoryBySlug,
+  toggleLike
 };

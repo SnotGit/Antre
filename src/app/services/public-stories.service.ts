@@ -32,12 +32,6 @@ interface UserStory {
   slug: string;
 }
 
-interface Category {
-  id: number;
-  name: string;
-  stories: UserStory[];
-}
-
 interface StoryDetail {
   id: number;
   title: string;
@@ -46,9 +40,17 @@ interface StoryDetail {
   likes: number;
   slug: string;
   user: {
+    id: number;
     username: string;
     avatar: string;
+    description: string;
   };
+}
+
+interface Category {
+  id: number;
+  name: string;
+  stories: UserStory[];
 }
 
 interface UserProfileResponse {
@@ -90,11 +92,27 @@ export class PublicStoriesService {
     return response?.story || null;
   }
 
+  async getStoryDetailBySlug(slug: string): Promise<StoryDetail | null> {
+    const response = await firstValueFrom(this.http.get<{ story: StoryDetail }>(
+      `${this.API_URL}/story/${slug}`
+    ));
+    
+    return response?.story || null;
+  }
+
   async toggleLike(storyId: number): Promise<{ success: boolean; liked: boolean; totalLikes: number }> {
     const response = await firstValueFrom(this.http.post<{ success: boolean; liked: boolean; totalLikes: number }>(
       `${this.API_URL}/story/${storyId}/like`, {}
     ));
     
     return response || { success: false, liked: false, totalLikes: 0 };
+  }
+
+  async getLikeStatus(storyId: number): Promise<{ isLiked: boolean; likesCount: number }> {
+    const response = await firstValueFrom(this.http.get<{ isLiked: boolean; likesCount: number }>(
+      `${this.API_URL}/story/${storyId}/like-status`
+    ));
+    
+    return response || { isLiked: false, likesCount: 0 };
   }
 }

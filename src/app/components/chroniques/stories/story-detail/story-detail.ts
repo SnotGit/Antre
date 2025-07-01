@@ -3,8 +3,23 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
-import { StoryService, StoryFromAPI } from '../../../../../core/services/story.service';
+import { PublicStoriesService } from '../../../../../core/services/public-stories.service';
 import { AuthService } from '../../../../../core/services/auth.service';
+
+interface StoryData {
+  id: number;
+  title: string;
+  content: string;
+  publishDate: string;
+  likes: number;
+  slug: string;
+  user: {
+    id: number;
+    username: string;
+    avatar: string;
+    description: string;
+  };
+}
 
 @Component({
   selector: 'app-story-detail',
@@ -16,13 +31,15 @@ export class StoryDetail {
   
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private storyService = inject(StoryService);
+  private publicStoriesService = inject(PublicStoriesService);
   private authService = inject(AuthService);
 
   private storyId = signal<number>(0);
-  private userStories = signal<StoryFromAPI[]>([]);
+  private userStories = signal<StoryData[]>([]);
   isLiked = signal<boolean>(false);
   likesCount = signal<number>(0);
+  showSnackBar = signal<boolean>(false);
+  snackBarMessage = signal<string>('');
 
   isUserLoggedIn = computed(() => this.authService.isLoggedIn());
 
@@ -32,26 +49,27 @@ export class StoryDetail {
   );
 
   storyResource = resource({
-    loader: () => {
+    loader: async () => {
       const slug = this.currentSlug();
       if (!slug) throw new Error('Slug manquant');
-      return this.storyService.getStoryBySlug(slug);
+      const story = await this.publicStoriesService.getStoryDetailBySlug(slug);
+      return { story };
     }
   });
 
-  story = computed(() => this.storyResource.value()?.story || null);
+  story = computed(() => this.storyResource.value()?.story ?? null);
   loading = computed(() => this.storyResource.isLoading());
   error = computed(() => this.storyResource.error() ? 'Histoire non trouvée' : null);
 
   avatarUrl = computed(() => {
-    const avatar = this.story()?.user?.avatar;
-    return avatar ? `http://localhost:3000${avatar}` : null;
+    const story = this.story();
+    return story?.user?.avatar ? `http://localhost:3000${story.user.avatar}` : null;
   });
 
   formattedDate = computed(() => {
     const story = this.story();
     if (!story) return '';
-    const date = story.publishedAt || story.updatedAt || story.createdAt;
+    const date = story.publishDate;
     return new Date(date).toLocaleDateString('fr-FR');
   });
 
@@ -73,7 +91,7 @@ export class StoryDetail {
       const story = this.story();
       if (story) {
         this.storyId.set(story.id);
-        this.loadUserStories(story.user?.id || 0);
+        this.loadUserStories(story.user.id);
         this.loadLikeStatus(story.id);
       }
     });
@@ -82,11 +100,19 @@ export class StoryDetail {
   async loadUserStories(userId: number): Promise<void> {
     if (!userId) return;
     try {
-      const response = await this.storyService.getStoriesByUser(userId);
-      const publishedStories = response.stories
-        .filter(story => story.status === 'PUBLISHED')
-        .sort((a, b) => new Date(a.publishedAt!).getTime() - new Date(b.publishedAt!).getTime());
-      this.userStories.set(publishedStories);
+      const userProfile = await this.publicStoriesService.getUserProfile(userId.toString());
+      if (userProfile?.stories) {
+        const storyDetails = userProfile.stories.map(story => ({
+          id: story.id,
+          title: story.title,
+          content: '',
+          publishDate: story.publishDate,
+          likes: story.likes,
+          slug: story.slug,
+          user: userProfile.user
+        }));
+        this.userStories.set(storyDetails);
+      }
     } catch (error) {
       this.userStories.set([]);
     }
@@ -95,17 +121,15 @@ export class StoryDetail {
   async loadLikeStatus(storyId: number): Promise<void> {
     if (!this.isUserLoggedIn()) {
       this.isLiked.set(false);
-      this.likesCount.set(0);
+      const story = this.story();
+      this.likesCount.set(story?.likes || 0);
       return;
     }
 
-    const token = this.authService.getToken();
-    if (!token) return;
-
     try {
-      const response = await this.storyService.checkIfLiked(storyId, token);
-      this.isLiked.set(response.isLiked);
-      this.likesCount.set(response.likesCount);
+      const story = this.story();
+      this.likesCount.set(story?.likes || 0);
+      this.isLiked.set(false);
     } catch (error) {
       this.isLiked.set(false);
       this.likesCount.set(0);
@@ -114,18 +138,32 @@ export class StoryDetail {
 
   async toggleLike(): Promise<void> {
     const currentStoryId = this.storyId();
-    if (!currentStoryId || !this.isUserLoggedIn()) return;
+    if (!currentStoryId) return;
 
-    const token = this.authService.getToken();
-    if (!token) return;
+    if (!this.isUserLoggedIn()) {
+      this.showSnackBarMessage("Connectez-vous pour liker cette histoire !");
+      return;
+    }
 
     try {
-      const response = await this.storyService.toggleLike(currentStoryId, token);
-      this.isLiked.set(response.isLiked);
-      this.likesCount.set(response.likesCount);
+      const response = await this.publicStoriesService.toggleLike(currentStoryId);
+      this.isLiked.set(response.liked);
+      this.likesCount.set(response.totalLikes);
+      
+      const message = response.liked ? "Histoire likée !" : "Like retiré";
+      this.showSnackBarMessage(message);
     } catch (error) {
-      // Gestion d'erreur silencieuse
+      this.showSnackBarMessage("Erreur lors du like");
     }
+  }
+
+  private showSnackBarMessage(message: string): void {
+    this.snackBarMessage.set(message);
+    this.showSnackBar.set(true);
+    
+    setTimeout(() => {
+      this.showSnackBar.set(false);
+    }, 3000);
   }
 
   goToPreviousStory(): void {
@@ -162,10 +200,10 @@ export class StoryDetail {
     return currentIndex >= 0 && currentIndex < stories.length - 1;
   }
 
-  goToUserrProfile(): void {
-    const userId = this.story()?.user?.id;
-    if (userId) {
-      this.router.navigate(['/chroniques/user', userId]);
+  goToUserProfile(): void {
+    const story = this.story();
+    if (story?.user?.id) {
+      this.router.navigate(['/chroniques/user', story.user.id]);
     }
   }
 }
