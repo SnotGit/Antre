@@ -4,19 +4,16 @@ const jwt = require('jsonwebtoken');
 
 const prisma = new PrismaClient();
 
-// Inscription
 const register = async (req, res) => {
   try {
     const { username, email, password, description } = req.body;
 
-    // Vérifications
     if (!username || !email || !password) {
       return res.status(400).json({ 
         error: 'Username, email et password sont requis' 
       });
     }
 
-    // Vérifier si l'utilisateur existe déjà
     const existingUser = await prisma.user.findFirst({
       where: {
         OR: [
@@ -32,10 +29,8 @@ const register = async (req, res) => {
       });
     }
 
-    // Hasher le mot de passe
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Créer l'utilisateur
     const newUser = await prisma.user.create({
       data: {
         username,
@@ -65,7 +60,6 @@ const register = async (req, res) => {
   }
 };
 
-// Connexion
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -76,7 +70,6 @@ const login = async (req, res) => {
       });
     }
 
-    // Chercher l'utilisateur
     const user = await prisma.user.findUnique({
       where: { email: email }
     });
@@ -87,7 +80,6 @@ const login = async (req, res) => {
       });
     }
 
-    // Vérifier le mot de passe
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
 
     if (!isPasswordValid) {
@@ -96,14 +88,12 @@ const login = async (req, res) => {
       });
     }
 
-    // Générer le token JWT
     const token = jwt.sign(
       { userId: user.id, email: user.email },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'votre-secret-jwt-temporaire',
       { expiresIn: '7d' }
     );
 
-    // Retourner les données utilisateur (sans le hash du password)
     const userData = {
       id: user.id,
       username: user.username,
@@ -125,7 +115,6 @@ const login = async (req, res) => {
   }
 };
 
-// Récupérer le profil utilisateur
 const getProfile = async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -161,20 +150,17 @@ const getProfile = async (req, res) => {
   }
 };
 
-// Mettre à jour le profil utilisateur
 const updateProfile = async (req, res) => {
   try {
     const { username, description } = req.body;
     const userId = req.user.userId;
 
-    // Vérifications
     if (!username || username.trim().length < 3) {
       return res.status(400).json({ 
         error: 'Le nom d\'utilisateur doit contenir au moins 3 caractères' 
       });
     }
 
-    // Vérifier si le username est déjà pris (par un autre utilisateur)
     const existingUser = await prisma.user.findFirst({
       where: {
         username: username.trim(),
@@ -188,7 +174,6 @@ const updateProfile = async (req, res) => {
       });
     }
 
-    // Mettre à jour le profil
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
@@ -212,18 +197,15 @@ const updateProfile = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur update profile:', error);
     res.status(500).json({ error: 'Erreur serveur lors de la mise à jour' });
   }
 };
 
-// Changer le mot de passe
 const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
     const userId = req.user.userId;
 
-    // Vérifications
     if (!currentPassword || !newPassword) {
       return res.status(400).json({ 
         error: 'Mot de passe actuel et nouveau mot de passe sont requis' 
@@ -236,7 +218,6 @@ const changePassword = async (req, res) => {
       });
     }
 
-    // Récupérer l'utilisateur avec son hash de mot de passe
     const user = await prisma.user.findUnique({
       where: { id: userId }
     });
@@ -245,7 +226,6 @@ const changePassword = async (req, res) => {
       return res.status(404).json({ error: 'Utilisateur non trouvé' });
     }
 
-    // Vérifier le mot de passe actuel
     const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.passwordHash);
 
     if (!isCurrentPasswordValid) {
@@ -254,10 +234,8 @@ const changePassword = async (req, res) => {
       });
     }
 
-    // Hasher le nouveau mot de passe
     const newHashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // Mettre à jour le mot de passe
     await prisma.user.update({
       where: { id: userId },
       data: {
@@ -270,7 +248,6 @@ const changePassword = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erreur change password:', error);
     res.status(500).json({ error: 'Erreur serveur lors du changement de mot de passe' });
   }
 };
