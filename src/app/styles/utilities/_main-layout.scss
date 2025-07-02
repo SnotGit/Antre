@@ -1,0 +1,49 @@
+//============ MIXIN MAIN LAYOUT - LE PATRON ============
+@mixin main-layout {
+  // ============ DESKTOP (défaut) ============
+  display: grid;
+  grid-template-columns: 300px 1fr 300px;
+  grid-template-areas: "navbar content panels";
+  
+  // ============ TABLETTE LANDSCAPE ============
+  @media (orientation: landscape) and (max-width: 1366px) {
+    grid-template-columns: 280px 1fr 280px;
+  }
+  
+  // ============ TABLETTE PORTRAIT + MOBILE ============
+  @media (orientation: portrait) and (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+      "navbar"
+      "content" 
+      "panels";
+    grid-template-rows: auto 1fr auto;
+    padding: 15px;
+    gap: 15px;
+    
+    // Masquer le logo
+    .navbar-container .logo {
+      display: none;
+    }
+    
+    // Activer le hamburger
+    .navbar-container .mobile-menu-toggle {
+      display: block;
+    }
+    
+    // Masquer le terminal
+    .panels-zone app-terminal {
+      display: none;
+    }
+    
+    // Masquer le header console
+    .panels-zone .console-container .console-header {
+      display: none;
+    }
+    
+    // Console prend toute la place
+    .panels-zone app-console-v3 {
+      flex: 1;
+    }
+  }
+}

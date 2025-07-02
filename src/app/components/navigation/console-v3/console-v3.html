@@ -1,70 +1,84 @@
+<div class="console-container" [ngClass]="{
+  'collapsed': isCollapsed(),
+  'expanded': !isCollapsed()
+}">
 
-<div class="console-container">
-  <!-- 1. HEADER FIXE - visible sur desktop/tablette seulement -->
-  <div class="console-header">
-    <span class="console-title">CONSOLE V3</span>
-  </div>
+  <!-- BOUTON TOGGLE (visible seulement sur mobile) -->
+  <button class="console-toggle" 
+          [ngClass]="{ 'expanded': !isCollapsed() }"
+          (click)="toggleConsole()">
+    <span>CONSOLE</span>
+    <span class="toggle-arrow">▼</span>
+  </button>
 
-  <!-- 2. SECTION STATUS FIXE - visible sur desktop/tablette seulement -->
-  <div class="console-body">
-    <div class="status-line">
-      <span class="led green"></span>
-      <span>> STATUS: ONLINE</span>
+  <!-- CONTENU CONSOLE -->
+  <div class="console-content">
+    <!-- 1. HEADER FIXE - visible sur desktop/tablette seulement -->
+    <div class="console-header">
+      <span class="console-title">CONSOLE V3</span>
     </div>
-    <div class="user-line">
-      <span>> USER: {{getCurrentUserName()}}</span>
-    </div>
-    <div class="access-line">
-      <span>> ACCESS-LVL: {{getCurrentUserLevel()}}</span>
-    </div>
-  </div>
 
-  <!-- 3. SECTION COMMANDES FLEXIBLE -->
-  <div class="console-commands">
+    <!-- 2. SECTION STATUS FIXE - visible sur desktop/tablette seulement -->
+    <div class="console-body">
+      <div class="status-line">
+        <span class="led green"></span>
+        <span>> STATUS: ONLINE</span>
+      </div>
+      <div class="user-line">
+        <span>> USER: {{getCurrentUserName()}}</span>
+      </div>
+      <div class="access-line">
+        <span>> ACCESS-LVL: {{getCurrentUserLevel()}}</span>
+      </div>
+    </div>
+
+    <!-- 3. SECTION COMMANDES FLEXIBLE -->
+    <div class="console-commands">
+      @if (isLoggedIn()) {
+      <!-- Boutons admin (seulement hors chroniques ET hors mon-compte) -->
+      @if (shouldShowAdminButtons() && currentUser()?.role === 'admin') {
+      <div class="action-group">
+        <span class="group-title">> FONCTIONS ADMIN</span>
+        <button class="console-btn" (click)="addCategory()">AJOUTER CATEGORIE</button>
+        <button class="console-btn" (click)="addList()">AJOUTER LISTE</button>
+        <button class="console-btn" (click)="addItem()">AJOUTER ITEM</button>
+      </div>
+      }
+
+      <!-- Boutons chroniques (pour tous les utilisateurs connectés dans chroniques) -->
+      @if (shouldShowUserButtons()) {
+      <div class="action-group no-separator">
+        <span class="group-title">> FONCTIONS UTILISATEUR</span>
+        <button class="console-btn" (click)="newStory()">NOUVELLE HISTOIRE</button>
+        <button class="console-btn" (click)="myStories()">MES HISTOIRES</button>
+      </div>
+      }
+      }
+    </div>
+
+    <!-- FOOTER ADAPTATIF -->
     @if (isLoggedIn()) {
-    <!-- Boutons admin (seulement hors chroniques ET hors mon-compte) -->
-    @if (shouldShowAdminButtons() && currentUser()?.role === 'admin') {
-    <div class="action-group">
-      <span class="group-title">> FONCTIONS ADMIN</span>
-      <button class="console-btn" (click)="addCategory()">AJOUTER CATEGORIE</button>
-      <button class="console-btn" (click)="addList()">AJOUTER LISTE</button>
-      <button class="console-btn" (click)="addItem()">AJOUTER ITEM</button>
+    <!-- Footer pour utilisateurs connectés -->
+    <div class="console-footer">
+      <span class="group-title">> PARAMETRES DU COMPTE</span>
+      <button class="console-btn" (click)="openAccount()">
+        MON COMPTE
+      </button>
+      <button class="console-btn logout" (click)="logout()">
+        DECONNEXION
+      </button>
+    </div>
+    } @else {
+    <!-- Footer pour visiteurs non connectés -->
+    <div class="console-footer">
+      <span class="group-title">> SYSTÈME VERROUILLÉ</span>
+      <button class="console-btn" (click)="openLogin()">
+        [⚡] CONNEXION
+      </button>
+      <button class="console-btn" (click)="openRegister()">
+        [👤] INSCRIPTION
+      </button>
     </div>
     }
-
-    <!-- Boutons chroniques (pour tous les utilisateurs connectés dans chroniques) -->
-    @if (shouldShowUserButtons()) {
-    <div class="action-group no-separator">
-      <span class="group-title">> FONCTIONS UTILISATEUR</span>
-      <button class="console-btn" (click)="newStory()">NOUVELLE HISTOIRE</button>
-      <button class="console-btn" (click)="myStories()">MES HISTOIRES</button>
-    </div>
-    }
-    }
   </div>
-
-  <!-- FOOTER ADAPTATIF -->
-  @if (isLoggedIn()) {
-  <!-- Footer pour utilisateurs connectés -->
-  <div class="console-footer">
-    <span class="group-title">> PARAMETRES DU COMPTE</span>
-    <button class="console-btn" (click)="openAccount()">
-      MON COMPTE
-    </button>
-    <button class="console-btn logout" (click)="logout()">
-      DECONNEXION
-    </button>
-  </div>
-  } @else {
-  <!-- Footer pour visiteurs non connectés -->
-  <div class="console-footer">
-    <span class="group-title">> SYSTÈME VERROUILLÉ</span>
-    <button class="console-btn" (click)="openLogin()">
-      [⚡] CONNEXION
-    </button>
-    <button class="console-btn" (click)="openRegister()">
-      [👤] INSCRIPTION
-    </button>
-  </div>
-  }
 </div>

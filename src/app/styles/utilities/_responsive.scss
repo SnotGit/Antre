@@ -6,12 +6,6 @@
   }
 }
 
-@mixin mobile-small-landscape {
-  @media (orientation: landscape) and (max-width: 667px) {
-    @content;
-  }
-}
-
 
 @mixin mobile-large-portrait {
   @media (orientation: portrait) and (max-width: 430px) {
@@ -19,11 +13,6 @@
   }
 }
 
-@mixin mobile-large-landscape {
-  @media (orientation: landscape) and (max-width: 932px) {
-    @content;
-  }
-}
 
 //============ TABLET BREAKPOINTS ============
 

@@ -111,14 +111,6 @@
       animation: noise-move 0.2s steps(8) infinite;
       border-radius: 10px;
     }
-
-    @media (max-width: 767px) {
-      display: none;
-    }
-
-    @media (orientation: portrait) and (min-width: 768px) and (max-width: 1366px) {
-      display: none;
-    }
   }
 }
 

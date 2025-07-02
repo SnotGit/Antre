@@ -1,4 +1,3 @@
-// console-panel.component.ts
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -16,19 +15,16 @@ export class ConsoleV3 implements OnInit {
   private router = inject(Router);
   private authService = inject(AuthService);
 
-  // Signals depuis AuthService
   currentUser = this.authService.currentUser;
   isLoggedIn = this.authService.isLoggedIn;
   isAdmin = this.authService.isAdmin;
 
-  // Signals pour l'état du composant
   private currentRoute = signal<string>('');
+  isCollapsed = signal<boolean>(true);
 
-  // Computed pour la logique des boutons
   isInChroniques = computed(() => this.currentRoute().includes('/chroniques'));
   isInAccount = computed(() => this.currentRoute().includes('/mon-compte'));
 
-  // Logique des boutons - exclure la page account
   showUserButtons = computed(() => {
     return this.isLoggedIn() && this.isInChroniques() && !this.isInAccount();
   });
@@ -37,7 +33,6 @@ export class ConsoleV3 implements OnInit {
     return this.isLoggedIn() && this.isAdmin() && !this.isInChroniques() && !this.isInAccount();
   });
 
-  // Alias pour le template (compatibilité)
   shouldShowUserButtons = this.showUserButtons;
   shouldShowAdminButtons = this.showAdminButtons;
 
@@ -52,7 +47,9 @@ export class ConsoleV3 implements OnInit {
     this.currentRoute.set(this.router.url);
   }
 
-  // ============ AUTHENTIFICATION ============
+  toggleConsole(): void {
+    this.isCollapsed.set(!this.isCollapsed());
+  }
 
   openLogin(): void {
     this.router.navigate(['/auth/login']);
@@ -66,8 +63,6 @@ export class ConsoleV3 implements OnInit {
     this.authService.logout();
   }
 
-  // ============ ACTIONS ADMIN (hors chroniques seulement) ============
-
   addCategory(): void {
     // TODO: Implémenter ajout de catégorie
   }
@@ -80,8 +75,6 @@ export class ConsoleV3 implements OnInit {
     // TODO: Implémenter ajout d'item
   }
 
-  // ============ ACTIONS USER (dans chroniques seulement) ============
-
   newStory(): void {
     this.router.navigate(['/chroniques/editor/new']);
   }
@@ -90,7 +83,6 @@ export class ConsoleV3 implements OnInit {
     this.router.navigate(['/chroniques/story-board']);
   }
 
-  // Actions contextuelles (quand une histoire est sélectionnée)
   editCurrentStory(): void {
     // TODO: Implémenter édition d'histoire
   }
@@ -103,13 +95,9 @@ export class ConsoleV3 implements OnInit {
     // TODO: Implémenter publication d'histoire
   }
 
-  // ============ ACTIONS COMMUNES (utilisateurs connectés) ============
-
   openAccount(): void {
     this.router.navigate(['/mon-compte']);
   }
-
-  // ============ UTILITAIRES ============
 
   getCurrentUserName(): string {
     return this.currentUser()?.username || 'GUEST';

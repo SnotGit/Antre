@@ -2,7 +2,19 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const formatPublishDate = (date) => {
-  return new Date(date).toLocaleDateString('fr-FR');
+  if (!date) {
+    return 'Date non définie';
+  }
+  
+  try {
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return 'Date invalide';
+    }
+    return parsedDate.toLocaleDateString('fr-FR');
+  } catch (error) {
+    return 'Erreur de format';
+  }
 };
 
 const getLatestStories = async (req, res) => {

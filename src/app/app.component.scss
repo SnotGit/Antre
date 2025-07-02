@@ -1,4 +1,4 @@
-@use 'utilities/grid-main' as *;
+@use 'utilities/main-layout' as *;
 
 .main-container {
   height: 100vh;
@@ -8,7 +8,8 @@
   gap: 30px;
   box-sizing: border-box;
   overflow: hidden;
-  @include grid-main;
+  @include main-layout;
+  
 }
 
 .navbar-zone {
