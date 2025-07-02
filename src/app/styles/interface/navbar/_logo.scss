@@ -5,6 +5,15 @@
     position: relative;
     flex-shrink: 0;
     
+    // MASQUER SUR MOBILE ET TABLET PORTRAIT
+    @media (max-width: 768px) {
+      display: none;
+    }
+    
+    @media (orientation: portrait) and (min-width: 768px) and (max-width: 1024px) {
+      display: none;
+    }
+    
     .logo-container {
       position: relative;
       width: 100%;

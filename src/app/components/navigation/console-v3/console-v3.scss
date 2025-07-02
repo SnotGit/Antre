@@ -49,6 +49,12 @@
       gap: 10px;
       margin-bottom: 8px;
     }
+
+    .status-online {
+      color: #2ecc71;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+      font-weight: bold;
+    }
   }
 
   .console-commands {
@@ -149,23 +155,6 @@
           background-color: rgba(181, 90, 68, 0.1);
         }
       }
-    }
-  }
-
-  .led {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-
-    &.green {
-      background-color: #2ecc71;
-      box-shadow: 0 0 8px #2ecc71;
-    }
-
-    &.orange {
-      background-color: #f39c12;
-      box-shadow: 0 0 8px #f39c12;
     }
   }
 }
