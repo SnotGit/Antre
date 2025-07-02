@@ -5,6 +5,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
 import { PublicStoriesService } from '../../../../services/public-stories.service';
 import { AuthService } from '../../../../services/auth.service';
+
 interface StoryData {
   id: number;
   title: string;
@@ -27,7 +28,7 @@ interface StoryData {
   styleUrl: './story-detail.scss'
 })
 export class StoryDetail {
-
+  
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private publicStoriesService = inject(PublicStoriesService);
@@ -67,15 +68,9 @@ export class StoryDetail {
 
   formattedDate = computed(() => {
     const story = this.story();
-    if (!story || !story.publishDate) return 'Date inconnue';
-
-    try {
-      const date = new Date(story.publishDate);
-      if (isNaN(date.getTime())) return 'Date invalide';
-      return date.toLocaleDateString('fr-FR');
-    } catch (error) {
-      return 'Format de date incorrect';
-    }
+    if (!story) return 'Chargement...';
+    
+    return story.publishDate || 'Date non disponible';
   });
 
   currentStoryIndex = computed(() => {
@@ -154,7 +149,7 @@ export class StoryDetail {
       const response = await this.publicStoriesService.toggleLike(currentStoryId);
       this.isLiked.set(response.liked);
       this.likesCount.set(response.totalLikes);
-
+      
       const message = response.liked ? "Histoire likée !" : "Like retiré";
       this.showSnackBarMessage(message);
     } catch (error) {
@@ -165,7 +160,7 @@ export class StoryDetail {
   private showSnackBarMessage(message: string): void {
     this.snackBarMessage.set(message);
     this.showSnackBar.set(true);
-
+    
     setTimeout(() => {
       this.showSnackBar.set(false);
     }, 3000);
@@ -174,9 +169,9 @@ export class StoryDetail {
   goToPreviousStory(): void {
     const stories = this.userStories();
     const currentIndex = this.currentStoryIndex();
-
-    if (currentIndex > 0) {
-      const previousStory = stories[currentIndex - 1];
+    
+    if (currentIndex >= 0 && currentIndex < stories.length - 1) {
+      const previousStory = stories[currentIndex + 1];
       if (previousStory.slug) {
         this.router.navigate(['/chroniques/story', previousStory.slug]);
       }
@@ -186,9 +181,9 @@ export class StoryDetail {
   goToNextStory(): void {
     const stories = this.userStories();
     const currentIndex = this.currentStoryIndex();
-
-    if (currentIndex >= 0 && currentIndex < stories.length - 1) {
-      const nextStory = stories[currentIndex + 1];
+    
+    if (currentIndex > 0) {
+      const nextStory = stories[currentIndex - 1];
       if (nextStory.slug) {
         this.router.navigate(['/chroniques/story', nextStory.slug]);
       }
@@ -196,13 +191,15 @@ export class StoryDetail {
   }
 
   hasPreviousStory(): boolean {
-    return this.currentStoryIndex() > 0;
+    const stories = this.userStories();
+    const currentIndex = this.currentStoryIndex();
+    return currentIndex >= 0 && currentIndex < stories.length - 1;
   }
 
   hasNextStory(): boolean {
     const stories = this.userStories();
     const currentIndex = this.currentStoryIndex();
-    return currentIndex >= 0 && currentIndex < stories.length - 1;
+    return currentIndex > 0;
   }
 
   goToUserProfile(): void {

@@ -1,5 +1,5 @@
-@use 'mixins/interface/effects/effects' as *;
-
+@use 'interface/navbar/logo' as *;
+@use 'interface/navbar/hamburger' as *;
 
 .navbar-container {
   width: 100%;
@@ -13,226 +13,58 @@
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
   border: 2px solid #5d889e;
   box-sizing: border-box;
+  
+  @include logo;      
+  @include hamburger; 
+}
 
-  .logo {
-    text-align: center;
-    margin-bottom: 30px;
-    position: relative;
-    flex-shrink: 0;
-    
-    .logo-container {
-      position: relative;
-      width: 100%;
-      border-radius: 10px;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border: 1px solid #5d889e;
-    }
-    
-    img {
-      width: 100%;
-      height: auto;
-      border-radius: 10px;
-      position: relative;
-      z-index: 2;
-      animation: tv-flicker 0.15s infinite linear alternate;
-      transform: translate(1px, 1px);
-    }
+.menu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex: 1;
 
-    @include logo-effects;
-    
+  .menu-item.staff-only {
+    margin-top: auto;
+  }
+}
+
+.menu-item {
+  color: #d0d0d0;
+  text-decoration: none;
+  text-align: center;
+  padding: 15px 18px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+  font-size: 16px;
+  font-weight: 500;
+  background-color: rgba(93, 136, 158, 0.05);
+  border: 1px solid rgba(93, 136, 158, 0.2);
+
+  &:hover {
+    background-color: rgba(93, 136, 158, 0.15);
+    border-left-color: #5d889e;
+    transform: translateX(3px);
+    border-color: #5d889e;
   }
 
-  // MENU HAMBURGER MOBILE (masqué par défaut)
-  .mobile-menu-toggle {
-    display: none;
+  &.active {
+    background-color: rgba(93, 136, 158, 0.15);
+    border-left-color: #5d889e;
+    color: #d0d0d0;
+    border-color: #5d889e;
+    font-weight: 500;
+  }
+
+  &.staff-only {
     background-color: rgba(93, 136, 158, 0.05);
     border: 1px solid rgba(93, 136, 158, 0.2);
-    border-radius: 10px;
-    padding: 15px;
     color: #d0d0d0;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-    position: relative;
 
     &:hover {
       background-color: rgba(93, 136, 158, 0.15);
       border-color: #5d889e;
     }
-
-    .hamburger-icon {
-      margin-right: 10px;
-      font-size: 18px;
-    }
-
-    .dropdown-arrow {
-      position: absolute;
-      right: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      transition: transform 0.3s ease;
-      
-      &.rotated {
-        transform: translateY(-50%) rotate(180deg);
-      }
-    }
-  }
-
-  .menu-items {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    flex: 1;
-    
-    .menu-item.staff-only {
-      margin-top: auto;
-    }
-  }
-
-  .menu-item {
-    color: #d0d0d0;
-    text-decoration: none;
-    text-align: center;
-    padding: 15px 18px;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    border-left: 4px solid transparent;
-    font-size: 16px;
-    font-weight: 500;
-    background-color: rgba(93, 136, 158, 0.05);
-    border: 1px solid rgba(93, 136, 158, 0.2);
-
-    &:hover {
-      background-color: rgba(93, 136, 158, 0.15);
-      border-left-color: #5d889e;
-      transform: translateX(3px);
-      border-color: #5d889e;
-    }
-
-    &.active {
-      background-color: rgba(93, 136, 158, 0.15);
-      border-left-color: #5d889e;
-      color: #d0d0d0;
-      border-color: #5d889e;
-      font-weight: 500;
-    }
-
-    &.staff-only {
-      background-color: rgba(93, 136, 158, 0.05);
-      border: 1px solid rgba(93, 136, 158, 0.2);
-      color: #d0d0d0;
-
-      &:hover {
-        background-color: rgba(93, 136, 158, 0.15);
-        border-color: #5d889e;
-      }
-    }
-  }
-}
-
-// Animations (identiques)
-@keyframes tv-flicker {
-  0% { opacity: 1; }
-  97% { opacity: 1; }
-  98% { opacity: 0.98; }
-  99% { opacity: 0.96; }
-  100% { opacity: 1; }
-}
-
-@keyframes glitch-1 {
-  0% { clip-path: polygon(0 2%, 100% 2%, 100% 5%, 0 5%); transform: translate(-1px); }
-  25% { clip-path: polygon(0 15%, 100% 15%, 100% 20%, 0 20%); transform: translate(0.5px); }
-  50% { clip-path: polygon(0 33%, 100% 33%, 100% 38%, 0 38%); transform: translate(-1px); }
-  75% { clip-path: polygon(0 70%, 100% 70%, 100% 73%, 0 73%); transform: translate(1px); }
-  100% { clip-path: polygon(0 96%, 100% 96%, 100% 99%, 0 99%); transform: translate(-0.5px); }
-}
-
-@keyframes glitch-2 {
-  0% { clip-path: polygon(0 78%, 100% 78%, 100% 82%, 0 82%); transform: translate(1px); }
-  25% { clip-path: polygon(0 65%, 100% 65%, 100% 69%, 0 69%); transform: translate(-0.5px); }
-  50% { clip-path: polygon(0 45%, 100% 45%, 100% 48%, 0 48%); transform: translate(1px); }
-  75% { clip-path: polygon(0 25%, 100% 25%, 100% 28%, 0 28%); transform: translate(-1px); }
-  100% { clip-path: polygon(0 5%, 100% 5%, 100% 8%, 0 8%); transform: translate(0.5px); }
-}
-
-@keyframes scanlines-move {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(4px); }
-}
-
-@keyframes roll-down {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(calc(100% + 200px)); }
-}
-
-@keyframes noise-move {
-  0% { transform: translate(0, 0); }
-  25% { transform: translate(-1px, -1px); }
-  50% { transform: translate(1px, 0); }
-  75% { transform: translate(0, 1px); }
-  100% { transform: translate(-1px, 1px); }
-}
-
-
-
-// RESPONSIVE MOBILE avec menu hamburger
-@media (max-width: 820px) {
-  .navbar-container {
-    width: 100%;
-    height: auto;
-    padding: 15px;
-    
-    // Masquer le logo sur mobile
-    .logo {
-      display: none;
-    }
-    
-    // Afficher le bouton hamburger
-    .mobile-menu-toggle {
-      display: block;
-    }
-    
-    // Menu items masqués par défaut sur mobile
-    .menu-items {
-      display: none;
-      margin-top: 15px;
-      gap: 10px;
-
-      
-      &.show {
-        display: flex;
-        animation: slideDown 0.3s ease-out;
-      }
-      
-      .menu-item {
-        padding: 12px 15px;
-        font-size: 14px;
-        margin: 0;
-        border-left: none;
-        
-        &:hover {
-          transform: none;
-        }
-        
-        &.staff-only {
-          margin-top: 0;
-        }
-      }
-    }
-  }
-}
-
-// Animation du menu déroulant
-@keyframes slideDown {
-  from {
-    transform: translateY(-10px);
-  }
-  to {
-    transform: translateY(0);
   }
 }
