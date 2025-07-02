@@ -1,5 +1,7 @@
-<!-- navbar.component.html - Menu hamburger mobile -->
-<nav class="navbar-container">
+<nav class="navbar-container" [ngClass]="{
+  'collapsed': !mobileMenuOpen(),
+  'expanded': mobileMenuOpen()
+}">
   <!-- Logo (masqué sur mobile) -->
   <div class="logo">
     <div class="logo-container">
@@ -13,28 +15,29 @@
   </div>
 
   <!-- Bouton hamburger mobile (masqué sur desktop) -->
-  <div class="mobile-menu-toggle" (click)="toggleMobileMenu()">
+  <button class="menu-toggle" 
+          [ngClass]="{ 'expanded': mobileMenuOpen() }"
+          (click)="toggleMobileMenu()">
     <span class="hamburger-icon">☰</span>
     Menu
-    <span class="dropdown-arrow" [class.rotated]="mobileMenuOpen()">▼</span>
-  </div>
+  </button>
 
-  <!-- Menu items -->
-  <div class="menu-items" [class.show]="mobileMenuOpen()">
-    <a routerLink="/archives" routerLinkActive="active" class="menu-item">
+  <!-- Menu content -->
+  <div class="menu-content">
+    <a routerLink="/archives" routerLinkActive="active" class="menu-btn">
       Archives
     </a>
-    <a routerLink="/marsball" routerLinkActive="active" class="menu-item">
+    <a routerLink="/marsball" routerLinkActive="active" class="menu-btn">
       Marsball
     </a>
-    <a routerLink="/terraformars" routerLinkActive="active" class="menu-item">
+    <a routerLink="/terraformars" routerLinkActive="active" class="menu-btn">
       Terraformars
     </a>
-    <a routerLink="/chroniques" routerLinkActive="active" class="menu-item">
+    <a routerLink="/chroniques" routerLinkActive="active" class="menu-btn">
       Chroniques de Mars
     </a>
     @if (isAdmin()) {
-      <a routerLink="/staff" routerLinkActive="active" class="menu-item staff-only">
+      <a routerLink="/staff" routerLinkActive="active" class="menu-btn staff-only">
         Staff
       </a>
     }

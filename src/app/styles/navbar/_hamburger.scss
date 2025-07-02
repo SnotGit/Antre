@@ -1,9 +1,10 @@
 @mixin hamburger {
 
-  .mobile-menu-toggle {
+  .menu-toggle {
     display: none;
+    width: 100%;
     background-color: rgba(93, 136, 158, 0.05);
-    border: 1px solid rgba(93, 136, 158, 0.2);
+    border: 2px solid #5d889e;
     border-radius: 10px;
     padding: 15px;
     color: #d0d0d0;
@@ -12,7 +13,10 @@
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: center;
+    font-family: 'Courier New', monospace;
     position: relative;
+    box-sizing: border-box;
+    margin: 0;
 
     &:hover {
       background-color: rgba(93, 136, 158, 0.15);
@@ -23,85 +27,69 @@
       margin-right: 10px;
       font-size: 18px;
     }
-
-    .dropdown-arrow {
-      position: absolute;
-      right: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      transition: transform 0.3s ease;
-      
-      &.rotated {
-        transform: translateY(-50%) rotate(180deg);
-      }
-    }
   }
 
-  @media (max-width: 768px) {
-    height: auto;
-    padding: 15px;
-    gap: 0;
+  @media (max-width: 768px), 
+         (orientation: portrait) and (min-width: 768px) and (max-width: 1366px) {
     
-    
-    .mobile-menu-toggle {
+    .menu-toggle {
       display: block;
+      margin: 0;
     }
-    
-    .menu-items {
-      display: none;
-      margin-top: 15px;
-      gap: 10px;
+
+    &.collapsed {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+      padding: 0;
+      gap: 0;
+      height: auto;
       
-      &.show {
+      .menu-content {
+        display: none;
+      }
+    }
+
+    &.expanded {
+      background-color: #1a1d20;
+      border: 2px solid #5d889e;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+      border-radius: 15px;
+      padding: 15px;
+      height: auto;
+      gap: 15px;
+      
+      .menu-content {
         display: flex;
+        flex-direction: column;
+        margin-top: 0;
+        gap: 10px;
         animation: slideDown 0.3s ease-out;
       }
-      
-      .menu-item {
+    }
+
+    .menu-content {
+      .menu-btn {
+        color: #d0d0d0;
+        text-decoration: none;
+        text-align: center;
         padding: 12px 15px;
+        border-radius: 10px;
         font-size: 14px;
+        font-weight: 500;
+        background-color: rgba(93, 136, 158, 0.05);
+        border: 1px solid rgba(93, 136, 158, 0.2);
+        cursor: pointer;
+        font-family: inherit;
         margin: 0;
-        border-left: none;
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
         
         &:hover {
-          transform: none;
-        }
-        
-        &.staff-only {
-          margin-top: 0;
-        }
-      }
-    }
-  }
-
-
-  @media (orientation: portrait) and (min-width: 768px) and (max-width: 1366px) {
-    height: auto;
-    padding: 15px;
-    gap: 0;
-        
-    .mobile-menu-toggle {
-      display: block;
-    }
-    
-    .menu-items {
-      display: none;
-      margin-top: 15px;
-      gap: 10px;
-      
-      &.show {
-        display: flex;
-        animation: slideDown 0.3s ease-out;
-      }
-      
-      .menu-item {
-        padding: 12px 15px;
-        font-size: 14px;
-        margin: 0;
-        border-left: none;
-        
-        &:hover {
-          transform: none;
+          background-color: rgba(93, 136, 158, 0.15);
+          border-color: #5d889e;
         }
         
         &.staff-only {
