@@ -3,22 +3,23 @@
   'expanded': !isCollapsed()
 }">
 
-  <!-- BOUTON TOGGLE (visible seulement sur mobile) -->
+  <!-- BOUTON TOGGLE (visible seulement sur mobile/tablet portrait) -->
   <button class="console-toggle" 
           [ngClass]="{ 'expanded': !isCollapsed() }"
           (click)="toggleConsole()">
-    <span>CONSOLE</span>
-    <span class="toggle-arrow">▼</span>
+    <span class="hamburger-icon">☰</span>
+    CONSOLE
+    <span class="toggle-arrow"></span>
   </button>
 
   <!-- CONTENU CONSOLE -->
   <div class="console-content">
-    <!-- 1. HEADER FIXE - visible sur desktop/tablette seulement -->
+    <!-- 1. HEADER FIXE - visible sur desktop/tablette landscape seulement -->
     <div class="console-header">
       <span class="console-title">CONSOLE V3</span>
     </div>
 
-    <!-- 2. SECTION STATUS FIXE - visible sur desktop/tablette seulement -->
+    <!-- 2. SECTION STATUS FIXE - visible sur desktop/tablette landscape seulement -->
     <div class="console-body">
       <div class="status-line">
         <span>> STATUS: <span class="status-online">ONLINE</span></span>

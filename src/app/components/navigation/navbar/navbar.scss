@@ -1,5 +1,5 @@
-@use 'interface/navbar/logo' as *;
-@use 'interface/navbar/hamburger' as *;
+@use 'navbar/logo' as *;
+@use 'navbar/hamburger' as *;
 
 .navbar-container {
   width: 100%;

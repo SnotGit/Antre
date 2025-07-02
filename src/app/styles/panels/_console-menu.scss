@@ -1,0 +1,231 @@
+@mixin console-menu {
+  
+  .console-toggle {
+    display: none;
+    width: 100%;
+    background-color: rgba(93, 136, 158, 0.05);
+    border: 1px solid rgba(93, 136, 158, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    color: #d0d0d0;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    position: relative;
+    box-sizing: border-box;
+    margin: 0;
+
+    &:hover {
+      background-color: rgba(93, 136, 158, 0.15);
+      border-color: #5d889e;
+    }
+
+    .hamburger-icon {
+      margin-right: 10px;
+      font-size: 18px;
+    }
+
+    .toggle-arrow {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: transform 0.3s ease;
+      color: #d0d0d0;
+      font-size: 12px;
+    }
+
+    &.expanded .toggle-arrow {
+      transform: translateY(-50%) rotate(180deg);
+    }
+  }
+
+  .console-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  // ============ MOBILE + TABLET PORTRAIT ============
+  @media (max-width: 767px), 
+         (orientation: portrait) and (min-width: 768px) and (max-width: 1366px) {
+    
+    .console-toggle {
+      display: block;
+      margin: 0;
+    }
+
+    &.collapsed {
+      height: auto;
+      min-height: auto;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+      padding: 0;
+      
+      .console-content {
+        display: none;
+      }
+      
+      .console-toggle {
+        margin: 0;
+        background-color: rgba(93, 136, 158, 0.05);
+        border: 1px solid rgba(93, 136, 158, 0.2);
+        
+        .toggle-arrow::before {
+          content: "▲";
+        }
+      }
+    }
+
+    &.expanded {
+      height: auto;
+      background-color: #1a1d20;
+      border: 2px solid #5d889e;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+      border-radius: 10px;
+      padding: 15px;
+      gap: 0;
+      
+      .console-content {
+        display: flex;
+        flex-direction: column;
+        margin-top: 15px;
+        gap: 10px;
+        animation: slideUp 0.3s ease-out;
+      }
+      
+      .console-toggle {
+        .toggle-arrow::before {
+          content: "▼";
+        }
+      }
+    }
+
+    .console-content {
+      .console-header {
+        display: none;
+      }
+      
+      .console-body {
+        display: none;
+      }
+      
+ 
+      .console-commands {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        
+        .action-group {
+          padding: 0;
+          border: none;
+          margin: 0;
+          display: contents;
+          
+          .group-title {
+            display: none;
+          }
+        }
+
+        .console-btn {
+          color: #d0d0d0;
+          text-decoration: none;
+          text-align: center;
+          padding: 12px 15px;
+          border-radius: 10px;
+          font-size: 14px;
+          font-weight: 500;
+          background-color: rgba(93, 136, 158, 0.05);
+          border: 1px solid rgba(93, 136, 158, 0.2);
+          cursor: pointer;
+          font-family: inherit;
+          margin: 0;
+          display: block;
+          width: 100%;
+          box-sizing: border-box;
+
+          &:hover {
+            background-color: rgba(93, 136, 158, 0.15);
+            border-color: #5d889e;
+          }
+
+          // ============ BOUTON DECONNEXION SPECIAL ============
+          &.logout {
+            background-color: transparent;
+            border: 1px solid rgba(181, 91, 68, 0.651);
+            color: #b55a44;
+            
+            &:hover {
+              background-color: transparent;
+              border-color: #b55a44;
+            }
+          }
+        }
+      }
+
+      .console-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 0;
+        margin: 0;
+        
+        .group-title {
+          display: none;
+        }
+        
+        .console-btn {
+          color: #d0d0d0;
+          text-decoration: none;
+          text-align: center;
+          padding: 12px 15px;
+          border-radius: 10px;
+          font-size: 14px;
+          font-weight: 500;
+          background-color: rgba(93, 136, 158, 0.05);
+          border: 1px solid rgba(93, 136, 158, 0.2);
+          cursor: pointer;
+          font-family: inherit;
+          margin: 0;
+          display: block;
+          width: 100%;
+          box-sizing: border-box;
+
+          &:hover {
+            background-color: rgba(93, 136, 158, 0.15);
+            border-color: #5d889e;
+          }
+
+          &.logout {
+            background-color: transparent;
+            border: 1px solid rgba(181, 91, 68, 0.651);
+            color: #b55a44;
+            
+            &:hover {
+              background-color: transparent;
+              border-color: #b55a44;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// ============ ANIMATION SLIDE UP ============
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,4 +1,4 @@
-@use 'interface/navbar/console-menu' as *;
+@use 'panels/console-menu' as *;
 
 .console-container {
   width: 100%;
@@ -106,7 +106,6 @@
 
       &:hover {
         background-color: rgba(93, 136, 158, 0.1);
-        transform: translateX(2px);
       }
     }
   }
@@ -143,7 +142,6 @@
 
       &:hover {
         background-color: rgba(93, 136, 158, 0.1);
-        transform: translateX(2px);
       }
 
       &.logout {
