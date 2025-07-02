@@ -1,3 +1,4 @@
+@use 'content/chroniques/story-detail-responsive' as *;
 
 .story-detail-container {
   background-color: #121416;
@@ -18,13 +19,12 @@
     background-color: #1a1d20;
     border: 2px solid #5d889e;
     border-radius: 15px;
-    max-width: 800px;
+    max-width: 700px;
     margin: 0 auto;
     height: 100%;
     display: flex;
     flex-direction: column;
 
-    // ============ HEADER ============
     .card-header {
       display: flex;
       gap: 15px;
@@ -75,18 +75,41 @@
           align-items: center;
           margin-bottom: 4px;
 
-          .username {
-            color: #5d889e;
-            font-size: 25px;
-            font-weight: bold;
-            margin: 0;
-            line-height: 1.2;
-            cursor: pointer;
-            transition: all 0.3s ease;
+          .user-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
 
-            &:hover {
-              color: #7ba3c0;
-              text-shadow: 0 0 5px rgba(93, 136, 158, 0.3);
+            .username-info {
+              display: flex;
+              flex-direction: column;
+              gap: 4px;
+
+              .username {
+                color: #5d889e;
+                font-size: 25px;
+                font-weight: bold;
+                margin: 0;
+                line-height: 1.2;
+                cursor: pointer;
+                transition: all 0.3s ease;
+
+                &:hover {
+                  color: #7ba3c0;
+                  text-shadow: 0 0 5px rgba(93, 136, 158, 0.3);
+                }
+              }
+
+              .user-description {
+                color: rgba(93, 136, 158, 0.7);
+                font-size: 16px;
+                margin: 0;
+                font-style: italic;
+                line-height: 1.2;
+                cursor: default;
+                pointer-events: none;
+              }
             }
           }
 
@@ -134,16 +157,6 @@
               }
             }
           }
-        }
-
-        .user-description {
-          color: rgba(93, 136, 158, 0.7);
-          font-size: 16px;
-          margin: 0;
-          font-style: italic;
-          line-height: 1.2;
-          cursor: default;
-          pointer-events: none;
         }
       }
     }
@@ -296,139 +309,4 @@
   }
 }
 
-// ============ TABLETTE PAYSAGE ============
-@media (max-width: 1366px) and (min-width: 1025px) {
-  .story-detail-container {
-    .story-card {
-      max-width: 900px;
-    }
-  }
-}
-
-// ============ TABLETTE PORTRAIT ============
-@media (max-width: 1024px) and (min-width: 769px) {
-  .story-detail-container {
-    padding: 10px;
-
-    .story-card {
-      max-width: 100%;
-
-      .card-header {
-        padding: 20px 25px 15px 25px;
-      }
-
-      .title-section {
-        padding: 15px 25px 10px 25px;
-      }
-
-      .content-section {
-        padding: 10px 25px;
-      }
-
-      .card-footer {
-        padding: 15px 25px;
-      }
-    }
-  }
-}
-
-// ============ MOBILE ============
-@media (max-width: 768px) {
-  .story-detail-container {
-    padding: 0;
-    height: 100vh;
-
-    .story-card {
-      max-width: 100%;
-      height: 100%;
-      border-radius: 0;
-      border-left: none;
-      border-right: none;
-
-      .card-separator {
-        display: none;
-      }
-
-      .card-header {
-        padding: 20px;
-
-        .author-content {
-          display: flex;
-          align-items: center;
-          gap: 15px;
-          width: 100%;
-
-          .author-avatar {
-            width: 50px;
-            height: 50px;
-            flex-shrink: 0;
-
-            .avatar-placeholder {
-              font-size: 1.2rem;
-            }
-          }
-
-          .author-info {
-            flex: 1;
-
-            .author-top-line {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-
-              .author-name {
-                font-size: 18px;
-              }
-            }
-
-            .author-description {
-              font-size: 12px;
-            }
-          }
-        }
-      }
-
-      .title-section {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-        padding: 15px 20px;
-
-        .title-wrapper h1 {
-          font-size: 22px;
-        }
-
-        .date-wrapper p {
-          margin-top: 0;
-        }
-      }
-
-      .content-section {
-        padding: 10px 20px;
-
-        .story-text {
-          font-size: 15px;
-          line-height: 1.6;
-        }
-      }
-
-      .card-footer {
-        padding: 15px 20px;
-
-        .nav-btn {
-          min-width: 120px;
-          padding: 8px 15px;
-          font-size: 12px;
-
-          .nav-text {
-            display: none;
-          }
-
-          .nav-arrow {
-            font-size: 16px;
-          }
-        }
-      }
-    }
-  }
-}
+@include story-detail-responsive;

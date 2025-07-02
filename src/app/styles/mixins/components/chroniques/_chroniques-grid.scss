@@ -15,7 +15,7 @@
 
     @include tablet-landscape {
         grid-template-columns: repeat(2, 1fr);
-        gap: $gap-16;
+      
         max-width: 100%;
 
     }

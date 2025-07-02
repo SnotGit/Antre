@@ -1,0 +1,147 @@
+@mixin story-detail-responsive {
+  @media (max-width: 1024px) and (min-width: 769px) {
+    .story-detail-container {
+      padding: 10px;
+
+      .story-card {
+        max-width: 100%;
+
+        .card-header {
+          padding: 20px 25px 15px 25px;
+        }
+
+        .title-section {
+          padding: 15px 25px 10px 25px;
+        }
+
+        .content-section {
+          padding: 10px 25px;
+        }
+
+        .card-footer {
+          padding: 15px 25px;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .story-detail-container {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+
+      .story-card {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 0;
+        height: 100%;
+
+        .card-separator {
+          display: none;
+        }
+
+        .card-header {
+          padding: 12px;
+          flex-shrink: 0;
+          margin: 0;
+
+          .user-content {
+            .user-top-line {
+              .user-left {
+                gap: 10px;
+
+                .user-avatar {
+                  width: 45px;
+                  height: 45px;
+                }
+
+                .username-info {
+                  .username {
+                    font-size: 18px;
+                  }
+
+                  .user-description {
+                    font-size: 12px;
+                  }
+                }
+              }
+
+              .header-like-section {
+                .like-display {
+                  .heart-icon {
+                    font-size: 24px;
+                  }
+
+                  .likes-count {
+                    font-size: 14px;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        .title-section {
+          padding: 12px;
+          flex-shrink: 0;
+          flex-direction: column;
+          align-items: flex-start;
+          margin: 0;
+
+          .title-wrapper h1 {
+            font-size: 18px;
+          }
+
+          .date-wrapper p {
+            font-size: 11px;
+          }
+        }
+
+        .content-section {
+          padding: 12px;
+          flex: 1;
+          overflow-y: auto;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+          margin: 0;
+
+          &::-webkit-scrollbar {
+            display: none;
+          }
+
+          .story-text {
+            font-size: 13px;
+            line-height: 1.6;
+          }
+        }
+
+        .card-footer {
+          padding: 12px;
+          flex-shrink: 0;
+          margin: 0;
+
+          .nav-btn {
+            padding: 8px 16px;
+            font-size: 11px;
+            min-width: 120px;
+
+            .nav-arrow {
+              font-size: 18px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 1366px) and (min-width: 1025px) {
+    .story-detail-container {
+      .story-card {
+        max-width: 900px;
+      }
+    }
+  }
+}
