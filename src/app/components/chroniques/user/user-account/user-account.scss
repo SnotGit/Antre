@@ -156,6 +156,7 @@
           @media (max-width: 768px) {
             grid-template-columns: 1fr;
             gap: 1.5rem;
+
           }
 
           .stat-card {
@@ -252,10 +253,9 @@
               margin-bottom: 15px;
               overflow: hidden;
 
-              &:empty::after {
+              &:empty {
                 content: '👤';
                 font-size: 2.5rem;
-                opacity: 0.5;
               }
             }
 
@@ -572,7 +572,7 @@
       
       .tabs-box2 .tabs-nav .tab-btn {
         padding: 10px 15px;
-        font-size: 12px;
+        font-size: 15px;
       }
     }
 
@@ -592,6 +592,7 @@
       .separateur .line {
         width: 80%;
       }
+
     }
   }
 }

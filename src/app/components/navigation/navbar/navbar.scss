@@ -18,18 +18,18 @@
   @include hamburger; 
 }
 
-.menu-items {
+.menu-content {
   display: flex;
   flex-direction: column;
   gap: 15px;
   flex: 1;
 
-  .menu-item.staff-only {
+  .menu-btn.staff-only {
     margin-top: auto;
   }
 }
 
-.menu-item {
+.menu-btn {
   color: #d0d0d0;
   text-decoration: none;
   text-align: center;
