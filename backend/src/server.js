@@ -7,7 +7,8 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middlewares
+//============ MIDDLEWARES ============
+
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
@@ -20,47 +21,62 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Servir les fichiers statiques (avatars) avec les bons headers CORS
+//============ FICHIERS STATIQUES ============
+
 app.use('/uploads', cors(), express.static(path.join(__dirname, '../uploads')));
 
-// Routes d'authentification
-const authRoutes = require('./routes/auth');
+//============ ROUTES AUTHENTIFICATION ============
+
+const authRoutes = require('./routes/auth.routes');
 app.use('/api/auth', authRoutes);
 
-// Routes publiques des histoires (chroniques + profils)
+//============ ROUTES UTILISATEUR ============
+
+const userRoutes = require('./routes/user.routes');
+app.use('/api/user', userRoutes);
+
+//============ ROUTES STORIES PUBLIQUES ============
+
 const publicStoriesRoutes = require('./routes/publicStories.routes');
 app.use('/api/public-stories', publicStoriesRoutes);
 app.use('/api/users', publicStoriesRoutes);
 
-// Routes privées des histoires (storyboard + CRUD)
+//============ ROUTES STORIES PRIVÉES ============
+
 const privateStoriesRoutes = require('./routes/privateStories.routes');
 app.use('/api/private-stories', privateStoriesRoutes);
 
-// Route de test
+//============ ROUTE DE TEST ============
+
 app.get('/api/health', (req, res) => {
   res.json({ 
     message: 'L\'Antre API fonctionne !', 
     timestamp: new Date().toISOString(),
-    version: '2.0.0'
+    version: '3.0.0'
   });
 });
 
-// Démarrage du serveur
+//============ DÉMARRAGE SERVEUR ============
+
 app.listen(PORT, () => {
   console.log(`🚀 L'Antre API démarrée sur http://localhost:${PORT}`);
   console.log(`📋 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`📖 Architecture API Public/Privé:`);
+  console.log(`📖 Architecture API 4-Domaines:`);
   console.log(`   🔐 AUTHENTIFICATION:`);
   console.log(`     - POST /api/auth/register`);
   console.log(`     - POST /api/auth/login`);
-  console.log(`     - GET  /api/auth/profile`);
-  console.log(`     - PUT  /api/auth/profile`);
-  console.log(`     - POST /api/auth/upload-avatar`);
-  console.log(`   🌍 PUBLIC STORIES (lecture seule):`);
+  console.log(`     - GET  /api/auth/validate`);
+  console.log(`   👤 UTILISATEUR:`);
+  console.log(`     - GET  /api/user/profile`);
+  console.log(`     - PUT  /api/user/profile`);
+  console.log(`     - PUT  /api/user/email`);
+  console.log(`     - POST /api/user/upload-avatar`);
+  console.log(`     - PUT  /api/user/change-password`);
+  console.log(`   🌍 STORIES PUBLIQUES:`);
   console.log(`     - GET  /api/public-stories (liste chroniques)`);
   console.log(`     - GET  /api/users/:id (profil utilisateur)`);
   console.log(`     - GET  /api/public-stories/story/:slug (détail histoire)`);
-  console.log(`   🔒 PRIVATE STORIES (CRUD + interactions):`);
+  console.log(`   🔒 STORIES PRIVÉES:`);
   console.log(`     - GET  /api/private-stories/drafts`);
   console.log(`     - GET  /api/private-stories/published`);
   console.log(`     - GET  /api/private-stories/stats`);
@@ -68,5 +84,5 @@ app.listen(PORT, () => {
   console.log(`     - PUT  /api/private-stories/draft/:id`);
   console.log(`     - POST /api/private-stories/publish/:id`);
   console.log(`     - DELETE /api/private-stories/story/:id`);
-  console.log(`     - POST /api/private-stories/story/:id/like (toggle like)`);
+  console.log(`     - POST /api/private-stories/story/:id/like`);
 });
