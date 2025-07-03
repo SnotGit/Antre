@@ -1,6 +1,5 @@
 const express = require('express');
-const { register, login, validateToken } = require('../controllers/authController');
-const { authenticateToken } = require('../middleware/auth');
+const { register, login, validateToken, authenticateToken } = require('../controllers/authController');
 
 const router = express.Router();
 
@@ -17,7 +16,7 @@ router.get('/validate', authenticateToken, validateToken);
 
 router.get('/test', authenticateToken, (req, res) => {
   res.json({
-    message: 'Route protégée accessible !',
+    message: 'Route auth protégée accessible !',
     user: req.user
   });
 });
