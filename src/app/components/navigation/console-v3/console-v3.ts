@@ -1,6 +1,7 @@
-import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, signal, computed, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -10,46 +11,58 @@ import { AuthService } from '../../../services/auth.service';
   templateUrl: './console-v3.html',
   styleUrls: ['./console-v3.scss']
 })
-export class ConsoleV3 implements OnInit {
+export class ConsoleV3 {
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
-  private router = inject(Router);
-  private authService = inject(AuthService);
+  //============ SIGNALS ÉTAT ============
+
+  private _currentRoute = signal<string>('');
+  private _isCollapsed = signal<boolean>(true);
+
+  //============ COMPUTED PUBLICS ============
 
   currentUser = this.authService.currentUser;
   isLoggedIn = this.authService.isLoggedIn;
   isAdmin = this.authService.isAdmin;
+  isCollapsed = this._isCollapsed.asReadonly();
 
-  private currentRoute = signal<string>('');
-  isCollapsed = signal<boolean>(true);
-
-  isInChroniques = computed(() => this.currentRoute().includes('/chroniques'));
-  isInAccount = computed(() => this.currentRoute().includes('/mon-compte'));
-
-  showUserButtons = computed(() => {
-    return this.isLoggedIn() && this.isInChroniques() && !this.isInAccount();
+  showUserActions = computed(() => {
+    return this.isLoggedIn() && this._currentRoute().includes('/chroniques');
   });
 
-  showAdminButtons = computed(() => {
-    return this.isLoggedIn() && this.isAdmin() && !this.isInChroniques() && !this.isInAccount();
+  showAdminActions = computed(() => {
+    return this.isAdmin() && !this._currentRoute().includes('/chroniques');
   });
 
-  shouldShowUserButtons = this.showUserButtons;
-  shouldShowAdminButtons = this.showAdminButtons;
+  //============ INITIALISATION ============
 
-  ngOnInit(): void {
-    this.updateCurrentRoute();
-    this.router.events.subscribe(() => {
-      this.updateCurrentRoute();
+  constructor() {
+    this._currentRoute.set(this.router.url);
+    
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this._currentRoute.set(this.router.url);
     });
+
+    effect(() => {
+      localStorage.setItem('console-collapsed', this._isCollapsed().toString());
+    });
+
+    const savedState = localStorage.getItem('console-collapsed');
+    if (savedState === 'false') {
+      this._isCollapsed.set(false);
+    }
   }
 
-  private updateCurrentRoute(): void {
-    this.currentRoute.set(this.router.url);
-  }
+  //============ ACTIONS CONSOLE ============
 
   toggleConsole(): void {
-    this.isCollapsed.set(!this.isCollapsed());
+    this._isCollapsed.set(!this._isCollapsed());
   }
+
+  //============ ACTIONS AUTHENTIFICATION ============
 
   openLogin(): void {
     this.router.navigate(['/auth/login']);
@@ -63,41 +76,50 @@ export class ConsoleV3 implements OnInit {
     this.authService.logout();
   }
 
-  addCategory(): void {
-    // TODO: Implémenter ajout de catégorie
-  }
-
-  addList(): void {
-    // TODO: Implémenter ajout de liste
-  }
-
-  addItem(): void {
-    // TODO: Implémenter ajout d'item
-  }
+  //============ ACTIONS UTILISATEUR ============
 
   newStory(): void {
     this.router.navigate(['/chroniques/editor/new']);
   }
 
   myStories(): void {
-    this.router.navigate(['/chroniques/story-board']);
-  }
-
-  editCurrentStory(): void {
-    // TODO: Implémenter édition d'histoire
-  }
-
-  deleteCurrentStory(): void {
-    // TODO: Implémenter suppression d'histoire
-  }
-
-  publishCurrentStory(): void {
-    // TODO: Implémenter publication d'histoire
+    this.router.navigate(['/chroniques/my-stories']);
+    // TODO: Créer composant my-stories-list pour afficher toutes les histoires
   }
 
   openAccount(): void {
     this.router.navigate(['/mon-compte']);
   }
+
+  //============ ACTIONS ADMIN ============
+
+  addCategory(): void {
+    // TODO: Implémenter quand composant archives sera créé
+  }
+
+  addList(): void {
+    // TODO: Implémenter quand composant terraformars sera créé  
+  }
+
+  addItem(): void {
+    // TODO: Implémenter quand composant marsball sera créé
+  }
+
+  //============ ACTIONS STORY CONTEXTUELLES ============
+
+  editCurrentStory(): void {
+    // TODO: Implémenter édition histoire courante
+  }
+
+  deleteCurrentStory(): void {
+    // TODO: Implémenter suppression histoire courante
+  }
+
+  publishCurrentStory(): void {
+    // TODO: Implémenter publication histoire courante
+  }
+
+  //============ GETTERS DISPLAY ============
 
   getCurrentUserName(): string {
     return this.currentUser()?.username || 'GUEST';
@@ -105,5 +127,11 @@ export class ConsoleV3 implements OnInit {
 
   getCurrentUserLevel(): string {
     return this.currentUser()?.role?.toUpperCase() || 'VISITOR';
+  }
+
+  //============ HELPERS ============
+
+  isInRoute(route: string): boolean {
+    return this._currentRoute().includes(route);
   }
 }

@@ -35,7 +35,7 @@
     <div class="console-commands">
       @if (isLoggedIn()) {
       <!-- Boutons admin (seulement hors chroniques ET hors mon-compte) -->
-      @if (shouldShowAdminButtons() && currentUser()?.role === 'admin') {
+      @if (showAdminActions() && currentUser()?.role === 'admin') {
       <div class="action-group">
         <span class="group-title">> FONCTIONS ADMIN</span>
         <button class="console-btn" (click)="addCategory()">AJOUTER CATEGORIE</button>
@@ -45,7 +45,7 @@
       }
 
       <!-- Boutons chroniques (pour tous les utilisateurs connectés dans chroniques) -->
-      @if (shouldShowUserButtons()) {
+      @if (showUserActions()) {
       <div class="action-group no-separator">
         <span class="group-title">> FONCTIONS UTILISATEUR</span>
         <button class="console-btn" (click)="newStory()">NOUVELLE HISTOIRE</button>

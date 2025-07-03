@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy, inject, signal, ViewChild, ElementRef } f
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../../../services/auth.service';
+import { UserService } from '../../../../services/user.service';
 import { PrivateStoriesService } from '../../../../services/private-stories.service';
 import { TypingEffectService } from '../../../../services/typing-effect.service';
 
@@ -30,27 +30,32 @@ type TabType = 'stats' | 'profile' | 'identifiants';
 export class UserAccount implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  private router = inject(Router);
-  private authService = inject(AuthService);
-  private privateStoriesService: PrivateStoriesService = inject(PrivateStoriesService);
-  private typingService = inject(TypingEffectService);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
+  private readonly privateStoriesService = inject(PrivateStoriesService);
+  private readonly typingService = inject(TypingEffectService);
 
-  private readonly API_BASE_URL = 'http://localhost:3000';
+  //============ SIGNALS PUBLICS ============
 
   currentUser = this.authService.currentUser;
   isLoggedIn = this.authService.isLoggedIn;
   stats = this.privateStoriesService.stats;
   drafts = this.privateStoriesService.drafts;
   published = this.privateStoriesService.published;
+  loading = this.userService.loading;
+  error = this.userService.error;
+  successMessage = this.userService.successMessage;
 
   activeTab = signal<TabType>('identifiants');
-  loading = signal(false);
-  error = signal<string | null>(null);
-  successMessage = signal<string | null>(null);
+
+  //============ DONNÉES FORMULAIRES ============
 
   profileData: UserProfileData = { username: '', email: '', description: '' };
   passwordData: PasswordChangeData = { currentPassword: '', newPassword: '', confirmPassword: '' };
   private avatarState = { selectedFile: null as File | null, preview: null as string | null };
+
+  //============ TYPING EFFECT ============
 
   private typingEffect = this.typingService.createTypingEffect({
     text: 'Mon compte',
@@ -63,7 +68,7 @@ export class UserAccount implements OnInit, OnDestroy {
 
   constructor() {
     const saved = localStorage.getItem('user-account-tab');
-    if (saved === 'stats' || saved === 'profile' || saved === 'identifiants') {
+    if (saved && ['stats', 'profile', 'identifiants'].includes(saved)) {
       this.activeTab.set(saved as TabType);
     }
   }
@@ -82,6 +87,8 @@ export class UserAccount implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.typingEffect.cleanup();
   }
+
+  //============ COMPUTED GETTERS ============
 
   getUserStats() {
     const stats = this.stats();
@@ -106,92 +113,101 @@ export class UserAccount implements OnInit, OnDestroy {
     return user?.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR') : '';
   }
 
+  //============ NAVIGATION ONGLETS ============
+
   setActiveTab(tab: TabType): void {
     this.activeTab.set(tab);
     localStorage.setItem('user-account-tab', tab);
-    this.clearMessages();
+    this.userService.clearMessages();
   }
 
   showMyStories(): void {
-    console.log('Toutes mes histoires:', { 
-      brouillons: this.drafts(), 
-      publiées: this.published() 
-    });
+    this.router.navigate(['/chroniques/my-stories']);
   }
+
+  //============ GESTION AVATAR ============
 
   triggerFileInput(): void {
     this.fileInput.nativeElement.click();
   }
 
   onAvatarSelected(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const file = target.files?.[0];
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
 
-    if (!file || !this.validateAvatarFile(file)) return;
+    if (!file.type.startsWith('image/') || file.size > 500 * 1024) {
+      return;
+    }
 
     this.avatarState.selectedFile = file;
-    this.createAvatarPreview(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.avatarState.preview = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   }
 
   getAvatarUrl(): string {
     if (this.avatarState.preview) return this.avatarState.preview;
     
     const user = this.currentUser();
-    return user?.avatar ? `${this.API_BASE_URL}${user.avatar}` : '';
+    return user?.avatar ? `http://localhost:3000${user.avatar}` : '';
   }
+
+  //============ SAUVEGARDE PROFIL ============
 
   async saveProfile(): Promise<void> {
-    if (!this.validateProfileData()) return;
+    const username = this.profileData.username.trim();
+    if (!username || username.length < 3) return;
 
-    this.clearMessages();
-    this.loading.set(true);
-
-    try {
-      if (this.avatarState.selectedFile) {
-        await firstValueFrom(this.authService.uploadAvatar(this.avatarState.selectedFile));
-      }
-
-      await firstValueFrom(this.authService.updateProfile(
-        this.profileData.username.trim(),
-        this.profileData.description.trim()
-      ));
-
-      this.setSuccess('Profil mis à jour avec succès');
-      this.avatarState.selectedFile = null;
-      this.avatarState.preview = null;
-
-    } catch (error) {
-      this.handleApiError(error, 'Erreur lors de la mise à jour du profil');
-    } finally {
-      this.loading.set(false);
+    if (this.avatarState.selectedFile) {
+      await this.userService.uploadAvatar(this.avatarState.selectedFile);
     }
+
+    await this.userService.updateProfile(username, this.profileData.description.trim());
+    
+    this.avatarState.selectedFile = null;
+    this.avatarState.preview = null;
   }
 
-  saveEmail(): void {
-    this.setSuccess('Fonctionnalité bientôt disponible');
+  async saveEmail(): Promise<void> {
+    const email = this.profileData.email.trim();
+    if (!email || !this.isEmailValid) return;
+
+    await this.userService.updateEmail(email);
   }
+
+  //============ CHANGEMENT MOT DE PASSE ============
 
   async changePassword(): Promise<void> {
-    if (!this.validatePasswordData()) return;
-
-    this.clearMessages();
-    this.loading.set(true);
-
-    try {
-      await firstValueFrom(this.authService.changePassword({
-        currentPassword: this.passwordData.currentPassword,
-        newPassword: this.passwordData.newPassword
-      }));
-
-      this.setSuccess('Mot de passe modifié avec succès');
-      this.resetPasswordForm();
-
-    } catch (error) {
-      this.handleApiError(error, 'Erreur lors du changement de mot de passe');
-    } finally {
-      this.loading.set(false);
+    const { currentPassword, newPassword, confirmPassword } = this.passwordData;
+    
+    if (!currentPassword || !newPassword || newPassword.length < 8 || newPassword !== confirmPassword) {
+      return;
     }
+
+    await this.userService.changePassword(currentPassword, newPassword);
+    this.passwordData = { currentPassword: '', newPassword: '', confirmPassword: '' };
   }
+
+  //============ VALIDATION FORMULAIRES ============
+
+  get isProfileValid(): boolean {
+    return this.profileData.username.trim().length >= 3;
+  }
+
+  get isPasswordValid(): boolean {
+    const { currentPassword, newPassword, confirmPassword } = this.passwordData;
+    return !!(currentPassword && newPassword && newPassword.length >= 8 && newPassword === confirmPassword);
+  }
+
+  get isEmailValid(): boolean {
+    const email = this.profileData.email.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  //============ UTILITAIRES ============
 
   private loadUserProfile(): void {
     const user = this.currentUser();
@@ -201,102 +217,6 @@ export class UserAccount implements OnInit, OnDestroy {
         email: user.email,
         description: user.description || ''
       };
-    }
-  }
-
-  private validateAvatarFile(file: File): boolean {
-    if (!file.type.startsWith('image/')) {
-      this.setError('Veuillez sélectionner une image valide');
-      return false;
-    }
-
-    if (file.size > 500 * 1024) {
-      this.setError('L\'image doit faire moins de 500KB');
-      return false;
-    }
-
-    return true;
-  }
-
-  private createAvatarPreview(file: File): void {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      this.avatarState.preview = e.target?.result as string;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  private validateProfileData(): boolean {
-    if (!this.profileData.username.trim()) {
-      this.setError('Le nom d\'utilisateur est requis');
-      return false;
-    }
-
-    if (this.profileData.username.trim().length < 3) {
-      this.setError('Le nom d\'utilisateur doit contenir au moins 3 caractères');
-      return false;
-    }
-
-    return true;
-  }
-
-  private validatePasswordData(): boolean {
-    if (!this.passwordData.currentPassword) {
-      this.setError('Le mot de passe actuel est requis');
-      return false;
-    }
-
-    if (!this.passwordData.newPassword) {
-      this.setError('Le nouveau mot de passe est requis');
-      return false;
-    }
-
-    if (this.passwordData.newPassword.length < 8) {
-      this.setError('Le nouveau mot de passe doit contenir au moins 8 caractères');
-      return false;
-    }
-
-    if (this.passwordData.newPassword !== this.passwordData.confirmPassword) {
-      this.setError('La confirmation du mot de passe ne correspond pas');
-      return false;
-    }
-
-    return true;
-  }
-
-  private resetPasswordForm(): void {
-    this.passwordData = {
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    };
-  }
-
-  private setError(message: string): void {
-    this.error.set(message);
-    this.successMessage.set(null);
-  }
-
-  private setSuccess(message: string): void {
-    this.successMessage.set(message);
-    this.error.set(null);
-  }
-
-  private clearMessages(): void {
-    this.error.set(null);
-    this.successMessage.set(null);
-  }
-
-  private handleApiError(error: unknown, defaultMessage: string): void {
-    const apiError = error as { status?: number; error?: { error?: string } };
-    
-    if (apiError?.error?.error) {
-      this.setError(apiError.error.error);
-    } else if (apiError?.status === 401) {
-      this.setError('Session expirée, veuillez vous reconnecter');
-      this.router.navigate(['/auth/login']);
-    } else {
-      this.setError(defaultMessage);
     }
   }
 }
