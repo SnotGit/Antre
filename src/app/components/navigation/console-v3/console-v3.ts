@@ -39,7 +39,7 @@ export class ConsoleV3 {
 
   constructor() {
     this._currentRoute.set(this.router.url);
-    
+
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
@@ -121,12 +121,16 @@ export class ConsoleV3 {
 
   //============ GETTERS DISPLAY ============
 
+  getCurrentStatus(): string {
+    return this.currentUser() ? 'CONNECTÉ' : 'DÉCONNECTÉ';
+  }
+
   getCurrentUserName(): string {
-    return this.currentUser()?.username || 'GUEST';
+    return this.currentUser()?.username || 'INCONNU';
   }
 
   getCurrentUserLevel(): string {
-    return this.currentUser()?.role?.toUpperCase() || 'VISITOR';
+    return this.currentUser()?.role?.toUpperCase() || 'VISITEUR';
   }
 
   //============ HELPERS ============

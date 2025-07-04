@@ -221,11 +221,12 @@
                 .system-info {
                     display: flex;
                     flex-direction: column;
-                    gap: 4px;
+                    gap: 6px;
 
                     .info-line {
                         color: rgba(93, 136, 158, 0.7);
                         font-size: 11px;
+                      
                     }
                 }
             }

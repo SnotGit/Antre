@@ -4,9 +4,7 @@
 }">
 
   <!-- Bouton toggle (visible seulement sur mobile/tablet portrait) -->
-  <button class="console-toggle" 
-          [ngClass]="{ 'expanded': !isCollapsed() }"
-          (click)="toggleConsole()">
+  <button class="console-toggle" [ngClass]="{ 'expanded': !isCollapsed() }" (click)="toggleConsole()">
     <span class="hamburger-icon">☰</span>
     CONSOLE
   </button>
@@ -21,10 +19,14 @@
     <!-- Section status fixe - visible sur desktop/tablette landscape seulement -->
     <div class="console-status">
       <div class="status-line">
-        <span>> STATUS: <span class="status-online">ONLINE</span></span>
+        <span>> STATUS:
+          <span [class]="getCurrentStatus() === 'CONNECTÉ' ? 'status-online' : 'status-offline'">
+            {{getCurrentStatus()}}
+          </span>
+        </span>
       </div>
       <div class="user-line">
-        <span>> USER: {{getCurrentUserName()}}</span>
+        <span>> UTILISATEUR: {{getCurrentUserName()}}</span>
       </div>
       <div class="access-line">
         <span>> ACCESS-LVL: {{getCurrentUserLevel()}}</span>

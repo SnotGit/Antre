@@ -52,8 +52,13 @@
 
     .status-online {
       color: #2ecc71;
+      font-weight: 600;
+    }
+
+    .status-offline {
+      color: #e74c3c;
       text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
-      font-weight: bold;
+      font-weight: 600;
     }
   }
 
