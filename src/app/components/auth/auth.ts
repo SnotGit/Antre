@@ -165,7 +165,7 @@ export class Auth implements OnInit, OnDestroy {
     if (this.loading()) return 'TRAITEMENT...';
     if (this.error()) return 'ERREUR DÉTECTÉE';
     if (this.successMessage()) return 'OPÉRATION RÉUSSIE';
-    return 'SYSTÈME OPÉRATIONNEL';
+    return 'Opérationnelle';
   }
 
   get isLoginValid(): boolean {
