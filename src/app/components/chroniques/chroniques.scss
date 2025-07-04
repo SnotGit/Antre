@@ -1,27 +1,62 @@
-@use "core/variables/variables" as *;
-@use 'mixins/components/components' as *;
+@use 'content/artefacts/typing-effect/typing-effect' as *;
+@use 'content/chroniques/chroniques-grid' as *;
 
-//============ CHRONIQUES ASSEMBLY ============
-.main-container {
-  @include main-container;
+.container {  
+  padding: 0;
+  background-color: #121416;
+  color: #d0d0d0;
+  font-family: 'Courier New', monospace;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  height: 100%;
+  flex: 1;
 }
 
-.main-header {
-  @include main-header;
+
+.header {
+  width: 100%;
+  padding: 30px;
+  flex-shrink: 0;
   
   .header-title {
-    @include main-header-title($chroniques-title);
+    font-size: 32px;
+    font-weight: 700;
+    color: #5d889e;
+    margin: 0 0 10px 0;
+    text-align: start;
+    display: inline;
+    width: auto;
+    
+    @include typing-effect;
   }
 }
 
-.main-description {
-  @include main-description;
+.description {
+  width: 100%;
+  padding: 0 30px 20px 30px;
+  flex-shrink: 0;
+  text-align: center;
+
+  p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0 auto 8px auto;
+    opacity: 0.8;
+    max-width: 800px;
+  }
 }
 
-.main-content {
-  @include main-content;
+.content {
   
-  .chroniques-grid {
-    @include chroniques-grid;
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
+
+@include chroniques-grid;

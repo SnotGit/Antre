@@ -6,7 +6,6 @@
     background-color: rgba(93, 136, 158, 0.05);
     border: 2px solid #5d889e;
     border-radius: 10px;
-    padding: 15px;
     color: #d0d0d0;
     font-size: 16px;
     font-weight: 500;
@@ -25,7 +24,7 @@
 
     .hamburger-icon {
       margin-right: 10px;
-      font-size: 18px;
+      font-size: 16px;
     }
   }
 
@@ -37,12 +36,14 @@
     transition: all 0.3s ease;
   }
 
-  @media (max-width: 767px),
-  (orientation: portrait) and (min-width: 768px) and (max-width: 1366px) {
+  //====== MOBILE ======
+  @media (max-width: 767px) {
 
     .console-toggle {
       display: block;
       margin: 0;
+      height: 70px;
+      font-size: 16px;
       background-color: rgba(93, 136, 158, 0.05);
       border: 2px solid #5d889e;
     }
@@ -87,7 +88,6 @@
         display: none;
       }
 
-
       .console-commands {
         display: flex;
         flex-direction: column;
@@ -108,9 +108,9 @@
           color: #d0d0d0;
           text-decoration: none;
           text-align: center;
-          padding: 12px 15px;
+          padding: 15px 15px;
           border-radius: 10px;
-          font-size: 14px;
+          font-size: 16px;
           font-weight: 500;
           background-color: rgba(93, 136, 158, 0.05);
           border: 1px solid rgba(93, 136, 158, 0.2);
@@ -154,9 +154,167 @@
           color: #d0d0d0;
           text-decoration: none;
           text-align: center;
-          padding: 12px 15px;
+          padding: 15px 15px;
           border-radius: 10px;
-          font-size: 14px;
+          font-size: 16px;
+          font-weight: 500;
+          background-color: rgba(93, 136, 158, 0.05);
+          border: 1px solid rgba(93, 136, 158, 0.2);
+          cursor: pointer;
+          font-family: inherit;
+          margin: 0;
+          display: block;
+          width: 100%;
+          box-sizing: border-box;
+
+          &:hover {
+            background-color: rgba(93, 136, 158, 0.15);
+            border-color: #5d889e;
+          }
+
+          &.logout {
+            background-color: transparent;
+            border: 1px solid rgba(181, 91, 68, 0.651);
+            color: #b55a44;
+
+            &:hover {
+              background-color: transparent;
+              border-color: #b55a44;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  //====== MOBILE LARGE LANDSCAPE ======
+  @media (orientation: landscape) and (max-width: 932px) {
+    .console-status {
+      display: none;
+    }
+  }
+
+  //====== TABLET PORTRAIT ======
+  @media (orientation: portrait) and (min-width: 768px) and (max-width: 1366px) {
+
+    .console-toggle {
+      display: block;
+      margin: 0;
+      height: 100px;
+      font-size: 18px;
+      background-color: rgba(93, 136, 158, 0.05);
+      border: 2px solid #5d889e;
+    }
+
+    &.collapsed {
+      height: auto;
+      min-height: auto;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+
+      .console-content {
+        display: none;
+      }
+    }
+
+    &.expanded {
+      height: auto;
+      background-color: #1a1d20;
+      border: 2px solid #5d889e;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+      border-radius: 15px;
+      padding: 15px;
+      gap: 0;
+
+      .console-content {
+        display: flex;
+        flex-direction: column;
+        margin-top: 15px;
+        gap: 10px;
+        animation: slideUp 0.3s ease-out;
+      }
+    }
+
+    .console-content {
+      .console-header {
+        display: none;
+      }
+
+      .console-status {
+        display: none;
+      }
+
+      .console-commands {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        .action-group {
+          padding: 0;
+          border: none;
+          margin: 0;
+          display: contents;
+
+          .group-title {
+            display: none;
+          }
+        }
+
+        .console-btn {
+          color: #d0d0d0;
+          text-decoration: none;
+          text-align: center;
+          padding: 18px 18px;
+          border-radius: 10px;
+          font-size: 18px;
+          font-weight: 500;
+          background-color: rgba(93, 136, 158, 0.05);
+          border: 1px solid rgba(93, 136, 158, 0.2);
+          cursor: pointer;
+          font-family: inherit;
+          margin: 0;
+          display: block;
+          width: 100%;
+          box-sizing: border-box;
+
+          &:hover {
+            background-color: rgba(93, 136, 158, 0.15);
+            border-color: #5d889e;
+          }
+
+          &.logout {
+            background-color: transparent;
+            border: 1px solid rgba(181, 91, 68, 0.651);
+            color: #b55a44;
+
+            &:hover {
+              background-color: transparent;
+              border-color: #b55a44;
+            }
+          }
+        }
+      }
+
+      .console-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 0;
+        margin: 0;
+
+        .group-title {
+          display: none;
+        }
+
+        .console-btn {
+          color: #d0d0d0;
+          text-decoration: none;
+          text-align: center;
+          padding: 18px 18px;
+          border-radius: 10px;
+          font-size: 18px;
           font-weight: 500;
           background-color: rgba(93, 136, 158, 0.05);
           border: 1px solid rgba(93, 136, 158, 0.2);
