@@ -25,16 +25,18 @@
 
     .hamburger-icon {
       margin-right: 10px;
-      font-size: 18px;
+      font-size: 16px;
     }
   }
 
-  @media (max-width: 768px), 
-         (orientation: portrait) and (min-width: 768px) and (max-width: 1366px) {
+  //====== MOBILE ======
+  @media (max-width: 767px) {
     
     .menu-toggle {
       display: block;
       margin: 0;
+      height: 70px;
+      font-size: 16px;
     }
 
     &.collapsed {
@@ -72,11 +74,83 @@
     .menu-content {
       .menu-btn {
         color: #d0d0d0;
-        text-decoration: none;
+        text-transform: uppercase;
         text-align: center;
-        padding: 12px 15px;
+        padding: 15px 15px;
         border-radius: 10px;
-        font-size: 14px;
+        font-size: 16px;
+        font-weight: 500;
+        background-color: rgba(93, 136, 158, 0.05);
+        border: 1px solid rgba(93, 136, 158, 0.2);
+        cursor: pointer;
+        font-family: inherit;
+        margin: 0;
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        
+        &:hover {
+          background-color: rgba(93, 136, 158, 0.15);
+          border-color: #5d889e;
+        }
+        
+        &.staff-only {
+          margin-top: 0;
+        }
+      }
+    }
+  }
+
+  //====== TABLET PORTRAIT ======
+  @media (orientation: portrait) and (min-width: 768px) and (max-width: 1366px) {
+    
+    .menu-toggle {
+      display: block;
+      margin: 0;
+      height: 100px;
+      font-size: 18px;
+    }
+
+    &.collapsed {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+      padding: 0;
+      gap: 0;
+      height: auto;
+      
+      .menu-content {
+        display: none;
+      }
+    }
+
+    &.expanded {
+      background-color: #1a1d20;
+      border: 2px solid #5d889e;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+      border-radius: 15px;
+      padding: 15px;
+      height: auto;
+      gap: 15px;
+      
+      .menu-content {
+        display: flex;
+        flex-direction: column;
+        margin-top: 0;
+        gap: 10px;
+        animation: slideDown 0.3s ease-out;
+      }
+    }
+
+    .menu-content {
+      .menu-btn {
+        color: #d0d0d0;
+        text-transform: uppercase;
+        text-align: center;
+        padding: 18px 18px;
+        border-radius: 10px;
+        font-size: 18px;
         font-weight: 500;
         background-color: rgba(93, 136, 158, 0.05);
         border: 1px solid rgba(93, 136, 158, 0.2);

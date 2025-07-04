@@ -1,20 +1,20 @@
-<div class="main-container">
+<div class="container">
   
   <!-- HEADER TITRE -->
-  <div class="main-header">
+  <div class="header">
     <h2 class="header-title" [class.typing-complete]="typingComplete()">
       {{ headerTitle() }}
     </h2>
   </div>
 
   <!-- DESCRIPTION -->
-  <div class="main-description">
-    <p>Des terraformers vous racontent les histoires de leurs vies sur Mars.</p>
+  <div class="description">
+    <p>Des terraformers vous racontent leurs aventures sur Mars.</p>
     <p>Des génies ou des fous, des contes à dormir debout.</p>
   </div>
 
   <!-- CONTENU -->
-  <div class="main-content">
+  <div class="content">
     @if (stories().length > 0) {
       <div class="chroniques-grid">
         @for (user of stories(); track user.id) {

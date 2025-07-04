@@ -1,5 +1,5 @@
 
-@use "mixins/interface/buttons/back-button" as *;
+@use "content/artefacts/buttons/back-button" as *;
 
 
 .auth-container {
@@ -16,7 +16,7 @@
     // Navigation de retour
     @include back-button;
 
-    // Terminal principal - Plus simple
+    // Terminal principal 
     .auth-terminal {
         max-width: 500px;
         margin: 0 auto;
@@ -46,7 +46,7 @@
             padding: 30px;
             background-color: #1a1d20;
 
-            // Navigation entre login/register - Plus simple
+            // Navigation entre login/register 
             .auth-tabs {
                 display: flex;
                 gap: 0;
@@ -82,7 +82,7 @@
                 }
             }
 
-            // Formulaires 
+      
             .forms-container {
                 .auth-form {
                     .form-header {
@@ -146,7 +146,7 @@
                         }
                     }
 
-                    // Messages 
+            
                     .error-message,
                     .success-message {
                         padding: 10px 12px;
@@ -169,7 +169,7 @@
                         color: #2ecc71;
                     }
 
-                    // Boutons 
+               
                     .form-actions {
                         .submit-btn {
                             width: 100%;
@@ -212,7 +212,7 @@
                 }
             }
 
-            // Footer 
+       
             .terminal-footer {
                 margin-top: 30px;
                 padding-top: 20px;
@@ -233,7 +233,7 @@
     }
 }
 
-// Animation
+
 @keyframes spin {
     0% {
         transform: rotate(0deg);
@@ -244,7 +244,8 @@
     }
 }
 
-// Responsive
+// ============= RESPONSIVE =============
+
 @media (max-width: 768px) {
     .auth-container {
         padding: 0 15px;
@@ -310,7 +311,7 @@
     color: #2ecc71;
 }
 
-// Actions
+
 .form-actions {
     .submit-btn {
         width: 100%;
@@ -373,7 +374,7 @@
 }
 
 
-// Footer 
+
 .terminal-footer {
     margin-top: 30px;
     padding-top: 20px;
@@ -392,7 +393,7 @@
 }
 
 
-// Animations
+
 @keyframes float {
     0% {
         transform: translateY(0px);
@@ -440,7 +441,7 @@
     }
 }
 
-// Responsive
+
 @media (max-width: 768px) {
     .auth-container {
         padding: 0 15px;

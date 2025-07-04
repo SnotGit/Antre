@@ -1,35 +1,70 @@
-@use "core/variables/variables" as *;
-@use 'mixins/interface/interface' as *;
-
+//============ STORY CARD ============
+@use 'content/chroniques/story-card-responsive' as *;
 
 .story-card {
-  @include story-card-base;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;  
+  background-color: #1a1d20;
+  border: 2px solid #5d889e;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  @include story-card-responsive;
 
-
-  .avatar-small {
-    @include avatar($avatar-small);
-
+  &:hover {
+    border: 2px solid #b55a44;
   }
-
+  
+  //============ AVATAR ============
+  .avatar {
+    border-radius: 50%;
+    border: 2px solid #5d889e;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &::after {
+      content: '👤';
+      opacity: 0.5;
+    }
+    
+    &[style*="url"] {
+      &::after {
+        display: none;
+      }
+    }
+  }
+  
+  //============ USER DATA ============
   .user-data {
+    
     .username {
-      @include username($username-default);
-    }
-
-    .user-description {
-      @include user-description($description-default);
+      font-weight: 700;
+      text-align: center;
+      color: #5d889e;
     }
   }
-
+  
+  //============ STORY DATA ============
   .story-data {
+    display: flex;
+    flex-direction: column;
+    
     .story-title {
-      @include story-title($story-card-title);
+      font-weight: 700;
+      text-align: center;
+      color: #d0d0d0;
     }
-
+    
     .publish-date {
-      @include publish-date;
-      font-size: 15px;
+      font-weight: 400;
+      text-align: center;
+      color: #5d889e;
     }
   }
-
 }

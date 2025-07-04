@@ -1,0 +1,31 @@
+@mixin typing-effect {
+  &::before {
+    content: '> ';
+    color: #b55a44;
+    font-weight: 700;
+  }
+  
+  &::after {
+    content: '|';
+    color: #b55a44;
+    animation: blink 1s infinite;
+    margin-left: -0.5em;
+  }
+
+  &.typing-complete {
+    &::after {
+      animation: blink-and-hide 1s 4 forwards;
+    }
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  @keyframes blink-and-hide {
+    0%, 50% { opacity: 1; }
+    51%, 99% { opacity: 0; }
+    100% { opacity: 0; }
+  }
+}

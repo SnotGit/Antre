@@ -14,6 +14,11 @@
       display: none;
     }
     
+    // MASQUER SUR MOBILE LARGE LANDSCAPE
+    @media (orientation: landscape) and (max-width: 932px) {
+      display: none;
+    }
+    
     .logo-container {
       position: relative;
       width: 100%;

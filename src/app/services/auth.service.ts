@@ -1,6 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 export interface User {
   id: number;
@@ -30,7 +31,7 @@ export interface LoginRequest {
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  private readonly API_URL = 'http://localhost:3000/api';
+  private readonly API_URL = 'http://localhost:3000/api/auth';
 
   //============ SIGNALS ÉTAT ============
 
@@ -57,23 +58,20 @@ export class AuthService {
     this._error.set(null);
 
     try {
-      const response = await fetch(`${this.API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
+      const response = await firstValueFrom(
+        this.http.post<{ message: string; token: string; user: User }>(`${this.API_URL}/login`, {
+          email,
+          password
+        })
+      );
 
-      if (!response.ok) {
-        throw new Error('Email ou mot de passe incorrect');
-      }
-
-      const data = await response.json();
-      this.storeAuthData(data.token, data.user);
-      this._currentUser.set(data.user);
+      this.storeAuthData(response.token, response.user);
+      this._currentUser.set(response.user);
       
     } catch (error) {
-      this._error.set(error instanceof Error ? error.message : 'Erreur de connexion');
-      throw error;
+      const errorMessage = this.extractErrorMessage(error);
+      this._error.set(errorMessage);
+      throw new Error(errorMessage);
     } finally {
       this._loading.set(false);
     }
@@ -84,19 +82,14 @@ export class AuthService {
     this._error.set(null);
 
     try {
-      const response = await fetch(`${this.API_URL}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-
-      if (!response.ok) {
-        throw new Error('Erreur lors de l\'inscription');
-      }
+      await firstValueFrom(
+        this.http.post<{ message: string; user: User }>(`${this.API_URL}/register`, data)
+      );
 
     } catch (error) {
-      this._error.set(error instanceof Error ? error.message : 'Erreur d\'inscription');
-      throw error;
+      const errorMessage = this.extractErrorMessage(error);
+      this._error.set(errorMessage);
+      throw new Error(errorMessage);
     } finally {
       this._loading.set(false);
     }
@@ -105,7 +98,7 @@ export class AuthService {
   logout(): void {
     this.clearAuthData();
     this._currentUser.set(null);
-    this.router.navigate(['/']);
+    this.router.navigate(['/auth/login']);
   }
 
   //============ VALIDATION TOKEN ============
@@ -115,17 +108,13 @@ export class AuthService {
     if (!token) return false;
 
     try {
-      const response = await fetch(`${this.API_URL}/auth/profile`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await firstValueFrom(
+        this.http.get<{ message: string; user: User }>(`${this.API_URL}/validate`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      );
 
-      if (!response.ok) {
-        this.logout();
-        return false;
-      }
-
-      const data = await response.json();
-      this._currentUser.set(data.user);
+      this._currentUser.set(response.user);
       return true;
 
     } catch {
@@ -166,5 +155,18 @@ export class AuthService {
   updateCurrentUser(user: User): void {
     this._currentUser.set(user);
     localStorage.setItem('antre_user', JSON.stringify(user));
+  }
+
+  clearError(): void {
+    this._error.set(null);
+  }
+
+  //============ UTILITAIRES ============
+
+  private extractErrorMessage(error: any): string {
+    if (error instanceof HttpErrorResponse) {
+      return error.error?.error || error.message || 'Erreur serveur';
+    }
+    return error instanceof Error ? error.message : 'Erreur inconnue';
   }
 }
