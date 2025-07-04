@@ -1,41 +1,28 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-
-export interface UserLatestStory {
-  id: number;
-  username: string;
-  description: string;
-  avatar: string | null;
-  latestStory: {
-    id: number;
-    title: string;
-    slug: string;
-    publishedAt: string;
-  };
-}
 
 @Component({
   selector: 'app-story-card',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './story-card.html',
   styleUrl: './story-card.scss'
 })
 export class StoryCard {
   
-  private router = inject(Router);
+  username = input<string>();
+  storyTitle = input<string>('');
+  storyDate = input<string>('');
+  avatar = input<string>();
 
-  user = input.required<UserLatestStory>();
+  cardClick = output<void>();
 
+  hasAvatar = computed(() => !!this.avatar());
   avatarUrl = computed(() => {
-    const avatar = this.user().avatar;
+    const avatar = this.avatar();
     return avatar ? `http://localhost:3000${avatar}` : '';
   });
 
-  hasAvatar = computed(() => !!this.user().avatar);
-
-  clickCard(): void {
-    this.router.navigate(['/chroniques/story', this.user().latestStory.slug]);
+  onCardClick(): void {
+    this.cardClick.emit();
   }
 }

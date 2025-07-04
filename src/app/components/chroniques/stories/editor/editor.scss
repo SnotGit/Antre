@@ -1,0 +1,102 @@
+@use 'content/artefacts/typing-effect/typing-effect' as *;
+@use 'content/artefacts/buttons/back-button' as *;
+
+.container {
+  padding: 0;
+  background-color: #121416;
+  color: #d0d0d0;
+  font-family: 'Courier New', monospace;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+}
+
+.header {
+  padding: 30px;
+  
+  .header-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #5d889e;
+    margin: 0;
+    
+    @include typing-effect;
+  }
+}
+
+.card-editor { 
+  padding: 30px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  .field-title {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    label {
+      color: #5d889e;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    input {
+      background-color: #121416;
+      border: 2px solid #5d889e;
+      border-radius: 6px;
+      padding: 12px 15px;
+      color: #d0d0d0;
+      font-family: inherit;
+      font-size: 16px;
+    }
+  }
+
+  .field-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+
+    label {
+      color: #5d889e;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    textarea {
+      background-color: #121416;
+      border: 2px solid #5d889e;
+      border-radius: 6px;
+      padding: 15px;
+      color: #d0d0d0;
+      font-family: inherit;
+      font-size: 16px;
+      flex: 1;
+      resize: none;
+    }
+  }
+
+  .back-section {
+    @include back-button;
+  }
+
+  .card-footer {
+    padding: 20px 30px;
+    display: flex;
+    justify-content: flex-end;
+
+    button {
+      padding: 15px 40px;
+      font-family: inherit;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 2px solid #5d889e;
+      background: transparent;
+      color: #5d889e;
+    }
+  }
+}

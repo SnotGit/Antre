@@ -1,0 +1,128 @@
+@use 'content/artefacts/typing-effect/typing-effect' as *;
+@use 'content/chroniques/chroniques-grid' as *;
+
+.container {
+  padding: 0;
+  background-color: #121416;
+  color: #d0d0d0;
+  font-family: 'Courier New', monospace;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  padding: 30px;
+  
+  .header-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #5d889e;
+    margin: 0;
+    
+    @include typing-effect;
+  }
+}
+
+.stories-overview {
+  padding: 30px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  max-width: 800px;
+  margin: 0 auto;
+
+  .story-card-btn {
+    background-color: #1a1d20;
+    border: 2px solid #5d889e;
+    border-radius: 15px;
+    padding: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    color: inherit;
+    font-family: inherit;
+
+    &:hover {
+      border-color: #7ba3c0;
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(93, 136, 158, 0.2);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+
+      h3 {
+        color: #5d889e;
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0;
+      }
+
+      .count {
+        background-color: #5d889e;
+        color: #121416;
+        font-size: 20px;
+        font-weight: 700;
+        padding: 8px 16px;
+        border-radius: 20px;
+        min-width: 50px;
+        text-align: center;
+      }
+    }
+
+    .card-content {
+      p {
+        color: #d0d0d0;
+        font-size: 16px;
+        line-height: 1.5;
+        margin: 0;
+        opacity: 0.8;
+      }
+    }
+
+    &.drafts-btn {
+      .card-header h3 {
+        color: #f39c12;
+      }
+      
+      .card-header .count {
+        background-color: #f39c12;
+      }
+
+      &:hover {
+        border-color: #f39c12;
+      }
+    }
+
+    &.published-btn {
+      .card-header h3 {
+        color: #2ecc71;
+      }
+      
+      .card-header .count {
+        background-color: #2ecc71;
+      }
+
+      &:hover {
+        border-color: #2ecc71;
+      }
+    }
+  }
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@include chroniques-grid;

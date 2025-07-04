@@ -1,0 +1,50 @@
+<div class="container">
+  
+  <div class="header">
+    <h1 class="header-title" [class.typing]="typing()">
+      {{ headerTitle() }}
+    </h1>
+  </div>
+
+  @if (isOverviewMode()) {
+    <div class="stories-overview">
+      
+      <button class="story-card-btn drafts-btn" (click)="goToDrafts()">
+        <div class="card-header">
+          <h3>Brouillons</h3>
+          <span class="count">{{ stats().drafts }}</span>
+        </div>
+        <div class="card-content">
+          <p>Histoires en cours de rédaction</p>
+        </div>
+      </button>
+
+      <button class="story-card-btn published-btn" (click)="goToPublished()">
+        <div class="card-header">
+          <h3>Publiées</h3>
+          <span class="count">{{ stats().published }}</span>
+        </div>
+        <div class="card-content">
+          <p>Histoires disponibles pour les lecteurs</p>
+        </div>
+      </button>
+
+    </div>
+  }
+
+  @if (isListMode()) {
+    <div class="content">
+      <div class="chroniques-grid">
+        @for (story of stories(); track story.id) {
+          <app-story-card 
+            [storyTitle]="story.storyTitle"
+            [storyDate]="story.storyDate"
+            [avatar]="story.avatar"
+            (cardClick)="onStoryClick(story)">
+          </app-story-card>
+        }
+      </div>
+    </div>
+  }
+
+</div>

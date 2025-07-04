@@ -79,12 +79,11 @@ export class ConsoleV3 {
   //============ ACTIONS UTILISATEUR ============
 
   newStory(): void {
-    this.router.navigate(['/chroniques/editor/new']);
+    this.router.navigate(['/chroniques/editor']);
   }
 
   myStories(): void {
-    this.router.navigate(['/chroniques/my-stories']);
-    // TODO: Créer composant my-stories-list pour afficher toutes les histoires
+    this.router.navigate(['/chroniques/stories']);
   }
 
   openAccount(): void {

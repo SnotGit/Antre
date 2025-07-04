@@ -1,21 +1,30 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { PublicStoriesService } from '../../services/public-stories.service';
 import { TypingEffectService } from '../../services/typing-effect.service';
 import { StoryCard } from './stories/story-card/story-card';
 
-interface UserLatestStory {
+interface StoryData {
   id: number;
-  username: string;
-  description: string;
-  avatar: string | null;
-  latestStory: {
+  title: string;
+  publishDate: string;
+  likes: number;
+  slug: string;
+  user: {
     id: number;
-    title: string;
-    slug: string;
-    publishedAt: string;
+    username: string;
+    avatar: string;
+    description: string;
   };
+}
+
+interface FormattedStory {
+  slug: string;
+  username: string;
+  storyTitle: string;
+  storyDate: string;
+  avatar: string;
 }
 
 @Component({
@@ -30,7 +39,7 @@ export class Chroniques implements OnInit, OnDestroy {
   private publicStoriesService = inject(PublicStoriesService);
   private typingService = inject(TypingEffectService);
 
-  stories = signal<UserLatestStory[]>([]);
+  private apiStories = signal<StoryData[]>([]);
   loading = signal(false);
 
   private typingEffect = this.typingService.createTypingEffect({
@@ -41,7 +50,17 @@ export class Chroniques implements OnInit, OnDestroy {
 
   headerTitle = this.typingEffect.headerTitle;
   showCursor = this.typingEffect.showCursor;
-  typingComplete = this.typingEffect.typingComplete;
+  typing = this.typingEffect.typingComplete;
+
+  stories = computed(() => {
+    return this.apiStories().map(story => ({
+      slug: story.slug,
+      username: story.user.username,
+      storyTitle: story.title,
+      storyDate: story.publishDate,
+      avatar: story.user.avatar || ''
+    }));
+  });
 
   ngOnInit(): void {
     this.typingEffect.startTyping();
@@ -54,35 +73,14 @@ export class Chroniques implements OnInit, OnDestroy {
 
   private async loadLatestStories(): Promise<void> {
     this.loading.set(true);
-    try {
-      const apiStories = await this.publicStoriesService.getLatestStories();
-      
-      const formattedUsers = apiStories.map(story => ({
-        id: story.user.id,
-        username: story.user.username,
-        description: story.user.description,
-        avatar: story.user.avatar,
-        latestStory: {
-          id: story.id,
-          title: story.title,
-          slug: story.slug,
-          publishedAt: story.publishDate
-        }
-      }));
-      
-      this.stories.set(formattedUsers);
-    } catch (error) {
-      this.stories.set([]);
-    } finally {
-      this.loading.set(false);
-    }
+    
+    const stories = await this.publicStoriesService.getLatestStories();
+    this.apiStories.set(stories);
+    
+    this.loading.set(false);
   }
 
-  navigateToStory(slug: string): void {
-    this.router.navigate(['/chroniques/story', slug]);
-  }
-
-  navigateToUserProfile(username: string): void {
-    this.router.navigate(['/user-profile', username]);
+  onStoryClick(story: FormattedStory): void {
+    this.router.navigate(['/chroniques/story', story.slug]);
   }
 }
