@@ -2,6 +2,46 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
+//============ GÉNÉRATION SLUG ============
+
+const generateSlug = (title) => {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[àáâäãåā]/g, 'a')
+    .replace(/[èéêëēė]/g, 'e')
+    .replace(/[ìíîïīį]/g, 'i')
+    .replace(/[òóôöõøō]/g, 'o')
+    .replace(/[ùúûüūų]/g, 'u')
+    .replace(/[ÿý]/g, 'y')
+    .replace(/[ñń]/g, 'n')
+    .replace(/[ç]/g, 'c')
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+};
+
+const ensureUniqueSlug = async (baseSlug, excludeId = null) => {
+  let slug = baseSlug;
+  let counter = 1;
+  
+  while (true) {
+    const existing = await prisma.story.findFirst({
+      where: {
+        slug: slug,
+        ...(excludeId && { id: { not: excludeId } })
+      }
+    });
+    
+    if (!existing) {
+      return slug;
+    }
+    
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+};
+
 //============ GESTION BROUILLONS ============
 
 const getDrafts = async (req, res) => {
@@ -41,12 +81,17 @@ const saveDraft = async (req, res) => {
   const userId = req.user.userId;
   const { id } = req.params;
 
+  const storyTitle = title || 'Histoire sans titre';
+  const baseSlug = generateSlug(storyTitle);
+
   if (id) {
     const storyId = parseInt(id);
     
     if (isNaN(storyId)) {
       return res.status(400).json({ error: 'ID histoire invalide' });
     }
+
+    const uniqueSlug = await ensureUniqueSlug(baseSlug, storyId);
 
     const updatedStory = await prisma.story.update({
       where: {
@@ -55,7 +100,8 @@ const saveDraft = async (req, res) => {
         status: 'DRAFT'
       },
       data: {
-        title: title || 'Histoire sans titre',
+        title: storyTitle,
+        slug: uniqueSlug,
         content: content || '',
         updatedAt: new Date()
       }
@@ -67,9 +113,12 @@ const saveDraft = async (req, res) => {
     });
 
   } else {
+    const uniqueSlug = await ensureUniqueSlug(baseSlug);
+
     const newStory = await prisma.story.create({
       data: {
-        title: title || 'Histoire sans titre',
+        title: storyTitle,
+        slug: uniqueSlug,
         content: content || '',
         status: 'DRAFT',
         userId: userId

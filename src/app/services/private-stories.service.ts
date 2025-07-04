@@ -28,6 +28,16 @@ interface StoryData {
   status?: string;
 }
 
+interface SaveDraftResponse {
+  message: string;
+  story: {
+    id: number;
+    title: string;
+    content: string;
+    status: string;
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -74,20 +84,23 @@ export class PrivateStoriesService {
     this._drafts.set(data?.drafts || []);
   }
 
-  async saveDraft(data: { title: string; content: string }, id?: number): Promise<void> {
+  async saveDraft(data: { title: string; content: string }, id?: number): Promise<SaveDraftResponse> {
     this._loading.set(true);
     this._error.set(null);
 
     const url = id ? `${this.API_URL}/draft/${id}` : `${this.API_URL}/draft`;
     const method = id ? 'PUT' : 'POST';
 
-    await this.fetchWithAuth(url, {
+    const response = await this.fetchWithAuth(url, {
       method,
       body: JSON.stringify(data)
     });
 
+    const result = await response.json();
     await this.loadDrafts();
     this._loading.set(false);
+    
+    return result;
   }
 
   async getDraftForEdit(id: number): Promise<StoryData | null> {

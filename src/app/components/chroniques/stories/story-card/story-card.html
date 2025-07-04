@@ -1,15 +1,22 @@
-<div class="story-card" (click)="clickCard()">
+<div class="story-card" (click)="onCardClick()">
 
-  <div class="avatar" [style.background-image]="hasAvatar() ? 'url(' + avatarUrl() + ')' : ''">
-  </div>
+  @if (username()) {
+    <div class="avatar" [style.background-image]="hasAvatar() ? 'url(' + avatarUrl() + ')' : ''">
+    </div>
 
-  <div class="user-data">
-    <div class="username">{{ user().username }}</div>
-  </div>
+    <div class="user-data">
+      <div class="username">{{ username() }}</div>
+    </div>
 
-  <div class="story-data">
-    <div class="story-title">{{ user().latestStory.title }}</div>
-    <div class="publish-date">{{ user().latestStory.publishedAt }}</div>
-  </div>
+    <div class="story-data">
+      <div class="story-title">{{ storyTitle() }}</div>
+      <div class="story-date">{{ storyDate() }}</div>
+    </div>
+  } @else {
+    <div class="story-data-private">
+      <div class="story-title">{{ storyTitle() }}</div>
+      <div class="story-date">{{ storyDate() }}</div>
+    </div>
+  }
   
 </div>

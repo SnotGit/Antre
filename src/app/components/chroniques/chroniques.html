@@ -1,24 +1,27 @@
 <div class="container">
   
-  <!-- HEADER TITRE -->
   <div class="header">
-    <h2 class="header-title" [class.typing-complete]="typingComplete()">
+    <h2 class="header-title" [class.typing]="typing()">
       {{ headerTitle() }}
     </h2>
   </div>
 
-  <!-- DESCRIPTION -->
   <div class="description">
     <p>Des terraformers vous racontent leurs aventures sur Mars.</p>
     <p>Des génies ou des fous, des contes à dormir debout.</p>
   </div>
 
-  <!-- CONTENU -->
   <div class="content">
     @if (stories().length > 0) {
       <div class="chroniques-grid">
-        @for (user of stories(); track user.id) {
-          <app-story-card [user]="user"></app-story-card>
+        @for (story of stories(); track story.slug) {
+          <app-story-card 
+            [username]="story.username"
+            [storyTitle]="story.storyTitle"
+            [storyDate]="story.storyDate"
+            [avatar]="story.avatar"
+            (cardClick)="onStoryClick(story)">
+          </app-story-card>
         }
       </div>
     }
