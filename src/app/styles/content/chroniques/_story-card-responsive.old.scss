@@ -1,0 +1,320 @@
+//============ STORY CARD RESPONSIVE ============
+
+@mixin story-card-responsive {
+    
+    //====== DESKTOP BASE ======
+    width: 320px;
+    height: 240px;
+    gap: 15px;
+    
+    .avatar {
+        width: 90px;
+        height: 90px;
+        
+        &::after {
+            font-size: 20px;
+        }
+    }
+    
+    .username {
+        font-size: 18px;
+    }
+    
+    .story-title {
+        font-size: 16px;
+    }
+    
+    .story-date {
+        font-size: 15px;
+    }
+    
+    .story-data {
+        gap: 8px;
+    }
+    
+    //====== TABLET LANDSCAPE ======
+    @media screen and (max-width: 1366px) and (orientation: landscape) {
+        width: 320px;
+        height: 240px;
+        gap: 12px;
+        
+        .avatar {
+            width: 90px;
+            height: 90px;
+            
+            &::after {
+                font-size: 18px;
+            }
+        }
+        
+        .username {
+            font-size: 16px;
+        }
+        
+        .story-title {
+            font-size: 14px;
+        }
+        
+        .story-date {
+            font-size: 13px;
+        }
+        
+        .story-data {
+            gap: 6px;
+        }
+    }
+
+    @media screen and (max-width: 1180px) and (orientation: landscape) {
+        width: 280px;
+        height: 210px;
+        gap: 12px;
+        
+        .avatar {
+            width: 75px;
+            height: 75px;
+            
+            &::after {
+                font-size: 18px;
+            }
+        }
+        
+        .username {
+            font-size: 16px;
+        }
+        
+        .story-title {
+            font-size: 14px;
+        }
+        
+        .story-date {
+            font-size: 13px;
+        }
+        
+        .story-data {
+            gap: 6px;
+        }
+    }
+
+    @media screen and (max-width: 1024px) and (orientation: landscape) {
+        width: 260px;
+        height: 200px;
+        gap: 10px;
+        
+        .avatar {
+            width: 70px;
+            height: 70px;
+            
+            &::after {
+                font-size: 16px;
+            }
+        }
+        
+        .username {
+            font-size: 15px;
+        }
+        
+        .story-title {
+            font-size: 13px;
+        }
+        
+        .story-date {
+            font-size: 12px;
+        }
+        
+        .story-data {
+            gap: 5px;
+        }
+    }
+
+
+    //====== TABLET PORTRAIT ======
+    @media screen and (max-width: 1024px) and (orientation: portrait) {
+        width: 360px;
+        height: 280px;
+        gap: 15px;
+        
+        .avatar {
+            width: 100px;
+            height: 100px;
+            
+            &::after {
+                font-size: 20px;
+            }
+        }
+        
+        .username {
+            font-size: 18px;
+        }
+        
+        .story-title {
+            font-size: 16px;
+        }
+        
+        .story-date {
+            font-size: 15px;
+        }
+        
+        .story-data {
+            gap: 8px;
+        }
+    }
+
+    @media screen and (max-width: 820px) and (orientation: portrait) {
+        width: 320px;
+        height: 240px;
+        gap: 15px;
+        
+        .avatar {
+            width: 90px;
+            height: 90px;
+            
+            &::after {
+                font-size: 20px;
+            }
+        }
+        
+        .username {
+            font-size: 18px;
+        }
+        
+        .story-title {
+            font-size: 16px;
+        }
+        
+        .story-date {
+            font-size: 15px;
+        }
+        
+        .story-data {
+            gap: 8px;
+        }
+    }
+
+    @media screen and (max-width: 768px) and (orientation: portrait) {
+        width: 320px;
+        height: 240px;
+        gap: 15px;
+        
+        .avatar {
+            width: 90px;
+            height: 90px;
+            
+            &::after {
+                font-size: 20px;
+            }
+        }
+        
+        .username {
+            font-size: 18px;
+        }
+        
+        .story-title {
+            font-size: 16px;
+        }
+        
+        .story-date {
+            font-size: 15px;
+        }
+        
+        .story-data {
+            gap: 8px;
+        }
+    }
+
+
+    //====== MOBILE LARGE LANDSCAPE ======
+    @media (orientation: landscape) and (max-width: 932px) {
+        width: 240px;
+        height: 180px;
+        gap: 8px;
+        
+        .avatar {
+            width: 60px;
+            height: 60px;
+            
+            &::after {
+                font-size: 14px;
+            }
+        }
+        
+        .username {
+            font-size: 16px;
+        }
+        
+        .story-title {
+            font-size: 14px;
+        }
+        
+        .story-date {
+            font-size: 12px;
+        }
+        
+        .story-data {
+            gap: 8px;
+        }
+    }
+
+
+    //====== MOBILE ======
+    @media screen and (max-width: 430px) {
+        width: 240px;
+        height: 160px;
+        gap: 8px;
+        
+        .avatar {
+            width: 70px;
+            height: 70px;
+            
+            &::after {
+                font-size: 14px;
+            }
+        }
+        
+        .username {
+            font-size: 16px;
+        }
+        
+        .story-title {
+            font-size: 14px;
+        }
+        
+        .story-date {
+            font-size: 12px;
+        }
+        
+        .story-data {
+            gap: 4px;
+        }
+    }
+
+    @media screen and (max-width: 375px) {
+        width: 220px;
+        height: 140px;
+        gap: 8px;
+        
+        .avatar {
+            width: 50px;
+            height: 50px;
+            
+            &::after {
+                font-size: 14px;
+            }
+        }
+        
+        .username {
+            font-size: 14px;
+        }
+        
+        .story-title {
+            font-size: 12px;
+        }
+        
+        .pstory-date {
+            font-size: 11px;
+        }
+        
+        .story-data {
+            gap: 4px;
+        }
+    }
+}
