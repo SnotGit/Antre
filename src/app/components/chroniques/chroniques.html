@@ -16,10 +16,7 @@
       <div class="chroniques-grid">
         @for (story of stories(); track story.slug) {
           <app-story-card 
-            [username]="story.username"
-            [storyTitle]="story.storyTitle"
-            [storyDate]="story.storyDate"
-            [avatar]="story.avatar"
+            [public]="story"
             (cardClick)="onStoryClick(story)">
           </app-story-card>
         }

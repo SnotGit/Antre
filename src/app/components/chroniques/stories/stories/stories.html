@@ -7,28 +7,18 @@
   </div>
 
   @if (isOverviewMode()) {
-    <div class="stories-overview">
-      
-      <button class="story-card-btn drafts-btn" (click)="goToDrafts()">
-        <div class="card-header">
-          <h3>Brouillons</h3>
-          <span class="count">{{ stats().drafts }}</span>
-        </div>
-        <div class="card-content">
-          <p>Histoires en cours de rédaction</p>
-        </div>
-      </button>
+    <div class="content">
+      <div class="buttons-grid">
+        <button class="overview-btn" (click)="goToDrafts()">
+          <div class="number">{{ stats().drafts }}</div>
+          <div class="title">Brouillons</div>
+        </button>
 
-      <button class="story-card-btn published-btn" (click)="goToPublished()">
-        <div class="card-header">
-          <h3>Publiées</h3>
-          <span class="count">{{ stats().published }}</span>
-        </div>
-        <div class="card-content">
-          <p>Histoires disponibles pour les lecteurs</p>
-        </div>
-      </button>
-
+        <button class="overview-btn" (click)="goToPublished()">
+          <div class="number">{{ stats().published }}</div>
+          <div class="title">Publiées</div>
+        </button>
+      </div>
     </div>
   }
 
@@ -37,9 +27,7 @@
       <div class="chroniques-grid">
         @for (story of stories(); track story.id) {
           <app-story-card 
-            [storyTitle]="story.storyTitle"
-            [storyDate]="story.storyDate"
-            [avatar]="story.avatar"
+            [private]="story"
             (cardClick)="onStoryClick(story)">
           </app-story-card>
         }

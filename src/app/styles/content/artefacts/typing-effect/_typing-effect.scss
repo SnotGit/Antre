@@ -12,7 +12,7 @@
     margin-left: -0.5em;
   }
 
-  &.typing-complete {
+  &.typing {
     &::after {
       animation: blink-and-hide 1s 4 forwards;
     }
