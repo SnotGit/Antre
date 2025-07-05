@@ -1,6 +1,18 @@
 import { Component, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+interface Public {
+  username: string;
+  avatar: string;
+  storyTitle: string;
+  storyDate: string;
+}
+
+interface Private {
+  storyTitle: string;
+  storyDate: string;
+}
+
 @Component({
   selector: 'app-story-card',
   imports: [CommonModule],
@@ -9,17 +21,14 @@ import { CommonModule } from '@angular/common';
 })
 export class StoryCard {
   
-  username = input<string>();
-  storyTitle = input<string>('');
-  storyDate = input<string>('');
-  avatar = input<string>();
+  public = input<Public>();
+  private = input<Private>();
 
   cardClick = output<void>();
 
-  hasAvatar = computed(() => !!this.avatar());
   avatarUrl = computed(() => {
-    const avatar = this.avatar();
-    return avatar ? `http://localhost:3000${avatar}` : '';
+    const avatar = this.public()?.avatar;
+    return avatar ? `url(http://localhost:3000${avatar})` : '';
   });
 
   onCardClick(): void {

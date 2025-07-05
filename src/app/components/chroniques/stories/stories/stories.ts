@@ -10,7 +10,6 @@ interface StoryCardData {
   id: number;
   storyTitle: string;
   storyDate: string;
-  avatar: string;
 }
 
 @Component({
@@ -43,8 +42,7 @@ export class Stories implements OnInit, OnDestroy {
       return this.privateStoriesService.drafts().map(draft => ({
         id: draft.id,
         storyTitle: draft.title,
-        storyDate: this.formatDate(draft.lastModified),
-        avatar: ''
+        storyDate: this.formatDate(draft.lastModified)
       }));
     }
     
@@ -52,8 +50,7 @@ export class Stories implements OnInit, OnDestroy {
       return this.privateStoriesService.published().map(story => ({
         id: story.id,
         storyTitle: story.title,
-        storyDate: this.formatDate(story.lastModified),
-        avatar: ''
+        storyDate: this.formatDate(story.lastModified)
       }));
     }
     
@@ -63,8 +60,8 @@ export class Stories implements OnInit, OnDestroy {
   //============ TYPING EFFECT ============
 
   private typingEffect: any;
-  headerTitle = signal<string>('');
-  typing = signal<boolean>(false);
+  headerTitle: any;
+  typing: any;
 
   ngOnInit(): void {
     if (!this.authService.isLoggedIn()) {
@@ -73,7 +70,7 @@ export class Stories implements OnInit, OnDestroy {
     }
 
     this.detectModeFromUrl();
-    this.createTypingEffect();
+    this.initializeTypingEffect();
     this.loadUserData();
   }
 
@@ -81,7 +78,7 @@ export class Stories implements OnInit, OnDestroy {
     await this.privateStoriesService.initializeUserData();
   }
 
-  private createTypingEffect(): void {
+  private initializeTypingEffect(): void {
     this.typingEffect = this.typingService.createTypingEffect({
       text: this.getHeaderText(),
       speed: 100,

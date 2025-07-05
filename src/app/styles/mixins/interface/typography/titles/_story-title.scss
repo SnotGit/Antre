@@ -1,9 +1,0 @@
-@use 'core/variables/variables' as *;
-
-//============ STORY TITLE ============
-@mixin story-title($context) {
-  font-weight: $font-weight-700;
-  text-align: center;
-  font-size: map-get($context, size);
-  color: $gray;
-}

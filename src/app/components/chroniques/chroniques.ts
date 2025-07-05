@@ -19,14 +19,6 @@ interface StoryData {
   };
 }
 
-interface FormattedStory {
-  slug: string;
-  username: string;
-  storyTitle: string;
-  storyDate: string;
-  avatar: string;
-}
-
 @Component({
   selector: 'app-chroniques',
   imports: [CommonModule, StoryCard],
@@ -56,9 +48,9 @@ export class Chroniques implements OnInit, OnDestroy {
     return this.apiStories().map(story => ({
       slug: story.slug,
       username: story.user.username,
+      avatar: story.user.avatar || '',
       storyTitle: story.title,
-      storyDate: story.publishDate,
-      avatar: story.user.avatar || ''
+      storyDate: story.publishDate
     }));
   });
 
@@ -80,7 +72,7 @@ export class Chroniques implements OnInit, OnDestroy {
     this.loading.set(false);
   }
 
-  onStoryClick(story: FormattedStory): void {
+  onStoryClick(story: any): void {
     this.router.navigate(['/chroniques/story', story.slug]);
   }
 }

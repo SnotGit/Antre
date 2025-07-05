@@ -1,24 +1,23 @@
-//============ STORY CARD ============
 @use 'content/chroniques/story-card-responsive' as *;
 
-.story-card {
+//============ STORY CARD PUBLIC ============
+.story-card-public {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;  
+  justify-content: center;
   background-color: #1a1d20;
   border: 2px solid #5d889e;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  
-  @include story-card-responsive;
 
   &:hover {
     border: 2px solid #b55a44;
   }
-  
-  //============ AVATAR ============
+
+  @include story-card-responsive;
+
   .avatar {
     border-radius: 50%;
     border: 2px solid #5d889e;
@@ -27,44 +26,61 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    
-    &::after {
-      content: '👤';
-      opacity: 0.5;
-    }
-    
-    &[style*="url"] {
-      &::after {
-        display: none;
-      }
-    }
   }
-  
-  //============ USER DATA ============
-  .user-data {
-    
-    .username {
-      font-weight: 700;
-      text-align: center;
-      color: #5d889e;
-    }
+
+  .user-data .username {
+    font-weight: 700;
+    text-align: center;
+    color: #5d889e;
   }
-  
-  //============ STORY DATA ============
+
   .story-data {
     display: flex;
     flex-direction: column;
-    
+
     .story-title {
       font-weight: 700;
       text-align: center;
       color: #d0d0d0;
     }
-    
+
     .story-date {
       font-weight: 400;
       text-align: center;
       color: #5d889e;
     }
+  }
+}
+
+//============ STORY CARD PRIVATE ============
+.story-card-private {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #1a1d20;
+  border: 2px solid #5d889e;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  height: 140px;
+
+  &:hover {
+    border: 2px solid #b55a44;
+  }
+
+  @include story-card-responsive;
+
+
+  .story-title {
+    font-weight: 700;
+    text-align: center;
+    color: #d0d0d0;
+  }
+
+  .story-date {
+    font-weight: 400;
+    text-align: center;
+    color: #5d889e;
   }
 }
