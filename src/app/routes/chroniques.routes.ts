@@ -17,22 +17,22 @@ export const routes: Routes = [
   },
 
   {
-    path: 'stories',
-    loadComponent: () => import('../components/chroniques/stories/stories/stories').then(m => m.Stories)
+    path: 'stories-details',
+    loadComponent: () => import('../components/chroniques/stories/stories-details/stories-details').then(m => m.StoriesDetails)
   },
 
   {
-    path: 'stories/drafts',
-    loadComponent: () => import('../components/chroniques/stories/stories/stories').then(m => m.Stories)
+    path: 'stories-details/drafts',
+    loadComponent: () => import('../components/chroniques/stories/stories-details/stories-details').then(m => m.StoriesDetails)
   },
 
   {
-    path: 'stories/published',
-    loadComponent: () => import('../components/chroniques/stories/stories/stories').then(m => m.Stories)
+    path: 'stories-details/published',
+    loadComponent: () => import('../components/chroniques/stories/stories-details/stories-details').then(m => m.StoriesDetails)
   },
 
   {
     path: 'story/:slug',
-    loadComponent: () => import('../components/chroniques/stories/story-detail/story-detail').then(m => m.StoryDetail)
+    loadComponent: () => import('../components/chroniques/stories/story/story').then(m => m.Story)
   }
 ];

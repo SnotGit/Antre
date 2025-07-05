@@ -20,16 +20,16 @@
     <div class="console-status">
       <div class="status-line">
         <span>> STATUS:
-          <span [class]="getCurrentStatus() === 'CONNECTÉ' ? 'status-online' : 'status-offline'">
-            {{getCurrentStatus()}}
+          <span [class]="`status-${getCurrentStatus() === 'CONNECTÉ' ? 'online' : 'offline'}`">
+            {{ getCurrentStatus() }}
           </span>
         </span>
       </div>
       <div class="user-line">
-        <span>> UTILISATEUR: {{getCurrentUserName()}}</span>
+        <span>> UTILISATEUR: {{ getCurrentUserName() }}</span>
       </div>
       <div class="access-line">
-        <span>> ACCESS-LVL: {{getCurrentUserLevel()}}</span>
+        <span>> ACCESS-LVL: {{ getCurrentUserLevel() }}</span>
       </div>
     </div>
 
@@ -74,10 +74,10 @@
     <div class="console-footer">
       <span class="group-title">> SYSTÈME VERROUILLÉ</span>
       <button class="console-btn" (click)="openLogin()">
-        [⚡] CONNEXION
+        `[⚡] CONNEXION`
       </button>
       <button class="console-btn" (click)="openRegister()">
-        [👤] INSCRIPTION
+        `[👤] INSCRIPTION`
       </button>
     </div>
     }

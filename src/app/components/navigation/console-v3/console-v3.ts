@@ -35,6 +35,20 @@ export class ConsoleV3 {
     return this.isAdmin() && !this._currentRoute().includes('/chroniques');
   });
 
+  // ============ COMPUTED OPTIMISÉS (Angular 20) ============
+
+  getCurrentStatus = computed(() => {
+    return this.currentUser() ? 'CONNECTÉ' : 'DÉCONNECTÉ';
+  });
+
+  getCurrentUserName = computed(() => {
+    return this.currentUser()?.username || 'INCONNU';
+  });
+
+  getCurrentUserLevel = computed(() => {
+    return this.currentUser()?.role?.toUpperCase() || 'VISITEUR';
+  });
+
   //============ INITIALISATION ============
 
   constructor() {
@@ -83,7 +97,7 @@ export class ConsoleV3 {
   }
 
   myStories(): void {
-    this.router.navigate(['/chroniques/stories']);
+    this.router.navigate(['/chroniques/stories-details']);
   }
 
   openAccount(): void {
@@ -116,20 +130,6 @@ export class ConsoleV3 {
 
   publishCurrentStory(): void {
     // TODO: Implémenter publication histoire courante
-  }
-
-  //============ GETTERS DISPLAY ============
-
-  getCurrentStatus(): string {
-    return this.currentUser() ? 'CONNECTÉ' : 'DÉCONNECTÉ';
-  }
-
-  getCurrentUserName(): string {
-    return this.currentUser()?.username || 'INCONNU';
-  }
-
-  getCurrentUserLevel(): string {
-    return this.currentUser()?.role?.toUpperCase() || 'VISITEUR';
   }
 
   //============ HELPERS ============

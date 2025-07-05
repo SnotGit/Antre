@@ -22,7 +22,7 @@
             <div class="user-left">
               <div class="user-avatar">
                 @if (avatarUrl()) {
-                  <div class="avatar-image" [style.background-image]="'url(' + avatarUrl() + ')'"></div>
+                  <div class="avatar-image" [style.background-image]="`url(${avatarUrl()})`"></div>
                 } @else {
                   <span class="avatar-placeholder">👤</span>
                 }
