@@ -1,5 +1,5 @@
 
-@use "content/artefacts/buttons/back-button" as *;
+@use "content/artefacts/buttons/button" as *;
 
 
 .auth-container {
@@ -13,8 +13,8 @@
     flex-direction: column;
     overflow-y: auto;
 
-    // Navigation de retour
-    @include back-button;
+    // Back-Button
+    @include button;
 
     // Terminal principal 
     .auth-terminal {

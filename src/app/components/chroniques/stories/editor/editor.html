@@ -1,35 +1,34 @@
 <div class="container">
-  
+
   <div class="header">
     <h1 class="header-title" [class.typing]="typing()">
       {{ headerTitle() }}
     </h1>
-  </div>
+    <div class="back-button">
+      <button class="btn" (click)="goBack()">
+        <span>← Retour</span>
+      </button>
+    </div>
+  </div>  
 
   <div class="card-editor">
-    
+
     <div class="field-title">
       <label>Titre de l'histoire</label>
-      <input 
-        type="text"
-        [(ngModel)]="storyData().title"
-        placeholder="Entrez le titre...">
+      <input type="text" [(ngModel)]="storyData().title" placeholder="Entrez le titre...">
     </div>
 
     <div class="field-content">
       <label>Contenu</label>
-      <textarea 
-        [(ngModel)]="storyData().content"
-        placeholder="Rédigez votre histoire...">
+      <textarea [(ngModel)]="storyData().content" placeholder="Rédigez votre histoire...">
       </textarea>
     </div>
 
     <div class="card-footer">
-      <button class="back-btn" (click)="goBack()">
-        <span class="back-icon">←</span>
-        Retour
-      </button>
-      <button (click)="publishStory()">Publier</button>
+      <div class="publish-button">
+
+      <button class="btn" (click)="publishStory()">
+        <span>Publier</span></button>
     </div>
 
   </div>

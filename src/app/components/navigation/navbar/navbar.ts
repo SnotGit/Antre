@@ -15,11 +15,11 @@ export class Navbar {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
 
-  //============ SIGNALS ÉTAT ============
+  //============ SIGNALS ============
 
   private _mobileMenuOpen = signal<boolean>(false);
 
-  //============ COMPUTED PUBLICS ============
+  //============ COMPUTED ============
 
   mobileMenuOpen = this._mobileMenuOpen.asReadonly();
   isAdmin = this.authService.isAdmin;
@@ -43,7 +43,7 @@ export class Navbar {
     }
   }
 
-  //============ ACTIONS MENU MOBILE ============
+  //============ ACTIONS ============
 
   toggleMobileMenu(): void {
     this._mobileMenuOpen.set(!this._mobileMenuOpen());

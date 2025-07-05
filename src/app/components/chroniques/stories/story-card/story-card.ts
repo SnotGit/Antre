@@ -21,15 +21,20 @@ interface Private {
 })
 export class StoryCard {
   
+  //============ INPUTS/OUTPUTS ============
+  
   public = input<Public>();
   private = input<Private>();
-
   cardClick = output<void>();
+
+  //============ COMPUTED ============
 
   avatarUrl = computed(() => {
     const avatar = this.public()?.avatar;
     return avatar ? `url(http://localhost:3000${avatar})` : '';
   });
+
+  //============ ACTIONS ============
 
   onCardClick(): void {
     this.cardClick.emit();

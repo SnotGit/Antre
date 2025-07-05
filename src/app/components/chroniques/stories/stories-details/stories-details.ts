@@ -15,10 +15,10 @@ interface StoryCardData {
 @Component({
   selector: 'app-stories',
   imports: [CommonModule, StoryCard],
-  templateUrl: './stories.html',
-  styleUrl: './stories.scss'
+  templateUrl: './stories-details.html',
+  styleUrl: './stories-details.scss'
 })
-export class Stories implements OnInit, OnDestroy {
+export class StoriesDetails implements OnInit, OnDestroy {
   
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -113,8 +113,8 @@ export class Stories implements OnInit, OnDestroy {
   private getHeaderText(): string {
     const mode = this.currentMode();
     switch (mode) {
-      case 'drafts': return 'Mes Brouillons';
-      case 'published': return 'Mes Histoires Publiées';
+      case 'drafts': return 'Brouillons';
+      case 'published': return 'Histoires Publiées';
       default: return 'Mes Histoires';
     }
   }
@@ -122,11 +122,11 @@ export class Stories implements OnInit, OnDestroy {
   //============ NAVIGATION ============
 
   goToDrafts(): void {
-    this.router.navigate(['/chroniques/stories/drafts']);
+    this.router.navigate(['/chroniques/stories-details/drafts']);
   }
 
   goToPublished(): void {
-    this.router.navigate(['/chroniques/stories/published']);
+    this.router.navigate(['/chroniques/stories-details/published']);
   }
 
   onStoryClick(story: StoryCardData): void {

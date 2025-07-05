@@ -24,22 +24,29 @@ interface StoryData {
 @Component({
   selector: 'app-story-detail',
   imports: [CommonModule],
-  templateUrl: './story-detail.html',
-  styleUrl: './story-detail.scss'
+  templateUrl: './story.html',
+  styleUrl: './story.scss'
 })
-export class StoryDetail {
+export class Story {
   
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private publicStoriesService = inject(PublicStoriesService);
   private authService = inject(AuthService);
 
+  //============ SIGNALS PRIVÉS ============
+
   private storyId = signal<number>(0);
   private userStories = signal<StoryData[]>([]);
+
+  //============ SIGNALS PUBLICS ============
+
   isLiked = signal<boolean>(false);
   likesCount = signal<number>(0);
   showSnackBar = signal<boolean>(false);
   snackBarMessage = signal<string>('');
+
+  //============ COMPUTED OPTIMISÉS (Angular 20) ============
 
   isUserLoggedIn = computed(() => this.authService.isLoggedIn());
 
@@ -69,7 +76,6 @@ export class StoryDetail {
   formattedDate = computed(() => {
     const story = this.story();
     if (!story) return 'Chargement...';
-    
     return story.publishDate || 'Date non disponible';
   });
 
@@ -78,6 +84,20 @@ export class StoryDetail {
     const currentId = this.storyId();
     return stories.findIndex(s => s.id === currentId);
   });
+
+  hasPreviousStory = computed(() => {
+    const stories = this.userStories();
+    const currentIndex = this.currentStoryIndex();
+    return currentIndex >= 0 && currentIndex < stories.length - 1;
+  });
+
+  hasNextStory = computed(() => {
+    const stories = this.userStories();
+    const currentIndex = this.currentStoryIndex();
+    return currentIndex > 0;
+  });
+
+  //============ INITIALISATION ============
 
   constructor() {
     effect(() => {
@@ -96,6 +116,8 @@ export class StoryDetail {
       }
     });
   }
+
+  //============ CHARGEMENT DONNÉES ============
 
   async loadUserStories(userId: number): Promise<void> {
     if (!userId) return;
@@ -136,6 +158,8 @@ export class StoryDetail {
     }
   }
 
+  //============ ACTIONS ============
+
   async toggleLike(): Promise<void> {
     const currentStoryId = this.storyId();
     if (!currentStoryId) return;
@@ -157,20 +181,11 @@ export class StoryDetail {
     }
   }
 
-  private showSnackBarMessage(message: string): void {
-    this.snackBarMessage.set(message);
-    this.showSnackBar.set(true);
-    
-    setTimeout(() => {
-      this.showSnackBar.set(false);
-    }, 3000);
-  }
-
   goToPreviousStory(): void {
     const stories = this.userStories();
     const currentIndex = this.currentStoryIndex();
     
-    if (currentIndex >= 0 && currentIndex < stories.length - 1) {
+    if (this.hasPreviousStory()) {
       const previousStory = stories[currentIndex + 1];
       if (previousStory.slug) {
         this.router.navigate(['/chroniques/story', previousStory.slug]);
@@ -182,7 +197,7 @@ export class StoryDetail {
     const stories = this.userStories();
     const currentIndex = this.currentStoryIndex();
     
-    if (currentIndex > 0) {
+    if (this.hasNextStory()) {
       const nextStory = stories[currentIndex - 1];
       if (nextStory.slug) {
         this.router.navigate(['/chroniques/story', nextStory.slug]);
@@ -190,22 +205,21 @@ export class StoryDetail {
     }
   }
 
-  hasPreviousStory(): boolean {
-    const stories = this.userStories();
-    const currentIndex = this.currentStoryIndex();
-    return currentIndex >= 0 && currentIndex < stories.length - 1;
-  }
-
-  hasNextStory(): boolean {
-    const stories = this.userStories();
-    const currentIndex = this.currentStoryIndex();
-    return currentIndex > 0;
-  }
-
   goToUserProfile(): void {
     const story = this.story();
     if (story?.user?.id) {
       this.router.navigate(['/chroniques/user', story.user.id]);
     }
+  }
+
+  //============ UTILITAIRES ============
+
+  private showSnackBarMessage(message: string): void {
+    this.snackBarMessage.set(message);
+    this.showSnackBar.set(true);
+    
+    setTimeout(() => {
+      this.showSnackBar.set(false);
+    }, 3000);
   }
 }
