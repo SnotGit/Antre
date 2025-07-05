@@ -17,18 +17,18 @@ export const routes: Routes = [
   },
 
   {
-    path: 'stories-details',
-    loadComponent: () => import('../components/chroniques/stories/stories-details/stories-details').then(m => m.StoriesDetails)
+    path: 'my-stories',
+    loadComponent: () => import('../components/chroniques/stories/my-stories/my-stories').then(m => m.MyStories)
   },
 
   {
-    path: 'stories-details/drafts',
-    loadComponent: () => import('../components/chroniques/stories/stories-details/stories-details').then(m => m.StoriesDetails)
+    path: 'my-stories/drafts',
+    loadComponent: () => import('../components/chroniques/stories/my-stories/my-stories').then(m => m.MyStories)
   },
 
   {
-    path: 'stories-details/published',
-    loadComponent: () => import('../components/chroniques/stories/stories-details/stories-details').then(m => m.StoriesDetails)
+    path: 'my-stories/published',
+    loadComponent: () => import('../components/chroniques/stories/my-stories/my-stories').then(m => m.MyStories)
   },
 
   {

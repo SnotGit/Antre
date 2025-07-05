@@ -13,13 +13,13 @@
 
 .header {
   padding: 30px;
-  
+
   .header-title {
     font-size: 32px;
     font-weight: 700;
     color: #5d889e;
     margin: 0;
-    
+
     @include typing-effect;
   }
 }
@@ -42,7 +42,7 @@
   justify-content: center;
   align-items: center;
   gap: 30px;
-  
+
 }
 
 .button {
@@ -59,9 +59,15 @@
   align-items: center;
   gap: 15px;
   width: 320px;
-
+  
   &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    color: #d0d0d0;
+    border-color: #d0d0d0;
+    transform: translateY(2px);
+  }
+
+    &:hover .number {
+    color: #d0d0d0; 
   }
 
   .number {
@@ -71,7 +77,7 @@
   }
 
   .title {
-    color: #5d889e;
+    color: #d0d0d0;
     font-size: 20px;
     font-weight: 700;
   }

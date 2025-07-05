@@ -169,9 +169,8 @@
             cursor: pointer;
 
             &:hover {
-              border-color: #5d889e;
-              transform: translateY(-2px);
-            }
+              border-color: #d0d0d0;
+              transform: translateY(2px);}
 
             &.no-hover {
               cursor: default;
@@ -180,6 +179,10 @@
                 border-color: rgba(93, 136, 158, 0.3);
                 transform: none;
               }
+            }
+
+            &:hover .stat-number {
+              color: #d0d0d0;
             }
 
             .stat-number {

@@ -61,7 +61,7 @@ export class Editor implements OnInit, OnDestroy {
   private startTyping(): void {
     const id = this.route.snapshot.params['id'];
     const isEditMode = id && !isNaN(parseInt(id));
-    const text = isEditMode ? 'Continuer mon histoire' : 'Nouvelle Histoire';
+    const text = isEditMode ? 'Continuer cette histoire' : 'Nouvelle Histoire';
     let index = 0;
 
     this.typingInterval = window.setInterval(() => {
@@ -169,6 +169,6 @@ export class Editor implements OnInit, OnDestroy {
 
   async goBack(): Promise<void> {
     await this.saveBeforeExit();
-    this.router.navigate(['/chroniques']);
+    this.router.navigate(['/chroniques/my-stories']);
   }
 }

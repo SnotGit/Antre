@@ -79,15 +79,15 @@
             <div class="stats-grid">
               <div class="stat-card" (click)="showMyStories()">
                 <div class="stat-number">{{ getUserStats().totalStories }}</div>
-                <div class="stat-label">Mes Histoires</div>
+                <div class="stat-label">Histoires</div>
               </div>
 
-              <div class="stat-card" (click)="showMyStories()">
+              <div class="stat-card" (click)="showMyPublishedStories()">
                 <div class="stat-number">{{ getUserStats().publishedStories }}</div>
                 <div class="stat-label">Histoires publiées</div>
               </div>
 
-              <div class="stat-card" (click)="showMyStories()">
+              <div class="stat-card" (click)="showMyDrafts()">
                 <div class="stat-number">{{ getUserStats().drafts }}</div>
                 <div class="stat-label">Brouillons</div>
               </div>
