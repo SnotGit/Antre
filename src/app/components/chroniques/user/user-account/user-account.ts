@@ -125,6 +125,15 @@ export class UserAccount implements OnInit, OnDestroy {
     this.router.navigate(['/chroniques/my-stories']);
   }
 
+  showMyPublishedStories(): void {
+    this.router.navigate(['/chroniques/my-stories/published']);
+  }
+
+  showMyDrafts(): void {
+    this.router.navigate(['/chroniques/my-stories/drafts']);
+  }
+
+
   //============ GESTION AVATAR ============
 
   triggerFileInput(): void {
@@ -149,7 +158,7 @@ export class UserAccount implements OnInit, OnDestroy {
 
   getAvatarUrl(): string {
     if (this.avatarState.preview) return this.avatarState.preview;
-    
+
     const user = this.currentUser();
     return user?.avatar ? `http://localhost:3000${user.avatar}` : '';
   }
@@ -165,7 +174,7 @@ export class UserAccount implements OnInit, OnDestroy {
     }
 
     await this.userService.updateProfile(username, this.profileData.description.trim());
-    
+
     this.avatarState.selectedFile = null;
     this.avatarState.preview = null;
   }
@@ -181,7 +190,7 @@ export class UserAccount implements OnInit, OnDestroy {
 
   async changePassword(): Promise<void> {
     const { currentPassword, newPassword, confirmPassword } = this.passwordData;
-    
+
     if (!currentPassword || !newPassword || newPassword.length < 8 || newPassword !== confirmPassword) {
       return;
     }

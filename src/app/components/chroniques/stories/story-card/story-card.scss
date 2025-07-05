@@ -10,10 +10,15 @@
   border: 2px solid #5d889e;
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease;
+
 
   &:hover {
-    border: 2px solid #b55a44;
+    border-color: #d0d0d0;
+
+    .avatar {
+      border-color: #d0d0d0;
+    }
   }
 
   @include story-card-responsive;
@@ -26,6 +31,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: border-color 0.3s ease;
+
   }
 
   .user-data .username {
@@ -66,7 +73,7 @@
   height: 140px;
 
   &:hover {
-    border: 2px solid #b55a44;
+    border-color: #d0d0d0;
   }
 
   @include story-card-responsive;

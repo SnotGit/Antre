@@ -15,10 +15,10 @@ interface StoryCardData {
 @Component({
   selector: 'app-stories',
   imports: [CommonModule, StoryCard],
-  templateUrl: './stories-details.html',
-  styleUrl: './stories-details.scss'
+  templateUrl: './my-stories.html',
+  styleUrl: './my-stories.scss'
 })
-export class StoriesDetails implements OnInit, OnDestroy {
+export class MyStories implements OnInit, OnDestroy {
   
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -122,11 +122,11 @@ export class StoriesDetails implements OnInit, OnDestroy {
   //============ NAVIGATION ============
 
   goToDrafts(): void {
-    this.router.navigate(['/chroniques/stories-details/drafts']);
+    this.router.navigate(['/chroniques/my-stories/drafts']);
   }
 
   goToPublished(): void {
-    this.router.navigate(['/chroniques/stories-details/published']);
+    this.router.navigate(['/chroniques/my-stories/published']);
   }
 
   onStoryClick(story: StoryCardData): void {

@@ -97,7 +97,7 @@ export class ConsoleV3 {
   }
 
   myStories(): void {
-    this.router.navigate(['/chroniques/stories-details']);
+    this.router.navigate(['/chroniques/my-stories']);
   }
 
   openAccount(): void {
