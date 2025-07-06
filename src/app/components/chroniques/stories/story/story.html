@@ -35,7 +35,7 @@
             
             <div class="header-like-section">
               <div class="like-display">
-                <button class="like-btn" (click)="toggleLike()" [disabled]="!isUserLoggedIn()">
+                <button class="like-btn" (click)="toggleLike()" [disabled]="!canLike()">
                   <span class="heart-icon" [class.liked]="isLiked()">
                     {{ isLiked() ? '♥' : '♡' }}
                   </span>

@@ -136,12 +136,10 @@ export class Editor implements OnInit, OnDestroy {
   //============ NOUVELLE LOGIQUE DE DÉTECTION ============
 
   private getRouteParameter(): string | null {
-    // Récupère le paramètre selon la route actuelle
     return this.route.snapshot.params['id'] || this.route.snapshot.params['slug'] || null;
   }
 
   private isNumericId(param: string): boolean {
-    // Vérifie si le paramètre est un ID numérique
     const numericValue = parseInt(param, 10);
     return !isNaN(numericValue) && numericValue.toString() === param;
   }
@@ -152,27 +150,19 @@ export class Editor implements OnInit, OnDestroy {
     
     if (!routeParam) return;
 
-    // ============ CAS 1: PARAMÈTRE = ID NUMÉRIQUE ============
     if (this.isNumericId(routeParam)) {
       const storyId = parseInt(routeParam, 10);
       this.storyId.set(storyId);
       
       if (url.includes('/edition/')) {
-        // Route /chroniques/edition/123 → Mode édition histoire publiée
         await this.loadPublishedStory(storyId);
       } else if (url.includes('/draft/')) {
-        // Route /chroniques/draft/123 → Mode édition brouillon
         await this.loadStory(storyId);
       } else {
-        // Fallback pour autres routes avec ID
         await this.loadStory(storyId);
       }
     } 
-    // ============ CAS 2: PARAMÈTRE = SLUG TEXTE ============
     else {
-      // Si on reçoit un vrai slug (texte), on redirige vers la lecture
-      // Car l'editor n'est pas fait pour les slugs texte normalement
-      console.warn(`Editor reçoit un slug texte: ${routeParam}. Redirection vers lecture.`);
       this.router.navigate(['/chroniques', routeParam]);
     }
   }
