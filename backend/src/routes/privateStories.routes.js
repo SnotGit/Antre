@@ -14,6 +14,11 @@ router.post('/draft', privateStoriesController.saveDraft);
 router.put('/draft/:id', privateStoriesController.saveDraft);
 router.get('/draft/:id', privateStoriesController.getDraftById);
 
+//============ ROUTES ÉDITION HISTOIRES PUBLIÉES ============
+
+router.get('/edit/:id', privateStoriesController.getPublishedForEdit);
+router.post('/republish/:draftId', privateStoriesController.republishStory);
+
 //============ ROUTES HISTOIRES PUBLIÉES ============
 
 router.get('/published', privateStoriesController.getPublishedStories);

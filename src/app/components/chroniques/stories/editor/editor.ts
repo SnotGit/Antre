@@ -28,6 +28,7 @@ export class Editor implements OnInit, OnDestroy {
   typing = signal<boolean>(false);
   storyData = signal({ title: '', content: '' });
   storyId = signal<number | null>(null);
+  originalStoryId = signal<number | null>(null);
   loading = signal<boolean>(false);
   private initialized = signal<boolean>(false);
 
@@ -59,8 +60,18 @@ export class Editor implements OnInit, OnDestroy {
 
   private startTyping(): void {
     const id = this.route.snapshot.params['id'];
+    const url = this.router.url;
     const isEditMode = id && !isNaN(parseInt(id));
-    const text = isEditMode ? 'Continuer cette histoire' : 'Nouvelle Histoire';
+    
+    let text = 'Nouvelle Histoire';
+    if (isEditMode) {
+      if (url.includes('/edit-published/')) {
+        text = 'Modifier histoire publiée';
+      } else {
+        text = 'Continuer cette histoire';
+      }
+    }
+    
     let index = 0;
 
     this.typingInterval = window.setInterval(() => {
@@ -122,11 +133,18 @@ export class Editor implements OnInit, OnDestroy {
 
   private async checkEditMode(): Promise<void> {
     const id = this.route.snapshot.params['id'];
+    const url = this.router.url;
+    
     if (id) {
       const storyId = parseInt(id);
       if (!isNaN(storyId)) {
         this.storyId.set(storyId);
-        await this.loadStory(storyId);
+        
+        if (url.includes('/edit-published/')) {
+          await this.loadPublishedStory(storyId);
+        } else {
+          await this.loadStory(storyId);
+        }
       }
     }
   }
@@ -145,24 +163,48 @@ export class Editor implements OnInit, OnDestroy {
     this.loading.set(false);
   }
 
+  private async loadPublishedStory(id: number): Promise<void> {
+    this.loading.set(true);
+    
+    const response = await this.privateStoriesService.getPublishedForEdit(id);
+    if (response) {
+      this.storyData.set({
+        title: response.story.title,
+        content: response.story.content
+      });
+      this.storyId.set(response.story.id!);
+      this.originalStoryId.set(response.originalStoryId);
+    }
+    
+    this.loading.set(false);
+  }
+
   async publishStory(): Promise<void> {
     const data = this.storyData();
     if (!data.title.trim() || !data.content.trim()) return;
 
     this.loading.set(true);
     
-    const response = await this.privateStoriesService.saveDraft(data, this.storyId() || undefined);
+    const url = this.router.url;
+    const isEditPublished = url.includes('/edit-published/');
     
-    const storyId = this.storyId() || response.story?.id;
-    if (storyId) {
-      if (!this.storyId()) {
-        this.storyId.set(storyId);
-      }
+    if (isEditPublished && this.originalStoryId()) {
+      await this.privateStoriesService.saveDraft(data, this.storyId() || undefined);
+      await this.privateStoriesService.republishStory(this.storyId()!, this.originalStoryId()!);
+    } else {
+      const response = await this.privateStoriesService.saveDraft(data, this.storyId() || undefined);
       
-      await this.privateStoriesService.publishStory(storyId);
-      this.router.navigate(['/chroniques']);
+      const storyId = this.storyId() || response.story?.id;
+      if (storyId) {
+        if (!this.storyId()) {
+          this.storyId.set(storyId);
+        }
+        
+        await this.privateStoriesService.publishStory(storyId);
+      }
     }
     
+    this.router.navigate(['/chroniques']);
     this.loading.set(false);
   }
 

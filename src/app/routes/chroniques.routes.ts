@@ -12,7 +12,12 @@ export const routes: Routes = [
   },
 
   {
-    path: 'editor/:id',
+    path: 'draft/:id',
+    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
+  },
+
+  {
+    path: 'edit-published/:id',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
   },
 

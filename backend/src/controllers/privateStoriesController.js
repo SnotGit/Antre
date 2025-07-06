@@ -159,6 +159,96 @@ const getDraftById = async (req, res) => {
   });
 };
 
+//============ GESTION ÉDITION HISTOIRES PUBLIÉES ============
+
+const getPublishedForEdit = async (req, res) => {
+  const { id } = req.params;
+  const storyId = parseInt(id);
+  const userId = req.user.userId;
+
+  if (isNaN(storyId)) {
+    return res.status(400).json({ error: 'ID histoire invalide' });
+  }
+
+  const publishedStory = await prisma.story.findFirst({
+    where: {
+      id: storyId,
+      userId: userId,
+      status: 'PUBLISHED'
+    }
+  });
+
+  if (!publishedStory) {
+    return res.status(404).json({ error: 'Histoire publiée non trouvée' });
+  }
+
+  const newDraft = await prisma.story.create({
+    data: {
+      title: publishedStory.title,
+      content: publishedStory.content,
+      slug: generateSlug(publishedStory.title),
+      status: 'DRAFT',
+      userId: userId
+    }
+  });
+
+  res.json({
+    message: 'Nouveau brouillon créé pour édition',
+    story: newDraft,
+    originalStoryId: publishedStory.id
+  });
+};
+
+const republishStory = async (req, res) => {
+  const { draftId } = req.params;
+  const { originalId } = req.body;
+  const draftStoryId = parseInt(draftId);
+  const originalStoryId = parseInt(originalId);
+  const userId = req.user.userId;
+
+  if (isNaN(draftStoryId) || isNaN(originalStoryId)) {
+    return res.status(400).json({ error: 'IDs histoire invalides' });
+  }
+
+  const draftStory = await prisma.story.findFirst({
+    where: {
+      id: draftStoryId,
+      userId: userId,
+      status: 'DRAFT'
+    }
+  });
+
+  const originalStory = await prisma.story.findFirst({
+    where: {
+      id: originalStoryId,
+      userId: userId,
+      status: 'PUBLISHED'
+    }
+  });
+
+  if (!draftStory || !originalStory) {
+    return res.status(404).json({ error: 'Histoire non trouvée' });
+  }
+
+  await prisma.story.update({
+    where: { id: originalStoryId },
+    data: {
+      title: draftStory.title,
+      content: draftStory.content,
+      updatedAt: new Date(),
+      publishedAt: new Date()
+    }
+  });
+
+  await prisma.story.delete({
+    where: { id: draftStoryId }
+  });
+
+  res.json({
+    message: 'Histoire republiée avec succès'
+  });
+};
+
 //============ GESTION HISTOIRES PUBLIÉES ============
 
 const getPublishedStories = async (req, res) => {
@@ -308,5 +398,7 @@ module.exports = {
   saveDraft,
   publishStory,
   deleteStory,
-  getDraftById
+  getDraftById,
+  getPublishedForEdit,
+  republishStory
 };
