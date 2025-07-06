@@ -95,7 +95,7 @@ export class Auth implements OnInit, OnDestroy {
     try {
       await this.authService.login(this.loginData.email, this.loginData.password);
       
-      const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/auth/login';
+      const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/chroniques';
       this.router.navigate([returnUrl]);
       
     } catch (error: any) {

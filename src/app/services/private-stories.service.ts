@@ -38,6 +38,12 @@ interface SaveDraftResponse {
   };
 }
 
+interface EditPublishedResponse {
+  message: string;
+  story: StoryData;
+  originalStoryId: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -111,6 +117,33 @@ export class PrivateStoriesService {
     
     this._loading.set(false);
     return data?.story || null;
+  }
+
+  //============ GESTION ÉDITION HISTOIRES PUBLIÉES ============
+
+  async getPublishedForEdit(id: number): Promise<EditPublishedResponse | null> {
+    this._loading.set(true);
+    this._error.set(null);
+
+    const response = await this.fetchWithAuth(`${this.API_URL}/edit/${id}`);
+    const data = await response.json();
+    
+    await this.loadDrafts();
+    this._loading.set(false);
+    
+    return data || null;
+  }
+
+  async republishStory(draftId: number, originalId: number): Promise<void> {
+    this._loading.set(true);
+    this._error.set(null);
+
+    await this.fetchWithAuth(`${this.API_URL}/republish/${draftId}`, {
+      method: 'POST',
+      body: JSON.stringify({ originalId })
+    });
+
+    await this.initializeUserData();
   }
 
   //============ GESTION PUBLICATION ============
