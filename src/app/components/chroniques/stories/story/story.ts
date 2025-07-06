@@ -50,6 +50,16 @@ export class Story {
 
   isUserLoggedIn = computed(() => this.authService.isLoggedIn());
 
+  isAuthor = computed(() => {
+    const currentUser = this.authService.currentUser();
+    const story = this.story();
+    return currentUser && story && currentUser.id === story.user.id;
+  });
+
+  canLike = computed(() => {
+    return this.isUserLoggedIn() && !this.isAuthor();
+  });
+
   currentSlug = toSignal(
     this.route.params.pipe(map(params => params['slug'] || '')),
     { initialValue: '' }
@@ -166,6 +176,11 @@ export class Story {
 
     if (!this.isUserLoggedIn()) {
       this.showSnackBarMessage("Connectez-vous pour liker cette histoire !");
+      return;
+    }
+
+    if (this.isAuthor()) {
+      this.showSnackBarMessage("Vous ne pouvez pas liker votre propre histoire !");
       return;
     }
 
