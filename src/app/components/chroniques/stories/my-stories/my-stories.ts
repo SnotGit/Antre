@@ -10,6 +10,7 @@ interface StoryCardData {
   id: number;
   storyTitle: string;
   storyDate: string;
+  slug?: string;
 }
 
 @Component({
@@ -50,7 +51,8 @@ export class MyStories implements OnInit, OnDestroy {
       return this.privateStoriesService.published().map(story => ({
         id: story.id,
         storyTitle: story.title,
-        storyDate: this.formatDate(story.lastModified)
+        storyDate: this.formatDate(story.lastModified),
+        slug: story.slug
       }));
     }
     
@@ -132,8 +134,8 @@ export class MyStories implements OnInit, OnDestroy {
   onStoryClick(story: StoryCardData): void {
     const currentMode = this.currentMode();
     
-    if (currentMode === 'published') {
-      this.router.navigate(['/chroniques/edit-published', story.id]);
+    if (currentMode === 'published' && story.slug) {
+      this.router.navigate(['/chroniques/edition', story.slug]);
     } else if (currentMode === 'drafts') {
       this.router.navigate(['/chroniques/draft', story.id]);
     } else {
