@@ -22,10 +22,10 @@
         <!-- Navigation entre login/register -->
         <div class="auth-tabs">
           <button class="auth-tab" [class.active]="authMode() === 'login'" (click)="setAuthMode('login')">
-            [CONNEXION]
+            CONNEXION
           </button>
           <button class="auth-tab" [class.active]="authMode() === 'register'" (click)="setAuthMode('register')">
-            [INSCRIPTION]
+            INSCRIPTION
           </button>
         </div>
 
@@ -36,7 +36,7 @@
           @if (authMode() === 'login') {
           <form class="auth-form" (ngSubmit)="onLogin()" #loginForm="ngForm">
             <div class="form-header">
-              <span class="form-title">AUTHENTIFICATION REQUISE</span>
+              <span class="form-title">AUTHENTIFICATION</span>
             </div>
 
             <div class="form-field">
@@ -74,7 +74,7 @@
           @if (authMode() === 'register') {
           <form class="auth-form" (ngSubmit)="onRegister()" #registerForm="ngForm">
             <div class="form-header">
-              <span class="form-title">CRÉATION DE COMPTE</span>
+              <span class="form-title">CRÉEZ VOTRE COMPTE</span>
             </div>
 
             <div class="form-field">
@@ -90,7 +90,7 @@
             </div>
 
             <div class="form-field">
-              <label class="field-label">PASSWORD:</label>
+              <label class="field-label">MOT DE PASSE: 8 Caractères + 1 Maj minimum</label>
               <input type="password" name="password" [(ngModel)]="registerData.password" class="terminal-input"
                 placeholder="••••••••••••" required minlength="6" autocomplete="new-password" [disabled]="loading()">
             </div>
