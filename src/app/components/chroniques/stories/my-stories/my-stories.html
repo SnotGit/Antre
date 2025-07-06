@@ -1,38 +1,40 @@
 <div class="container">
-  
+
   <div class="header">
     <h1 class="header-title" [class.typing]="typing()">
       {{ headerTitle() }}
     </h1>
   </div>
+  
+  <div class="separateur">
+    <div class="line"></div>
+  </div>
 
   @if (isOverviewMode()) {
-    <div class="content">
-      <div class="content-grid">
-        <button class="button" (click)="goToDrafts()">
-          <div class="number">{{ stats().drafts }}</div>
-          <div class="title">Brouillons</div>
-        </button>
+  <div class="content">
+    <div class="content-grid">
+      <button class="button" (click)="goToDrafts()">
+        <div class="number">{{ stats().drafts }}</div>
+        <div class="title">Brouillons</div>
+      </button>
 
-        <button class="button" (click)="goToPublished()">
-          <div class="number">{{ stats().published }}</div>
-          <div class="title">Publiées</div>
-        </button>
-      </div>
+      <button class="button" (click)="goToPublished()">
+        <div class="number">{{ stats().published }}</div>
+        <div class="title">Publiées</div>
+      </button>
     </div>
+  </div>
   }
 
   @if (isListMode()) {
-    <div class="content">
-      <div class="chroniques-grid">
-        @for (story of stories(); track story.id) {
-          <app-story-card 
-            [private]="story"
-            (cardClick)="onStoryClick(story)">
-          </app-story-card>
-        }
-      </div>
+  <div class="content">
+    <div class="chroniques-grid">
+      @for (story of stories(); track story.id) {
+      <app-story-card [private]="story" (cardClick)="onStoryClick(story)">
+      </app-story-card>
+      }
     </div>
+  </div>
   }
 
 </div>

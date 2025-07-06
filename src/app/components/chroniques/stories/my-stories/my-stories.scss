@@ -24,6 +24,18 @@
   }
 }
 
+.separateur {
+  text-align: center;
+
+  .line {
+    width: 80%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #5d889e, transparent);
+    margin: 0 auto;
+    border-radius: 1px;
+  }
+}
+
 .content {
   flex: 1;
   overflow-y: auto;
@@ -59,15 +71,15 @@
   align-items: center;
   gap: 15px;
   width: 320px;
-  
+
   &:hover {
     color: #d0d0d0;
     border-color: #d0d0d0;
     transform: translateY(2px);
   }
 
-    &:hover .number {
-    color: #d0d0d0; 
+  &:hover .number {
+    color: #d0d0d0;
   }
 
   .number {
