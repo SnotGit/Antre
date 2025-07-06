@@ -7,6 +7,10 @@ const { authenticateToken } = require('../controllers/authController');
 
 router.use(authenticateToken);
 
+//============ ROUTES STATISTIQUES ============
+
+router.get('/stats', privateStoriesController.getStats);
+
 //============ ROUTES BROUILLONS ============
 
 router.get('/drafts', privateStoriesController.getDrafts);
@@ -14,19 +18,15 @@ router.post('/draft', privateStoriesController.saveDraft);
 router.put('/draft/:id', privateStoriesController.saveDraft);
 router.get('/draft/:id', privateStoriesController.getDraftById);
 
-//============ ROUTES ÉDITION HISTOIRES PUBLIÉES ============
-
-router.get('/edit/:id', privateStoriesController.getPublishedForEdit);
-router.post('/republish/:draftId', privateStoriesController.republishStory);
-
 //============ ROUTES HISTOIRES PUBLIÉES ============
 
 router.get('/published', privateStoriesController.getPublishedStories);
 router.post('/publish/:id', privateStoriesController.publishStory);
 
-//============ ROUTES STATISTIQUES ============
+//============ ROUTES ÉDITION HISTOIRES PUBLIÉES ============
 
-router.get('/stats', privateStoriesController.getStats);
+router.get('/edit-published/:id', privateStoriesController.getPublishedForEdit);
+router.post('/republish/:draftId', privateStoriesController.republishStory);
 
 //============ ROUTES SUPPRESSION ============
 

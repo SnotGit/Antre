@@ -17,7 +17,7 @@ export const routes: Routes = [
   },
 
   {
-    path: 'edit-published/:id',
+    path: 'published/:id',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
   },
 

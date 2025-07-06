@@ -125,7 +125,7 @@ export class PrivateStoriesService {
     this._loading.set(true);
     this._error.set(null);
 
-    const response = await this.fetchWithAuth(`${this.API_URL}/edit/${id}`);
+    const response = await this.fetchWithAuth(`${this.API_URL}/edit-published/${id}`);
     const data = await response.json();
     
     await this.loadDrafts();
