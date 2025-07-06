@@ -185,27 +185,27 @@ export class Editor implements OnInit, OnDestroy {
 
     this.loading.set(true);
     
-    const url = this.router.url;
-    const isEditPublished = url.includes('/edit-published/');
-    
-    if (isEditPublished && this.originalStoryId()) {
-      await this.privateStoriesService.saveDraft(data, this.storyId() || undefined);
-      await this.privateStoriesService.republishStory(this.storyId()!, this.originalStoryId()!);
-    } else {
-      const response = await this.privateStoriesService.saveDraft(data, this.storyId() || undefined);
+    try {
+      const draftId = this.storyId();
+      const originalId = this.originalStoryId();
       
-      const storyId = this.storyId() || response.story?.id;
-      if (storyId) {
-        if (!this.storyId()) {
-          this.storyId.set(storyId);
-        }
-        
-        await this.privateStoriesService.publishStory(storyId);
+      const response = await this.privateStoriesService.saveDraft(data, draftId || undefined);
+      const finalDraftId = draftId || response.story?.id;
+
+      if (!finalDraftId) throw new Error('Draft ID manquant');
+
+      if (originalId) {
+        await this.privateStoriesService.republishStory(finalDraftId, originalId);
+      } else {
+        await this.privateStoriesService.publishStory(finalDraftId);
       }
+
+      this.router.navigate(['/chroniques']);
+    } catch (error) {
+      console.error('Erreur publication:', error);
+    } finally {
+      this.loading.set(false);
     }
-    
-    this.router.navigate(['/chroniques']);
-    this.loading.set(false);
   }
 
   async deleteStory(): Promise<void> {
