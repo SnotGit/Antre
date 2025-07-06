@@ -4,10 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { PrivateStoriesService } from '../../../../services/private-stories.service';
 import { AuthService } from '../../../../services/auth.service';
+import { ConfirmationDialogService } from '../../../../services/confirmation-dialog.service';
+import { ConfirmationDialog } from '../../../utilities/confirmation-dialog/confirmation-dialog';
 
 @Component({
   selector: 'app-editor',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ConfirmationDialog],
   templateUrl: './editor.html',
   styleUrl: './editor.scss'
 })
@@ -17,11 +19,10 @@ export class Editor implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private privateStoriesService = inject(PrivateStoriesService);
   private authService = inject(AuthService);
+  private confirmationService = inject(ConfirmationDialogService);
 
   private typingInterval?: number;
   private autoSaveTimeout?: number;
-
-  //============ SIGNALS ============
 
   headerTitle = signal<string>('');
   typing = signal<boolean>(false);
@@ -56,8 +57,6 @@ export class Editor implements OnInit, OnDestroy {
     this.saveBeforeExit();
   }
 
-  //============ TYPING EFFECT ============
-
   private startTyping(): void {
     const id = this.route.snapshot.params['id'];
     const isEditMode = id && !isNaN(parseInt(id));
@@ -86,8 +85,6 @@ export class Editor implements OnInit, OnDestroy {
     }
   }
 
-  //============ AUTO-SAVE ============
-
   private triggerAutoSave(): void {
     if (this.autoSaveTimeout) {
       clearTimeout(this.autoSaveTimeout);
@@ -102,12 +99,14 @@ export class Editor implements OnInit, OnDestroy {
     const data = this.storyData();
     if (data.title.trim() || data.content.trim()) {
       try {
-        await this.privateStoriesService.saveDraft(data, this.storyId() || undefined);
+        const response = await this.privateStoriesService.saveDraft(data, this.storyId() || undefined);
         
-        // Si nouveau draft, recharger pour obtenir l'ID
-        if (!this.storyId()) {
-          await this.privateStoriesService.loadDrafts();
+        if (!this.storyId() && response.story?.id) {
+          this.storyId.set(response.story.id);
+          const newUrl = `/chroniques/editor/${response.story.id}`;
+          this.router.navigate([newUrl], { replaceUrl: true });
         }
+        
       } catch (error) {
         console.error('Auto-save failed');
       }
@@ -120,8 +119,6 @@ export class Editor implements OnInit, OnDestroy {
       await this.autoSave();
     }
   }
-
-  //============ EDIT MODE ============
 
   private async checkEditMode(): Promise<void> {
     const id = this.route.snapshot.params['id'];
@@ -148,8 +145,6 @@ export class Editor implements OnInit, OnDestroy {
     this.loading.set(false);
   }
 
-  //============ ACTIONS ============
-
   async publishStory(): Promise<void> {
     const data = this.storyData();
     if (!data.title.trim() || !data.content.trim()) return;
@@ -160,11 +155,40 @@ export class Editor implements OnInit, OnDestroy {
     
     const storyId = this.storyId() || response.story?.id;
     if (storyId) {
+      if (!this.storyId()) {
+        this.storyId.set(storyId);
+      }
+      
       await this.privateStoriesService.publishStory(storyId);
       this.router.navigate(['/chroniques']);
     }
     
     this.loading.set(false);
+  }
+
+  async deleteStory(): Promise<void> {
+    const currentStoryId = this.storyId();
+    if (!currentStoryId) return;
+
+    const confirmed = await this.confirmationService.confirm({
+      title: 'Supprimer l\'histoire ?',
+      message: 'Êtes-vous sûr de vouloir supprimer définitivement cette histoire ?\n\nCette action est irréversible.',
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      isDanger: true
+    });
+    
+    if (confirmed) {
+      this.loading.set(true);
+      
+      try {
+        await this.privateStoriesService.deleteStory(currentStoryId);
+        this.router.navigate(['/chroniques/my-stories']);
+      } catch (error) {
+        console.error('Erreur lors de la suppression:', error);
+        this.loading.set(false);
+      }
+    }
   }
 
   async goBack(): Promise<void> {

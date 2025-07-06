@@ -15,22 +15,35 @@
 
     <div class="field-title">
       <label>Titre de l'histoire</label>
-      <input type="text" [(ngModel)]="storyData().title" placeholder="Entrez le titre...">
+      <input type="text" [(ngModel)]="storyData().title" placeholder="Exemple : Brain Operational Security Service et Boris la pancarte">
     </div>
 
     <div class="field-content">
-      <label>Contenu</label>
-      <textarea [(ngModel)]="storyData().content" placeholder="Rédigez votre histoire...">
+      <label>Texte</label>
+      <textarea [(ngModel)]="storyData().content" placeholder="Exemple : Observation des lumières indigo, niveau 12. Théorie : elles clignotent selon un code. Réalité : c'est juste Sulfuro qui fait de la soudure en bas, quelle ironie cette trappe encore ouverte...">
       </textarea>
     </div>
 
     <div class="card-footer">
-      <div class="publish-button">
+      @if (storyId()) {
+        <div class="delete-button">
+          <button class="btn delete-btn" (click)="deleteStory()">
+            <span>Supprimer</span>
+          </button>
+        </div>
+      } @else {
+        <div></div>
+      }
 
-      <button class="btn" (click)="publishStory()">
-        <span>Publier</span></button>
+      <div class="publish-button">
+        <button class="btn" (click)="publishStory()">
+          <span>Publier</span>
+        </button>
+      </div>
     </div>
 
   </div>
+
+  <app-confirmation-dialog></app-confirmation-dialog>
 
 </div>
