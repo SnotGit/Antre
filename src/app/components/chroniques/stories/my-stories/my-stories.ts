@@ -130,7 +130,15 @@ export class MyStories implements OnInit, OnDestroy {
   }
 
   onStoryClick(story: StoryCardData): void {
-    this.router.navigate(['/chroniques/editor', story.id]);
+    const currentMode = this.currentMode();
+    
+    if (currentMode === 'published') {
+      this.router.navigate(['/chroniques/edit-published', story.id]);
+    } else if (currentMode === 'drafts') {
+      this.router.navigate(['/chroniques/draft', story.id]);
+    } else {
+      this.router.navigate(['/chroniques/editor', story.id]);
+    }
   }
 
   //============ UTILITIES ============

@@ -75,7 +75,7 @@ export class PrivateStoriesService {
 
     await Promise.all([
       this.loadDrafts(),
-      this.loadPublished(), 
+      this.loadPublished(),
       this.loadStats()
     ]);
 
@@ -105,45 +105,18 @@ export class PrivateStoriesService {
     const result = await response.json();
     await this.loadDrafts();
     this._loading.set(false);
-    
+
     return result;
   }
 
   async getDraftForEdit(id: number): Promise<StoryData | null> {
     this._loading.set(true);
-    
+
     const response = await this.fetchWithAuth(`${this.API_URL}/draft/${id}`);
     const data = await response.json();
-    
+
     this._loading.set(false);
     return data?.story || null;
-  }
-
-  //============ GESTION ÉDITION HISTOIRES PUBLIÉES ============
-
-  async getPublishedForEdit(id: number): Promise<EditPublishedResponse | null> {
-    this._loading.set(true);
-    this._error.set(null);
-
-    const response = await this.fetchWithAuth(`${this.API_URL}/edit-published/${id}`);
-    const data = await response.json();
-    
-    await this.loadDrafts();
-    this._loading.set(false);
-    
-    return data || null;
-  }
-
-  async republishStory(draftId: number, originalId: number): Promise<void> {
-    this._loading.set(true);
-    this._error.set(null);
-
-    await this.fetchWithAuth(`${this.API_URL}/republish/${draftId}`, {
-      method: 'POST',
-      body: JSON.stringify({ originalId })
-    });
-
-    await this.initializeUserData();
   }
 
   //============ GESTION PUBLICATION ============
@@ -160,6 +133,33 @@ export class PrivateStoriesService {
 
     await this.fetchWithAuth(`${this.API_URL}/publish/${id}`, {
       method: 'POST'
+    });
+
+    await this.initializeUserData();
+  }
+
+  //============ GESTION ÉDITION HISTOIRES PUBLIÉES ============
+
+  async getPublishedForEdit(id: number): Promise<EditPublishedResponse | null> {
+    this._loading.set(true);
+    this._error.set(null);
+
+    const response = await this.fetchWithAuth(`${this.API_URL}/edit-published/${id}`);
+    const data = await response.json();
+
+    await this.loadDrafts();
+    this._loading.set(false);
+
+    return data || null;
+  }
+
+  async republishStory(draftId: number, originalId: number): Promise<void> {
+    this._loading.set(true);
+    this._error.set(null);
+
+    await this.fetchWithAuth(`${this.API_URL}/republish/${draftId}`, {
+      method: 'POST',
+      body: JSON.stringify({ originalId })
     });
 
     await this.initializeUserData();

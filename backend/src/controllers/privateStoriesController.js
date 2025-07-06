@@ -245,7 +245,7 @@ const republishStory = async (req, res) => {
   });
 
   res.json({
-    message: 'Histoire republiée avec succès'
+    message: 'Histoire mise à jour avec succès'
   });
 };
 

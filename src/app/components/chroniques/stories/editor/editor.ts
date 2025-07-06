@@ -65,8 +65,10 @@ export class Editor implements OnInit, OnDestroy {
     
     let text = 'Nouvelle Histoire';
     if (isEditMode) {
-      if (url.includes('/edit-published/')) {
+      if (url.includes('/published/')) {
         text = 'Modifier histoire publiée';
+      } else if (url.includes('/draft/')) {
+        text = 'Continuer ce brouillon';
       } else {
         text = 'Continuer cette histoire';
       }
@@ -114,7 +116,7 @@ export class Editor implements OnInit, OnDestroy {
         
         if (!this.storyId() && response.story?.id) {
           this.storyId.set(response.story.id);
-          const newUrl = `/chroniques/editor/${response.story.id}`;
+          const newUrl = `/chroniques/draft/${response.story.id}`;
           this.router.navigate([newUrl], { replaceUrl: true });
         }
         
@@ -140,9 +142,9 @@ export class Editor implements OnInit, OnDestroy {
       if (!isNaN(storyId)) {
         this.storyId.set(storyId);
         
-        if (url.includes('/edit-published/')) {
+        if (url.includes('/published/')) {
           await this.loadPublishedStory(storyId);
-        } else {
+        } else if (url.includes('/draft/') || url.includes('/editor/')) {
           await this.loadStory(storyId);
         }
       }
