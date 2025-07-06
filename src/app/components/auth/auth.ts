@@ -95,7 +95,7 @@ export class Auth implements OnInit, OnDestroy {
     try {
       await this.authService.login(this.loginData.email, this.loginData.password);
       
-      const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/chroniques';
+      const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/auth/login';
       this.router.navigate([returnUrl]);
       
     } catch (error: any) {
@@ -114,12 +114,12 @@ export class Auth implements OnInit, OnDestroy {
 
   async onRegister(): Promise<void> {
     if (!this.registerData.username || !this.registerData.email || !this.registerData.password) {
-      this.error.set('Tous les champs obligatoires sont requis');
+      this.error.set('Champs obligatoires sont requis');
       return;
     }
 
-    if (this.registerData.password.length < 6) {
-      this.error.set('Le mot de passe doit contenir au moins 6 caractères');
+    if (this.registerData.password.length < 8) {
+      this.error.set('Le mot de passe doit contenir au moins 8 caractères et une majuscule');
       return;
     }
 
