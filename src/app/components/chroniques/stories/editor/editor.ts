@@ -59,19 +59,13 @@ export class Editor implements OnInit, OnDestroy {
   }
 
   private startTyping(): void {
-    const routeParam = this.getRouteParameter();
     const url = this.router.url;
-    const isEditMode = routeParam && this.isNumericId(routeParam);
     
     let text = 'Nouvelle Histoire';
-    if (isEditMode) {
-      if (url.includes('/edition/')) {
-        text = 'Modifier histoire publiée';
-      } else if (url.includes('/draft/')) {
-        text = 'Continuer ce brouillon';
-      } else {
-        text = 'Continuer cette histoire';
-      }
+    if (url.includes('/edition/')) {
+      text = 'Modifier histoire publiée';
+    } else if (url.includes('/draft/')) {
+      text = 'Continuer ce brouillon';
     }
     
     let index = 0;
@@ -133,15 +127,8 @@ export class Editor implements OnInit, OnDestroy {
     }
   }
 
-  //============ NOUVELLE LOGIQUE DE DÉTECTION ============
-
   private getRouteParameter(): string | null {
     return this.route.snapshot.params['id'] || this.route.snapshot.params['slug'] || null;
-  }
-
-  private isNumericId(param: string): boolean {
-    const numericValue = parseInt(param, 10);
-    return !isNaN(numericValue) && numericValue.toString() === param;
   }
 
   private async checkEditMode(): Promise<void> {
@@ -150,48 +137,66 @@ export class Editor implements OnInit, OnDestroy {
     
     if (!routeParam) return;
 
-    if (this.isNumericId(routeParam)) {
+    if (url.includes('/edition/')) {
+      await this.loadPublishedStoryBySlug(routeParam);
+    } 
+    else if (url.includes('/draft/')) {
       const storyId = parseInt(routeParam, 10);
-      this.storyId.set(storyId);
-      
-      if (url.includes('/edition/')) {
-        await this.loadPublishedStory(storyId);
-      } else if (url.includes('/draft/')) {
-        await this.loadStory(storyId);
+      if (!isNaN(storyId)) {
+        this.storyId.set(storyId);
+        await this.loadDraftStory(storyId);
       } else {
-        await this.loadStory(storyId);
+        this.router.navigate(['/chroniques']);
       }
     } 
     else {
-      this.router.navigate(['/chroniques', routeParam]);
+      const storyId = parseInt(routeParam, 10);
+      if (!isNaN(storyId)) {
+        this.storyId.set(storyId);
+        await this.loadDraftStory(storyId);
+      } else {
+        this.router.navigate(['/chroniques']);
+      }
     }
   }
 
-  private async loadStory(id: number): Promise<void> {
+  private async loadDraftStory(id: number): Promise<void> {
     this.loading.set(true);
     
-    const story = await this.privateStoriesService.getDraftForEdit(id);
-    if (story) {
-      this.storyData.set({
-        title: story.title,
-        content: story.content
-      });
+    try {
+      const story = await this.privateStoriesService.getDraftForEdit(id);
+      if (story) {
+        this.storyData.set({
+          title: story.title,
+          content: story.content
+        });
+      } else {
+        this.router.navigate(['/chroniques/my-stories']);
+      }
+    } catch (error) {
+      this.router.navigate(['/chroniques/my-stories']);
     }
     
     this.loading.set(false);
   }
 
-  private async loadPublishedStory(id: number): Promise<void> {
+  private async loadPublishedStoryBySlug(slug: string): Promise<void> {
     this.loading.set(true);
     
-    const response = await this.privateStoriesService.getPublishedForEdit(id);
-    if (response) {
-      this.storyData.set({
-        title: response.story.title,
-        content: response.story.content
-      });
-      this.storyId.set(response.story.id!);
-      this.originalStoryId.set(response.originalStoryId);
+    try {
+      const response = await this.privateStoriesService.getPublishedForEditBySlug(slug);
+      if (response) {
+        this.storyData.set({
+          title: response.story.title,
+          content: response.story.content
+        });
+        this.storyId.set(response.story.id!);
+        this.originalStoryId.set(response.originalStoryId);
+      } else {
+        this.router.navigate(['/chroniques']);
+      }
+    } catch (error) {
+      this.router.navigate(['/chroniques']);
     }
     
     this.loading.set(false);
