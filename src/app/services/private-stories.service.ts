@@ -13,6 +13,7 @@ interface PublishedStory {
   title: string;
   lastModified: string;
   likes: number;
+  slug: string;
 }
 
 interface UserStats {
@@ -140,6 +141,12 @@ export class PrivateStoriesService {
 
   //============ GESTION ÉDITION HISTOIRES PUBLIÉES ============
 
+  async getPublishedIdBySlug(slug: string): Promise<number | null> {
+    const published = this._published();
+    const story = published.find(s => s.slug === slug);
+    return story ? story.id : null;
+  }
+
   async getPublishedForEdit(id: number): Promise<EditPublishedResponse | null> {
     this._loading.set(true);
     this._error.set(null);
@@ -151,6 +158,18 @@ export class PrivateStoriesService {
     this._loading.set(false);
 
     return data || null;
+  }
+
+  async getPublishedForEditBySlug(slug: string): Promise<EditPublishedResponse | null> {
+    await this.loadPublished();
+    
+    const storyId = await this.getPublishedIdBySlug(slug);
+    if (!storyId) {
+      this._error.set('Histoire non trouvée');
+      return null;
+    }
+
+    return this.getPublishedForEdit(storyId);
   }
 
   async republishStory(draftId: number, originalId: number): Promise<void> {

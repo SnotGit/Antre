@@ -17,7 +17,7 @@ export const routes: Routes = [
   },
 
   {
-    path: 'edit-published/:id',
+    path: 'edition/:slug',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
   },
 
@@ -37,7 +37,7 @@ export const routes: Routes = [
   },
 
   {
-    path: 'story/:slug',
+    path: ':slug',
     loadComponent: () => import('../components/chroniques/stories/story/story').then(m => m.Story)
   }
 ];
