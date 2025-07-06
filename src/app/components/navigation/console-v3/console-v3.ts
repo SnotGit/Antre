@@ -118,20 +118,6 @@ export class ConsoleV3 {
     // TODO: Implémenter quand composant marsball sera créé
   }
 
-  //============ ACTIONS STORY CONTEXTUELLES ============
-
-  editCurrentStory(): void {
-    // TODO: Implémenter édition histoire courante
-  }
-
-  deleteCurrentStory(): void {
-    // TODO: Implémenter suppression histoire courante
-  }
-
-  publishCurrentStory(): void {
-    // TODO: Implémenter publication histoire courante
-  }
-
   //============ HELPERS ============
 
   isInRoute(route: string): boolean {
