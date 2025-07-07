@@ -1,15 +1,21 @@
-import { Component, OnInit, OnDestroy, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, resource, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs/operators';
 import { PrivateStoriesService } from '../../../../services/private-stories.service';
 import { AuthService } from '../../../../services/auth.service';
-import { ConfirmationDialogService } from '../../../../services/confirmation-dialog.service';
-import { ConfirmationDialog } from '../../../utilities/confirmation-dialog/confirmation-dialog';
+import { TypingEffectService } from '../../../../services/typing-effect.service';
+
+interface StoryFormData {
+  title: string;
+  content: string;
+}
 
 @Component({
   selector: 'app-editor',
-  imports: [CommonModule, FormsModule, ConfirmationDialog],
+  imports: [CommonModule, FormsModule],
   templateUrl: './editor.html',
   styleUrl: './editor.scss'
 })
@@ -19,80 +25,104 @@ export class Editor implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private privateStoriesService = inject(PrivateStoriesService);
   private authService = inject(AuthService);
-  private confirmationService = inject(ConfirmationDialogService);
-
-  private typingInterval?: number;
-  private autoSaveTimeout?: number;
-
-  headerTitle = signal<string>('');
-  typing = signal<boolean>(false);
-  storyData = signal({ title: '', content: '' });
-  storyId = signal<number | null>(null);
-  originalStoryId = signal<number | null>(null);
-  loading = signal<boolean>(false);
-  private initialized = signal<boolean>(false);
-
-  constructor() {
-    effect(() => {
-      if (this.initialized()) {
-        this.storyData();
-        this.triggerAutoSave();
+  private typingService = inject(TypingEffectService);
+  
+  private draftId = signal<number | null>(null);
+  private isPublishedEdit = signal<boolean>(false);
+  private originalStoryId = signal<number | null>(null);
+  
+  storyForm = signal<StoryFormData>({ title: '', content: '' });
+  saving = signal<boolean>(false);
+  
+  hasDraft = computed(() => this.draftId() !== null);
+  
+  currentSlug = toSignal(
+    this.route.params.pipe(map(params => params['slug'] || null)),
+    { initialValue: null }
+  );
+  
+  isEditMode = computed(() => this.currentSlug() !== null);
+  headerText = computed(() => 
+    this.isEditMode() ? 'Modifier Histoire' : 'Nouvelle Histoire'
+  );
+  
+  storyResource = resource({
+    loader: async () => {
+      const slug = this.currentSlug();
+      
+      if (slug) {
+        const response = await this.privateStoriesService.getPublishedForEditBySlug(slug);
+        if (response) {
+          this.draftId.set(response.story.id!);
+          this.originalStoryId.set(response.originalStoryId);
+          this.isPublishedEdit.set(true);
+          return {
+            title: response.story.title,
+            content: response.story.content
+          };
+        }
+        throw new Error('Histoire non trouvée');
+      } else {
+        const draftIdParam = this.route.snapshot.queryParams['draftId'];
+        if (draftIdParam) {
+          const id = parseInt(draftIdParam);
+          const draft = await this.privateStoriesService.getDraftForEdit(id);
+          if (draft) {
+            this.draftId.set(id);
+            return {
+              title: draft.title,
+              content: draft.content
+            };
+          }
+        }
+        return { title: '', content: '' };
       }
-    });
-  }
+    }
+  });
+  
+  private typingEffect = this.typingService.createTypingEffect({
+    text: this.headerText(),
+    speed: 150,
+    finalBlinks: 4
+  });
 
+  headerTitle = this.typingEffect.headerTitle;
+  typingComplete = this.typingEffect.typingComplete;
+  
+  private autoSaveEffect = effect(() => {
+    const form = this.storyForm();
+    if (form.title.trim() || form.content.trim()) {
+      this.scheduleAutoSave();
+    }
+  });
+
+  private autoSaveTimeout?: number;
+  
   ngOnInit(): void {
     if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/auth']);
       return;
     }
 
-    this.startTyping();
-    this.checkEditMode().finally(() => {
-      this.initialized.set(true);
+    this.typingEffect.startTyping();
+    
+    effect(() => {
+      const data = this.storyResource.value();
+      if (data) {
+        this.storyForm.set(data);
+      }
     });
   }
 
   ngOnDestroy(): void {
-    this.cleanup();
+    this.typingEffect.cleanup();
     this.saveBeforeExit();
-  }
-
-  private startTyping(): void {
-    const url = this.router.url;
-    
-    let text = 'Nouvelle Histoire';
-    if (url.includes('/edition/')) {
-      text = 'Modifier histoire publiée';
-    } else if (url.includes('/draft/')) {
-      text = 'Continuer ce brouillon';
-    }
-    
-    let index = 0;
-
-    this.typingInterval = window.setInterval(() => {
-      if (index < text.length) {
-        this.headerTitle.set(text.substring(0, index + 1));
-        index++;
-      } else {
-        this.cleanup();
-        this.typing.set(true);
-      }
-    }, 100);
-  }
-
-  private cleanup(): void {
-    if (this.typingInterval) {
-      clearInterval(this.typingInterval);
-      this.typingInterval = undefined;
-    }
     if (this.autoSaveTimeout) {
       clearTimeout(this.autoSaveTimeout);
-      this.autoSaveTimeout = undefined;
     }
   }
-
-  private triggerAutoSave(): void {
+  
+  private scheduleAutoSave(): void {
     if (this.autoSaveTimeout) {
       clearTimeout(this.autoSaveTimeout);
     }
@@ -103,161 +133,95 @@ export class Editor implements OnInit, OnDestroy {
   }
 
   private async autoSave(): Promise<void> {
-    const data = this.storyData();
-    if (data.title.trim() || data.content.trim()) {
-      try {
-        const response = await this.privateStoriesService.saveDraft(data, this.storyId() || undefined);
-        
-        if (!this.storyId() && response.story?.id) {
-          this.storyId.set(response.story.id);
-          const newUrl = `/chroniques/draft/${response.story.id}`;
-          this.router.navigate([newUrl], { replaceUrl: true });
-        }
-        
-      } catch (error) {
-        console.error('Auto-save failed');
-      }
-    }
-  }
+    const form = this.storyForm();
+    if (!form.title.trim() && !form.content.trim()) return;
 
-  private async saveBeforeExit(): Promise<void> {
-    const data = this.storyData();
-    if (data.title.trim() || data.content.trim()) {
-      await this.autoSave();
-    }
-  }
-
-  private getRouteParameter(): string | null {
-    return this.route.snapshot.params['id'] || this.route.snapshot.params['slug'] || null;
-  }
-
-  private async checkEditMode(): Promise<void> {
-    const routeParam = this.getRouteParameter();
-    const url = this.router.url;
-    
-    if (!routeParam) return;
-
-    if (url.includes('/edition/')) {
-      await this.loadPublishedStoryBySlug(routeParam);
-    } 
-    else if (url.includes('/draft/')) {
-      const storyId = parseInt(routeParam, 10);
-      if (!isNaN(storyId)) {
-        this.storyId.set(storyId);
-        await this.loadDraftStory(storyId);
-      } else {
-        this.router.navigate(['/chroniques']);
-      }
-    } 
-    else {
-      const storyId = parseInt(routeParam, 10);
-      if (!isNaN(storyId)) {
-        this.storyId.set(storyId);
-        await this.loadDraftStory(storyId);
-      } else {
-        this.router.navigate(['/chroniques']);
-      }
-    }
-  }
-
-  private async loadDraftStory(id: number): Promise<void> {
-    this.loading.set(true);
-    
     try {
-      const story = await this.privateStoriesService.getDraftForEdit(id);
-      if (story) {
-        this.storyData.set({
-          title: story.title,
-          content: story.content
-        });
-      } else {
-        this.router.navigate(['/chroniques/my-stories']);
-      }
-    } catch (error) {
-      this.router.navigate(['/chroniques/my-stories']);
-    }
-    
-    this.loading.set(false);
-  }
-
-  private async loadPublishedStoryBySlug(slug: string): Promise<void> {
-    this.loading.set(true);
-    
-    try {
-      const response = await this.privateStoriesService.getPublishedForEditBySlug(slug);
-      if (response) {
-        this.storyData.set({
-          title: response.story.title,
-          content: response.story.content
-        });
-        this.storyId.set(response.story.id!);
-        this.originalStoryId.set(response.originalStoryId);
-      } else {
-        this.router.navigate(['/chroniques']);
-      }
-    } catch (error) {
-      this.router.navigate(['/chroniques']);
-    }
-    
-    this.loading.set(false);
-  }
-
-  async publishStory(): Promise<void> {
-    const data = this.storyData();
-    if (!data.title.trim() || !data.content.trim()) return;
-
-    this.loading.set(true);
-    
-    try {
-      const draftId = this.storyId();
-      const originalId = this.originalStoryId();
+      const response = await this.privateStoriesService.saveDraft(
+        form, 
+        this.draftId() || undefined
+      );
       
-      const response = await this.privateStoriesService.saveDraft(data, draftId || undefined);
-      const finalDraftId = draftId || response.story?.id;
-
-      if (!finalDraftId) throw new Error('Draft ID manquant');
-
-      if (originalId) {
-        await this.privateStoriesService.republishStory(finalDraftId, originalId);
-      } else {
-        await this.privateStoriesService.publishStory(finalDraftId);
+      if (!this.draftId() && response.story?.id) {
+        this.draftId.set(response.story.id);
+        this.router.navigate(['/chroniques/editor'], { 
+          queryParams: { draftId: response.story.id },
+          replaceUrl: true 
+        });
       }
+    } catch (error) {
+      
+    }
+  }
+  
+  async publishStory(): Promise<void> {
+    const currentDraftId = this.draftId();
+    if (!currentDraftId) {
+      await this.autoSave();
+      return;
+    }
 
+    this.saving.set(true);
+    
+    try {
+      if (this.isPublishedEdit()) {
+        await this.privateStoriesService.republishStory(
+          currentDraftId, 
+          this.originalStoryId()!
+        );
+      } else {
+        await this.privateStoriesService.publishStory(currentDraftId);
+      }
+      
       this.router.navigate(['/chroniques']);
     } catch (error) {
-      console.error('Erreur publication:', error);
+      
     } finally {
-      this.loading.set(false);
+      this.saving.set(false);
     }
   }
 
   async deleteStory(): Promise<void> {
-    const currentStoryId = this.storyId();
-    if (!currentStoryId) return;
+    const currentDraftId = this.draftId();
+    if (!currentDraftId) return;
 
-    const confirmed = await this.confirmationService.confirm({
-      title: 'Supprimer l\'histoire ?',
-      message: 'Êtes-vous sûr de vouloir supprimer définitivement cette histoire ?\n\nCette action est irréversible.',
-      confirmText: 'Supprimer',
-      cancelText: 'Annuler',
-      isDanger: true
-    });
-    
-    if (confirmed) {
-      this.loading.set(true);
-      
+    if (confirm('Supprimer ce brouillon ?')) {
       try {
-        await this.privateStoriesService.deleteStory(currentStoryId);
+        await this.privateStoriesService.deleteStory(currentDraftId);
         this.router.navigate(['/chroniques/my-stories']);
       } catch (error) {
-        console.error('Erreur lors de la suppression:', error);
-        this.loading.set(false);
+        
       }
     }
   }
 
-  async goBack(): Promise<void> {
-    await this.saveBeforeExit();
+  goBack(): void {
+    this.saveBeforeExit();
     this.router.navigate(['/chroniques/my-stories']);
+  }
+  
+  private async saveBeforeExit(): Promise<void> {
+    const form = this.storyForm();
+    if (form.title.trim() || form.content.trim()) {
+      await this.autoSave();
+    }
+  }
+  
+  updateTitle(value: string): void {
+    this.storyForm.update(current => ({ ...current, title: value }));
+  }
+
+  updateContent(value: string): void {
+    this.storyForm.update(current => ({ ...current, content: value }));
+  }
+
+  onTitleChange(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.updateTitle(value);
+  }
+
+  onContentChange(event: Event): void {
+    const value = (event.target as HTMLTextAreaElement).value;
+    this.updateContent(value);
   }
 }
