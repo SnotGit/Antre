@@ -203,11 +203,13 @@ export class Story {
   goToPreviousStory(): void {
     const stories = this.userStories();
     const currentIndex = this.currentStoryIndex();
+    const currentStory = this.story();
     
-    if (this.hasPreviousStory()) {
+    if (this.hasPreviousStory() && currentStory) {
       const previousStory = stories[currentIndex + 1];
       if (previousStory.slug) {
-        this.router.navigate(['/chroniques/story', previousStory.slug]);
+        const cleanUsername = currentStory.user.username.trim();
+        this.router.navigate(['/chroniques', cleanUsername, previousStory.slug]);
       }
     }
   }
@@ -215,11 +217,13 @@ export class Story {
   goToNextStory(): void {
     const stories = this.userStories();
     const currentIndex = this.currentStoryIndex();
+    const currentStory = this.story();
     
-    if (this.hasNextStory()) {
+    if (this.hasNextStory() && currentStory) {
       const nextStory = stories[currentIndex - 1];
       if (nextStory.slug) {
-        this.router.navigate(['/chroniques/story', nextStory.slug]);
+        const cleanUsername = currentStory.user.username.trim();
+        this.router.navigate(['/chroniques', cleanUsername, nextStory.slug]);
       }
     }
   }

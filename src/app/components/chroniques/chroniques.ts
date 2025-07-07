@@ -73,6 +73,6 @@ export class Chroniques implements OnInit, OnDestroy {
   }
 
   onStoryClick(story: any): void {
-    this.router.navigate(['/chroniques/story', story.slug]);
+    this.router.navigate(['/chroniques', story.username, story.slug]);
   }
 }
