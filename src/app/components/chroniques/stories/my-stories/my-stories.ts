@@ -43,7 +43,8 @@ export class MyStories implements OnInit, OnDestroy {
       return this.privateStoriesService.drafts().map(draft => ({
         id: draft.id,
         storyTitle: draft.title,
-        storyDate: this.formatDate(draft.lastModified)
+        storyDate: this.formatDate(draft.lastModified),
+        slug: this.generateSlugFromTitle(draft.title)
       }));
     }
     
@@ -132,15 +133,11 @@ export class MyStories implements OnInit, OnDestroy {
   }
 
   onStoryClick(story: StoryCardData): void {
-    const currentMode = this.currentMode();
-    
-    if (currentMode === 'published' && story.slug) {
-      this.router.navigate(['/chroniques/edition', story.slug]);
-    } else if (currentMode === 'drafts') {
-      this.router.navigate(['/chroniques/draft', story.id]);
-    } else {
-      this.router.navigate(['/chroniques/editor', story.id]);
-    }
+    const currentUser = this.authService.currentUser();
+    if (!currentUser || !story.slug) return;
+
+    const username = currentUser.username.trim();
+    this.router.navigate(['/chroniques', username, 'édition', story.slug]);
   }
 
   //============ UTILITIES ============
@@ -151,5 +148,16 @@ export class MyStories implements OnInit, OnDestroy {
       month: '2-digit',
       year: 'numeric'
     });
+  }
+
+  private generateSlugFromTitle(title: string): string {
+    return title
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
   }
 }

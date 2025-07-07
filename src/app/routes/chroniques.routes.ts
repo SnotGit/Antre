@@ -12,16 +12,6 @@ export const routes: Routes = [
   },
 
   {
-    path: 'draft/:id',
-    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
-  },
-
-  {
-    path: 'edition/:slug',
-    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
-  },
-
-  {
     path: 'my-stories',
     loadComponent: () => import('../components/chroniques/stories/my-stories/my-stories').then(m => m.MyStories)
   },
@@ -37,7 +27,12 @@ export const routes: Routes = [
   },
 
   {
-    path: ':slug',
+    path: ':username/édition/:slug',
+    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
+  },
+
+  {
+    path: ':username/:slug',
     loadComponent: () => import('../components/chroniques/stories/story/story').then(m => m.Story)
   }
 ];
