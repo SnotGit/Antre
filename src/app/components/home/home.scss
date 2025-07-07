@@ -1,0 +1,44 @@
+@use 'content/artefacts/typing-effect/typing-effect' as *;
+
+.container {  
+  padding: 0;
+  background-color: #121416;
+  color: #d0d0d0;
+  font-family: 'Courier New', monospace;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  height: 100%;
+  flex: 1;
+}
+
+
+.header {
+  width: 100%;
+  padding: 30px;
+  flex-shrink: 0;
+  
+  .header-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #5d889e;
+    margin: 0 0 10px 0;
+    text-align: start;
+    display: inline;
+    width: auto;
+    
+    @include typing-effect;
+  }
+}
+
+.separator {
+  text-align: center;
+
+  .line {
+    width: 80%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #5d889e, transparent);
+    margin: 0 auto;
+    border-radius: 1px;
+  }
+}
