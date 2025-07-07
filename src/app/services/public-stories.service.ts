@@ -64,7 +64,6 @@ interface UserProfileResponse {
   providedIn: 'root'
 })
 export class PublicStoriesService {
-  private readonly authService = inject(AuthService);
   private readonly API_URL = 'http://localhost:3000/api/public-stories';
 
   //============ SIGNALS ÉTAT ============
@@ -79,7 +78,7 @@ export class PublicStoriesService {
   readonly error = this._error.asReadonly();
   readonly latestStories = this._latestStories.asReadonly();
 
-  //============ HISTOIRES RÉCENTES ============
+  //============ LECTURE HISTOIRES ============
 
   async getLatestStories(): Promise<UserLatestStory[]> {
     this._loading.set(true);
@@ -130,67 +129,6 @@ export class PublicStoriesService {
     
     this._loading.set(false);
     return data?.story || null;
-  }
-
-  //============ GESTION LIKES ============
-
-  async toggleLike(storyId: number): Promise<{ success: boolean; liked: boolean; totalLikes: number }> {
-    this._loading.set(true);
-    this._error.set(null);
-
-    const token = this.authService.getStoredToken();
-    if (!token) {
-      this._error.set('Connexion requise pour liker');
-      this._loading.set(false);
-      return { success: false, liked: false, totalLikes: 0 };
-    }
-
-    const response = await fetch(`${this.API_URL}/story/${storyId}/like`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Erreur like' }));
-      this._error.set(error.error || 'Erreur lors du like');
-      this._loading.set(false);
-      return { success: false, liked: false, totalLikes: 0 };
-    }
-
-    const data = await response.json();
-    this._loading.set(false);
-    
-    return data || { success: false, liked: false, totalLikes: 0 };
-  }
-
-  async getLikeStatus(storyId: number): Promise<{ isLiked: boolean; likesCount: number }> {
-    this._loading.set(true);
-    this._error.set(null);
-
-    const token = this.authService.getStoredToken();
-    if (!token) {
-      this._loading.set(false);
-      return { isLiked: false, likesCount: 0 };
-    }
-
-    const response = await fetch(`${this.API_URL}/story/${storyId}/like-status`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) {
-      this._loading.set(false);
-      return { isLiked: false, likesCount: 0 };
-    }
-
-    const data = await response.json();
-    this._loading.set(false);
-    
-    return data || { isLiked: false, likesCount: 0 };
   }
 
   //============ UTILITAIRES ============

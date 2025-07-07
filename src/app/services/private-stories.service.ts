@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { AuthService } from './auth.service';
+import { ErrorHandler } from './error-handler.service';
 
 interface DraftStory {
   id: number;
@@ -50,6 +51,7 @@ interface EditPublishedResponse {
 })
 export class PrivateStoriesService {
   private readonly authService = inject(AuthService);
+  private readonly errorHandler = inject(ErrorHandler);
   private readonly API_URL = 'http://localhost:3000/api/private-stories';
 
   //============ SIGNALS ÉTAT ============
@@ -197,6 +199,39 @@ export class PrivateStoriesService {
     await this.initializeUserData();
   }
 
+  //============ GESTION LIKES (DÉPLACÉ ICI) ============
+
+  async toggleLike(storyId: number): Promise<{ success: boolean; liked: boolean; totalLikes: number }> {
+    this._loading.set(true);
+    this._error.set(null);
+
+    const response = await this.fetchWithAuth(`http://localhost:3000/api/public-stories/story/${storyId}/like`, {
+      method: 'POST'
+    });
+
+    const data = await response.json();
+    this._loading.set(false);
+    
+    return data || { success: false, liked: false, totalLikes: 0 };
+  }
+
+  async getLikeStatus(storyId: number): Promise<{ isLiked: boolean; likesCount: number }> {
+    this._loading.set(true);
+    this._error.set(null);
+
+    const response = await this.fetchWithAuth(`http://localhost:3000/api/public-stories/story/${storyId}/like-status`);
+
+    if (!response.ok) {
+      this._loading.set(false);
+      return { isLiked: false, likesCount: 0 };
+    }
+
+    const data = await response.json();
+    this._loading.set(false);
+    
+    return data || { isLiked: false, likesCount: 0 };
+  }
+
   //============ STATISTIQUES ============
 
   async loadStats(): Promise<void> {
@@ -225,7 +260,7 @@ export class PrivateStoriesService {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ error: 'Erreur serveur' }));
-      this._error.set(error.error || 'Erreur réseau');
+      this.errorHandler.setError(this._error, error);
       throw new Error(error.error || 'Erreur réseau');
     }
 

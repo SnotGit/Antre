@@ -4,7 +4,9 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
 import { PublicStoriesService } from '../../../../services/public-stories.service';
+import { PrivateStoriesService } from '../../../../services/private-stories.service';
 import { AuthService } from '../../../../services/auth.service';
+import { Utilities } from '../../../../services/utilities.service';
 
 interface StoryData {
   id: number;
@@ -32,7 +34,9 @@ export class Story {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private publicStoriesService = inject(PublicStoriesService);
+  private privateStoriesService = inject(PrivateStoriesService);
   private authService = inject(AuthService);
+  private utilities = inject(Utilities);
 
   //============ SIGNALS PRIVÉS ============
 
@@ -46,7 +50,7 @@ export class Story {
   showSnackBar = signal<boolean>(false);
   snackBarMessage = signal<string>('');
 
-  //============ COMPUTED OPTIMISÉS (Angular 20) ============
+  //============ COMPUTED OPTIMISÉS ============
 
   isUserLoggedIn = computed(() => this.authService.isLoggedIn());
 
@@ -80,13 +84,13 @@ export class Story {
 
   avatarUrl = computed(() => {
     const story = this.story();
-    return story?.user?.avatar ? `http://localhost:3000${story.user.avatar}` : null;
+    return story?.user?.avatar ? this.utilities.getAvatarUrl(story.user.avatar) : null;
   });
 
   formattedDate = computed(() => {
     const story = this.story();
     if (!story) return 'Chargement...';
-    return story.publishDate || 'Date non disponible';
+    return this.utilities.formatPublishDate(story.publishDate);
   });
 
   currentStoryIndex = computed(() => {
@@ -159,9 +163,9 @@ export class Story {
     }
 
     try {
-      const story = this.story();
-      this.likesCount.set(story?.likes || 0);
-      this.isLiked.set(false);
+      const likeStatus = await this.privateStoriesService.getLikeStatus(storyId);
+      this.isLiked.set(likeStatus.isLiked);
+      this.likesCount.set(likeStatus.likesCount);
     } catch (error) {
       this.isLiked.set(false);
       this.likesCount.set(0);
@@ -185,7 +189,7 @@ export class Story {
     }
 
     try {
-      const response = await this.publicStoriesService.toggleLike(currentStoryId);
+      const response = await this.privateStoriesService.toggleLike(currentStoryId);
       this.isLiked.set(response.liked);
       this.likesCount.set(response.totalLikes);
       

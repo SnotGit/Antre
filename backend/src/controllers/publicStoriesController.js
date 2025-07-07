@@ -194,6 +194,28 @@ const toggleLike = async (req, res) => {
       return res.status(400).json({ error: 'ID histoire invalide' });
     }
 
+    // ============ VÉRIFICATION SÉCURITÉ ============
+    const story = await prisma.story.findUnique({
+      where: { id: storyId },
+      select: { userId: true, status: true }
+    });
+
+    if (!story) {
+      return res.status(404).json({ error: 'Histoire non trouvée' });
+    }
+
+    if (story.status !== 'PUBLISHED') {
+      return res.status(403).json({ error: 'Histoire non publiée' });
+    }
+
+    // EMPÊCHER USER DE LIKER SA PROPRE HISTOIRE
+    if (story.userId === userId) {
+      return res.status(403).json({ 
+        error: 'Vous ne pouvez pas liker votre propre histoire' 
+      });
+    }
+
+    // ============ LOGIQUE LIKE/UNLIKE ============
     const existingLike = await prisma.like.findUnique({
       where: {
         userId_storyId: {
