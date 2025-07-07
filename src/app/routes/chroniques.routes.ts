@@ -12,6 +12,11 @@ export const routes: Routes = [
   },
 
   {
+    path: 'editor/:slug',  // NOUVEAU - pour continuer draft
+    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
+  },
+
+  {
     path: 'my-stories',
     loadComponent: () => import('../components/chroniques/stories/my-stories/my-stories').then(m => m.MyStories)
   },
