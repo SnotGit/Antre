@@ -307,7 +307,8 @@ const getPublishedStories = async (req, res) => {
       id: story.id,
       title: story.title,
       lastModified: story.updatedAt.toISOString(),
-      likes: story._count.likes
+      likes: story._count.likes,
+      slug: story.slug
     }));
 
     res.json({
