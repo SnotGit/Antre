@@ -6,7 +6,6 @@ import { map } from 'rxjs/operators';
 import { PublicStoriesService } from '../../../../services/public-stories.service';
 import { PrivateStoriesService } from '../../../../services/private-stories.service';
 import { AuthService } from '../../../../services/auth.service';
-import { Utilities } from '../../../../services/utilities.service';
 
 interface StoryData {
   id: number;
@@ -36,7 +35,6 @@ export class Story {
   private publicStoriesService = inject(PublicStoriesService);
   private privateStoriesService = inject(PrivateStoriesService);
   private authService = inject(AuthService);
-  private utilities = inject(Utilities);
 
   //============ SIGNALS PRIVÉS ============
 

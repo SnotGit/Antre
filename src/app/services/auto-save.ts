@@ -1,4 +1,4 @@
-import { Injectable, signal, effect, DestroyRef, inject } from '@angular/core';
+import { Injectable, signal, effect } from '@angular/core';
 
 interface AutoSaveConfig<T> {
   data: () => T;
@@ -17,8 +17,6 @@ interface AutoSaveState {
   providedIn: 'root'
 })
 export class AutoSaveService {
-  private destroyRef = inject(DestroyRef);
-  private activeTimeouts = new Map<string, number>();
 
   createAutoSave<T>(config: AutoSaveConfig<T>) {
     const state = signal<AutoSaveState>({
@@ -27,67 +25,60 @@ export class AutoSaveService {
       hasUnsavedChanges: false
     });
 
-    const instanceId = this.generateInstanceId();
+    let timeoutId: number | undefined;
     
+    const scheduleAutoSave = () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      
+      const delay = config.delay ?? 2000;
+      timeoutId = window.setTimeout(() => {
+        executeSave();
+      }, delay);
+    };
+
+    const executeSave = async () => {
+      const data = config.data();
+      const shouldSave = config.shouldSave ? config.shouldSave(data) : this.defaultShouldSave(data);
+      
+      if (!shouldSave) return;
+
+      state.update(s => ({ ...s, isSaving: true }));
+
+      try {
+        await config.saveFunction(data);
+        state.update(s => ({
+          ...s,
+          isSaving: false,
+          lastSaveTime: new Date(),
+          hasUnsavedChanges: false
+        }));
+      } catch (error) {
+        state.update(s => ({ ...s, isSaving: false }));
+      }
+    };
+
     const autoSaveEffect = effect(() => {
       const data = config.data();
       const shouldSave = config.shouldSave ? config.shouldSave(data) : this.defaultShouldSave(data);
       
       if (shouldSave) {
         state.update(s => ({ ...s, hasUnsavedChanges: true }));
-        this.scheduleAutoSave(instanceId, config, state);
+        scheduleAutoSave();
       }
-    });
-
-    this.destroyRef.onDestroy(() => {
-      this.clearTimeout(instanceId);
-      autoSaveEffect.destroy();
     });
 
     return {
       state: state.asReadonly(),
-      forceSave: () => this.executeSave(config, state),
-      cleanup: () => this.clearTimeout(instanceId)
+      forceSave: executeSave,
+      cleanup: () => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        autoSaveEffect.destroy();
+      }
     };
-  }
-
-  private scheduleAutoSave<T>(
-    instanceId: string, 
-    config: AutoSaveConfig<T>, 
-    state: ReturnType<typeof signal<AutoSaveState>>
-  ): void {
-    this.clearTimeout(instanceId);
-    
-    const delay = config.delay ?? 2000;
-    const timeoutId = window.setTimeout(() => {
-      this.executeSave(config, state);
-    }, delay);
-    
-    this.activeTimeouts.set(instanceId, timeoutId);
-  }
-
-  private async executeSave<T>(
-    config: AutoSaveConfig<T>, 
-    state: ReturnType<typeof signal<AutoSaveState>>
-  ): Promise<void> {
-    const data = config.data();
-    const shouldSave = config.shouldSave ? config.shouldSave(data) : this.defaultShouldSave(data);
-    
-    if (!shouldSave) return;
-
-    state.update(s => ({ ...s, isSaving: true }));
-
-    try {
-      await config.saveFunction(data);
-      state.update(s => ({
-        ...s,
-        isSaving: false,
-        lastSaveTime: new Date(),
-        hasUnsavedChanges: false
-      }));
-    } catch (error) {
-      state.update(s => ({ ...s, isSaving: false }));
-    }
   }
 
   private defaultShouldSave(data: unknown): boolean {
@@ -97,17 +88,5 @@ export class AutoSaveService {
     return Object.values(obj).some(value => 
       typeof value === 'string' && value.trim().length > 0
     );
-  }
-
-  private generateInstanceId(): string {
-    return `autosave_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  private clearTimeout(instanceId: string): void {
-    const timeoutId = this.activeTimeouts.get(instanceId);
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-      this.activeTimeouts.delete(instanceId);
-    }
   }
 }

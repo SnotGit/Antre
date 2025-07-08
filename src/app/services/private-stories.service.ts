@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 interface DraftStory {
   id: number;
@@ -25,7 +25,7 @@ interface UserStats {
 }
 
 interface StoryData {
-  id?: number;
+  id: number;
   title: string;
   content: string;
   slug?: string;
@@ -124,29 +124,17 @@ export class PrivateStoriesService {
     }
   }
 
-  async saveDraftBySlug(data: { title: string; content: string }, slug?: string): Promise<SaveDraftResponse> {
+  async saveDraft(data: { title: string; content: string }, storyId?: number): Promise<SaveDraftResponse> {
     this._loading.set(true);
     this._error.set(null);
 
     try {
-      if (slug) {
-        const draft = this._drafts().find(d => d.slug === slug);
-        if (!draft) {
-          throw new Error('Draft non trouvé');
-        }
-        
-        const result = await firstValueFrom(
-          this.http.put<SaveDraftResponse>(`${this.API_URL}/draft/${draft.id}`, data)
-        );
-        await this.loadDrafts();
-        return result;
-      } else {
-        const result = await firstValueFrom(
-          this.http.post<SaveDraftResponse>(`${this.API_URL}/draft`, data)
-        );
-        await this.loadDrafts();
-        return result;
-      }
+      const result = storyId 
+        ? await firstValueFrom(this.http.put<SaveDraftResponse>(`${this.API_URL}/draft/${storyId}`, data))
+        : await firstValueFrom(this.http.post<SaveDraftResponse>(`${this.API_URL}/draft`, data));
+      
+      await this.loadDrafts();
+      return result;
     } catch (error) {
       this._error.set('Erreur de sauvegarde');
       throw error;
@@ -155,18 +143,13 @@ export class PrivateStoriesService {
     }
   }
 
-  async publishStoryBySlug(slug: string): Promise<void> {
+  async publishStory(storyId: number): Promise<void> {
     this._loading.set(true);
     this._error.set(null);
 
     try {
-      const draft = this._drafts().find(d => d.slug === slug);
-      if (!draft) {
-        throw new Error('Draft non trouvé');
-      }
-
       await firstValueFrom(
-        this.http.post(`${this.API_URL}/publish/${draft.id}`, {})
+        this.http.post(`${this.API_URL}/publish/${storyId}`, {})
       );
       await this.initializeUserData();
     } catch (error) {
@@ -177,18 +160,13 @@ export class PrivateStoriesService {
     }
   }
 
-  async republishStoryBySlug(draftSlug: string, originalId: string): Promise<void> {
+  async republishStory(draftId: number, originalId: number): Promise<void> {
     this._loading.set(true);
     this._error.set(null);
 
     try {
-      const draft = this._drafts().find(d => d.slug === draftSlug);
-      if (!draft) {
-        throw new Error('Draft non trouvé');
-      }
-
       await firstValueFrom(
-        this.http.post(`${this.API_URL}/republish/${draft.id}`, { originalId })
+        this.http.post(`${this.API_URL}/republish/${draftId}`, { originalId })
       );
       await this.initializeUserData();
     } catch (error) {
@@ -199,67 +177,18 @@ export class PrivateStoriesService {
     }
   }
 
-  async deleteStoryBySlug(slug: string): Promise<void> {
+  async deleteStory(storyId: number): Promise<void> {
     this._loading.set(true);
     this._error.set(null);
 
     try {
-      const draft = this._drafts().find(d => d.slug === slug);
-      if (draft) {
-        await firstValueFrom(
-          this.http.delete(`${this.API_URL}/story/${draft.id}`)
-        );
-      } else {
-        const published = this._published().find(p => p.slug === slug);
-        if (published) {
-          await firstValueFrom(
-            this.http.delete(`${this.API_URL}/story/${published.id}`)
-          );
-        }
-      }
+      await firstValueFrom(
+        this.http.delete(`${this.API_URL}/story/${storyId}`)
+      );
       await this.initializeUserData();
     } catch (error) {
       this._error.set('Erreur de suppression');
       throw error;
-    } finally {
-      this._loading.set(false);
-    }
-  }
-
-  async toggleLike(storyId: number): Promise<{ success: boolean; liked: boolean; totalLikes: number }> {
-    this._loading.set(true);
-    this._error.set(null);
-
-    try {
-      const data = await firstValueFrom(
-        this.http.post<{ success: boolean; liked: boolean; totalLikes: number }>(
-          `http://localhost:3000/api/public-stories/story/${storyId}/like`, 
-          {}
-        )
-      );
-      return data || { success: false, liked: false, totalLikes: 0 };
-    } catch (error) {
-      this._error.set('Erreur like');
-      return { success: false, liked: false, totalLikes: 0 };
-    } finally {
-      this._loading.set(false);
-    }
-  }
-
-  async getLikeStatus(storyId: number): Promise<{ isLiked: boolean; likesCount: number }> {
-    this._loading.set(true);
-    this._error.set(null);
-
-    try {
-      const data = await firstValueFrom(
-        this.http.get<{ isLiked: boolean; likesCount: number }>(
-          `http://localhost:3000/api/public-stories/story/${storyId}/like-status`
-        )
-      );
-      return data || { isLiked: false, likesCount: 0 };
-    } catch (error) {
-      this._error.set('Erreur statut like');
-      return { isLiked: false, likesCount: 0 };
     } finally {
       this._loading.set(false);
     }

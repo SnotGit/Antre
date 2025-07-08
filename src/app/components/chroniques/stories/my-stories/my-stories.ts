@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs/operators';
 import { PrivateStoriesService } from '../../../../services/private-stories.service';
 import { AuthService } from '../../../../services/auth.service';
 import { TypingEffectService } from '../../../../services/typing-effect.service';
@@ -27,14 +29,24 @@ export class MyStories implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private typingService = inject(TypingEffectService);
 
-  currentMode = signal<string>('overview');
+  currentMode = toSignal(
+    this.route.url.pipe(map(segments => {
+      const lastSegment = segments[segments.length - 1]?.path;
+      if (lastSegment === 'drafts') return 'drafts';
+      if (lastSegment === 'published') return 'published';
+      return 'overview';
+    })),
+    { initialValue: 'overview' }
+  );
+  
   stats = this.privateStoriesService.stats;
   
   isOverviewMode = computed(() => this.currentMode() === 'overview');
-  isListMode = computed(() => this.currentMode() === 'drafts' || this.currentMode() === 'published');
+  isListMode = computed(() => this.currentMode() !== 'overview');
 
   stories = computed((): StoryCardData[] => {
-    if (this.currentMode() === 'drafts') {
+    const mode = this.currentMode();
+    if (mode === 'drafts') {
       return this.privateStoriesService.drafts().map(draft => ({
         id: draft.id,
         storyTitle: draft.title,
@@ -43,7 +55,7 @@ export class MyStories implements OnInit, OnDestroy {
       }));
     }
     
-    if (this.currentMode() === 'published') {
+    if (mode === 'published') {
       return this.privateStoriesService.published().map(story => ({
         id: story.id,
         storyTitle: story.title,
@@ -55,9 +67,23 @@ export class MyStories implements OnInit, OnDestroy {
     return [];
   });
 
-  private typingEffect: any;
-  headerTitle: any;
-  typing: any;
+  headerText = computed(() => {
+    const mode = this.currentMode();
+    switch (mode) {
+      case 'drafts': return 'Brouillons';
+      case 'published': return 'Histoires Publiées';
+      default: return 'Mes Histoires';
+    }
+  });
+
+  private typingEffect = this.typingService.createTypingEffect({
+    text: this.headerText(),
+    speed: 100,
+    finalBlinks: 3
+  });
+
+  headerTitle = this.typingEffect.headerTitle;
+  typing = this.typingEffect.typingComplete;
 
   ngOnInit(): void {
     if (!this.authService.isLoggedIn()) {
@@ -65,52 +91,12 @@ export class MyStories implements OnInit, OnDestroy {
       return;
     }
 
-    this.detectModeFromUrl();
-    this.initializeTypingEffect();
-    this.loadUserData();
-  }
-
-  private async loadUserData(): Promise<void> {
-    await this.privateStoriesService.initializeUserData();
-  }
-
-  private initializeTypingEffect(): void {
-    this.typingEffect = this.typingService.createTypingEffect({
-      text: this.getHeaderText(),
-      speed: 100,
-      finalBlinks: 3
-    });
-    
-    this.headerTitle = this.typingEffect.headerTitle;
-    this.typing = this.typingEffect.typingComplete;
     this.typingEffect.startTyping();
+    this.privateStoriesService.initializeUserData();
   }
 
   ngOnDestroy(): void {
-    if (this.typingEffect) {
-      this.typingEffect.cleanup();
-    }
-  }
-
-  private detectModeFromUrl(): void {
-    const url = this.router.url;
-    
-    if (url.includes('/drafts')) {
-      this.currentMode.set('drafts');
-    } else if (url.includes('/published')) {
-      this.currentMode.set('published');
-    } else {
-      this.currentMode.set('overview');
-    }
-  }
-
-  private getHeaderText(): string {
-    const mode = this.currentMode();
-    switch (mode) {
-      case 'drafts': return 'Brouillons';
-      case 'published': return 'Histoires Publiées';
-      default: return 'Mes Histoires';
-    }
+    this.typingEffect.cleanup();
   }
 
   goToDrafts(): void {
@@ -124,15 +110,13 @@ export class MyStories implements OnInit, OnDestroy {
   onStoryClick(story: StoryCardData): void {
     if (!story.slug) return;
 
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) return;
+
     if (this.currentMode() === 'drafts') {
-      // BROUILLON → route editor normale
       this.router.navigate(['/chroniques/editor', story.slug]);
     } else {
-      // HISTOIRE PUBLIÉE → route édition avec username
-      const currentUser = this.authService.currentUser();
-      if (currentUser?.username) {
-        this.router.navigate(['/chroniques', currentUser.username, 'édition', story.slug]);
-      }
+      this.router.navigate(['/chroniques', currentUser.username, 'édition', story.slug]);
     }
   }
 
