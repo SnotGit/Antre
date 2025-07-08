@@ -6,9 +6,8 @@ import { map } from 'rxjs/operators';
 import { PrivateStoriesService } from '../../../../services/private-stories.service';
 import { AuthService } from '../../../../services/auth.service';
 import { TypingEffectService } from '../../../../services/typing-effect.service';
-import { StoryCard } from '../story-card/story-card';
 
-interface StoryCardData {
+interface CardData {
   id: number;
   storyTitle: string;
   storyDate: string;
@@ -17,7 +16,7 @@ interface StoryCardData {
 
 @Component({
   selector: 'app-stories',
-  imports: [CommonModule, StoryCard],
+  imports: [CommonModule],
   templateUrl: './my-stories.html',
   styleUrl: './my-stories.scss'
 })

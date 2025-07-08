@@ -5,7 +5,7 @@
       {{ headerTitle() }}
     </h1>
   </div>
-  
+
   <div class="separator">
     <div class="line"></div>
   </div>
@@ -28,11 +28,11 @@
 
   @if (isListMode()) {
   <div class="content">
-    <div class="chroniques-grid">
-      @for (story of stories(); track story.id) {
-      <app-story-card [private]="story" (cardClick)="onStoryClick(story)">
-      </app-story-card>
-      }
+    <div class="content-grid">
+      <div class="card" (click)="onCardClick()">
+        <div class="story-title">{{ storyTitle() }}</div>
+        <div class="story-date">{{ storyDate() }}</div>
+      </div>
     </div>
   </div>
   }
