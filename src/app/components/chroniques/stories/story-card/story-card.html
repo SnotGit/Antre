@@ -1,22 +1,13 @@
-@if (public()) {
-  <div class="story-card-public" (click)="onCardClick()">
-    <div class="avatar" [style.background-image]="avatarUrl()">
-    </div>
-
-    <div class="user-data">
-      <div class="username">{{ public()?.username }}</div>
-    </div>
-
-    <div class="story-data">
-      <div class="story-title">{{ public()?.storyTitle }}</div>
-      <div class="story-date">{{ public()?.storyDate }}</div>
-    </div>
+<div class="story-car-public" (click)="onCardClick()">
+  <div class="avatar" [style.background-image]="avatarUrl()">
   </div>
-}
 
-@if (private()) {
-  <div class="story-card-private" (click)="onCardClick()">
-    <div class="story-title">{{ private()?.storyTitle }}</div>
-    <div class="story-date">{{ private()?.storyDate }}</div>
+  <div class="user-data">
+    <div class="username">{{ username() }}</div>
   </div>
-}
+
+  <div class="story-data">
+    <div class="story-title">{{ storyTitle() }}</div>
+    <div class="story-date">{{ storyDate() }}</div>
+  </div>
+</div>
