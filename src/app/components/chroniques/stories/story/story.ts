@@ -23,7 +23,7 @@ interface StoryData {
 }
 
 @Component({
-  selector: 'app-story-detail',
+  selector: 'app-story',
   imports: [CommonModule],
   templateUrl: './story.html',
   styleUrl: './story.scss'
@@ -71,7 +71,7 @@ export class Story {
     loader: async () => {
       const slug = this.currentSlug();
       if (!slug) throw new Error('Slug manquant');
-      const story = await this.publicStoriesService.getStoryDetailBySlug(slug);
+      const story = await this.publicStoriesService.getStoryBySlug(slug);
       return { story };
     }
   });

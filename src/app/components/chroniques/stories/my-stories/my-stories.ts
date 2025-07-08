@@ -15,7 +15,7 @@ interface CardData {
 }
 
 @Component({
-  selector: 'app-stories',
+  selector: 'app-my-stories',
   imports: [CommonModule],
   templateUrl: './my-stories.html',
   styleUrl: './my-stories.scss'
