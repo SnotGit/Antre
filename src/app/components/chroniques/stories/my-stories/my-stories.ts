@@ -29,10 +29,10 @@ export class MyStories implements OnInit, OnDestroy {
   private typingService = inject(TypingEffectService);
 
   currentMode = toSignal(
-    this.route.url.pipe(map(segments => {
-      const lastSegment = segments[segments.length - 1]?.path;
-      if (lastSegment === 'drafts') return 'drafts';
-      if (lastSegment === 'published') return 'published';
+    this.route.url.pipe(map(stories => {
+      const stories = stories[stories.length - 1]?.path;
+      if (stories === 'drafts') return 'drafts';
+      if (stories === 'published') return 'published';
       return 'overview';
     })),
     { initialValue: 'overview' }
@@ -43,7 +43,7 @@ export class MyStories implements OnInit, OnDestroy {
   isOverviewMode = computed(() => this.currentMode() === 'overview');
   isListMode = computed(() => this.currentMode() !== 'overview');
 
-  stories = computed((): StoryCardData[] => {
+  stories = computed((): CardData[] => {
     const mode = this.currentMode();
     if (mode === 'drafts') {
       return this.privateStoriesService.drafts().map(draft => ({
@@ -106,7 +106,7 @@ export class MyStories implements OnInit, OnDestroy {
     this.router.navigate(['/chroniques/my-stories/published']);
   }
 
-  onStoryClick(story: StoryCardData): void {
+  onCardClick(story: CardData): void {
     if (!story.slug) return;
 
     const currentUser = this.authService.currentUser();
