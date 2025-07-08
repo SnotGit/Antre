@@ -120,16 +120,6 @@ export class PublicStoriesService {
     return data?.story || null;
   }
 
-  async getStoryDetailBySlug(slug: string): Promise<StoryDetail | null> {
-    this._loading.set(true);
-    this._error.set(null);
-
-    const response = await this.fetchPublic(`${this.API_URL}/story/${slug}`);
-    const data = await response.json();
-    
-    this._loading.set(false);
-    return data?.story || null;
-  }
 
   //============ UTILITAIRES ============
 
