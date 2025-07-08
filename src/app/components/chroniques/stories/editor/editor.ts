@@ -71,6 +71,22 @@ export class Editor implements OnInit, OnDestroy {
   headerTitle = this.typingEffect.headerTitle;
   typingComplete = this.typingEffect.typingComplete;
   
+  isLoading = computed(() => this.storyResource.isLoading());
+  hasError = computed(() => !!this.storyResource.error());
+  
+  private formUpdateEffect = effect(() => {
+    const resourceValue = this.storyResource.value();
+    const isLoading = this.isLoading();
+    const hasError = this.hasError();
+    
+    if (!isLoading && !hasError && resourceValue) {
+      this.storyForm.set({
+        title: resourceValue.title || '',
+        content: resourceValue.content || ''
+      });
+    }
+  });
+  
   private autoSaveEffect = effect(() => {
     const form = this.storyForm();
     if (form.title.trim() || form.content.trim()) {
@@ -87,13 +103,6 @@ export class Editor implements OnInit, OnDestroy {
     }
 
     this.typingEffect.startTyping();
-    
-    effect(() => {
-      const data = this.storyResource.value();
-      if (data) {
-        this.storyForm.set(data);
-      }
-    });
   }
 
   ngOnDestroy(): void {
