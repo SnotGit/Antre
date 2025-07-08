@@ -10,7 +10,7 @@ interface StoryCardData {
   id: number;
   storyTitle: string;
   storyDate: string;
-  slug?: string;
+  slug: string;
 }
 
 @Component({
@@ -27,12 +27,7 @@ export class MyStories implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private typingService = inject(TypingEffectService);
 
-  //============ SIGNALS ============
-
   currentMode = signal<string>('overview');
-
-  //============ COMPUTED ============
-
   stats = this.privateStoriesService.stats;
   
   isOverviewMode = computed(() => this.currentMode() === 'overview');
@@ -44,7 +39,7 @@ export class MyStories implements OnInit, OnDestroy {
         id: draft.id,
         storyTitle: draft.title,
         storyDate: this.formatDate(draft.lastModified),
-        slug: this.generateSlugFromTitle(draft.title)
+        slug: draft.slug
       }));
     }
     
@@ -59,8 +54,6 @@ export class MyStories implements OnInit, OnDestroy {
     
     return [];
   });
-
-  //============ TYPING EFFECT ============
 
   private typingEffect: any;
   headerTitle: any;
@@ -99,8 +92,6 @@ export class MyStories implements OnInit, OnDestroy {
     }
   }
 
-  //============ MODE MANAGEMENT ============
-
   private detectModeFromUrl(): void {
     const url = this.router.url;
     
@@ -122,8 +113,6 @@ export class MyStories implements OnInit, OnDestroy {
     }
   }
 
-  //============ NAVIGATION ============
-
   goToDrafts(): void {
     this.router.navigate(['/chroniques/my-stories/drafts']);
   }
@@ -133,14 +122,19 @@ export class MyStories implements OnInit, OnDestroy {
   }
 
   onStoryClick(story: StoryCardData): void {
-    const currentUser = this.authService.currentUser();
-    if (!currentUser || !story.slug) return;
+    if (!story.slug) return;
 
-    const username = currentUser.username.trim();
-    this.router.navigate(['/chroniques', username, 'édition', story.slug]);
+    if (this.currentMode() === 'drafts') {
+      // BROUILLON → route editor normale
+      this.router.navigate(['/chroniques/editor', story.slug]);
+    } else {
+      // HISTOIRE PUBLIÉE → route édition avec username
+      const currentUser = this.authService.currentUser();
+      if (currentUser?.username) {
+        this.router.navigate(['/chroniques', currentUser.username, 'édition', story.slug]);
+      }
+    }
   }
-
-  //============ UTILITIES ============
 
   private formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString('fr-FR', {
@@ -148,16 +142,5 @@ export class MyStories implements OnInit, OnDestroy {
       month: '2-digit',
       year: 'numeric'
     });
-  }
-
-  private generateSlugFromTitle(title: string): string {
-    return title
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim();
   }
 }

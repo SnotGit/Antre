@@ -128,15 +128,25 @@ export class PrivateStoriesService {
     this._loading.set(true);
     this._error.set(null);
 
-    const url = slug ? `${this.API_URL}/draft/${slug}` : `${this.API_URL}/draft`;
-    const method = slug ? 'put' : 'post';
-
     try {
-      const result = await firstValueFrom(
-        this.http.request<SaveDraftResponse>(method, url, { body: data })
-      );
-      await this.loadDrafts();
-      return result;
+      if (slug) {
+        const draft = this._drafts().find(d => d.slug === slug);
+        if (!draft) {
+          throw new Error('Draft non trouvé');
+        }
+        
+        const result = await firstValueFrom(
+          this.http.put<SaveDraftResponse>(`${this.API_URL}/draft/${draft.id}`, data)
+        );
+        await this.loadDrafts();
+        return result;
+      } else {
+        const result = await firstValueFrom(
+          this.http.post<SaveDraftResponse>(`${this.API_URL}/draft`, data)
+        );
+        await this.loadDrafts();
+        return result;
+      }
     } catch (error) {
       this._error.set('Erreur de sauvegarde');
       throw error;
@@ -150,8 +160,13 @@ export class PrivateStoriesService {
     this._error.set(null);
 
     try {
+      const draft = this._drafts().find(d => d.slug === slug);
+      if (!draft) {
+        throw new Error('Draft non trouvé');
+      }
+
       await firstValueFrom(
-        this.http.post(`${this.API_URL}/publish/${slug}`, {})
+        this.http.post(`${this.API_URL}/publish/${draft.id}`, {})
       );
       await this.initializeUserData();
     } catch (error) {
@@ -167,8 +182,13 @@ export class PrivateStoriesService {
     this._error.set(null);
 
     try {
+      const draft = this._drafts().find(d => d.slug === draftSlug);
+      if (!draft) {
+        throw new Error('Draft non trouvé');
+      }
+
       await firstValueFrom(
-        this.http.post(`${this.API_URL}/republish/${draftSlug}`, { originalId })
+        this.http.post(`${this.API_URL}/republish/${draft.id}`, { originalId })
       );
       await this.initializeUserData();
     } catch (error) {
@@ -184,9 +204,19 @@ export class PrivateStoriesService {
     this._error.set(null);
 
     try {
-      await firstValueFrom(
-        this.http.delete(`${this.API_URL}/story/${slug}`)
-      );
+      const draft = this._drafts().find(d => d.slug === slug);
+      if (draft) {
+        await firstValueFrom(
+          this.http.delete(`${this.API_URL}/story/${draft.id}`)
+        );
+      } else {
+        const published = this._published().find(p => p.slug === slug);
+        if (published) {
+          await firstValueFrom(
+            this.http.delete(`${this.API_URL}/story/${published.id}`)
+          );
+        }
+      }
       await this.initializeUserData();
     } catch (error) {
       this._error.set('Erreur de suppression');
