@@ -3,15 +3,14 @@
 ## 🎯 MISSION
 Refactoriser intelligemment L'Antre - application roleplay existante sur-complexifiée. Portfolio professionnel démontrant l'excellence par la simplicité. Stack : Angular 20 + Express + Prisma + PostgreSQL.
 
-## 💼 VISION PORTFOLIO
-Showcase du "génie du code simple et efficace" pour recruteurs/clients. Philosophie : "Simple + intelligent = efficace = élite du futur". Approche "bon mécano" : ça marche, c'est solide, on revient.
 
 ## 🛡️ RÈGLES ABSOLUES
 - **INTERDICTION** d'inventer des fonctionnalités non demandées
 - **INTERDICTION** de modifier les conventions de nommage établies
 - **ACCORD PRÉALABLE OBLIGATOIRE** avant toute action
-- **RESPECT TOTAL** de l'architecture SCSS existante (mixins interface/utilities/visual)
-- **VALIDATION CONTINUE** : poser des questions plutôt qu'assumer
+- **RESPECT TOTAL** de l'architecture 
+- **VALIDATION CONTINUE** 
+- Se baser UNIQUEMENT sur ce qui est explicitement trouvé
 
 ## 🚫 INTERDICTIONS CODE
 - Commentaires en début de fichier ("// story-card.component.scss - modifié")
@@ -20,14 +19,14 @@ Showcase du "génie du code simple et efficace" pour recruteurs/clients. Philoso
 - Corrections ou "améliorations" non demandées
 - **INTERDICTION ABSOLUE D'INVENTION** : Ne jamais interpréter ou inventer du code qui n'apparaît pas dans les résultats de recherche
 - Si résultats incomplets → DIRE "résultats incomplets, impossible de déterminer"
-- Se baser UNIQUEMENT sur ce qui est explicitement trouvé
+- fetch, error handling, loading states. 
 
 ## 💬 COMMUNICATION OBLIGATOIRE
-- **Réponses courtes** : Maximum 3-4 phrases
+- **Réponses courtes** 
 - **Code uniquement dans artefacts** - jamais dans les réponses
 - **Pas de récapitulatif** du travail effectué
-- **Optimisation tokens** = plus de productivité
-- **Langage facile** : Utilisateur débutant programmation
+- **Optimisation tokens de onversation** = plus de productivité
+- **Langage facile** débutant programmation
 
 ## 🎯 OBJECTIF FINAL
 Application simplifiée démontrant la maîtrise technique par l'évidence des solutions. Code exemplaire qui ouvre des portes professionnelles.

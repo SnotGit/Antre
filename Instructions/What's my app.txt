@@ -5,10 +5,10 @@ L'Antre est une application de roleplay (jeu de rôle en ligne) où les utilisat
 🔍 QUE FAIT CETTE APPLICATION ?
 Pour les utilisateurs :
 
-Créer des histoires (brouillons → publication)
-Lire les histoires des autres utilisateurs
-Interagir avec un système de "likes"
-Gérer son profil (avatar, description, mot de passe)
+Créer des histoires (brouillons → publication) editor components + private service
+Lire les histoires des autres utilisateurs . story components + public service
+Interagir avec un système de "likes". private service
+Gérer son profil (avatar, description, mot de passe) private service pour stats + auth service pour user account management. 
 
 Pour les administrateurs :
 
@@ -24,6 +24,6 @@ Mon-compte : Gestion du profil utilisateur
 
 ⚙️ TECHNOLOGIES UTILISÉES
 
-Frontend : Angular 20 (interface moderne)
+Frontend : Angular 20 
 Backend : Express (serveur) + Prisma (base de données)
 Base de données : PostgreSQL
