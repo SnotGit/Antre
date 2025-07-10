@@ -43,14 +43,3 @@
 - Tous éditent leurs chroniques
 - Seuls admins éditent archives
 
-## 🎨 INTERFACE CARDS + MIXINS
-- Système cards unifié pour tous types contenu
-- Architecture SCSS selon organisation existante
-- Composants réutilisables par props
-- Performance fluide sans optimisations excessives
-
-## 📊 MÉTRIQUES SUCCÈS
-- Réduction 30-50% lignes code
-- Bundle < 500KB
-- Lighthouse > 95
-- Time to Interactive < 2s

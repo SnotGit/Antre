@@ -1,7 +1,7 @@
 # PROMPT D'ANALYSE RIGOUREUSE AVANT CODAGE
 
 ## 🎯 OBJECTIF
-Analyser rigoureusement une application existante avant tout développement pour éviter les erreurs, inventions et incohérences.
+Analyser rigoureusement l'application existante avant tout développement pour éviter les erreurs, inventions et incohérences.
 
 ## 📋 MÉTHODE OBLIGATOIRE
 
@@ -18,24 +18,15 @@ RECHERCHER ET LISTER :
 ### ÉTAPE 2 : EXTRACTION DES PATTERNS
 ```
 IDENTIFIER ET NOTER :
-- Comment les autres composants font X (ex: typing effect)
-- Quels paramètres sont utilisés (ex: speed: 150, finalBlinks: 4)
-- Quelle architecture est respectée (ex: signals, computed, resource)
+- Comment les autres composants font X 
+- Quels paramètres sont utilisés 
+- Quelle architecture est respectée 
 - Quelles conventions de nommage sont appliquées
 - Quelles structures de dossiers sont suivies
 ```
 
-### ÉTAPE 3 : CONSOLIDATION DES DONNÉES
-```
-CRÉER UN REGISTRE FACTUEL :
-- Service TypingEffect : { speed: 150, finalBlinks: 4, cleanup nécessaire }
-- Mixin SCSS : @include typing-effect utilisé dans header-title
-- Navigation : toujours username/slug pour les routes
-- Signals : readonly() pour exposition publique
-- etc.
-```
 
-### ÉTAPE 4 : VALIDATION DES HYPOTHÈSES
+### ÉTAPE 3 : VALIDATION DES HYPOTHÈSES
 ```
 VÉRIFIER CHAQUE AFFIRMATION :
 - "Le service fait X" → MONTRER le code exact
@@ -44,7 +35,7 @@ VÉRIFIER CHAQUE AFFIRMATION :
 - Jamais d'invention, seulement des FAITS
 ```
 
-### ÉTAPE 5 : PLAN DE DÉVELOPPEMENT
+### ÉTAPE 4 : PLAN DE DÉVELOPPEMENT
 ```
 DÉFINIR PRÉCISÉMENT :
 - Quels patterns exactement réutiliser
@@ -68,4 +59,4 @@ Avant tout code, confirmer :
 - "Je n'invente rien, je réutilise seulement"
 
 ## 🎯 RÉSULTAT ATTENDU
-Un développement qui s'intègre parfaitement dans l'existant, sans réinvention, avec les bons paramètres et les bonnes conventions.
+Un développement qui s'intègre parfaitement dans l'existant, avec les bons paramètres et les bonnes conventions.
