@@ -12,12 +12,12 @@
   </div>
 
   <div class="content">
-    @if (stories().length > 0) {
+    @if (storyCards().length > 0) {
       <div class="chroniques-grid">
-        @for (story of stories(); track story.slug) {
+        @for (storyCard of storyCards(); track storyCard.storyId) {
           <app-story-card 
-            [public]="story"
-            (cardClick)="onStoryClick(story)">
+            [story]="storyCard"
+            (cardClick)="onStoryCardClick(storyCard)">
           </app-story-card>
         }
       </div>

@@ -7,7 +7,7 @@ const { authenticateToken } = require('../controllers/authController');
 
 router.get('/', publicStoriesController.getLatestStories);
 router.get('/users/:id', publicStoriesController.getUserProfile);
-router.get('/story/:slug', publicStoriesController.getStoryBySlug);
+router.get('/story/:id', publicStoriesController.getStoryById);
 
 //============ ROUTES NÉCESSITANT AUTHENTIFICATION ============
 
