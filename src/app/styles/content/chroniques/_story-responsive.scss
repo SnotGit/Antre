@@ -1,4 +1,4 @@
-@mixin story-detail-responsive {
+@mixin story-responsive {
   @media (max-width: 1024px) and (min-width: 769px) {
     .story-detail-container {
       padding: 10px;
