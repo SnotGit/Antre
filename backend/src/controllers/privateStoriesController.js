@@ -20,13 +20,19 @@ const generateSlug = (title) => {
     .replace(/^-+|-+$/g, '');
 };
 
-const ensureUniqueSlug = async (baseSlug, userId) => {
+const ensureUniqueSlug = async (baseSlug, userId, excludeId = null) => {
   let slug = baseSlug;
   let counter = 1;
   
-  while (await prisma.story.findFirst({ where: { slug, userId } })) {
+  const whereCondition = { slug, userId };
+  if (excludeId) {
+    whereCondition.id = { not: excludeId };
+  }
+  
+  while (await prisma.story.findFirst({ where: whereCondition })) {
     slug = `${baseSlug}-${counter}`;
     counter++;
+    whereCondition.slug = slug;
   }
   
   return slug;
@@ -161,32 +167,11 @@ const getStoryForEdit = async (req, res) => {
 
 const saveDraft = async (req, res) => {
   try {
-    const { slug } = req.params;
     const { title, content } = req.body;
     const userId = req.user.userId;
 
     const error = validateStoryData(title, content);
     if (error) return res.status(400).json({ error });
-
-    if (slug) {
-      const story = await prisma.story.findFirst({
-        where: { slug, userId, status: 'DRAFT' }
-      });
-
-      if (!story) {
-        return res.status(404).json({ error: 'Draft non trouvé' });
-      }
-
-      const updated = await prisma.story.update({
-        where: { id: story.id },
-        data: { title, content, updatedAt: new Date() }
-      });
-
-      return res.json({
-        message: 'Draft sauvegardé',
-        story: updated
-      });
-    }
 
     const newSlug = await ensureUniqueSlug(generateSlug(title), userId);
     
@@ -203,13 +188,50 @@ const saveDraft = async (req, res) => {
   }
 };
 
+const updateDraft = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, content } = req.body;
+    const userId = req.user.userId;
+
+    const error = validateStoryData(title, content);
+    if (error) return res.status(400).json({ error });
+
+    const story = await prisma.story.findFirst({
+      where: { id: parseInt(id), userId, status: 'DRAFT' }
+    });
+
+    if (!story) {
+      return res.status(404).json({ error: 'Draft non trouvé' });
+    }
+
+    // Générer un nouveau slug si le titre a changé
+    let newSlug = story.slug;
+    if (title !== story.title) {
+      newSlug = await ensureUniqueSlug(generateSlug(title), userId, story.id);
+    }
+
+    const updated = await prisma.story.update({
+      where: { id: story.id },
+      data: { title, content, slug: newSlug, updatedAt: new Date() }
+    });
+
+    res.json({
+      message: 'Draft sauvegardé',
+      story: updated
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
 const publishStory = async (req, res) => {
   try {
-    const { slug } = req.params;
+    const { id } = req.params;
     const userId = req.user.userId;
 
     const story = await prisma.story.findFirst({
-      where: { slug, userId, status: 'DRAFT' }
+      where: { id: parseInt(id), userId, status: 'DRAFT' }
     });
 
     if (!story) {
@@ -236,12 +258,12 @@ const publishStory = async (req, res) => {
 
 const republishStory = async (req, res) => {
   try {
-    const { slug } = req.params;
+    const { id } = req.params;
     const { originalId } = req.body;
     const userId = req.user.userId;
 
     const [draft, original] = await Promise.all([
-      prisma.story.findFirst({ where: { slug, userId, status: 'DRAFT' } }),
+      prisma.story.findFirst({ where: { id: parseInt(id), userId, status: 'DRAFT' } }),
       prisma.story.findFirst({ where: { id: parseInt(originalId), userId, status: 'PUBLISHED' } })
     ]);
 
@@ -272,11 +294,11 @@ const republishStory = async (req, res) => {
 
 const deleteStory = async (req, res) => {
   try {
-    const { slug } = req.params;
+    const { id } = req.params;
     const userId = req.user.userId;
 
     const story = await prisma.story.findFirst({
-      where: { slug, userId }
+      where: { id: parseInt(id), userId }
     });
 
     if (!story) {
@@ -299,6 +321,7 @@ module.exports = {
   getPublishedStories,
   getStoryForEdit,
   saveDraft,
+  updateDraft,
   publishStory,
   republishStory,
   deleteStory

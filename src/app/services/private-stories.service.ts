@@ -129,9 +129,10 @@ export class PrivateStoriesService {
     this._error.set(null);
 
     try {
+      // Si on a un storyId, on fait une mise à jour, sinon on crée
       const result = storyId 
-        ? await firstValueFrom(this.http.put<SaveDraftResponse>(`${this.API_URL}/draft/${storyId}`, data))
-        : await firstValueFrom(this.http.post<SaveDraftResponse>(`${this.API_URL}/draft`, data));
+        ? await this.updateDraft(data, storyId)
+        : await this.createDraft(data);
       
       await this.loadDrafts();
       return result;
@@ -141,6 +142,18 @@ export class PrivateStoriesService {
     } finally {
       this._loading.set(false);
     }
+  }
+
+  private async createDraft(data: { title: string; content: string }): Promise<SaveDraftResponse> {
+    return await firstValueFrom(
+      this.http.post<SaveDraftResponse>(`${this.API_URL}/draft`, data)
+    );
+  }
+
+  private async updateDraft(data: { title: string; content: string }, storyId: number): Promise<SaveDraftResponse> {
+    return await firstValueFrom(
+      this.http.put<SaveDraftResponse>(`${this.API_URL}/draft/${storyId}`, data)
+    );
   }
 
   async publishStory(storyId: number): Promise<void> {
