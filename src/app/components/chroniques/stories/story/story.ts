@@ -19,7 +19,10 @@ export class Story {
   private authService = inject(AuthService);
   private storiesService = inject(PublicStoriesService);
 
-  //============ ROUTE PARAMS ============
+  //======= SIGNALS ======
+  
+  private currentLikes = signal<number>(0);
+  private userIsLiked = signal<boolean>(false);
   
   private routeParams = toSignal(
     this.route.params.pipe(map(params => ({ 
@@ -29,13 +32,8 @@ export class Story {
     { initialValue: { username: '', storyId: 0 } }
   );
 
-  //============ STATE ============
+  //======= RESOURCES ======
   
-  private currentLikes = signal<number>(0);
-  private userIsLiked = signal<boolean>(false);
-
-  //============ RESOURCES ============
-
   private storyResource = resource({
     params: () => ({ id: this.routeParams().storyId }),
     loader: async ({ params }) => {
@@ -55,15 +53,19 @@ export class Story {
     loader: async ({ params }) => {
       if (!params) return [];
       const data = await this.storiesService.getUserProfile(params.userId);
-      if (!data?.stories) return [];
-      
-      return data.stories.sort((a, b) => 
+      return data?.stories?.sort((a, b) => 
         new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime()
-      );
+      ) || [];
     }
   });
 
-  //============ TEMPLATE METHODS ============
+  //======= COMPUTED ======
+
+  private currentStoryIndex = computed(() => {
+    const stories = this.userStoriesResource.value();
+    const currentId = this.routeParams().storyId;
+    return stories?.findIndex(s => s.id === currentId) ?? -1;
+  });
 
   avatarUrl = computed(() => {
     const avatar = this.storyResource.value()?.user?.avatar;
@@ -84,29 +86,30 @@ export class Story {
 
   story = computed(() => this.storyResource.value()?.content || '');
 
+  //======= NAVIGATION ======
+
   canLike = computed(() => {
     const user = this.authService.currentUser();
     const currentStory = this.storyResource.value();
-    return this.authService.isLoggedIn() && user && currentStory?.user && user.id !== currentStory.user.id;
+    return this.authService.isLoggedIn() && 
+           user && 
+           currentStory?.user && 
+           user.id !== currentStory.user.id;
   });
 
   hasPreviousStory = computed(() => {
     const stories = this.userStoriesResource.value();
-    if (!stories || stories.length === 0) return false;
-    const currentId = this.routeParams().storyId;
-    const currentIndex = stories.findIndex(s => s.id === currentId);
-    return currentIndex < stories.length - 1;
+    const index = this.currentStoryIndex();
+    return stories && stories.length > 0 && index < stories.length - 1;
   });
 
   hasNextStory = computed(() => {
     const stories = this.userStoriesResource.value();
-    if (!stories || stories.length === 0) return false;
-    const currentId = this.routeParams().storyId;
-    const currentIndex = stories.findIndex(s => s.id === currentId);
-    return currentIndex > 0;
+    const index = this.currentStoryIndex();
+    return stories && stories.length > 0 && index > 0;
   });
 
-  //============ ACTIONS ============
+  //======= ACTIONS ======
 
   async toggleLike(): Promise<void> {
     const storyId = this.routeParams().storyId;
@@ -121,10 +124,8 @@ export class Story {
     if (!this.hasPreviousStory()) return;
     
     const stories = this.userStoriesResource.value();
-    if (!stories) return;
-    const currentId = this.routeParams().storyId;
-    const currentIndex = stories.findIndex(s => s.id === currentId);
-    const previousStory = stories[currentIndex + 1];
+    const index = this.currentStoryIndex();
+    const previousStory = stories![index + 1];
     
     this.router.navigate(['/chroniques', this.username(), previousStory.id]);
   }
@@ -133,10 +134,8 @@ export class Story {
     if (!this.hasNextStory()) return;
     
     const stories = this.userStoriesResource.value();
-    if (!stories) return;
-    const currentId = this.routeParams().storyId;
-    const currentIndex = stories.findIndex(s => s.id === currentId);
-    const nextStory = stories[currentIndex - 1];
+    const index = this.currentStoryIndex();
+    const nextStory = stories![index - 1];
     
     this.router.navigate(['/chroniques', this.username(), nextStory.id]);
   }

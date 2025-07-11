@@ -29,10 +29,10 @@ export class MyStories implements OnInit, OnDestroy {
   private typingService = inject(TypingEffectService);
 
   currentMode = toSignal(
-    this.route.url.pipe(map(stories => {
-      const stories = stories[stories.length - 1]?.path;
-      if (stories === 'drafts') return 'drafts';
-      if (stories === 'published') return 'published';
+    this.route.url.pipe(map(segments => {
+      const lastPath = segments[segments.length - 1]?.path;
+      if (lastPath === 'drafts') return 'drafts';
+      if (lastPath === 'published') return 'published';
       return 'overview';
     })),
     { initialValue: 'overview' }
@@ -55,11 +55,11 @@ export class MyStories implements OnInit, OnDestroy {
     }
     
     if (mode === 'published') {
-      return this.privateStoriesService.published().map(story => ({
-        id: story.id,
-        storyTitle: story.title,
-        storyDate: this.formatDate(story.lastModified),
-        slug: story.slug
+      return this.privateStoriesService.published().map(storyItem => ({
+        id: storyItem.id,
+        storyTitle: storyItem.title,
+        storyDate: this.formatDate(storyItem.lastModified),
+        slug: storyItem.slug
       }));
     }
     
@@ -77,8 +77,8 @@ export class MyStories implements OnInit, OnDestroy {
 
   private typingEffect = this.typingService.createTypingEffect({
     text: this.headerText(),
-    speed: 100,
-    finalBlinks: 3
+    speed: 150,
+    finalBlinks: 4
   });
 
   headerTitle = this.typingEffect.headerTitle;

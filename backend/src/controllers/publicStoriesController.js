@@ -50,7 +50,6 @@ const getLatestStories = async (req, res) => {
           title: story.title,
           publishDate: formatPublishDate(story.publishedAt || story.createdAt),
           likes: story._count.likes,
-          id: story.id,
           user: {
             id: user.id,
             username: user.username,
@@ -77,7 +76,7 @@ const getStoryById = async (req, res) => {
 
     const story = await prisma.story.findUnique({
       where: { 
-        id: id,
+        id: parseInt(id),
         status: 'PUBLISHED'
       },
       include: {
@@ -105,7 +104,6 @@ const getStoryById = async (req, res) => {
       content: story.content,
       publishDate: formatPublishDate(story.publishedAt || story.createdAt),
       likes: story._count.likes,
-      id: story.id,
       user: {
         id: story.user.id,
         username: story.user.username,
@@ -194,7 +192,6 @@ const toggleLike = async (req, res) => {
       return res.status(400).json({ error: 'ID histoire invalide' });
     }
 
-    // ============ VÉRIFICATION SÉCURITÉ ============
     const story = await prisma.story.findUnique({
       where: { id: storyId },
       select: { userId: true, status: true }
@@ -208,14 +205,12 @@ const toggleLike = async (req, res) => {
       return res.status(403).json({ error: 'Histoire non publiée' });
     }
 
-    // EMPÊCHER USER DE LIKER SA PROPRE HISTOIRE
     if (story.userId === userId) {
       return res.status(403).json({ 
         error: 'Vous ne pouvez pas liker votre propre histoire' 
       });
     }
 
-    // ============ LOGIQUE LIKE/UNLIKE ============
     const existingLike = await prisma.like.findUnique({
       where: {
         userId_storyId: {
