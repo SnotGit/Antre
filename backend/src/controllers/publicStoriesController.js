@@ -50,7 +50,7 @@ const getLatestStories = async (req, res) => {
           title: story.title,
           publishDate: formatPublishDate(story.publishedAt || story.createdAt),
           likes: story._count.likes,
-          slug: story.slug,
+          id: story.id,
           user: {
             id: user.id,
             username: user.username,
@@ -71,13 +71,13 @@ const getLatestStories = async (req, res) => {
   }
 };
 
-const getStoryBySlug = async (req, res) => {
+const getStoryById = async (req, res) => {
   try {
-    const { slug } = req.params;
+    const { id } = req.params;
 
     const story = await prisma.story.findUnique({
       where: { 
-        slug: slug,
+        id: id,
         status: 'PUBLISHED'
       },
       include: {
@@ -105,7 +105,7 @@ const getStoryBySlug = async (req, res) => {
       content: story.content,
       publishDate: formatPublishDate(story.publishedAt || story.createdAt),
       likes: story._count.likes,
-      slug: story.slug,
+      id: story.id,
       user: {
         id: story.user.id,
         username: story.user.username,
@@ -168,7 +168,7 @@ const getUserProfile = async (req, res) => {
       title: story.title,
       publishDate: formatPublishDate(story.publishedAt || story.createdAt),
       likes: story._count.likes,
-      slug: story.slug
+      sid: story.id
     }));
 
     res.json({
@@ -260,6 +260,6 @@ const toggleLike = async (req, res) => {
 module.exports = {
   getLatestStories,
   getUserProfile,
-  getStoryBySlug,
+  getStoryById,
   toggleLike
 };

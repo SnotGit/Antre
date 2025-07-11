@@ -12,7 +12,7 @@ export const routes: Routes = [
   },
 
   {
-    path: 'editor/:slug',  // NOUVEAU - pour continuer draft
+    path: 'editor/:id',  // NOUVEAU - pour continuer draft
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
   },
 
@@ -32,12 +32,12 @@ export const routes: Routes = [
   },
 
   {
-    path: ':username/édition/:slug',
+    path: ':username/édition/:id',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
   },
 
   {
-    path: ':username/:slug',
+    path: ':username/:id',
     loadComponent: () => import('../components/chroniques/stories/story/story').then(m => m.Story)
   }
 ];

@@ -1,13 +1,13 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, resource } from '@angular/core';
 import { AuthService } from './auth.service';
 
-interface UserLatestStory {
+interface Story {
   id: number;
   title: string;
   publishDate: string;
   likes: number;
-  slug: string;
-  user: {
+  content?: string;
+  user?: {
     id: number;
     username: string;
     avatar: string;
@@ -23,129 +23,101 @@ interface UserProfile {
   createdAt: string;
 }
 
-interface UserStory {
-  id: number;
-  title: string;
-  publishDate: string;
-  likes: number;
-  slug: string;
-}
-
-interface StoryDetail {
-  id: number;
-  title: string;
-  content: string;
-  publishDate: string;
-  likes: number;
-  slug: string;
-  user: {
-    id: number;
-    username: string;
-    avatar: string;
-    description: string;
-  };
-}
-
-interface Category {
-  id: number;
-  name: string;
-  stories: UserStory[];
-}
-
 interface UserProfileResponse {
   user: UserProfile;
-  displayMode: 'categories' | 'stories';
-  categories?: Category[];
-  stories?: UserStory[];
+  stories: Story[];
   storiesCount: number;
+}
+
+interface LikeResponse {
+  success: boolean;
+  liked: boolean;
+  totalLikes: number;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class PublicStoriesService {
+  
+  private authService = inject(AuthService);
   private readonly API_URL = 'http://localhost:3000/api/public-stories';
 
-  //============ SIGNALS ÉTAT ============
+  // ============ REACTIVE PARAMETERS ============
+  
+  private refreshTrigger = signal(0);
+  private storyIdParam = signal<number>(0);
+  private userIdParam = signal<number>(0);
 
-  private _loading = signal<boolean>(false);
-  private _error = signal<string | null>(null);
-  private _latestStories = signal<UserLatestStory[]>([]);
+  // ============ RESOURCES ============
+  
+  latestStoriesResource = resource({
+    params: () => ({ refresh: this.refreshTrigger() }),
+    loader: async ({ abortSignal }) => {
+      const response = await fetch(this.API_URL, {
+        signal: abortSignal,
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await response.json();
+      return data.stories as Story[];
+    }
+  });
 
-  //============ COMPUTED PUBLICS ============
+  storyResource = resource({
+    params: () => ({ id: this.storyIdParam() }),
+    loader: async ({ params, abortSignal }) => {
+      if (!params.id) return null;
+      const response = await fetch(`${this.API_URL}/story/${params.id}`, {
+        signal: abortSignal,
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await response.json();
+      return data.story as Story;
+    }
+  });
 
-  readonly loading = this._loading.asReadonly();
-  readonly error = this._error.asReadonly();
-  readonly latestStories = this._latestStories.asReadonly();
+  userProfileResource = resource({
+    params: () => ({ userId: this.userIdParam() }),
+    loader: async ({ params, abortSignal }) => {
+      if (!params.userId) return null;
+      const response = await fetch(`${this.API_URL}/users/${params.userId}`, {
+        signal: abortSignal,
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await response.json();
+      return data as UserProfileResponse;
+    }
+  });
 
-  //============ LECTURE HISTOIRES ============
-
-  async getLatestStories(): Promise<UserLatestStory[]> {
-    this._loading.set(true);
-    this._error.set(null);
-
-    const response = await this.fetchPublic(this.API_URL);
-    const data = await response.json();
-    
-    const stories = data?.stories || [];
-    this._latestStories.set(stories);
-    this._loading.set(false);
-    
-    return stories;
+  // ============ PUBLIC API ============
+  
+  getLatestStories() {
+    this.refreshTrigger.update(v => v + 1);
+    return this.latestStoriesResource;
   }
 
-  //============ PROFIL UTILISATEUR ============
-
-  async getUserProfile(username: string): Promise<UserProfileResponse | null> {
-    this._loading.set(true);
-    this._error.set(null);
-
-    const response = await this.fetchPublic(`${this.API_URL}/users/${username}`);
-    const data = await response.json();
-    
-    this._loading.set(false);
-    return data || null;
+  getStoryById(id: number) {
+    this.storyIdParam.set(id);
+    return this.storyResource;
   }
 
-  //============ DÉTAIL HISTOIRE ============
-
-  async getStoryBySlug(slug: string): Promise<UserStory | null> {
-    this._loading.set(true);
-    this._error.set(null);
-
-    const response = await this.fetchPublic(`${this.API_URL}/story/${slug}`);
-    const data = await response.json();
-    
-    this._loading.set(false);
-    return data?.story || null;
+  getUserProfile(userId: number) {
+    this.userIdParam.set(userId);
+    return this.userProfileResource;
   }
 
-
-  //============ UTILITAIRES ============
-
-  private async fetchPublic(url: string, options: RequestInit = {}): Promise<Response> {
-    const response = await fetch(url, {
-      ...options,
+  async toggleLike(storyId: number): Promise<LikeResponse> {
+    const response = await fetch(`${this.API_URL}/story/${storyId}/like`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...options.headers
+        'Authorization': `Bearer ${this.authService.getStoredToken()}`
       }
     });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Erreur serveur' }));
-      this._error.set(error.error || 'Erreur réseau');
-      throw new Error(error.error || 'Erreur réseau');
-    }
-
-    return response;
+    return await response.json();
   }
 
-  clearError(): void {
-    this._error.set(null);
-  }
-
-  refreshLatestStories(): Promise<UserLatestStory[]> {
-    return this.getLatestStories();
+  refresh(): void {
+    this.refreshTrigger.update(v => v + 1);
   }
 }

@@ -1,29 +1,33 @@
-What's my app ? 
+Mon app a un composant chroniques , dans chroniques les utilisateurs peuvent y écrire des histoires, elle sont visibles dans le composant my stories et éditables dans le composant editor.
+
+Quand on crée une nouvelle histoire , elle est en brouillon tant qu'on ne la publie pas. 
+
+On peut éditer les brouillons pour les continuer en les sélectionnant dans le composant my stories et les publier si on veut.  /chroniques/elena/edition/titre-histoire. 
+
+Si on a publié une histoire , on peut le modifier dans l'éditeur en la sélectionnant dans le composant my stories et la republier./chroniques/Elena/edition/titre-histoire
+
+Pour sécuriser l'histoire publiée qu'on veut mettre à jour en base de donnée, on la récupère dans l'editor sous forme de brouillon avec un nouvel id. Quand on le publie, elle remplace l'histoire originale est remplacée.    
+
+On traite les histoires avec leurs id pour le crud. on affiche un lien en string ex: /chroniques/elena/titre-histoire. 
 
 
-L'Antre est une application de roleplay (jeu de rôle en ligne) où les utilisateurs créent et partagent des histoires. C'est comme un blog collaboratif spécialisé dans l'écriture créative.
-🔍 QUE FAIT CETTE APPLICATION ?
-Pour les utilisateurs :
+ Dans chroniques = miniature de la DERNIÈRE histoire d'Elena
+Je clique → je vois sa DERNIÈRE histoire
+Donc :
 
-Créer des histoires (brouillons → publication) editor components + private service
-Lire les histoires des autres utilisateurs . story components + public service
-Interagir avec un système de "likes". private service
-Gérer son profil (avatar, description, mot de passe) private service pour stats + auth service pour user account management. 
+Next button = DÉSACTIVÉ (c'est déjà la plus récente)
+Previous button = ACTIVÉ si elle a des histoires plus anciennes
 
-Pour les administrateurs :
+La navigation = chronologique dans SES histoires :
 
-Tout ce que font les utilisateurs + modération des contenus
+Previous = son histoire plus ancienne
+Next = son histoire plus récente
 
-📱 PAGES PRINCIPALES
+Il me faut :
 
-Home : Page d'accueil
-Chroniques : Histoires des utilisateurs (lecture/écriture)
-Archives/Marsball/Terraformars : Sections thématiques du roleplay
-Staff : Équipe de modération
-Mon-compte : Gestion du profil utilisateur
+Charger l'histoire actuelle
+Charger TOUTES les histoires de cet utilisateur
+Trouver ma position dans SA timeline
+Navigation dans SA chronologie
 
-⚙️ TECHNOLOGIES UTILISÉES
-
-Frontend : Angular 20 
-Backend : Express (serveur) + Prisma (base de données)
-Base de données : PostgreSQL
+Quand j'arrive depuis chroniques → je suis sur sa dernière → next désactivé.
