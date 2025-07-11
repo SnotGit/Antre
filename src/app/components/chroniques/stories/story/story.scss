@@ -1,4 +1,4 @@
-@use 'content/chroniques/story-detail-responsive' as *;
+@use 'content/chroniques/story-responsive' as *;
 
 .container {
   background-color: #121416;
@@ -264,5 +264,5 @@
       }
     }
   }
-
-@include story-detail-responsive;
+}
+@include story-responsive;

@@ -6,25 +6,6 @@ import { map } from 'rxjs';
 import { AuthService } from '../../../../services/auth.service';
 import { PublicStoriesService } from '../../../../services/public-stories.service';
 
-interface StoryData {
-  id: number;
-  title: string;
-  content: string;
-  publishDate: string;
-  likes: number;
-  user: {
-    id: number;
-    username: string;
-    avatar: string;
-    description: string;
-  };
-}
-
-interface UserStoryList {
-  stories: Array<{ id: number; publishDate: string }>;
-  currentIndex: number;
-}
-
 @Component({
   selector: 'app-story',
   imports: [CommonModule],
@@ -38,113 +19,125 @@ export class Story {
   private authService = inject(AuthService);
   private storiesService = inject(PublicStoriesService);
 
-  // ============ ROUTE PARAMS ============
+  //============ ROUTE PARAMS ============
   
   private routeParams = toSignal(
-    this.route.params.pipe(map(params => ({ id: parseInt(params['id']) }))),
-    { initialValue: { id: 0 } }
+    this.route.params.pipe(map(params => ({ 
+      username: params['username'],
+      storyId: parseInt(params['id']) 
+    }))),
+    { initialValue: { username: '', storyId: 0 } }
   );
 
-  // ============ RESOURCES ============
+  //============ STATE ============
   
-  storyResource = resource({
-    params: () => ({ id: this.routeParams().id }),
+  private currentLikes = signal<number>(0);
+  private userIsLiked = signal<boolean>(false);
+
+  //============ RESOURCES ============
+
+  private storyResource = resource({
+    params: () => ({ id: this.routeParams().storyId }),
     loader: async ({ params }) => {
-      return await this.storiesService.getStoryById(params.id);
+      const story = await this.storiesService.getStoryById(params.id);
+      if (story) {
+        this.currentLikes.set(story.likes);
+      }
+      return story;
     }
   });
 
-  userStoriesResource = resource({
+  private userStoriesResource = resource({
     params: () => {
       const story = this.storyResource.value();
-      return story ? { userId: story.user.id, currentId: story.id } : null;
+      return story?.user ? { userId: story.user.id } : null;
     },
     loader: async ({ params }) => {
-      if (!params) return null;
-      const userData = await this.storiesService.getUserProfile(params.userId.toString());
-      if (!userData) return null;
-      const stories = userData.stories || [];
-      const currentIndex = stories.findIndex((s: any) => s.id === params.currentId);
-      return {
-        stories: stories.map((s: any) => ({ id: s.id, publishDate: s.publishDate })),
-        currentIndex
-      } as UserStoryList;
+      if (!params) return [];
+      const data = await this.storiesService.getUserProfile(params.userId);
+      if (!data?.stories) return [];
+      
+      return data.stories.sort((a, b) => 
+        new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime()
+      );
     }
   });
 
-  // ============ STATE ============
-  
-  private likeCount = signal<number>(0);
-  private isLikedState = signal<boolean>(false);
-  private likePending = signal<boolean>(false);
+  //============ TEMPLATE METHODS ============
 
-  // ============ COMPUTED ============
-  
-  currentUser = this.authService.currentUser;
-  isLoggedIn = this.authService.isLoggedIn;
-  
-  story = computed(() => this.storyResource.value()?.story || '');
-  storyTitle = computed(() => this.storyResource.value()?.title || '');
-  publishDate = computed(() => this.storyResource.value()?.publishDate || '');
-  
-  username = computed(() => this.storyResource.value()?.user.username || '');
-  userDescription = computed(() => this.storyResource.value()?.user.description || '');
   avatarUrl = computed(() => {
-    const avatar = this.storyResource.value()?.user.avatar;
+    const avatar = this.storyResource.value()?.user?.avatar;
     return avatar ? `http://localhost:3000${avatar}` : '';
   });
 
-  likesCount = computed(() => {
-    const resourceLikes = this.storyResource.value()?.likes || 0;
-    return this.likeCount() || resourceLikes;
-  });
+  username = computed(() => this.storyResource.value()?.user?.username || '');
+  
+  userDescription = computed(() => this.storyResource.value()?.user?.description || '');
 
-  isLiked = computed(() => this.isLikedState());
+  likesCount = computed(() => this.currentLikes());
+
+  isLiked = computed(() => this.userIsLiked());
+
+  storyTitle = computed(() => this.storyResource.value()?.title || '');
+
+  publishDate = computed(() => this.storyResource.value()?.publishDate || '');
+
+  story = computed(() => this.storyResource.value()?.content || '');
 
   canLike = computed(() => {
-    const user = this.currentUser();
-    const story = this.storyResource.value();
-    return this.isLoggedIn() && user && story && user.id !== story.user.id;
+    const user = this.authService.currentUser();
+    const currentStory = this.storyResource.value();
+    return this.authService.isLoggedIn() && user && currentStory?.user && user.id !== currentStory.user.id;
   });
 
   hasPreviousStory = computed(() => {
-    const nav = this.userStoriesResource.value();
-    return nav ? nav.currentIndex < nav.stories.length - 1 : false;
+    const stories = this.userStoriesResource.value();
+    if (!stories || stories.length === 0) return false;
+    const currentId = this.routeParams().storyId;
+    const currentIndex = stories.findIndex(s => s.id === currentId);
+    return currentIndex < stories.length - 1;
   });
 
   hasNextStory = computed(() => {
-    const nav = this.userStoriesResource.value();
-    return nav ? nav.currentIndex > 0 : false;
+    const stories = this.userStoriesResource.value();
+    if (!stories || stories.length === 0) return false;
+    const currentId = this.routeParams().storyId;
+    const currentIndex = stories.findIndex(s => s.id === currentId);
+    return currentIndex > 0;
   });
 
-  // ============ ACTIONS ============
-  
-  async toggleLike(): Promise<void> {
-    const story = this.storyResource.value();
-    if (!story || !this.canLike() || this.likePending()) return;
+  //============ ACTIONS ============
 
-    this.likePending.set(true);
-    const result = await this.storiesService.toggleLike(story.id);
-    this.isLikedState.set(result.liked);
-    this.likeCount.set(result.totalLikes);
-    this.likePending.set(false);
+  async toggleLike(): Promise<void> {
+    const storyId = this.routeParams().storyId;
+    if (!storyId || !this.canLike()) return;
+
+    const result = await this.storiesService.toggleLike(storyId);
+    this.userIsLiked.set(result.liked);
+    this.currentLikes.set(result.totalLikes);
   }
 
   goToPreviousStory(): void {
-    const nav = this.userStoriesResource.value();
-    if (!nav || !this.hasPreviousStory()) return;
-    const previousStory = nav.stories[nav.currentIndex + 1];
-    if (previousStory) {
-      this.router.navigate(['/chroniques', this.username(), previousStory.id]);
-    }
+    if (!this.hasPreviousStory()) return;
+    
+    const stories = this.userStoriesResource.value();
+    if (!stories) return;
+    const currentId = this.routeParams().storyId;
+    const currentIndex = stories.findIndex(s => s.id === currentId);
+    const previousStory = stories[currentIndex + 1];
+    
+    this.router.navigate(['/chroniques', this.username(), previousStory.id]);
   }
 
   goToNextStory(): void {
-    const nav = this.userStoriesResource.value();
-    if (!nav || !this.hasNextStory()) return;
-    const nextStory = nav.stories[nav.currentIndex - 1];
-    if (nextStory) {
-      this.router.navigate(['/chroniques', this.username(), nextStory.id]);
-    }
+    if (!this.hasNextStory()) return;
+    
+    const stories = this.userStoriesResource.value();
+    if (!stories) return;
+    const currentId = this.routeParams().storyId;
+    const currentIndex = stories.findIndex(s => s.id === currentId);
+    const nextStory = stories[currentIndex - 1];
+    
+    this.router.navigate(['/chroniques', this.username(), nextStory.id]);
   }
 }

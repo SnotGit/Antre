@@ -1,23 +1,9 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { PublicStoriesService } from '../../services/public-stories.service';
 import { TypingEffectService } from '../../services/typing-effect.service';
 import { StoryCard } from './stories/story-card/story-card';
-
-interface StoryData {
-  id: number;
-  title: string;
-  publishDate: string;
-  likes: number;
-  slug: string;
-  user: {
-    id: number;
-    username: string;
-    avatar: string;
-    description: string;
-  };
-}
 
 @Component({
   selector: 'app-chroniques',
@@ -28,11 +14,10 @@ interface StoryData {
 export class Chroniques implements OnInit, OnDestroy {
 
   private router = inject(Router);
-  private publicStoriesService = inject(PublicStoriesService);
+  private storiesService = inject(PublicStoriesService);
   private typingService = inject(TypingEffectService);
 
-  private apiStories = signal<StoryData[]>([]);
-  loading = signal(false);
+  //============ TYPING EFFECT ============
 
   private typingEffect = this.typingService.createTypingEffect({
     text: 'Les Chroniques de Mars',
@@ -41,38 +26,42 @@ export class Chroniques implements OnInit, OnDestroy {
   });
 
   headerTitle = this.typingEffect.headerTitle;
-  showCursor = this.typingEffect.showCursor;
   typing = this.typingEffect.typingComplete;
 
-  stories = computed(() => {
-    return this.apiStories().map(story => ({
-      slug: story.slug,
-      username: story.user.username,
-      avatar: story.user.avatar || '',
+  //============ API RESOURCE ============
+
+  private storiesResource = resource({
+    loader: async () => {
+      return await this.storiesService.getLatestStories();
+    }
+  });
+
+  //============ TEMPLATE DATA ============
+
+  storyCards = computed(() => {
+    const apiStories = this.storiesResource.value() || [];
+    return apiStories.map(story => ({
+      storyId: story.id,
+      username: story.user?.username || '',
+      avatar: story.user?.avatar || '',
       storyTitle: story.title,
       storyDate: story.publishDate
     }));
   });
 
+  //============ LIFECYCLE ============
+
   ngOnInit(): void {
     this.typingEffect.startTyping();
-    this.loadLatestStories();
   }
 
   ngOnDestroy(): void {
     this.typingEffect.cleanup();
   }
 
-  private async loadLatestStories(): Promise<void> {
-    this.loading.set(true);
-    
-    const stories = await this.publicStoriesService.getLatestStories();
-    this.apiStories.set(stories);
-    
-    this.loading.set(false);
-  }
+  //============ ACTIONS ============
 
-  onStoryClick(story: any): void {
-    this.router.navigate(['/chroniques', story.username, story.slug]);
+  onStoryCardClick(storyCard: any): void {
+    this.router.navigate(['/chroniques', storyCard.username, storyCard.storyId]);
   }
 }

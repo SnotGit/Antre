@@ -1,0 +1,33 @@
+Faire component story.ts. 
+
+Angular version 20. 
+
+Le HTML attend exactement :
+
+avatarUrl() → avatar
+username() → username
+userDescription() → user-description
+likesCount(), isLiked(), toggleLike() → likes
+storyTitle() → title ( string , pas slug !important! ) 
+publishDate() → date
+story() → text
+goToPreviousStory() → bouton previous
+goToNextStory() → bouton next
+
+Faire TS avec méthodes simples: 
+
+- signals
+- ressource API
+- linked signals si besoin
+
+ 
+
+SIMPLE = BDD → API → Template.
+SIMPLE = Une resource (story), une API (storiesAPI), un affichage direct (dans chroniques component) 
+
+Complexité inutile = interdit. 
+Logs = interdit. 
+Catch error = interdit. 
+Commentaires dans le code = interdit. 
+
+Séparateurs de methodes = obligatoire : //======= METHODE ======
