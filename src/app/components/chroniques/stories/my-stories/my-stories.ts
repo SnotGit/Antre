@@ -107,15 +107,13 @@ export class MyStories implements OnInit, OnDestroy {
   }
 
   onCardClick(story: CardData): void {
-    if (!story.slug) return;
-
     const currentUser = this.authService.currentUser();
     if (!currentUser) return;
 
     if (this.currentMode() === 'drafts') {
-      this.router.navigate(['/chroniques/editor', story.slug]);
+      this.router.navigate(['/chroniques/editor', story.id]);
     } else {
-      this.router.navigate(['/chroniques', currentUser.username, 'édition', story.slug]);
+      this.router.navigate(['/chroniques', currentUser.username, 'édition', story.id]);
     }
   }
 
