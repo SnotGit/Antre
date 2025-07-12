@@ -1,50 +1,11 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-//============ HELPERS ============
-
-const generateSlug = (title) => {
-  return title
-    .toLowerCase()
-    .trim()
-    .replace(/[àáâäãåā]/g, 'a')
-    .replace(/[èéêëēė]/g, 'e')
-    .replace(/[ìíîïīį]/g, 'i')
-    .replace(/[òóôöõøō]/g, 'o')
-    .replace(/[ùúûüūų]/g, 'u')
-    .replace(/[ÿý]/g, 'y')
-    .replace(/[ñń]/g, 'n')
-    .replace(/[ç]/g, 'c')
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-};
-
-const ensureUniqueSlug = async (baseSlug, userId, excludeId = null) => {
-  let slug = baseSlug;
-  let counter = 1;
-  
-  const whereCondition = { slug, userId };
-  if (excludeId) {
-    whereCondition.id = { not: excludeId };
-  }
-  
-  while (await prisma.story.findFirst({ where: whereCondition })) {
-    slug = `${baseSlug}-${counter}`;
-    counter++;
-    whereCondition.slug = slug;
-  }
-  
-  return slug;
-};
-
 const validateStoryData = (title, content) => {
   if (!title?.trim()) return 'Titre requis';
   if (!content?.trim()) return 'Contenu requis';
   return null;
 };
-
-//============ STATISTIQUES ============
 
 const getStats = async (req, res) => {
   try {
@@ -65,13 +26,11 @@ const getStats = async (req, res) => {
   }
 };
 
-//============ LECTURE ============
-
 const getDrafts = async (req, res) => {
   try {
     const drafts = await prisma.story.findMany({
       where: { userId: req.user.userId, status: 'DRAFT' },
-      select: { id: true, title: true, slug: true, updatedAt: true },
+      select: { id: true, title: true, updatedAt: true },
       orderBy: { updatedAt: 'desc' }
     });
 
@@ -80,7 +39,6 @@ const getDrafts = async (req, res) => {
       drafts: drafts.map(draft => ({
         id: draft.id,
         title: draft.title,
-        slug: draft.slug,
         lastModified: draft.updatedAt.toISOString()
       }))
     });
@@ -96,7 +54,6 @@ const getPublishedStories = async (req, res) => {
       select: { 
         id: true, 
         title: true, 
-        slug: true, 
         updatedAt: true,
         _count: { select: { likes: true } }
       },
@@ -108,7 +65,6 @@ const getPublishedStories = async (req, res) => {
       published: stories.map(story => ({
         id: story.id,
         title: story.title,
-        slug: story.slug,
         lastModified: story.updatedAt.toISOString(),
         likes: story._count.likes
       }))
@@ -120,11 +76,16 @@ const getPublishedStories = async (req, res) => {
 
 const getStoryForEdit = async (req, res) => {
   try {
-    const { slug } = req.params;
+    const { id } = req.params;
     const userId = req.user.userId;
+    const storyId = parseInt(id);
+
+    if (isNaN(storyId)) {
+      return res.status(400).json({ error: 'ID histoire invalide' });
+    }
 
     const story = await prisma.story.findFirst({
-      where: { slug, userId }
+      where: { id: storyId, userId }
     });
 
     if (!story) {
@@ -134,13 +95,10 @@ const getStoryForEdit = async (req, res) => {
     const isEditingPublished = story.status === 'PUBLISHED';
     
     if (isEditingPublished) {
-      const newSlug = await ensureUniqueSlug(generateSlug(story.title), userId);
-      
       const draft = await prisma.story.create({
         data: {
           title: story.title,
           content: story.content,
-          slug: newSlug,
           status: 'DRAFT',
           userId
         }
@@ -163,8 +121,6 @@ const getStoryForEdit = async (req, res) => {
   }
 };
 
-//============ ÉCRITURE ============
-
 const saveDraft = async (req, res) => {
   try {
     const { title, content } = req.body;
@@ -172,11 +128,9 @@ const saveDraft = async (req, res) => {
 
     const error = validateStoryData(title, content);
     if (error) return res.status(400).json({ error });
-
-    const newSlug = await ensureUniqueSlug(generateSlug(title), userId);
     
     const story = await prisma.story.create({
-      data: { title, content, slug: newSlug, status: 'DRAFT', userId }
+      data: { title, content, status: 'DRAFT', userId }
     });
 
     res.json({
@@ -205,15 +159,9 @@ const updateDraft = async (req, res) => {
       return res.status(404).json({ error: 'Draft non trouvé' });
     }
 
-    // Générer un nouveau slug si le titre a changé
-    let newSlug = story.slug;
-    if (title !== story.title) {
-      newSlug = await ensureUniqueSlug(generateSlug(title), userId, story.id);
-    }
-
     const updated = await prisma.story.update({
       where: { id: story.id },
-      data: { title, content, slug: newSlug, updatedAt: new Date() }
+      data: { title, content, updatedAt: new Date() }
     });
 
     res.json({
@@ -312,8 +260,6 @@ const deleteStory = async (req, res) => {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
-
-//============ EXPORTS ============
 
 module.exports = {
   getStats,

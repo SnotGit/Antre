@@ -1,10 +1,12 @@
 <div class="container">
   <div class="story-card">
     <div class="header">
-      <div class="avatar" [style.background-image]="`url(${avatarUrl()})`"></div>
-      <div class="info">
-        <div class="username">{{ username() }}</div>
-        <div class="user-description">{{ userDescription() }}</div>
+      <div class="header-content">
+        <div class="avatar" [style.background-image]="`url(${avatarUrl()})`"></div>
+        <div class="info">
+          <div class="username">{{ username() }}</div>
+          <div class="user-description">{{ userDescription() }}</div>
+        </div>
       </div>
       <div class="like-section">
         <button class="like-btn" (click)="toggleLike()" [disabled]="!canLike()">
@@ -20,10 +22,11 @@
 
     <div class="title">
       <h1>{{ storyTitle() }}</h1>
-    </div>
 
-    <div class="date">
-      <p>{{ publishDate() }}</p>
+
+      <div class="date">
+        <p>{{ publishDate() }}</p>
+      </div>
     </div>
 
     <div class="content">

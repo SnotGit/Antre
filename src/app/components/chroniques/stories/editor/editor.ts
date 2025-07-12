@@ -8,11 +8,14 @@ import { PrivateStoriesService } from '../../../../services/private-stories.serv
 import { AuthService } from '../../../../services/auth.service';
 import { TypingEffectService } from '../../../../services/typing-effect.service';
 import { AutoSaveService } from '../../../../services/auto-save';
+import { ConfirmationDialogService } from '../../../../services/confirmation-dialog.service';
 
 interface StoryFormData {
   title: string;
   content: string;
 }
+
+type EditorMode = 'nouvelle' | 'continuer' | 'modifier';
 
 @Component({
   selector: 'app-editor',
@@ -28,43 +31,76 @@ export class Editor implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private typingService = inject(TypingEffectService);
   private autoSaveService = inject(AutoSaveService);
+  private confirmationService = inject(ConfirmationDialogService);
   
-  private isPublishedEdit = signal<boolean>(false);
-  private originalStoryId = signal<number | null>(null);
+  private editorMode = signal<EditorMode>('nouvelle');
   private currentStoryId = signal<number | null>(null);
+  private originalStoryId = signal<number | null>(null);
   
   storyForm = signal<StoryFormData>({ title: '', content: '' });
   saving = signal<boolean>(false);
   
-  storySlug = toSignal(
-    this.route.params.pipe(map(params => params['slug'] || null)),
+  storyId = toSignal(
+    this.route.params.pipe(map(params => params['id'] ? parseInt(params['id']) : null)),
     { initialValue: null }
   );
   
   storyResource = resource({
     loader: async () => {
-      const slug = this.storySlug();
-      if (!slug) return { title: '', content: '', id: null };
+      const id = this.storyId();
       
-      const response = await this.privateStoriesService.getStoryForEditBySlug(slug);
-      if (response) {
-        this.originalStoryId.set(response.originalStoryId || null);
-        this.currentStoryId.set(response.story.id);
-        this.isPublishedEdit.set(!!response.originalStoryId);
-        return {
-          title: response.story.title,
-          content: response.story.content,
-          id: response.story.id
-        };
+      if (!id) {
+        this.editorMode.set('nouvelle');
+        this.currentStoryId.set(null);
+        this.originalStoryId.set(null);
+        return null;
       }
-      throw new Error('Histoire non trouvée');
+      
+      const response = await this.privateStoriesService.getStoryForEditById(id);
+      if (!response) {
+        throw new Error('Histoire non trouvée');
+      }
+      
+      if (response.originalStoryId) {
+        this.editorMode.set('modifier');
+        this.originalStoryId.set(response.originalStoryId);
+        this.currentStoryId.set(response.story.id);
+      } else {
+        if (response.story.status === 'DRAFT') {
+          this.editorMode.set('continuer');
+        } else {
+          this.editorMode.set('modifier');
+          this.originalStoryId.set(response.story.id);
+        }
+        this.currentStoryId.set(response.story.id);
+      }
+      
+      return response.story;
     }
   });
   
   headerText = computed(() => {
-    if (this.isPublishedEdit()) return 'Modifier Histoire';
-    if (this.storySlug()) return 'Continuer Histoire';
-    return 'Nouvelle Histoire';
+    const mode = this.editorMode();
+    switch (mode) {
+      case 'nouvelle': return 'Nouvelle Histoire';
+      case 'continuer': return 'Continuer Histoire';
+      case 'modifier': return 'Modifier Histoire';
+      default: return 'Éditeur';
+    }
+  });
+  
+  canDelete = computed(() => {
+    return this.editorMode() === 'continuer' && this.currentStoryId() !== null;
+  });
+  
+  publishButtonText = computed(() => {
+    const mode = this.editorMode();
+    switch (mode) {
+      case 'nouvelle': return 'Publier';
+      case 'continuer': return 'Publier';
+      case 'modifier': return 'Republier';
+      default: return 'Publier';
+    }
   });
   
   private typingEffect = this.typingService.createTypingEffect({
@@ -76,18 +112,19 @@ export class Editor implements OnInit, OnDestroy {
   headerTitle = this.typingEffect.headerTitle;
   typingComplete = this.typingEffect.typingComplete;
   
-  isLoading = computed(() => this.storyResource.isLoading());
-  hasError = computed(() => !this.storyResource.error());
-  
   private autoSave = this.autoSaveService.createAutoSave({
     data: () => this.storyForm(),
     saveFunction: async (data: StoryFormData) => {
       const storyId = this.currentStoryId();
-      const response = await this.privateStoriesService.saveDraft(data, storyId ?? undefined);
+      const mode = this.editorMode();
       
-      if (!storyId && response.story?.id) {
+      if (mode === 'nouvelle') {
+        const response = await this.privateStoriesService.saveDraft(data);
         this.currentStoryId.set(response.story.id);
-        this.router.navigate(['/editor', response.story.slug], { replaceUrl: true });
+        this.editorMode.set('continuer');
+        this.router.navigate(['/chroniques/editor', response.story.id], { replaceUrl: true });
+      } else if (storyId) {
+        await this.privateStoriesService.saveDraft(data, storyId);
       }
     },
     delay: 2000
@@ -96,19 +133,12 @@ export class Editor implements OnInit, OnDestroy {
   autoSaveState = this.autoSave.state;
   
   private formUpdateEffect = effect(() => {
-    const resourceValue = this.storyResource.value();
-    const isLoading = this.isLoading();
-    const hasError = this.hasError();
-    
-    if (!isLoading && !hasError && resourceValue) {
+    const story = this.storyResource.value();
+    if (story) {
       this.storyForm.set({
-        title: resourceValue.title || '',
-        content: resourceValue.content || ''
+        title: story.title || '',
+        content: story.content || ''
       });
-      
-      if (resourceValue.id) {
-        this.currentStoryId.set(resourceValue.id);
-      }
     }
   });
   
@@ -126,50 +156,6 @@ export class Editor implements OnInit, OnDestroy {
     this.autoSave.cleanup();
   }
   
-  async publishStory(): Promise<void> {
-    const storyId = this.currentStoryId();
-    if (!storyId) {
-      return;
-    }
-
-    this.saving.set(true);
-    
-    try {
-      if (this.isPublishedEdit()) {
-        const originalId = this.originalStoryId();
-        if (originalId) {
-          await this.privateStoriesService.republishStory(storyId, originalId);
-        }
-      } else {
-        await this.privateStoriesService.publishStory(storyId);
-      }
-      
-      this.router.navigate(['/chroniques']);
-    } catch (error) {
-      
-    } finally {
-      this.saving.set(false);
-    }
-  }
-
-  async deleteStory(): Promise<void> {
-    const storyId = this.currentStoryId();
-    if (!storyId) return;
-
-    if (confirm('Supprimer ce brouillon ?')) {
-      try {
-        await this.privateStoriesService.deleteStory(storyId);
-        this.router.navigate(['/chroniques/my-stories']);
-      } catch (error) {
-        
-      }
-    }
-  }
-
-  goBack(): void {
-    this.router.navigate(['/chroniques/my-stories']);
-  }
-  
   onTitleChange(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.storyForm.update(current => ({ ...current, title: value }));
@@ -178,5 +164,51 @@ export class Editor implements OnInit, OnDestroy {
   onContentChange(event: Event): void {
     const value = (event.target as HTMLTextAreaElement).value;
     this.storyForm.update(current => ({ ...current, content: value }));
+  }
+  
+  async publishStory(): Promise<void> {
+    const mode = this.editorMode();
+    const storyId = this.currentStoryId();
+    const originalId = this.originalStoryId();
+    
+    this.saving.set(true);
+    
+    try {
+      if (mode === 'nouvelle') {
+        const response = await this.privateStoriesService.saveDraft(this.storyForm());
+        await this.privateStoriesService.publishStory(response.story.id);
+      } else if (mode === 'continuer' && storyId) {
+        await this.privateStoriesService.publishStory(storyId);
+      } else if (mode === 'modifier' && storyId && originalId) {
+        await this.privateStoriesService.republishStory(storyId, originalId);
+      }
+      
+      this.router.navigate(['/chroniques']);
+    } finally {
+      this.saving.set(false);
+    }
+  }
+
+  async deleteStory(): Promise<void> {
+    const storyId = this.currentStoryId();
+    
+    if (!storyId || !this.canDelete()) return;
+
+    const confirmed = await this.confirmationService.confirm({
+      title: 'Suppression du brouillon',
+      message: 'Êtes-vous sûr de vouloir supprimer ce brouillon ?\n\nCette action est irréversible.',
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      isDanger: true
+    });
+
+    if (!confirmed) return;
+
+    await this.privateStoriesService.deleteStory(storyId);
+    this.router.navigate(['/chroniques/my-stories']);
+  }
+
+  goBack(): void {
+    this.router.navigate(['/chroniques/my-stories']);
   }
 }

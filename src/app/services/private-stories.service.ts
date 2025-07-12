@@ -60,29 +60,22 @@ export class PrivateStoriesService {
   private _published = signal<PublishedStory[]>([]);
   private _stats = signal<UserStats>({ drafts: 0, published: 0, totalLikes: 0 });
   private _loading = signal<boolean>(false);
-  private _error = signal<string | null>(null);
 
   readonly drafts = this._drafts.asReadonly();
   readonly published = this._published.asReadonly();
   readonly stats = this._stats.asReadonly();
   readonly loading = this._loading.asReadonly();
-  readonly error = this._error.asReadonly();
 
   async initializeUserData(): Promise<void> {
     this._loading.set(true);
-    this._error.set(null);
 
-    try {
-      await Promise.all([
-        this.loadDrafts(),
-        this.loadPublished(),
-        this.loadStats()
-      ]);
-    } catch (error) {
-      this._error.set('Erreur de chargement');
-    } finally {
-      this._loading.set(false);
-    }
+    await Promise.all([
+      this.loadDrafts(),
+      this.loadPublished(),
+      this.loadStats()
+    ]);
+
+    this._loading.set(false);
   }
 
   async loadDrafts(): Promise<void> {
@@ -106,42 +99,32 @@ export class PrivateStoriesService {
     this._stats.set(data?.stats || { drafts: 0, published: 0, totalLikes: 0 });
   }
 
-  async getStoryForEditBySlug(slug: string): Promise<EditStoryResponse | null> {
+  async getStoryForEditById(id: number): Promise<EditStoryResponse | null> {
     this._loading.set(true);
-    this._error.set(null);
 
     try {
       const data = await firstValueFrom(
-        this.http.get<EditStoryResponse>(`${this.API_URL}/edit/${slug}`)
+        this.http.get<EditStoryResponse>(`${this.API_URL}/edit/${id}`)
       );
-      await this.loadDrafts();
+      this._loading.set(false);
       return data;
     } catch (error) {
-      this._error.set('Histoire non trouvée');
-      return null;
-    } finally {
       this._loading.set(false);
+      return null;
     }
   }
 
   async saveDraft(data: { title: string; content: string }, storyId?: number): Promise<SaveDraftResponse> {
     this._loading.set(true);
-    this._error.set(null);
 
-    try {
-      // Si on a un storyId, on fait une mise à jour, sinon on crée
-      const result = storyId 
-        ? await this.updateDraft(data, storyId)
-        : await this.createDraft(data);
-      
-      await this.loadDrafts();
-      return result;
-    } catch (error) {
-      this._error.set('Erreur de sauvegarde');
-      throw error;
-    } finally {
-      this._loading.set(false);
-    }
+    const result = storyId 
+      ? await this.updateDraft(data, storyId)
+      : await this.createDraft(data);
+    
+    await this.loadDrafts();
+    this._loading.set(false);
+    
+    return result;
   }
 
   private async createDraft(data: { title: string; content: string }): Promise<SaveDraftResponse> {
@@ -158,56 +141,31 @@ export class PrivateStoriesService {
 
   async publishStory(storyId: number): Promise<void> {
     this._loading.set(true);
-    this._error.set(null);
 
-    try {
-      await firstValueFrom(
-        this.http.post(`${this.API_URL}/publish/${storyId}`, {})
-      );
-      await this.initializeUserData();
-    } catch (error) {
-      this._error.set('Erreur de publication');
-      throw error;
-    } finally {
-      this._loading.set(false);
-    }
+    await firstValueFrom(
+      this.http.post(`${this.API_URL}/publish/${storyId}`, {})
+    );
+    
+    await this.initializeUserData();
   }
 
   async republishStory(draftId: number, originalId: number): Promise<void> {
     this._loading.set(true);
-    this._error.set(null);
 
-    try {
-      await firstValueFrom(
-        this.http.post(`${this.API_URL}/republish/${draftId}`, { originalId })
-      );
-      await this.initializeUserData();
-    } catch (error) {
-      this._error.set('Erreur de republication');
-      throw error;
-    } finally {
-      this._loading.set(false);
-    }
+    await firstValueFrom(
+      this.http.post(`${this.API_URL}/republish/${draftId}`, { originalId })
+    );
+    
+    await this.initializeUserData();
   }
 
   async deleteStory(storyId: number): Promise<void> {
     this._loading.set(true);
-    this._error.set(null);
 
-    try {
-      await firstValueFrom(
-        this.http.delete(`${this.API_URL}/story/${storyId}`)
-      );
-      await this.initializeUserData();
-    } catch (error) {
-      this._error.set('Erreur de suppression');
-      throw error;
-    } finally {
-      this._loading.set(false);
-    }
-  }
-
-  clearError(): void {
-    this._error.set(null);
+    await firstValueFrom(
+      this.http.delete(`${this.API_URL}/story/${storyId}`)
+    );
+    
+    await this.initializeUserData();
   }
 }
