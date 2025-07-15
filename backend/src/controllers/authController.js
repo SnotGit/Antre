@@ -46,9 +46,9 @@ const register = async (req, res) => {
       });
     }
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       return res.status(400).json({ 
-        error: 'Le mot de passe doit contenir au moins 6 caractères' 
+        error: 'Le mot de passe doit contenir au moins 8 caractères' 
       });
     }
 
