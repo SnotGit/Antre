@@ -11,10 +11,7 @@ export const routes: Routes = [
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
   },
 
-  {
-    path: 'editor/:id',  // NOUVEAU - pour continuer draft
-    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
-  },
+
 
   {
     path: 'my-stories',
@@ -32,12 +29,12 @@ export const routes: Routes = [
   },
 
   {
-    path: ':username/édition/:id',
+    path: ':username/édition/:title',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
   },
 
   {
-    path: ':username/:id',
+    path: ':username/:title',
     loadComponent: () => import('../components/chroniques/stories/story/story').then(m => m.Story)
   }
 ];
