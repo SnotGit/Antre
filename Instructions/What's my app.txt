@@ -10,6 +10,11 @@ Pour sécuriser l'histoire publiée qu'on veut mettre à jour en base de donnée
 
 On traite les histoires avec leurs id pour le crud. on affiche un lien en string ex: /chroniques/elena/titre-histoire. 
 
+Utilise directement la propriété 'string' de l'objet pour l'URL.
+Ne génère RIEN, ne transforme RIEN.
+Juste : objet.string dans l'URL.
+Pas de slug, pas de génération automatique.
+
 
  Dans chroniques = miniature de la DERNIÈRE histoire d'Elena
 Je clique → je vois sa DERNIÈRE histoire
@@ -27,7 +32,13 @@ Il me faut :
 
 Charger l'histoire actuelle
 Charger TOUTES les histoires de cet utilisateur
-Trouver ma position dans SA timeline
-Navigation dans SA chronologie
+Navigation dans la chronologie
 
-Quand j'arrive depuis chroniques → je suis sur sa dernière → next désactivé.
+Quand j'arrive depuis chroniques → je suis sur sa dernière histoire → next désactivé.
+
+
+
+Utilise directement la propriété 'string' de l'objet pour l'URL.
+Ne génère RIEN, ne transforme RIEN.
+Juste : objet.string dans l'URL.
+Pas de slug, pas de génération automatique.
