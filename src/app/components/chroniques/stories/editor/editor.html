@@ -1,7 +1,7 @@
 <div class="container">
 
   <div class="header">
-    <h1 class="header-title" [class.typing]="typingComplete()">
+    <h1 class="header-title" [class.typing]="!typingComplete()">
       {{ headerTitle() }}
     </h1>
     <div class="back-button">
@@ -19,6 +19,7 @@
         type="text" 
         [value]="storyForm().title"
         (input)="onTitleChange($event)"
+        [disabled]="saving()"
         placeholder="Exemple : Brain Operational Security Service et Boris la pancarte">
     </div>
 
@@ -27,20 +28,27 @@
       <textarea 
         [value]="storyForm().content"
         (input)="onContentChange($event)"
+        [disabled]="saving()"
         placeholder="Exemple : Observation des lumières indigo, niveau 12. Théorie : elles clignotent selon un code. Réalité : c'est juste Sulfuro qui fait de la soudure en bas, quelle ironie cette trappe encore ouverte...">
       </textarea>
     </div>
 
     <div class="card-footer">
-      <div class="delete-button">
-        <button class="btn delete-btn" (click)="deleteStory()">
-          <span>Supprimer</span>
-        </button>
-      </div>
+      @if (canDelete()) {
+        <div class="delete-button">
+          <button class="btn delete-btn" (click)="deleteStory()" [disabled]="saving()">
+            <span>Supprimer</span>
+          </button>
+        </div>
+      }
 
       <div class="publish-button">
-        <button class="btn" (click)="publishStory()">
-          <span>Publier</span>
+        <button class="btn" (click)="publishStory()" [disabled]="saving()">
+          @if (saving()) {
+            <span>Publication en cours...</span>
+          } @else {
+            <span>{{ publishButtonText() }}</span>
+          }
         </button>
       </div>
     </div>

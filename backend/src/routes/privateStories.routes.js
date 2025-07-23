@@ -14,6 +14,9 @@ router.put('/draft/:id', privateStoriesController.updateDraft);
 router.get('/published', privateStoriesController.getPublishedStories);
 router.post('/publish/:id', privateStoriesController.publishStory);
 
+router.get('/story/:id', privateStoriesController.getStoryById);
+router.get('/user/:userId/stories', privateStoriesController.getUserStories);
+
 router.get('/edit/:id', privateStoriesController.getStoryForEdit);
 router.post('/republish/:id', privateStoriesController.republishStory);
 

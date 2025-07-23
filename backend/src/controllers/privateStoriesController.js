@@ -1,6 +1,22 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
+const formatPublishDate = (date) => {
+  if (!date) {
+    return 'Date non définie';
+  }
+  
+  try {
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return 'Date invalide';
+    }
+    return parsedDate.toLocaleDateString('fr-FR');
+  } catch (error) {
+    return 'Erreur de format';
+  }
+};
+
 const validateStoryData = (title, content) => {
   if (!title?.trim()) return 'Titre requis';
   if (!content?.trim()) return 'Contenu requis';
@@ -69,6 +85,111 @@ const getPublishedStories = async (req, res) => {
         likes: story._count.likes
       }))
     });
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
+const getStoryById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.userId;
+
+    const story = await prisma.story.findUnique({
+      where: { 
+        id: parseInt(id),
+        status: 'PUBLISHED'
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+            description: true
+          }
+        },
+        _count: {
+          select: { likes: true }
+        }
+      }
+    });
+
+    if (!story) {
+      return res.status(404).json({ error: 'Histoire non trouvée' });
+    }
+
+    const userLike = await prisma.like.findUnique({
+      where: {
+        userId_storyId: {
+          userId: userId,
+          storyId: story.id
+        }
+      }
+    });
+
+    const formattedStory = {
+      id: story.id,
+      title: story.title,
+      content: story.content,
+      publishDate: formatPublishDate(story.publishedAt || story.createdAt),
+      likes: story._count.likes,
+      isLiked: !!userLike,
+      user: {
+        id: story.user.id,
+        username: story.user.username,
+        avatar: story.user.avatar,
+        description: story.user.description
+      }
+    };
+
+    res.json({
+      message: 'Histoire récupérée avec succès',
+      story: formattedStory
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
+const getUserStories = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const currentUserId = req.user.userId;
+    const targetUserId = parseInt(userId);
+
+    if (isNaN(targetUserId)) {
+      return res.status(400).json({ error: 'ID utilisateur invalide' });
+    }
+
+    const userStories = await prisma.story.findMany({
+      where: {
+        userId: targetUserId,
+        status: 'PUBLISHED'
+      },
+      include: {
+        _count: {
+          select: { likes: true }
+        }
+      },
+      orderBy: {
+        updatedAt: 'desc'
+      }
+    });
+
+    const formattedStories = userStories.map(story => ({
+      id: story.id,
+      title: story.title,
+      publishDate: formatPublishDate(story.publishedAt || story.createdAt),
+      likes: story._count.likes
+    }));
+
+    res.json({
+      message: 'Histoires utilisateur récupérées',
+      stories: formattedStories
+    });
+
   } catch (error) {
     res.status(500).json({ error: 'Erreur serveur' });
   }
@@ -265,6 +386,8 @@ module.exports = {
   getStats,
   getDrafts,
   getPublishedStories,
+  getStoryById,
+  getUserStories,
   getStoryForEdit,
   saveDraft,
   updateDraft,

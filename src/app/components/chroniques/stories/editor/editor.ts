@@ -81,6 +81,12 @@ export class Editor implements OnInit, OnDestroy {
   
   headerText = computed(() => {
     const mode = this.editorMode();
+    const hasStoryId = this.storyId() !== null;
+    
+    if (mode === 'nouvelle' && hasStoryId) {
+      return 'Nouvelle Histoire';
+    }
+    
     switch (mode) {
       case 'nouvelle': return 'Nouvelle Histoire';
       case 'continuer': return 'Continuer Histoire';
@@ -89,8 +95,23 @@ export class Editor implements OnInit, OnDestroy {
     }
   });
   
+  deleteButtonText = computed(() => {
+    const mode = this.editorMode();
+    const hasStoryId = this.storyId() !== null;
+    
+    if (mode === 'nouvelle' && hasStoryId) {
+      return 'Annuler';
+    }
+    
+    return 'Supprimer';
+  });
+  
   canDelete = computed(() => {
-    return this.editorMode() === 'continuer' && this.currentStoryId() !== null;
+    const mode = this.editorMode();
+    const hasStoryId = this.storyId() !== null;
+    
+    return (mode === 'continuer' && this.currentStoryId() !== null) ||
+           (mode === 'nouvelle' && hasStoryId);
   });
   
   publishButtonText = computed(() => {
@@ -121,7 +142,6 @@ export class Editor implements OnInit, OnDestroy {
       if (mode === 'nouvelle') {
         const response = await this.privateStoriesService.saveDraft(data);
         this.currentStoryId.set(response.story.id);
-        this.editorMode.set('continuer');
         this.router.navigate(['/chroniques/editor', response.story.id], { replaceUrl: true });
       } else if (storyId) {
         await this.privateStoriesService.saveDraft(data, storyId);
@@ -191,14 +211,20 @@ export class Editor implements OnInit, OnDestroy {
 
   async deleteStory(): Promise<void> {
     const storyId = this.currentStoryId();
+    const mode = this.editorMode();
+    const hasStoryId = this.storyId() !== null;
     
     if (!storyId || !this.canDelete()) return;
 
+    const isNouvelle = mode === 'nouvelle' && hasStoryId;
+    
     const confirmed = await this.confirmationService.confirm({
-      title: 'Suppression du brouillon',
-      message: 'Êtes-vous sûr de vouloir supprimer ce brouillon ?\n\nCette action est irréversible.',
-      confirmText: 'Supprimer',
-      cancelText: 'Annuler',
+      title: isNouvelle ? 'Annuler la création' : 'Suppression du brouillon',
+      message: isNouvelle 
+        ? 'Êtes-vous sûr de vouloir annuler la création de cette histoire ?\n\nCette action est irréversible.'
+        : 'Êtes-vous sûr de vouloir supprimer ce brouillon ?\n\nCette action est irréversible.',
+      confirmText: isNouvelle ? 'Annuler' : 'Supprimer',
+      cancelText: 'Retour',
       isDanger: true
     });
 
