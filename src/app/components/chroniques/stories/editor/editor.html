@@ -17,7 +17,7 @@
       <label>Titre de l'histoire</label>
       <input 
         type="text" 
-        [value]="storyForm().title"
+        [value]="updateStory().title"
         (input)="onTitleChange($event)"
         [disabled]="saving()"
         placeholder="Exemple : Brain Operational Security Service et Boris la pancarte">
@@ -26,7 +26,7 @@
     <div class="field-content">
       <label>Texte</label>
       <textarea 
-        [value]="storyForm().content"
+        [value]="updateStory().content"
         (input)="onContentChange($event)"
         [disabled]="saving()"
         placeholder="Exemple : Observation des lumières indigo, niveau 12. Théorie : elles clignotent selon un code. Réalité : c'est juste Sulfuro qui fait de la soudure en bas, quelle ironie cette trappe encore ouverte...">
