@@ -45,6 +45,12 @@ interface EditStoryResponse {
   originalStoryId?: number;
 }
 
+interface LikeResponse {
+  success: boolean;
+  liked: boolean;
+  totalLikes: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -62,6 +68,8 @@ export class PrivateStoriesService {
   readonly stats = this._stats.asReadonly();
   readonly loading = this._loading.asReadonly();
 
+  //============ INITIALISATION ============
+
   async initializeUserData(): Promise<void> {
     this._loading.set(true);
 
@@ -73,6 +81,8 @@ export class PrivateStoriesService {
 
     this._loading.set(false);
   }
+
+  //============ LISTES ============
 
   async loadDrafts(): Promise<void> {
     const data = await firstValueFrom(
@@ -95,7 +105,9 @@ export class PrivateStoriesService {
     this._stats.set(data?.stats || { drafts: 0, published: 0, totalLikes: 0 });
   }
 
-  async getStoryForEditById(id: number): Promise<EditStoryResponse | null> {
+  //============ ÉDITION ============
+
+  async getStoryForEdit(id: number): Promise<EditStoryResponse | null> {
     this._loading.set(true);
 
     try {
@@ -110,20 +122,7 @@ export class PrivateStoriesService {
     }
   }
 
-  async getStoryForEditByUsernameAndTitle(username: string, title: string): Promise<EditStoryResponse | null> {
-    this._loading.set(true);
-
-    try {
-      const data = await firstValueFrom(
-        this.http.get<EditStoryResponse>(`${this.API_URL}/edit/${username}/${encodeURIComponent(title)}`)
-      );
-      this._loading.set(false);
-      return data;
-    } catch (error) {
-      this._loading.set(false);
-      return null;
-    }
-  }
+  //============ SAUVEGARDE ============
 
   async saveDraft(data: { title: string; content: string }, storyId?: number): Promise<SaveDraftResponse> {
     this._loading.set(true);
@@ -150,6 +149,8 @@ export class PrivateStoriesService {
     );
   }
 
+  //============ PUBLICATION ============
+
   async publishStory(storyId: number): Promise<void> {
     this._loading.set(true);
 
@@ -170,13 +171,43 @@ export class PrivateStoriesService {
     await this.initializeUserData();
   }
 
-  async deleteStory(storyId: number): Promise<void> {
+  //============ SUPPRESSION ============
+
+  async cancelNewStory(storyId: number): Promise<void> {
     this._loading.set(true);
 
     await firstValueFrom(
-      this.http.delete(`${this.API_URL}/story/${storyId}`)
+      this.http.delete(`${this.API_URL}/cancel/${storyId}`)
     );
     
     await this.initializeUserData();
+  }
+
+  async deleteDraft(storyId: number): Promise<void> {
+    this._loading.set(true);
+
+    await firstValueFrom(
+      this.http.delete(`${this.API_URL}/draft/${storyId}`)
+    );
+    
+    await this.initializeUserData();
+  }
+
+  async deletePublished(storyId: number): Promise<void> {
+    this._loading.set(true);
+
+    await firstValueFrom(
+      this.http.delete(`${this.API_URL}/published/${storyId}`)
+    );
+    
+    await this.initializeUserData();
+  }
+
+  //============ LIKES ============
+
+  async toggleLike(storyId: number): Promise<LikeResponse> {
+    return await firstValueFrom(
+      this.http.post<LikeResponse>(`${this.API_URL}/story/${storyId}/like`, {})
+    );
   }
 }
