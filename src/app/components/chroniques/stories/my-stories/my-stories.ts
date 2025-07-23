@@ -11,7 +11,6 @@ interface CardData {
   id: number;
   storyTitle: string;
   storyDate: string;
-  slug: string;
 }
 
 @Component({
@@ -49,8 +48,7 @@ export class MyStories implements OnInit, OnDestroy {
       return this.privateStoriesService.drafts().map(draft => ({
         id: draft.id,
         storyTitle: draft.title,
-        storyDate: this.formatDate(draft.lastModified),
-        slug: draft.slug
+        storyDate: this.formatDate(draft.lastModified)
       }));
     }
     
@@ -58,8 +56,7 @@ export class MyStories implements OnInit, OnDestroy {
       return this.privateStoriesService.published().map(storyItem => ({
         id: storyItem.id,
         storyTitle: storyItem.title,
-        storyDate: this.formatDate(storyItem.lastModified),
-        slug: storyItem.slug
+        storyDate: this.formatDate(storyItem.lastModified)
       }));
     }
     
@@ -113,7 +110,7 @@ export class MyStories implements OnInit, OnDestroy {
     if (this.currentMode() === 'drafts') {
       this.router.navigate(['/chroniques/editor', story.id]);
     } else {
-      this.router.navigate(['/chroniques', currentUser.username, 'édition', story.id]);
+      this.router.navigate(['/chroniques', currentUser.username, 'édition', story.storyTitle]);
     }
   }
 

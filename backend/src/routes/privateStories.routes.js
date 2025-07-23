@@ -17,7 +17,7 @@ router.post('/publish/:id', privateStoriesController.publishStory);
 router.get('/story/:id', privateStoriesController.getStoryById);
 router.get('/user/:userId/stories', privateStoriesController.getUserStories);
 
-router.get('/edit/:id', privateStoriesController.getStoryForEdit);
+router.get('/edit/:id', privateStoriesController.getStoryForEditById);
 router.post('/republish/:id', privateStoriesController.republishStory);
 
 router.delete('/story/:id', privateStoriesController.deleteStory);

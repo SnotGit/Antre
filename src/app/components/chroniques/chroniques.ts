@@ -17,8 +17,6 @@ export class Chroniques implements OnInit, OnDestroy {
   private storiesService = inject(PublicStoriesService);
   private typingService = inject(TypingEffectService);
 
-  //============ TYPING EFFECT ============
-
   private typingEffect = this.typingService.createTypingEffect({
     text: 'Les Chroniques de Mars',
     speed: 150,
@@ -28,15 +26,11 @@ export class Chroniques implements OnInit, OnDestroy {
   headerTitle = this.typingEffect.headerTitle;
   typing = this.typingEffect.typingComplete;
 
-  //============ API RESOURCE ============
-
   private storiesResource = resource({
     loader: async () => {
       return await this.storiesService.getLatestStories();
     }
   });
-
-  //============ TEMPLATE DATA ============
 
   storyCards = computed(() => {
     const apiStories = this.storiesResource.value() || [];
@@ -49,8 +43,6 @@ export class Chroniques implements OnInit, OnDestroy {
     }));
   });
 
-  //============ LIFECYCLE ============
-
   ngOnInit(): void {
     this.typingEffect.startTyping();
   }
@@ -59,9 +51,7 @@ export class Chroniques implements OnInit, OnDestroy {
     this.typingEffect.cleanup();
   }
 
-  //============ ACTIONS ============
-
   onStoryCardClick(storyCard: any): void {
-    this.router.navigate(['/chroniques', storyCard.username, storyCard.storyId]);
+    this.router.navigate(['/chroniques', storyCard.username, storyCard.storyTitle]);
   }
 }

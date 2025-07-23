@@ -242,6 +242,47 @@ const getStoryForEdit = async (req, res) => {
   }
 };
 
+const getStoryForEditByUsernameAndTitle = async (req, res) => {
+  try {
+    const { username, title } = req.params;
+    const userId = req.user.userId;
+    const decodedTitle = decodeURIComponent(title);
+
+    const story = await prisma.story.findFirst({
+      where: {
+        title: decodedTitle,
+        status: 'PUBLISHED',
+        userId: userId,
+        user: {
+          username: username
+        }
+      }
+    });
+
+    if (!story) {
+      return res.status(404).json({ error: 'Histoire non trouvée' });
+    }
+
+    const draft = await prisma.story.create({
+      data: {
+        title: story.title,
+        content: story.content,
+        status: 'DRAFT',
+        userId
+      }
+    });
+
+    res.json({
+      message: 'Draft créé pour édition',
+      story: draft,
+      originalStoryId: story.id
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
 const saveDraft = async (req, res) => {
   try {
     const { title, content } = req.body;
@@ -389,6 +430,7 @@ module.exports = {
   getStoryById,
   getUserStories,
   getStoryForEdit,
+  getStoryForEditByUsernameAndTitle,
   saveDraft,
   updateDraft,
   publishStory,

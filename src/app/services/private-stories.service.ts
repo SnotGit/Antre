@@ -5,7 +5,6 @@ import { firstValueFrom } from 'rxjs';
 interface DraftStory {
   id: number;
   title: string;
-  slug: string;
   lastModified: string;
   status: string;
 }
@@ -13,7 +12,6 @@ interface DraftStory {
 interface PublishedStory {
   id: number;
   title: string;
-  slug: string;
   lastModified: string;
   likes: number;
 }
@@ -28,7 +26,6 @@ interface StoryData {
   id: number;
   title: string;
   content: string;
-  slug?: string;
   status?: string;
 }
 
@@ -38,7 +35,6 @@ interface SaveDraftResponse {
     id: number;
     title: string;
     content: string;
-    slug: string;
     status: string;
   };
 }
@@ -105,6 +101,21 @@ export class PrivateStoriesService {
     try {
       const data = await firstValueFrom(
         this.http.get<EditStoryResponse>(`${this.API_URL}/edit/${id}`)
+      );
+      this._loading.set(false);
+      return data;
+    } catch (error) {
+      this._loading.set(false);
+      return null;
+    }
+  }
+
+  async getStoryForEditByUsernameAndTitle(username: string, title: string): Promise<EditStoryResponse | null> {
+    this._loading.set(true);
+
+    try {
+      const data = await firstValueFrom(
+        this.http.get<EditStoryResponse>(`${this.API_URL}/edit/${username}/${encodeURIComponent(title)}`)
       );
       this._loading.set(false);
       return data;

@@ -40,42 +40,59 @@ export class Editor implements OnInit, OnDestroy {
   storyForm = signal<StoryFormData>({ title: '', content: '' });
   saving = signal<boolean>(false);
   
-  storyId = toSignal(
-    this.route.params.pipe(map(params => params['id'] ? parseInt(params['id']) : null)),
-    { initialValue: null }
+  routeParams = toSignal(
+    this.route.params.pipe(map(params => ({
+      id: params['id'] ? parseInt(params['id']) : null,
+      title: params['title'] || null,
+      username: params['username'] || null
+    }))),
+    { initialValue: { id: null, title: null, username: null } }
   );
   
   storyResource = resource({
     loader: async () => {
-      const id = this.storyId();
+      const params = this.routeParams();
       
-      if (!id) {
-        this.editorMode.set('nouvelle');
-        this.currentStoryId.set(null);
-        this.originalStoryId.set(null);
-        return null;
-      }
-      
-      const response = await this.privateStoriesService.getStoryForEditById(id);
-      if (!response) {
-        throw new Error('Histoire non trouvée');
-      }
-      
-      if (response.originalStoryId) {
-        this.editorMode.set('modifier');
-        this.originalStoryId.set(response.originalStoryId);
-        this.currentStoryId.set(response.story.id);
-      } else {
-        if (response.story.status === 'DRAFT') {
-          this.editorMode.set('continuer');
-        } else {
-          this.editorMode.set('modifier');
-          this.originalStoryId.set(response.story.id);
+      if (params.id) {
+        const response = await this.privateStoriesService.getStoryForEditById(params.id);
+        if (!response) {
+          throw new Error('Histoire non trouvée');
         }
-        this.currentStoryId.set(response.story.id);
+        
+        if (response.originalStoryId) {
+          this.editorMode.set('modifier');
+          this.originalStoryId.set(response.originalStoryId);
+          this.currentStoryId.set(response.story.id);
+        } else {
+          if (response.story.status === 'DRAFT') {
+            this.editorMode.set('continuer');
+          } else {
+            this.editorMode.set('modifier');
+            this.originalStoryId.set(response.story.id);
+          }
+          this.currentStoryId.set(response.story.id);
+        }
+        
+        return response.story;
       }
       
-      return response.story;
+      if (params.username && params.title) {
+        const response = await this.privateStoriesService.getStoryForEditByUsernameAndTitle(params.username, params.title);
+        if (!response) {
+          throw new Error('Histoire non trouvée');
+        }
+        
+        this.editorMode.set('modifier');
+        this.originalStoryId.set(response.story.id);
+        this.currentStoryId.set(response.story.id);
+        
+        return response.story;
+      }
+      
+      this.editorMode.set('nouvelle');
+      this.currentStoryId.set(null);
+      this.originalStoryId.set(null);
+      return null;
     }
   });
   
