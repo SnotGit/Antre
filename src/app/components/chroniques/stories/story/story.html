@@ -1,55 +1,51 @@
+@if (storyData.value(); as data) {
 <div class="container">
   <div class="story-card">
     <div class="header">
       <div class="header-content">
-        <div class="avatar" [style.background-image]="`url(${avatarUrl()})`"></div>
+        <div class="avatar" [style.background-image]="data.story.user?.avatar ? 'url(http://localhost:3000' + data.story.user?.avatar + ')' : ''"></div>
         <div class="info">
-          <div class="username">{{ username() }}</div>
-          <div class="user-description">{{ userDescription() }}</div>
+          <div class="username">{{ data.story.user?.username }}</div>
+          <div class="user-description">{{ data.story.user?.description }}</div>
         </div>
       </div>
       <div class="like-section">
         <button class="like-btn" (click)="toggleLike()" [disabled]="!canLike()">
-          <span class="heart-icon" [class.liked]="isLiked()">
-            {{ isLiked() ? '♥' : '♡' }}
+          <span class="heart-icon" [class.liked]="data.story.isLiked">
+            {{ data.story.isLiked ? '♥' : '♡' }}
           </span>
         </button>
-        <span class="likes-count">{{ likesCount() }}</span>
+        <span class="likes-count">{{ data.story.likes }}</span>
       </div>
     </div>
 
     <div class="card-separator"></div>
 
     <div class="title">
-      <h1>{{ storyTitle() }}</h1>
-
-
+      <h1>{{ data.story.title }}</h1>
       <div class="date">
-        <p>{{ publishDate() }}</p>
+        <p>{{ data.story.publishDate }}</p>
       </div>
     </div>
 
     <div class="content">
-      <div class="text">{{ story() }}</div>
+      <div class="text">{{ data.story.content }}</div>
     </div>
 
     <div class="card-separator"></div>
 
     <div class="card-footer">
-      <div class="previous-button" [class.hidden]="!hasPreviousStory()">
-        <button class="btn" [disabled]="!hasPreviousStory()" (click)="goToPreviousStory()">
-          <span class="nav-arrow">←</span>
-          <span>Histoire précédente</span>
-        </button>
-      </div>
+      <button class="btn" [disabled]="!data.hasPrevious" (click)="goToPreviousStory()">
+        <span class="nav-arrow">←</span>
+        <span>Histoire précédente</span>
+      </button>
 
-      <div class="next-button" [class.hidden]="!hasNextStory()">
-        <button class="btn" [disabled]="!hasNextStory()" (click)="goToNextStory()">
-          <span class="nav-text">Histoire suivante</span>
-          <span class="nav-arrow">→</span>
-        </button>
-      </div>
+      <button class="btn" [disabled]="!data.hasNext" (click)="goToNextStory()">
+        <span class="nav-text">Histoire suivante</span>
+        <span class="nav-arrow">→</span>
+      </button>
     </div>
 
   </div>
 </div>
+}

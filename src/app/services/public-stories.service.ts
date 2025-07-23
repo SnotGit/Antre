@@ -6,6 +6,7 @@ interface Story {
   title: string;
   publishDate: string;
   likes: number;
+  isLiked?: boolean;
   content?: string;
   user?: {
     id: number;
@@ -13,18 +14,6 @@ interface Story {
     avatar: string;
     description: string;
   };
-}
-
-interface UserProfileResponse {
-  user: {
-    id: number;
-    username: string;
-    avatar: string;
-    description: string;
-    createdAt: string;
-  };
-  stories: Story[];
-  storiesCount: number;
 }
 
 interface LikeResponse {
@@ -41,8 +30,6 @@ export class PublicStoriesService {
   private authService = inject(AuthService);
   private readonly API_URL = 'http://localhost:3000/api/public-stories';
 
-  //============ API CALLS ============
-  
   async getLatestStories(): Promise<Story[]> {
     const response = await fetch(this.API_URL);
     const data = await response.json();
@@ -56,10 +43,11 @@ export class PublicStoriesService {
     return data.story;
   }
 
-  async getUserProfile(userId: number): Promise<UserProfileResponse | null> {
+  async getUserStories(userId: number): Promise<Story[]> {
     const response = await fetch(`${this.API_URL}/users/${userId}`);
-    if (!response.ok) return null;
-    return await response.json();
+    if (!response.ok) return [];
+    const data = await response.json();
+    return data.stories || [];
   }
 
   async toggleLike(storyId: number): Promise<LikeResponse> {
