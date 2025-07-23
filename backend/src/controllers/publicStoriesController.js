@@ -17,6 +17,8 @@ const formatPublishDate = (date) => {
   }
 };
 
+
+
 const getLatestStories = async (req, res) => {
   try {
     const latestStories = await prisma.user.findMany({
@@ -165,14 +167,12 @@ const getUserProfile = async (req, res) => {
       id: story.id,
       title: story.title,
       publishDate: formatPublishDate(story.publishedAt || story.createdAt),
-      likes: story._count.likes,
-      sid: story.id
+      likes: story._count.likes
     }));
 
     res.json({
       message: 'Profil utilisateur récupéré avec succès',
       user: user,
-      displayMode: 'stories',
       stories: formattedStories,
       storiesCount: formattedStories.length
     });
