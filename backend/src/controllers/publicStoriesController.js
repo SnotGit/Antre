@@ -1,23 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-const formatPublishDate = (date) => {
-  if (!date) {
-    return 'Date non définie';
-  }
-  
-  try {
-    const parsedDate = new Date(date);
-    if (isNaN(parsedDate.getTime())) {
-      return 'Date invalide';
-    }
-    return parsedDate.toLocaleDateString('fr-FR');
-  } catch (error) {
-    return 'Erreur de format';
-  }
-};
-
-
+//============ DERNIÈRES HISTOIRES ============
 
 const getLatestStories = async (req, res) => {
   try {
@@ -50,7 +34,7 @@ const getLatestStories = async (req, res) => {
         return {
           id: story.id,
           title: story.title,
-          publishDate: formatPublishDate(story.publishedAt || story.createdAt),
+          publishDate: story.publishedAt ? story.publishedAt.toLocaleDateString('fr-FR') : story.createdAt.toLocaleDateString('fr-FR'),
           likes: story._count.likes,
           user: {
             id: user.id,
@@ -72,14 +56,20 @@ const getLatestStories = async (req, res) => {
   }
 };
 
-const getStoryById = async (req, res) => {
-  try {
-    const { id } = req.params;
+//============ HISTOIRE PAR USERNAME + TITRE ============
 
-    const story = await prisma.story.findUnique({
-      where: { 
-        id: parseInt(id),
-        status: 'PUBLISHED'
+const getStoryByUsernameAndTitle = async (req, res) => {
+  try {
+    const { username, title } = req.params;
+    const decodedTitle = decodeURIComponent(title);
+
+    const story = await prisma.story.findFirst({
+      where: {
+        title: decodedTitle,
+        status: 'PUBLISHED',
+        user: {
+          username: username
+        }
       },
       include: {
         user: {
@@ -104,14 +94,9 @@ const getStoryById = async (req, res) => {
       id: story.id,
       title: story.title,
       content: story.content,
-      publishDate: formatPublishDate(story.publishedAt || story.createdAt),
+      publishDate: story.publishedAt ? story.publishedAt.toLocaleDateString('fr-FR') : story.createdAt.toLocaleDateString('fr-FR'),
       likes: story._count.likes,
-      user: {
-        id: story.user.id,
-        username: story.user.username,
-        avatar: story.user.avatar,
-        description: story.user.description
-      }
+      user: story.user
     };
 
     res.json({
@@ -123,6 +108,8 @@ const getStoryById = async (req, res) => {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
+
+//============ PROFIL UTILISATEUR ============
 
 const getUserProfile = async (req, res) => {
   try {
@@ -166,7 +153,7 @@ const getUserProfile = async (req, res) => {
     const formattedStories = userStories.map(story => ({
       id: story.id,
       title: story.title,
-      publishDate: formatPublishDate(story.publishedAt || story.createdAt),
+      publishDate: story.publishedAt ? story.publishedAt.toLocaleDateString('fr-FR') : story.createdAt.toLocaleDateString('fr-FR'),
       likes: story._count.likes
     }));
 
@@ -182,79 +169,10 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-const toggleLike = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const storyId = parseInt(id);
-    const userId = req.user.userId;
-
-    if (isNaN(storyId)) {
-      return res.status(400).json({ error: 'ID histoire invalide' });
-    }
-
-    const story = await prisma.story.findUnique({
-      where: { id: storyId },
-      select: { userId: true, status: true }
-    });
-
-    if (!story) {
-      return res.status(404).json({ error: 'Histoire non trouvée' });
-    }
-
-    if (story.status !== 'PUBLISHED') {
-      return res.status(403).json({ error: 'Histoire non publiée' });
-    }
-
-    if (story.userId === userId) {
-      return res.status(403).json({ 
-        error: 'Vous ne pouvez pas liker votre propre histoire' 
-      });
-    }
-
-    const existingLike = await prisma.like.findUnique({
-      where: {
-        userId_storyId: {
-          userId: userId,
-          storyId: storyId
-        }
-      }
-    });
-
-    let isLiked;
-    
-    if (existingLike) {
-      await prisma.like.delete({
-        where: { id: existingLike.id }
-      });
-      isLiked = false;
-    } else {
-      await prisma.like.create({
-        data: {
-          userId: userId,
-          storyId: storyId
-        }
-      });
-      isLiked = true;
-    }
-
-    const totalLikes = await prisma.like.count({
-      where: { storyId: storyId }
-    });
-
-    res.json({
-      success: true,
-      liked: isLiked,
-      totalLikes: totalLikes
-    });
-
-  } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-};
+//============ EXPORTS ============
 
 module.exports = {
   getLatestStories,
-  getUserProfile,
-  getStoryById,
-  toggleLike
+  getStoryByUsernameAndTitle,
+  getUserProfile
 };

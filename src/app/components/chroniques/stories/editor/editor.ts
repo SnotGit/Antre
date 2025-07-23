@@ -1,21 +1,10 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, resource, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs/operators';
 import { PrivateStoriesService } from '../../../../services/private-stories.service';
 import { AuthService } from '../../../../services/auth.service';
-import { TypingEffectService } from '../../../../services/typing-effect.service';
-import { AutoSaveService } from '../../../../services/auto-save';
 import { ConfirmationDialogService } from '../../../../services/confirmation-dialog.service';
-
-interface StoryFormData {
-  title: string;
-  content: string;
-}
-
-type EditorMode = 'nouvelle' | 'continuer' | 'modifier';
 
 @Component({
   selector: 'app-editor',
@@ -23,214 +12,84 @@ type EditorMode = 'nouvelle' | 'continuer' | 'modifier';
   templateUrl: './editor.html',
   styleUrl: './editor.scss'
 })
-export class Editor implements OnInit, OnDestroy {
-  
+export class Editor implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private privateStoriesService = inject(PrivateStoriesService);
-  private authService = inject(AuthService);
-  private typingService = inject(TypingEffectService);
-  private autoSaveService = inject(AutoSaveService);
-  private confirmationService = inject(ConfirmationDialogService);
-  
-  private editorMode = signal<EditorMode>('nouvelle');
-  private currentStoryId = signal<number | null>(null);
-  private originalStoryId = signal<number | null>(null);
-  
-  storyForm = signal<StoryFormData>({ title: '', content: '' });
-  saving = signal<boolean>(false);
-  
-  routeParams = toSignal(
-    this.route.params.pipe(map(params => ({
-      id: params['id'] ? parseInt(params['id']) : null,
-      title: params['title'] || null,
-      username: params['username'] || null
-    }))),
-    { initialValue: { id: null, title: null, username: null } }
-  );
-  
-  storyResource = resource({
-    loader: async () => {
-      const params = this.routeParams();
-      
-      if (params.id) {
-        const response = await this.privateStoriesService.getStoryForEditById(params.id);
-        if (!response) {
-          throw new Error('Histoire non trouvée');
-        }
-        
-        if (response.originalStoryId) {
-          this.editorMode.set('modifier');
-          this.originalStoryId.set(response.originalStoryId);
-          this.currentStoryId.set(response.story.id);
-        } else {
-          if (response.story.status === 'DRAFT') {
-            this.editorMode.set('continuer');
-          } else {
-            this.editorMode.set('modifier');
-            this.originalStoryId.set(response.story.id);
-          }
-          this.currentStoryId.set(response.story.id);
-        }
-        
-        return response.story;
-      }
-      
-      if (params.username && params.title) {
-        const response = await this.privateStoriesService.getStoryForEditByUsernameAndTitle(params.username, params.title);
-        if (!response) {
-          throw new Error('Histoire non trouvée');
-        }
-        
-        this.editorMode.set('modifier');
-        this.originalStoryId.set(response.story.id);
-        this.currentStoryId.set(response.story.id);
-        
-        return response.story;
-      }
-      
-      this.editorMode.set('nouvelle');
-      this.currentStoryId.set(null);
-      this.originalStoryId.set(null);
-      return null;
-    }
-  });
-  
-  headerText = computed(() => {
-    const mode = this.editorMode();
-    
-    switch (mode) {
-      case 'nouvelle': return 'Nouvelle Histoire';
-      case 'continuer': return 'Continuer Histoire';
-      case 'modifier': return 'Modifier Histoire';
-      default: return 'Éditeur';
-    }
-  });
-  
-  deleteButtonText = computed(() => {
-    const mode = this.editorMode();
-    
-    if (mode === 'nouvelle') {
-      return 'Annuler';
-    }
-    
-    return 'Supprimer';
-  });
-  
-  canDelete = computed(() => {
-    const mode = this.editorMode();
-    
-    return mode === 'continuer' || mode === 'nouvelle';
-  });
-  
-  publishButtonText = computed(() => {
-    const mode = this.editorMode();
-    switch (mode) {
-      case 'nouvelle': return 'Publier';
-      case 'continuer': return 'Publier';
-      case 'modifier': return 'Republier';
-      default: return 'Publier';
-    }
-  });
-  
-  private typingEffect = this.typingService.createTypingEffect({
-    text: this.headerText(),
-    speed: 150,
-    finalBlinks: 4
-  });
+  private stories = inject(PrivateStoriesService);
+  private auth = inject(AuthService);
+  private dialog = inject(ConfirmationDialogService);
 
-  headerTitle = this.typingEffect.headerTitle;
-  typingComplete = this.typingEffect.typingComplete;
-  
-  private autoSave = this.autoSaveService.createAutoSave({
-    data: () => this.storyForm(),
-    saveFunction: async (data: StoryFormData) => {
-      const storyId = this.currentStoryId();
-      const mode = this.editorMode();
-      
-      if (mode === 'nouvelle') {
-        const response = await this.privateStoriesService.saveDraft(data);
-        this.currentStoryId.set(response.story.id);
-        this.router.navigate(['/chroniques/editor', response.story.id], { replaceUrl: true });
-      } else if (storyId) {
-        await this.privateStoriesService.saveDraft(data, storyId);
-      }
-    },
-    delay: 2000
-  });
+  mode = signal<'nouvelle' | 'continuer' | 'modifier'>('nouvelle');
+  form = signal({ title: '', content: '' });
+  loading = signal(false);
 
-  autoSaveState = this.autoSave.state;
-  
-  private formUpdateEffect = effect(() => {
-    const story = this.storyResource.value();
-    if (story) {
-      this.storyForm.set({
-        title: story.title || '',
-        content: story.content || ''
-      });
-    }
-  });
-  
   ngOnInit(): void {
-    if (!this.authService.isLoggedIn()) {
+    if (!this.auth.isLoggedIn()) {
       this.router.navigate(['/auth']);
       return;
     }
 
-    this.typingEffect.startTyping();
+    this.loadStory();
   }
 
-  ngOnDestroy(): void {
-    this.typingEffect.cleanup();
-    this.autoSave.cleanup();
-  }
-  
-  onTitleChange(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.storyForm.update(current => ({ ...current, title: value }));
-  }
+  async loadStory(): Promise<void> {
+    const id = this.route.snapshot.params['id'];
+    
+    if (!id) {
+      this.mode.set('nouvelle');
+      return;
+    }
 
-  onContentChange(event: Event): void {
-    const value = (event.target as HTMLTextAreaElement).value;
-    this.storyForm.update(current => ({ ...current, content: value }));
-  }
-  
-  async publishStory(): Promise<void> {
-    const mode = this.editorMode();
-    const storyId = this.currentStoryId();
-    const originalId = this.originalStoryId();
-    
-    this.saving.set(true);
-    
+    this.loading.set(true);
     try {
-      if (mode === 'nouvelle') {
-        const response = await this.privateStoriesService.saveDraft(this.storyForm());
-        await this.privateStoriesService.publishStory(response.story.id);
-      } else if (mode === 'continuer' && storyId) {
-        await this.privateStoriesService.publishStory(storyId);
-      } else if (mode === 'modifier' && storyId && originalId) {
-        await this.privateStoriesService.republishStory(storyId, originalId);
+      const story = await this.stories.getStory(parseInt(id));
+      if (story) {
+        this.form.set({
+          title: story.title,
+          content: story.content
+        });
+        this.mode.set(story.status === 'DRAFT' ? 'continuer' : 'modifier');
       }
-      
-      this.router.navigate(['/chroniques']);
     } finally {
-      this.saving.set(false);
+      this.loading.set(false);
     }
   }
 
-  async deleteStory(): Promise<void> {
-    const storyId = this.currentStoryId();
-    const mode = this.editorMode();
-    
-    if (!storyId || !this.canDelete()) return;
+  async save(): Promise<void> {
+    this.loading.set(true);
+    try {
+      const data = this.form();
+      if (this.mode() === 'nouvelle') {
+        await this.stories.createDraft(data);
+      } else {
+        const id = this.route.snapshot.params['id'];
+        await this.stories.updateDraft(parseInt(id), data);
+      }
+    } finally {
+      this.loading.set(false);
+    }
+  }
 
-    const isNouvelle = mode === 'nouvelle';
+  async publish(): Promise<void> {
+    this.loading.set(true);
+    try {
+      const id = this.route.snapshot.params['id'];
+      await this.stories.publishStory(parseInt(id));
+      await this.router.navigate(['/chroniques']);
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async delete(): Promise<void> {
+    const id = this.route.snapshot.params['id'];
+    const isNouvelle = this.mode() === 'nouvelle';
     
-    const confirmed = await this.confirmationService.confirm({
+    const confirmed = await this.dialog.confirm({
       title: isNouvelle ? 'Annuler la création' : 'Suppression du brouillon',
       message: isNouvelle 
-        ? 'Êtes-vous sûr de vouloir annuler la création de cette histoire ?\n\nCette action est irréversible.'
-        : 'Êtes-vous sûr de vouloir supprimer ce brouillon ?\n\nCette action est irréversible.',
+        ? 'Êtes-vous sûr de vouloir annuler la création de cette histoire ?'
+        : 'Êtes-vous sûr de vouloir supprimer ce brouillon ?',
       confirmText: isNouvelle ? 'Annuler' : 'Supprimer',
       cancelText: 'Retour',
       isDanger: true
@@ -238,11 +97,16 @@ export class Editor implements OnInit, OnDestroy {
 
     if (!confirmed) return;
 
-    await this.privateStoriesService.deleteStory(storyId);
-    this.router.navigate(['/chroniques/my-stories']);
-  }
-
-  goBack(): void {
-    this.router.navigate(['/chroniques/my-stories']);
+    this.loading.set(true);
+    try {
+      if (isNouvelle) {
+        await this.stories.cancelNewStory(parseInt(id));
+      } else {
+        await this.stories.deleteDraft(parseInt(id));
+      }
+      await this.router.navigate(['/chroniques/my-stories']);
+    } finally {
+      this.loading.set(false);
+    }
   }
 }
