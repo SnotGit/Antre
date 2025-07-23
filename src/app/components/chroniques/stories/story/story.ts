@@ -22,19 +22,19 @@ export class Story {
   private routeParams = toSignal(
     this.route.params.pipe(map(params => ({ 
       username: params['username'],
-      storyId: parseInt(params['id']) 
+      storyTitle: params['title']
     }))),
-    { initialValue: { username: '', storyId: 0 } }
+    { initialValue: { username: '', storyTitle: '' } }
   );
 
   storyData = resource({
-    params: () => ({ storyId: this.routeParams().storyId }),
+    params: () => ({ username: this.routeParams().username, title: this.routeParams().storyTitle }),
     loader: async ({ params }) => {
-      const story = await this.stories.getStoryById(params.storyId);
+      const story = await this.stories.getStoryByUsernameAndTitle(params.username, params.title);
       if (!story) return null;
       
       const userStories = await this.stories.getUserStories(story.user!.id);
-      const currentIndex = userStories.findIndex(s => s.id === params.storyId);
+      const currentIndex = userStories.findIndex(s => s.title === params.title);
       
       return {
         story: story!,
@@ -58,10 +58,10 @@ export class Story {
   });
 
   async toggleLike(): Promise<void> {
-    const storyId = this.routeParams().storyId;
-    if (!storyId || !this.canLike()) return;
+    const data = this.storyData.value();
+    if (!data?.story || !this.canLike()) return;
 
-    await this.stories.toggleLike(storyId);
+    await this.stories.toggleLike(data.story.id);
     this.storyData.reload();
   }
 
@@ -69,13 +69,13 @@ export class Story {
     const data = this.storyData.value();
     if (!data?.hasNext || !data.nextStory) return;
     
-    this.router.navigate(['/chroniques', this.routeParams().username, data.nextStory.id]);
+    this.router.navigate(['/chroniques', this.routeParams().username, data.nextStory.title]);
   }
 
   goToPreviousStory(): void {
     const data = this.storyData.value();
     if (!data?.hasPrevious || !data.previousStory) return;
     
-    this.router.navigate(['/chroniques', this.routeParams().username, data.previousStory.id]);
+    this.router.navigate(['/chroniques', this.routeParams().username, data.previousStory.title]);
   }
 }

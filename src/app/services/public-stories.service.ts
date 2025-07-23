@@ -43,6 +43,13 @@ export class PublicStoriesService {
     return data.story;
   }
 
+  async getStoryByUsernameAndTitle(username: string, title: string): Promise<Story | null> {
+    const response = await fetch(`${this.API_URL}/story/${username}/${encodeURIComponent(title)}`);
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.story;
+  }
+
   async getUserStories(userId: number): Promise<Story[]> {
     const response = await fetch(`${this.API_URL}/users/${userId}`);
     if (!response.ok) return [];
