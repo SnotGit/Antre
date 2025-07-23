@@ -17,7 +17,7 @@ export class Home implements OnInit, OnDestroy {
 
 
   private typingEffect = this.typingService.createTypingEffect({
-    text: 'Bienvenue dans l antre de Sulfuro',
+    text: 'Bienvenue dans l antre',
     speed: 150,
     finalBlinks: 4
 
