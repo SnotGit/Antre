@@ -81,11 +81,6 @@ export class Editor implements OnInit, OnDestroy {
   
   headerText = computed(() => {
     const mode = this.editorMode();
-    const hasStoryId = this.storyId() !== null;
-    
-    if (mode === 'nouvelle' && hasStoryId) {
-      return 'Nouvelle Histoire';
-    }
     
     switch (mode) {
       case 'nouvelle': return 'Nouvelle Histoire';
@@ -97,9 +92,8 @@ export class Editor implements OnInit, OnDestroy {
   
   deleteButtonText = computed(() => {
     const mode = this.editorMode();
-    const hasStoryId = this.storyId() !== null;
     
-    if (mode === 'nouvelle' && hasStoryId) {
+    if (mode === 'nouvelle') {
       return 'Annuler';
     }
     
@@ -108,10 +102,8 @@ export class Editor implements OnInit, OnDestroy {
   
   canDelete = computed(() => {
     const mode = this.editorMode();
-    const hasStoryId = this.storyId() !== null;
     
-    return (mode === 'continuer' && this.currentStoryId() !== null) ||
-           (mode === 'nouvelle' && hasStoryId);
+    return mode === 'continuer' || mode === 'nouvelle';
   });
   
   publishButtonText = computed(() => {
@@ -212,11 +204,10 @@ export class Editor implements OnInit, OnDestroy {
   async deleteStory(): Promise<void> {
     const storyId = this.currentStoryId();
     const mode = this.editorMode();
-    const hasStoryId = this.storyId() !== null;
     
     if (!storyId || !this.canDelete()) return;
 
-    const isNouvelle = mode === 'nouvelle' && hasStoryId;
+    const isNouvelle = mode === 'nouvelle';
     
     const confirmed = await this.confirmationService.confirm({
       title: isNouvelle ? 'Annuler la création' : 'Suppression du brouillon',

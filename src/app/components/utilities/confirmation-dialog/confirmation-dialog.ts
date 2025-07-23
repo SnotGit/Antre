@@ -4,7 +4,6 @@ import { ConfirmationDialogService } from '../../../services/confirmation-dialog
 
 @Component({
   selector: 'app-confirmation-dialog',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './confirmation-dialog.html',
   styleUrl: './confirmation-dialog.scss'
