@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, effect, linkedSignal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, resource, linkedSignal, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -8,7 +8,7 @@ import { map } from 'rxjs/operators';
 import { PrivateStoriesService } from '../../../../services/private-stories.service';
 import { AuthService } from '../../../../services/auth.service';
 import { ConfirmationDialogService } from '../../../../services/confirmation-dialog.service';
-import { AutoSaveService } from '../../../../services/auto-save';
+import { AutoSaveService } from '../../../../services/auto-save.service';
 import { TypingEffectService } from '../../../../services/typing-effect.service';
 
 interface StoryForm {
@@ -16,7 +16,7 @@ interface StoryForm {
   content: string;
 }
 
-type EditorMode = 'NewStory' | 'ContinueDraft' | 'EditPublished';
+type EditorMode = 'NewStory' | 'EditDraft' | 'EditPublished';
 
 @Component({
   selector: 'app-editor',
@@ -40,77 +40,91 @@ export class Editor implements OnInit, OnDestroy {
   //============ SIGNALS ============
 
   private mode = signal<EditorMode>('NewStory');
-  private loading = signal(false);
+  loading = signal(false);
   private storyId = signal<number | null>(null);
+  private originalStoryId = signal<number | null>(null);
 
-  //============ ROUTE DATA ============
+  //============ ROUTE PARAMS ============
 
-  private routeUrl = toSignal(
-    this.route.url.pipe(map(segments => {
-      const path = segments.map(s => s.path).join('/');
-      if (path.includes('nouvelle-histoire')) return 'NewStory';
-      if (path.includes('brouillon')) return 'ContinueDraft';
-      if (path.includes('histoire-publiée')) return 'EditPublished';
-      return 'NewStory';
-    })),
-    { initialValue: 'NewStory' as EditorMode }
+  private routeParams = toSignal(
+    this.route.params.pipe(map(params => ({ 
+      title: params['title'] || null
+    }))),
+    { initialValue: { title: null } }
   );
 
-  private resolvedStoryId = toSignal(
-    this.route.data.pipe(map(data => data['storyId'] || null)),
-    { initialValue: null }
-  );
+  //============ STORY RESOURCE ============
 
-  //============ LINKED SIGNALS ============
+  private storyResource = resource({
+    params: () => this.routeParams(),
+    loader: async ({ params }) => {
+      if (this.mode() === 'NewStory') {
+        return { title: '', content: '' };
+      }
 
-  private originalStory = signal<StoryForm>({ title: '', content: '' });
-  updateStory = linkedSignal(() => this.originalStory());
+      if (params.title) {
+        const response = await this.stories.getStoryForEdit(params.title);
+        if (response) {
+          this.storyId.set(response.story.id);
+          this.originalStoryId.set(response.originalStoryId || null);
+          return {
+            title: response.story.title,
+            content: response.story.content
+          };
+        }
+      }
+
+      return { title: '', content: '' };
+    }
+  });
+
+  //============ FORM SIGNALS ============
+
+  private originalStory = computed(() => this.storyResource.value() || { title: '', content: '' });
+  updateStory = linkedSignal<StoryForm>(() => this.originalStory());
 
   //============ TYPING EFFECT ============
 
-  private typingEffect = this.typingService.createTypingEffect({
-    text: computed(() => {
-      const currentMode = this.mode();
-      if (currentMode === 'NewStory') return 'Nouvelle histoire';
-      if (currentMode === 'ContinueDraft') return 'Continuer brouillon';
-      return 'Modifier histoire';
-    })()
+  private titleText = computed(() => {
+    switch (this.mode()) {
+      case 'NewStory': return 'Nouvelle histoire';
+      case 'EditDraft': return 'Continuer histoire';
+      case 'EditPublished': return 'Modifier histoire';
+    }
   });
 
-  headerTitle = this.typingEffect.headerTitle;
-  typingComplete = this.typingEffect.typingComplete;
+  private typingEffect: ReturnType<TypingEffectService['createTypingEffect']> | null = null;
 
-  //============ AUTO SAVE ============
-
-  private autoSave = this.autoSaveService.createAutoSave<StoryForm>({
-    data: () => this.updateStory(),
-    saveFunction: (data) => this.performAutoSave(data),
-    shouldSave: (data) => data.title.trim().length > 0 || data.content.trim().length > 0
-  });
+  headerTitle = computed(() => this.typingEffect?.headerTitle() || '');
+  typingComplete = computed(() => this.typingEffect?.typingComplete() || false);
 
   //============ COMPUTED ============
 
-  saving = computed(() => this.loading());
-
   canDelete = computed(() => this.storyId() !== null);
+  
+  deleteButtonText = computed(() => {
+    return this.mode() === 'NewStory' ? 'Annuler' : 'Supprimer';
+  });
 
-  publishButtonText = computed(() => 'Publier');
+  publishButtonText = computed(() => {
+    switch (this.mode()) {
+      case 'NewStory': return 'Publier';
+      case 'EditDraft': return 'Publier';
+      case 'EditPublished': return 'Republier';
+    }
+  });
 
-  //============ CONSTRUCTOR ============
+  //============ AUTO SAVE ============
 
-  constructor() {
-    effect(() => {
-      const mode = this.routeUrl();
-      this.mode.set(mode);
-    });
+  private autoSaveInstance: ReturnType<AutoSaveService['createAutoSave']> | null = null;
 
-    effect(() => {
-      const storyId = this.resolvedStoryId();
-      if (storyId) {
-        this.loadStoryData(storyId);
-      } else if (this.mode() === 'NewStory') {
-        this.createNewStory();
-      }
+  private setupAutoSave(): void {
+    this.autoSaveInstance = this.autoSaveService.createAutoSave<StoryForm>({
+      data: () => this.updateStory(),
+      mode: this.mode,
+      storyId: this.storyId,
+      loading: this.loading,
+      storiesService: this.stories
     });
   }
 
@@ -122,80 +136,25 @@ export class Editor implements OnInit, OnDestroy {
       return;
     }
 
+    const url = this.router.url;
+    if (url.includes('/edition/nouvelle-histoire')) {
+      this.mode.set('NewStory');
+    } else if (url.includes('/edition/brouillon/')) {
+      this.mode.set('EditDraft');
+    } else if (url.includes('/edition/publiée/')) {
+      this.mode.set('EditPublished');
+    }
+
+    this.typingEffect = this.typingService.createTypingEffect({
+      text: this.titleText()
+    });
     this.typingEffect.startTyping();
+    this.setupAutoSave();
   }
 
   ngOnDestroy(): void {
-    this.typingEffect.cleanup();
-    this.autoSave.cleanup();
-  }
-
-  //============ PRIVATE METHODS ============
-
-  private async createNewStory(): Promise<void> {
-    this.loading.set(true);
-    try {
-      const response = await this.stories.saveDraft({ title: '', content: '' });
-      this.storyId.set(response.story.id);
-      this.originalStory.set({
-        title: response.story.title,
-        content: response.story.content
-      });
-    } catch (error) {
-      this.router.navigate(['/chroniques']);
-    } finally {
-      this.loading.set(false);
-    }
-  }
-
-  private async loadStoryData(storyId: number): Promise<void> {
-    this.loading.set(true);
-    try {
-      const response = await this.stories.getStoryForEdit(storyId);
-      if (!response) {
-        this.router.navigate(['/chroniques']);
-        return;
-      }
-
-      this.storyId.set(response.story.id);
-      this.originalStory.set({
-        title: response.story.title,
-        content: response.story.content
-      });
-    } catch (error) {
-      this.router.navigate(['/chroniques']);
-    } finally {
-      this.loading.set(false);
-    }
-  }
-
-  private async performAutoSave(data: StoryForm): Promise<void> {
-    const currentId = this.storyId();
-    if (!currentId) return;
-
-    try {
-      await this.stories.saveDraft(data, currentId);
-    } catch (error) {
-      
-    }
-  }
-
-  //============ EVENT HANDLERS ============
-
-  onTitleChange(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    this.updateStory.set({ 
-      ...this.updateStory(), 
-      title: target.value 
-    });
-  }
-
-  onContentChange(event: Event): void {
-    const target = event.target as HTMLTextAreaElement;
-    this.updateStory.set({ 
-      ...this.updateStory(), 
-      content: target.value 
-    });
+    this.typingEffect?.cleanup();
+    this.autoSaveInstance?.cleanup();
   }
 
   //============ ACTIONS ============
@@ -206,7 +165,12 @@ export class Editor implements OnInit, OnDestroy {
 
     this.loading.set(true);
     try {
-      await this.stories.publishStory(currentId);
+      const originalId = this.originalStoryId();
+      if (originalId && originalId !== currentId) {
+        await this.stories.republishStory(currentId, originalId);
+      } else {
+        await this.stories.publishStory(currentId);
+      }
       this.router.navigate(['/chroniques']);
     } finally {
       this.loading.set(false);
@@ -218,16 +182,7 @@ export class Editor implements OnInit, OnDestroy {
     if (!currentId) return;
 
     const isNewStory = this.mode() === 'NewStory';
-    
-    const confirmed = await this.dialog.confirm({
-      title: isNewStory ? 'Annuler la création' : 'Suppression du brouillon',
-      message: isNewStory 
-        ? 'Êtes-vous sûr de vouloir annuler la création de cette histoire ?'
-        : 'Êtes-vous sûr de vouloir supprimer ce brouillon ?',
-      confirmText: isNewStory ? 'Annuler' : 'Supprimer',
-      cancelText: 'Retour',
-      isDanger: true
-    });
+    const confirmed = await this.dialog.confirmDeleteStory(isNewStory);
 
     if (!confirmed) return;
 
@@ -238,7 +193,7 @@ export class Editor implements OnInit, OnDestroy {
       } else {
         await this.stories.deleteDraft(currentId);
       }
-      this.router.navigate(['/chroniques/my-stories']);
+      this.router.navigate(['/chroniques/mes-histoires']);
     } finally {
       this.loading.set(false);
     }

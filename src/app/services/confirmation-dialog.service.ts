@@ -1,50 +1,84 @@
 import { Injectable, signal } from '@angular/core';
 
-export interface ConfirmationConfig {
+interface ConfirmationConfig {
   title: string;
   message: string;
-  confirmText?: string;
-  cancelText?: string;
-  isDanger?: boolean;
+  confirmText: string;
+  cancelText: string;
+  isDanger: boolean;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConfirmationDialogService {
-  
-  private _isVisible = signal<boolean>(false);
-  private _config = signal<ConfirmationConfig | null>(null);
-  private _resolvePromise: ((result: boolean) => void) | null = null;
+  private visible = signal(false);
+  private dialogConfig = signal<ConfirmationConfig | null>(null);
+  private resolvePromise: ((result: boolean) => void) | null = null;
 
-  readonly isVisible = this._isVisible.asReadonly();
-  readonly config = this._config.asReadonly();
+  isVisible = this.visible.asReadonly();
+  config = this.dialogConfig.asReadonly();
 
-  async confirm(config: ConfirmationConfig): Promise<boolean> {
+  confirmDeleteStory(isNewStory: boolean): Promise<boolean> {
+    const config: ConfirmationConfig = {
+      title: isNewStory ? 'Annuler la création' : 'Suppression du brouillon',
+      message: isNewStory 
+        ? 'Êtes-vous sûr de vouloir annuler la création de cette histoire ?'
+        : 'Êtes-vous sûr de vouloir supprimer ce brouillon ?',
+      confirmText: isNewStory ? 'Annuler' : 'Supprimer',
+      cancelText: 'Retour',
+      isDanger: true
+    };
+
+    return this.showDialog(config);
+  }
+
+  confirmPublishStory(): Promise<boolean> {
+    const config: ConfirmationConfig = {
+      title: 'Publier l\'histoire',
+      message: 'Êtes-vous sûr de vouloir publier cette histoire ?',
+      confirmText: 'Publier',
+      cancelText: 'Annuler',
+      isDanger: false
+    };
+
+    return this.showDialog(config);
+  }
+
+  confirmCancelChanges(): Promise<boolean> {
+    const config: ConfirmationConfig = {
+      title: 'Annuler les modifications',
+      message: 'Voulez-vous vraiment quitter sans sauvegarder vos modifications ?',
+      confirmText: 'Quitter',
+      cancelText: 'Continuer l\'édition',
+      isDanger: true
+    };
+
+    return this.showDialog(config);
+  }
+
+  private showDialog(config: ConfirmationConfig): Promise<boolean> {
     return new Promise((resolve) => {
-      this._config.set({
-        confirmText: 'Confirmer',
-        cancelText: 'Annuler',
-        isDanger: false,
-        ...config
-      });
-      
-      this._isVisible.set(true);
-      this._resolvePromise = resolve;
+      this.resolvePromise = resolve;
+      this.dialogConfig.set(config);
+      this.visible.set(true);
     });
   }
 
   onConfirm(): void {
-    this._isVisible.set(false);
-    this._config.set(null);
-    this._resolvePromise?.(true);
-    this._resolvePromise = null;
+    this.closeDialog(true);
   }
 
   onCancel(): void {
-    this._isVisible.set(false);
-    this._config.set(null);
-    this._resolvePromise?.(false);
-    this._resolvePromise = null;
+    this.closeDialog(false);
+  }
+
+  private closeDialog(result: boolean): void {
+    this.visible.set(false);
+    this.dialogConfig.set(null);
+    if (this.resolvePromise) {
+      this.resolvePromise(result);
+      this.resolvePromise = null;
+    }
   }
 }

@@ -5,6 +5,7 @@ interface Story {
   title: string;
   publishDate: string;
   likes: number;
+  isliked: boolean;
   content?: string;
   user?: {
     id: number;

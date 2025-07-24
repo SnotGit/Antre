@@ -17,18 +17,16 @@
       <label>Titre de l'histoire</label>
       <input 
         type="text" 
-        [value]="updateStory().title"
-        (input)="onTitleChange($event)"
-        [disabled]="saving()"
+        [(ngModel)]="updateStory().title"
+        [disabled]="loading()"
         placeholder="Exemple : Brain Operational Security Service et Boris la pancarte">
     </div>
 
     <div class="field-content">
       <label>Texte</label>
       <textarea 
-        [value]="updateStory().content"
-        (input)="onContentChange($event)"
-        [disabled]="saving()"
+        [(ngModel)]="updateStory().content"
+        [disabled]="loading()"
         placeholder="Exemple : Observation des lumières indigo, niveau 12. Théorie : elles clignotent selon un code. Réalité : c'est juste Sulfuro qui fait de la soudure en bas, quelle ironie cette trappe encore ouverte...">
       </textarea>
     </div>
@@ -36,15 +34,15 @@
     <div class="card-footer">
       @if (canDelete()) {
         <div class="delete-button">
-          <button class="btn delete-btn" (click)="deleteStory()" [disabled]="saving()">
-            <span>Supprimer</span>
+          <button class="btn delete-btn" (click)="deleteStory()" [disabled]="loading()">
+            <span>{{ deleteButtonText() }}</span>
           </button>
         </div>
       }
 
       <div class="publish-button">
-        <button class="btn" (click)="publishStory()" [disabled]="saving()">
-          @if (saving()) {
+        <button class="btn" (click)="publishStory()" [disabled]="loading()">
+          @if (loading()) {
             <span>Publication en cours...</span>
           } @else {
             <span>{{ publishButtonText() }}</span>

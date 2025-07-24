@@ -18,11 +18,15 @@ export const routes: Routes = [
     loadComponent: () => import('../components/chroniques/stories/my-stories/my-stories').then(m => m.MyStories)
   },
   {
-    path: 'nouvelle-histoire',
+    path: 'edition/nouvelle-histoire',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
   },
   {
-    path: ':username/édition/:title',
+    path: 'edition/brouillon/:title',
+    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
+  },
+  {
+    path: 'edition/publiée/:title',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
   },
   {
