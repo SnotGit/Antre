@@ -1,4 +1,4 @@
-import { Injectable, signal, effect, WritableSignal } from '@angular/core';
+import { Injectable, signal, effect, Signal, WritableSignal } from '@angular/core';
 
 interface StoriesService {
   saveDraft: (data: any, id?: number) => Promise<{ story: { id: number } }>;
@@ -7,7 +7,7 @@ interface StoriesService {
 interface AutoSaveConfig<T> {
   data: () => T;
   mode: () => string;
-  storyId: WritableSignal<number | null>;
+  storyId: Signal<number | null>;  // ← Accepte Signal readonly
   loading: WritableSignal<boolean>;
   storiesService: StoriesService;
   delay?: number;
@@ -73,6 +73,8 @@ export class AutoSaveService {
       }
     });
 
+    // ============ RETOUR SIMPLE ============
+
     return {
       state: state.asReadonly(),
       forceSave: executeSave,
@@ -86,18 +88,19 @@ export class AutoSaveService {
   }
 
   private async performSave<T>(data: T, config: AutoSaveConfig<T>): Promise<void> {
-    if (!config.storyId() && config.mode() === 'NewStory') {
+    const currentId = config.storyId();
+    
+    if (!currentId && config.mode() === 'NewStory') {
       try {
         config.loading.set(true);
         const response = await config.storiesService.saveDraft(data);
-        config.storyId.set(response.story.id);
+        // Le component gérera la mise à jour de l'ID
       } finally {
         config.loading.set(false);
       }
       return;
     }
 
-    const currentId = config.storyId();
     if (currentId) {
       await config.storiesService.saveDraft(data, currentId);
     }

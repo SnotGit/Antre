@@ -1,22 +1,20 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, resource, linkedSignal, Signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, linkedSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs/operators';
 import { PrivateStoriesService } from '../../../../services/private-stories.service';
 import { AuthService } from '../../../../services/auth.service';
 import { ConfirmationDialogService } from '../../../../services/confirmation-dialog.service';
 import { AutoSaveService } from '../../../../services/auto-save.service';
 import { TypingEffectService } from '../../../../services/typing-effect.service';
+import { StoryData } from '../../../../resolvers/editor-resolver';
 
 interface StoryForm {
   title: string;
   content: string;
 }
-
-type EditorMode = 'NewStory' | 'EditDraft' | 'EditPublished';
 
 @Component({
   selector: 'app-editor',
@@ -37,51 +35,39 @@ export class Editor implements OnInit, OnDestroy {
   private autoSaveService = inject(AutoSaveService);
   private typingService = inject(TypingEffectService);
 
+  //============ DATA FROM RESOLVER ============
+
+  private storyData = toSignal(this.route.data) as () => StoryData | undefined;
+  
   //============ SIGNALS ============
 
-  private mode = signal<EditorMode>('NewStory');
   loading = signal(false);
-  private storyId = signal<number | null>(null);
-  private originalStoryId = signal<number | null>(null);
+  private currentStoryId = signal<number | null>(null);
 
-  //============ ROUTE PARAMS ============
+  //============ FORM MANAGEMENT ============
 
-  private routeParams = toSignal(
-    this.route.params.pipe(map(params => ({ 
-      title: params['title'] || null
-    }))),
-    { initialValue: { title: null } }
-  );
+  story = linkedSignal<StoryForm>(() => this.storyData()?.story || { title: '', content: '' });
 
-  //============ STORY RESOURCE ============
+  //============ COMPUTED ============
 
-  private storyResource = resource({
-    params: () => this.routeParams(),
-    loader: async ({ params }) => {
-      if (this.mode() === 'NewStory') {
-        return { title: '', content: '' };
-      }
-
-      if (params.title) {
-        const response = await this.stories.getStoryForEdit(params.title);
-        if (response) {
-          this.storyId.set(response.story.id);
-          this.originalStoryId.set(response.originalStoryId || null);
-          return {
-            title: response.story.title,
-            content: response.story.content
-          };
-        }
-      }
-
-      return { title: '', content: '' };
-    }
+  mode = computed(() => this.storyData()?.mode || 'NewStory');
+  
+  canDelete = computed(() => {
+    const data = this.storyData();
+    return data?.storyId !== null || this.currentStoryId() !== null;
+  });
+  
+  deleteButtonText = computed(() => {
+    return this.mode() === 'NewStory' ? 'Annuler' : 'Supprimer';
   });
 
-  //============ FORM SIGNALS ============
-
-  private originalStory = computed(() => this.storyResource.value() || { title: '', content: '' });
-  updateStory = linkedSignal<StoryForm>(() => this.originalStory());
+  publishButtonText = computed(() => {
+    switch (this.mode()) {
+      case 'NewStory': return 'Publier';
+      case 'EditDraft': return 'Publier';
+      case 'EditPublished': return 'Republier';
+    }
+  });
 
   //============ TYPING EFFECT ============
 
@@ -98,31 +84,15 @@ export class Editor implements OnInit, OnDestroy {
   headerTitle = computed(() => this.typingEffect?.headerTitle() || '');
   typingComplete = computed(() => this.typingEffect?.typingComplete() || false);
 
-  //============ COMPUTED ============
-
-  canDelete = computed(() => this.storyId() !== null);
-  
-  deleteButtonText = computed(() => {
-    return this.mode() === 'NewStory' ? 'Annuler' : 'Supprimer';
-  });
-
-  publishButtonText = computed(() => {
-    switch (this.mode()) {
-      case 'NewStory': return 'Publier';
-      case 'EditDraft': return 'Publier';
-      case 'EditPublished': return 'Republier';
-    }
-  });
-
   //============ AUTO SAVE ============
 
   private autoSaveInstance: ReturnType<AutoSaveService['createAutoSave']> | null = null;
 
   private setupAutoSave(): void {
     this.autoSaveInstance = this.autoSaveService.createAutoSave<StoryForm>({
-      data: () => this.updateStory(),
+      data: () => this.story(),
       mode: this.mode,
-      storyId: this.storyId,
+      storyId: computed(() => this.currentStoryId() || this.storyData()?.storyId || null),
       loading: this.loading,
       storiesService: this.stories
     });
@@ -136,17 +106,15 @@ export class Editor implements OnInit, OnDestroy {
       return;
     }
 
-    const url = this.router.url;
-    if (url.includes('/edition/nouvelle-histoire')) {
-      this.mode.set('NewStory');
-    } else if (url.includes('/edition/brouillon/')) {
-      this.mode.set('EditDraft');
-    } else if (url.includes('/edition/publiée/')) {
-      this.mode.set('EditPublished');
+    // Initialiser l'ID courant depuis le resolver
+    const data = this.storyData();
+    if (data?.storyId) {
+      this.currentStoryId.set(data.storyId);
     }
 
     this.typingEffect = this.typingService.createTypingEffect({
-      text: this.titleText()
+      text: this.titleText(),
+      speed: 150
     });
     this.typingEffect.startTyping();
     this.setupAutoSave();
@@ -160,17 +128,23 @@ export class Editor implements OnInit, OnDestroy {
   //============ ACTIONS ============
 
   async publishStory(): Promise<void> {
-    const currentId = this.storyId();
-    if (!currentId) return;
+    const storyId = this.currentStoryId() || this.storyData()?.storyId;
+    if (!storyId) return;
+
+    const confirmed = await this.dialog.confirmPublishStory();
+    if (!confirmed) return;
 
     this.loading.set(true);
     try {
-      const originalId = this.originalStoryId();
-      if (originalId && originalId !== currentId) {
-        await this.stories.republishStory(currentId, originalId);
+      const data = this.storyData();
+      const originalId = data?.originalStoryId;
+      
+      if (originalId && originalId !== storyId) {
+        await this.stories.republishStory(storyId, originalId);
       } else {
-        await this.stories.publishStory(currentId);
+        await this.stories.publishStory(storyId);
       }
+      
       this.router.navigate(['/chroniques']);
     } finally {
       this.loading.set(false);
@@ -178,20 +152,19 @@ export class Editor implements OnInit, OnDestroy {
   }
 
   async deleteStory(): Promise<void> {
-    const currentId = this.storyId();
-    if (!currentId) return;
+    const storyId = this.currentStoryId() || this.storyData()?.storyId;
+    if (!storyId) return;
 
     const isNewStory = this.mode() === 'NewStory';
     const confirmed = await this.dialog.confirmDeleteStory(isNewStory);
-
     if (!confirmed) return;
 
     this.loading.set(true);
     try {
       if (isNewStory) {
-        await this.stories.cancelNewStory(currentId);
+        await this.stories.cancelNewStory(storyId);
       } else {
-        await this.stories.deleteDraft(currentId);
+        await this.stories.deleteDraft(storyId);
       }
       this.router.navigate(['/chroniques/mes-histoires']);
     } finally {
