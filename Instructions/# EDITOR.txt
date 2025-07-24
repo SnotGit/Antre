@@ -1,0 +1,84 @@
+# REFACTORING EDITOR - ARCHITECTURE SIMPLE & EFFICACE
+
+## OBJECTIF
+Refactoriser Editor Component + créer Resolver selon logique simple. Angular 20 niveau senior.
+
+## LOGIQUE MODE (SIMPLE)
+- **Clic brouillon** → My-Stories passe mode = 'EditDraft'
+- **Clic publiée** → My-Stories passe mode = 'EditPublished'  
+- **Clic nouvelle** → mode = 'NewStory'
+- **PAS de détection URL** - Le contexte du clic détermine le mode
+
+## NOMMAGE LOGIQUE
+- **Nommer par ce qu'elles SONT** : story, title, content, mode
+- **PAS d'inventions étranges** : "resolverData", "editorData" = INTERDIT
+- **Simple et évident** : on édite une story, pas un "editor" ou "resolver"
+
+## FICHIERS À CRÉER
+
+### 1. RESOLVER (`chroniques.resolver.ts`)
+```typescript
+interface StoryData {
+  story: { title: string; content: string };
+  mode: 'NewStory' | 'EditDraft' | 'EditPublished';
+  storyId: number | null;
+  originalStoryId?: number | null;
+}
+```
+
+**Logique resolver :**
+- Reçoit `title` (route param) et `mode` (navigation context)
+- **NewStory** → retourne formulaire vide
+- **EditDraft** → `await resolveTitle(title)` → `loadStory(id)`
+- **EditPublished** → `await resolveTitle(title)` → `loadStory(id)` (crée draft)
+
+**Fonctions simples :**
+- `resolveTitle(title)` → retourne ID
+- `loadStory(id, mode)` → retourne données story selon mode
+
+### 2. EDITOR COMPONENT (`editor.ts`)
+
+**Data du resolver :**
+```typescript
+storyData = toSignal(this.route.data.pipe(map(data => data['story'])));
+```
+
+**Form réactif :**
+```typescript
+story = linkedSignal(() => this.storyData()?.story || { title: '', content: '' });
+```
+
+**Signaux métier :**
+```typescript
+mode = computed(() => this.storyData()?.mode || 'NewStory');
+storyId = computed(() => this.storyData()?.storyId || null);
+originalStoryId = computed(() => this.storyData()?.originalStoryId || null);
+```
+
+**Auto-save intégré :**
+- Effect sur `story()`
+- Délai 2 secondes
+- **NewStory** → crée draft au premier save → met à jour storyId
+- **Edit modes** → update draft existant
+
+**Actions simples :**
+- `publishStory()` → selon mode (publish ou republish)
+- `deleteStory()` → selon mode (cancel ou delete)
+
+## CONTRAINTES ABSOLUES
+- **NOMS LOGIQUES** : story, title, mode, storyId (ce qu'ils représentent)
+- **PAS d'invention** : suivre logique métier existante
+- **COMPONENT SIMPLE** : utilise data resolver, pas de logique métier
+- **RESOLVER RESPONSABLE** : toute logique titre→ID→story
+- **GARDER MODERNITÉ** : signals, linkedSignal, computed, effect, resource
+
+## SERVICES UTILISÉS
+- `PrivateStoriesService` → appels API par ID uniquement
+- `TypingEffectService` → effet terminal existant
+- `ConfirmationDialogService` → dialogues confirmation
+
+## RÉSULTAT ATTENDU
+- Editor Component **simple** utilisant story data du resolver
+- Resolver **logique** gérant titre→ID→story data
+- Architecture **claire** et **maintenable**
+- Code **niveau senior** : simple, robuste, efficace

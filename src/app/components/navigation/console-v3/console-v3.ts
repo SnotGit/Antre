@@ -35,7 +35,7 @@ export class ConsoleV3 {
     return this.isAdmin() && !this._currentRoute().includes('/chroniques');
   });
 
-  // ============ COMPUTED OPTIMISÉS (Angular 20) ============
+  // ============ COMPUTED ============
 
   getCurrentStatus = computed(() => {
     return this.currentUser() ? 'CONNECTÉ' : 'DÉCONNECTÉ';
@@ -93,11 +93,11 @@ export class ConsoleV3 {
   //============ ACTIONS UTILISATEUR ============
 
   newStory(): void {
-    this.router.navigate(['/chroniques/editor']);
+    this.router.navigate(['/chroniques/edition/nouvelle-histoire']);
   }
 
   myStories(): void {
-    this.router.navigate(['/chroniques/my-stories']);
+    this.router.navigate(['/chroniques/mes-histoires']);
   }
 
   openAccount(): void {

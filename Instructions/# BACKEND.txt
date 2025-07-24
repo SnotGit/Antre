@@ -1,0 +1,122 @@
+# BACKEND REFACTORING - CHRONIQUES MODULE
+
+## OBJECTIF
+Refactoriser backend pour support Editor + Chroniques-Resolver. Architecture ID uniquement.
+
+## ARCHITECTURE BACKEND
+
+### CONTROLLERS SÉPARÉS
+- **privateStoriesController** → Gestion personnelle (CRUD mes histoires)
+- **publicStoriesController** → Consultation publique (lecture seule)
+
+### ROUTES MODULAIRES
+```
+/api/chroniques/private/    → Routes authentifiées (mes histoires)
+/api/chroniques/public/     → Routes publiques (consultation)
+```
+
+## LOGIQUE RESOLVER SUPPORT
+
+### MÉTHODES RÉSOLUTION TITRE
+```javascript
+// privateStoriesController
+const resolveTitle = async (title, userId) => {
+  const decodedTitle = decodeURIComponent(title);
+  const story = await prisma.story.findFirst({
+    where: { title: decodedTitle, userId },
+    select: { id: true, status: true }
+  });
+  return story;
+};
+```
+
+### ROUTES PRIVÉES REQUISES
+```
+GET /resolve/:title          → resolveTitle(title) retourne {id, status}
+GET /story/draft/:id         → loadStory(id) pour brouillon
+GET /story/published/:id     → loadStory(id) + création draft pour édition
+POST /story/draft            → createStory(data)
+PUT /story/draft/:id         → updateStory(id, data)
+POST /story/publish/:id      → publishStory(id)
+POST /story/republish/:id    → republishStory(draftId, originalId)
+DELETE /story/cancel/:id     → cancelStory(id)
+DELETE /story/draft/:id      → deleteDraft(id)
+```
+
+### ROUTES PUBLIQUES REQUISES
+```
+GET /stories                 → getLatestStories() pour page chroniques
+GET /story/:id               → getStoryById(id) pour consultation
+GET /resolve/:username/:title → resolveTitle(username, title) pour consultation
+```
+
+## CONTRAINTES BACKEND
+
+### TRAITEMENT ID UNIQUEMENT
+- Toutes les méthodes métier prennent ID en paramètre
+- Pas de processing strings dans logique métier
+- Méthodes resolve séparées pour conversion titre→ID
+
+### NOMMAGE LOGIQUE
+- resolveTitle() → conversion titre→ID
+- loadStory() → récupération données
+- publishStory() → publication
+- updateStory() → mise à jour
+
+### GESTION URLS
+- decodeURIComponent() dans routes resolve
+- Validation input avant processing
+- Retour 404 si résolution échoue
+
+### SÉCURITÉ
+- Middleware auth pour routes privées
+- Vérification userId pour accès données
+- Validation ownership des histoires
+
+## MODÈLE DONNÉES STORY
+
+### INTERFACE RESPONSE
+```javascript
+// Pour Editor
+{
+  story: { title: string, content: string },
+  mode: string,
+  storyId: number,
+  originalStoryId?: number
+}
+
+// Pour consultation publique
+{
+  id: number,
+  title: string,
+  content: string,
+  publishDate: string,
+  user: { username: string, avatar: string }
+}
+```
+
+### LOGIQUE MÉTIER ÉDITION
+- **EditDraft** → récupère brouillon existant par ID
+- **EditPublished** → copie histoire publiée → nouveau brouillon
+- **Republish** → met à jour originale + supprime brouillon
+
+## SERVICES PRISMA
+
+### QUERIES OPTIMISÉES
+- findFirst avec userId pour sécurité
+- select limité aux champs nécessaires
+- include user pour données publiques
+- transactions pour republish
+
+### GESTION ERREURS
+- 404 pour story non trouvée
+- 403 pour accès non autorisé
+- 500 pour erreurs serveur
+- Validation données avant insertion
+
+## RÉSULTAT ATTENDU
+- Backend propre supportant architecture resolver
+- Routes logiques et cohérentes
+- Sécurité correcte
+- Performance optimisée
+- Code maintenable
