@@ -39,8 +39,11 @@ export class Story {
       const story = currentIndex !== -1 ? await this.stories.getStoryById(userStories[currentIndex].id) : null;
       if (!story) return null;
 
+      // Ensure isliked property exists on story
+      const storyWithIsLiked = { ...story, isliked: typeof story.isliked === 'boolean' ? story.isliked : false };
+
       return {
-        story: story!,
+        story: storyWithIsLiked,
         userStories,
         currentIndex,
         hasNext: currentIndex > 0,

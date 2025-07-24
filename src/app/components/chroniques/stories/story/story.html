@@ -11,8 +11,8 @@
       </div>
       <div class="like-section">
         <button class="like-btn" (click)="toggleLike()" [disabled]="!canLike()">
-          <span class="heart-icon" [class.liked]="data.story.isLiked">
-            {{ data.story.isLiked ? '♥' : '♡' }}
+            <span class="heart-icon" [class.liked]="data.story.isliked">
+            {{ data.story.isliked ? '♥' : '♡' }}
           </span>
         </button>
         <span class="likes-count">{{ data.story.likes }}</span>

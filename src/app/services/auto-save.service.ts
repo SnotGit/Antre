@@ -1,10 +1,16 @@
-import { Injectable, signal, effect } from '@angular/core';
+import { Injectable, signal, effect, WritableSignal } from '@angular/core';
+
+interface StoriesService {
+  saveDraft: (data: any, id?: number) => Promise<{ story: { id: number } }>;
+}
 
 interface AutoSaveConfig<T> {
   data: () => T;
-  saveFunction: (data: T) => Promise<void>;
+  mode: () => string;
+  storyId: WritableSignal<number | null>;
+  loading: WritableSignal<boolean>;
+  storiesService: StoriesService;
   delay?: number;
-  shouldSave?: (data: T) => boolean;
 }
 
 interface AutoSaveState {
@@ -40,14 +46,13 @@ export class AutoSaveService {
 
     const executeSave = async () => {
       const data = config.data();
-      const shouldSave = config.shouldSave ? config.shouldSave(data) : this.defaultShouldSave(data);
       
-      if (!shouldSave) return;
+      if (!this.shouldSave(data)) return;
 
       state.update(s => ({ ...s, isSaving: true }));
 
       try {
-        await config.saveFunction(data);
+        await this.performSave(data, config);
         state.update(s => ({
           ...s,
           isSaving: false,
@@ -61,9 +66,8 @@ export class AutoSaveService {
 
     const autoSaveEffect = effect(() => {
       const data = config.data();
-      const shouldSave = config.shouldSave ? config.shouldSave(data) : this.defaultShouldSave(data);
       
-      if (shouldSave) {
+      if (this.shouldSave(data)) {
         state.update(s => ({ ...s, hasUnsavedChanges: true }));
         scheduleAutoSave();
       }
@@ -81,7 +85,25 @@ export class AutoSaveService {
     };
   }
 
-  private defaultShouldSave(data: unknown): boolean {
+  private async performSave<T>(data: T, config: AutoSaveConfig<T>): Promise<void> {
+    if (!config.storyId() && config.mode() === 'NewStory') {
+      try {
+        config.loading.set(true);
+        const response = await config.storiesService.saveDraft(data);
+        config.storyId.set(response.story.id);
+      } finally {
+        config.loading.set(false);
+      }
+      return;
+    }
+
+    const currentId = config.storyId();
+    if (currentId) {
+      await config.storiesService.saveDraft(data, currentId);
+    }
+  }
+
+  private shouldSave(data: unknown): boolean {
     if (!data || typeof data !== 'object') return false;
     
     const obj = data as Record<string, unknown>;
