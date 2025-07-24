@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { editorResolver } from '../resolvers/editor-resolver';
 
 //============ CHRONIQUES ROUTES ============
 
@@ -23,22 +24,22 @@ export const routes: Routes = [
     loadComponent: () => import('../components/chroniques/stories/my-stories/my-stories').then(m => m.MyStories)
   },
 
-  //============ EDITOR ROUTES ============
+  //============ EDITOR ROUTES AVEC RESOLVER ============
   
   {
     path: 'edition/nouvelle-histoire',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
-    data: { mode: 'NewStory' }
+    resolve: { data: editorResolver }
   },
   {
     path: 'edition/brouillon/:title',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
-    data: { mode: 'EditDraft' }
+    resolve: { data: editorResolver }
   },
   {
     path: 'edition/publiée/:title',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
-    data: { mode: 'EditPublished' }
+    resolve: { data: editorResolver }
   },
 
   //============ STORIES PUBLIQUES ============
