@@ -30,7 +30,16 @@ export class MyStories implements OnInit, OnDestroy {
   private typingService = inject(TypingEffectService);
   private confirmationService = inject(ConfirmationDialogService);
 
-  delete = signal(false);
+  //============ SÉLECTION INDIVIDUELLE ============
+
+  private _selectedStoryIds = signal<Set<number>>(new Set());
+
+  //============ COMPUTED POUR MODE DELETE ============
+
+  isDeleteMode = computed(() => this._selectedStoryIds().size > 0);
+
+  // Exposer selectedStoryIds pour le template
+  selectedStoryIds = this._selectedStoryIds.asReadonly();
 
   currentMode = toSignal(
     this.route.url.pipe(map(segments => {
@@ -98,16 +107,38 @@ export class MyStories implements OnInit, OnDestroy {
     this.typingEffect.cleanup();
   }
 
-  onlyCheckbox(event: Event): void {
+  //============ GESTION SÉLECTION ============
+
+  isStorySelected(storyId: number): boolean {
+    return this._selectedStoryIds().has(storyId);
+  }
+
+  toggleStorySelection(storyId: number): void {
+    const currentSet = this._selectedStoryIds();
+    const newSet = new Set(currentSet);
+    
+    if (newSet.has(storyId)) {
+      newSet.delete(storyId);
+    } else {
+      newSet.add(storyId);
+    }
+    
+    this._selectedStoryIds.set(newSet);
+  }
+
+  clearSelection(): void {
+    this._selectedStoryIds.set(new Set());
+  }
+
+  //============ ACTIONS ============
+
+  onCheckboxClick(event: Event, storyId: number): void {
     event.stopPropagation();
+    this.toggleStorySelection(storyId);
   }
 
   async onCardClick(story: CardData): Promise<void> {
-    if (this.delete()) {
-      await this.deleteStory(story);
-      return;
-    }
-
+    // Navigation normale vers l'éditeur - pas de suppression ici
     const currentUser = this.authService.currentUser();
     if (!currentUser) return;
 
@@ -118,18 +149,34 @@ export class MyStories implements OnInit, OnDestroy {
     }
   }
 
-  async deleteStory(story: CardData): Promise<void> {
+  async deleteSelectedStories(): Promise<void> {
+    const selectedIds = Array.from(this._selectedStoryIds());
+    
+    if (selectedIds.length === 0) return;
+
+    // Confirmation avec le service existant
     const confirmed = await this.confirmationService.confirmDeleteStory(false);
     if (!confirmed) return;
 
     try {
-      await this.privateStoriesService.deleteStory(story.id); 
+      // Supprimer chaque story via le service existant
+      // Backend route: DELETE /api/private-stories/story/:id
+      for (const storyId of selectedIds) {
+        await this.privateStoriesService.deleteStory(storyId);
+      }
+      
+      // Nettoyer la sélection
+      this.clearSelection();
+      
+      // Recharger les données via le service existant
+      await this.privateStoriesService.initializeUserData();
+      
     } catch (error) {
       console.error('Erreur lors de la suppression:', error);
     }
   }
 
-  //============ NAVIGATION CORRIGÉE ============
+  //============ NAVIGATION ============
 
   goToDrafts(): void {
     this.router.navigate(['/chroniques/mes-histoires/brouillons']);

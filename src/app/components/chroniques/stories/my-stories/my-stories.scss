@@ -1,4 +1,5 @@
 @use 'content/artefacts/typing-effect/typing-effect' as *;
+@use 'content/artefacts/buttons/button' as *;
 
 // ============ CONTAINER ============
 .container {
@@ -14,6 +15,9 @@
 // ============ HEADER ============
 .header {
   padding: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
   .header-title {
     font-size: 32px;
@@ -22,6 +26,20 @@
     margin: 0;
 
     @include typing-effect;
+  }
+
+  .delete-button {
+    @include button;
+    
+    .btn {
+      border-color: crimson;
+      color: crimson;
+      
+      &:hover {
+        color: #d0d0d0;
+        border-color: #d0d0d0;
+      }
+    }
   }
 }
 
@@ -127,15 +145,24 @@
   width: 320px;
   height: 180px;
   position: relative;
+  transition: all 0.3s ease;
 
-  &:hover {
+  &:hover:not(.selected) {
     color: #d0d0d0;
     border-color: #d0d0d0;
     transform: translateY(-2px);
   }
 
-  &.delete-mode {
+  &.selected {
     border-color: crimson;
+    background-color: transparent;
+    
+    .story-title {
+      color: crimson;
+    }
+    .story-date {
+      color: crimson;
+    }
   }
 
   .story-title {
@@ -152,8 +179,13 @@
 
   .delete-checkbox {
     position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 20px;
     bottom: 15px;
     right: 15px;
-    accent-color: #5d889e;
+    accent-color: crimson;
+    transform: scale(1.2);
+    cursor: pointer;
   }
 }
