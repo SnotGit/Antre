@@ -35,8 +35,8 @@ export class MyStories implements OnInit, OnDestroy {
   currentMode = toSignal(
     this.route.url.pipe(map(segments => {
       const lastPath = segments[segments.length - 1]?.path;
-      if (lastPath === 'drafts') return 'drafts';
-      if (lastPath === 'published') return 'published';
+      if (lastPath === 'brouillons') return 'drafts';
+      if (lastPath === 'publiées') return 'published';
       return 'overview';
     })),
     { initialValue: 'overview' }
@@ -129,13 +129,17 @@ export class MyStories implements OnInit, OnDestroy {
     }
   }
 
+  //============ NAVIGATION CORRIGÉE ============
+
   goToDrafts(): void {
-    this.router.navigate(['/chroniques/my-stories/drafts']);
+    this.router.navigate(['/chroniques/mes-histoires/brouillons']);
   }
 
   goToPublished(): void {
-    this.router.navigate(['/chroniques/my-stories/published']);
+    this.router.navigate(['/chroniques/mes-histoires/publiées']);
   }
+
+  //============ UTILITAIRES ============
 
   private formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString('fr-FR', {
