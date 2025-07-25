@@ -1,3 +1,6 @@
+@use 'content/artefacts/typing-effect/typing-effect' as *;
+
+
 .user-account-container {
   padding: 30px;
   background-color: #121416;
@@ -28,17 +31,17 @@
     .header-box1 {
       text-align: start;
 
-      .page-title {
-        color: #5d889e;
-        font-size: 32px;
-        font-weight: bold;
-        margin: 0;
-
-        &::before {
-          content: '> ';
-          color: #b55a44;
-        }
-      }
+  .header-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #5d889e;
+    margin: 0 0 10px 0;
+    text-align: start;
+    display: inline;
+    width: auto;
+    
+    @include typing-effect;
+  }
     }
 
     .header-box2 {

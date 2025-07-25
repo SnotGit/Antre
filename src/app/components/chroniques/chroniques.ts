@@ -19,8 +19,6 @@ export class Chroniques implements OnInit, OnDestroy {
 
   private typingEffect = this.typingService.createTypingEffect({
     text: 'Les Chroniques de Mars',
-    speed: 150,
-    finalBlinks: 4
   });
 
   headerTitle = this.typingEffect.headerTitle;
