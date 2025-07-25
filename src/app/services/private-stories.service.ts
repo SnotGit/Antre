@@ -183,7 +183,7 @@ export class PrivateStoriesService {
     this._loading.set(true);
 
     await firstValueFrom(
-      this.http.post(`${this.API_URL}/update/${draftId}`, { originalId: originalStoryId })
+      this.http.post(`${this.API_URL}/update/${draftId}`, { originalStoryId: originalStoryId })
     );
     
     await this.initializeUserData();
