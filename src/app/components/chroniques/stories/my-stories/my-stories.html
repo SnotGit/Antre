@@ -4,6 +4,14 @@
     <h1 class="header-title" [class.typing]="typing()">
       {{ headerTitle() }}
     </h1>
+    
+    @if (isDeleteMode()) {
+    <div class="delete-button">
+      <button class="btn" (click)="deleteSelectedStories()">
+        Supprimer ({{ selectedStoryIds().size }})
+      </button>
+    </div>
+    }
   </div>
 
   <div class="separator">
@@ -30,10 +38,15 @@
   <div class="content">
     <div class="content-grid">
       @for (story of stories(); track story.id) {
-      <div class="card" [class.delete-mode]="delete()" (click)="onCardClick(story)">
+      <div class="card" 
+           [class.selected]="isStorySelected(story.id)"
+           (click)="onCardClick(story)">
         <div class="story-title">{{ story.storyTitle }}</div>
         <div class="story-date">{{ story.storyDate }}</div>
-        <input type="checkbox" class="delete-checkbox" [(ngModel)]="delete" (click)="onlyCheckbox($event)">
+        <input type="checkbox" 
+               class="delete-checkbox" 
+               [checked]="isStorySelected(story.id)"
+               (click)="onCheckboxClick($event, story.id)">
       </div>
       }
     </div>
