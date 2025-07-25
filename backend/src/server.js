@@ -60,7 +60,7 @@ app.get('/api/health', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 L'Antre API démarrée sur http://localhost:${PORT}`);
   console.log(`📋 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`📖 Architecture API Refactorisée:`);
+  console.log(`📖 Architecture API Corrigée:`);
   console.log(`   🔐 AUTHENTIFICATION:`);
   console.log(`     - POST /api/auth/register`);
   console.log(`     - POST /api/auth/login`);
@@ -76,19 +76,18 @@ app.listen(PORT, () => {
   console.log(`     - GET  /api/private-stories/drafts`);
   console.log(`     - GET  /api/private-stories/published`);
   console.log(`     - GET  /api/private-stories/resolve/:title`);
-  console.log(`     - GET  /api/private-stories/story/draft/:id`);
-  console.log(`     - GET  /api/private-stories/story/published/:id`);
-  console.log(`     - POST /api/private-stories/story/draft`);
-  console.log(`     - PUT  /api/private-stories/story/draft/:id`);
-  console.log(`     - POST /api/private-stories/story/publish/:id`);
-  console.log(`     - POST /api/private-stories/story/update/:id`);
-  console.log(`     - DELETE /api/private-stories/story/cancel/:id`);
-  console.log(`     - DELETE /api/private-stories/story/draft/:id`);
+  console.log(`     - GET  /api/private-stories/edit/:id`);
+  console.log(`     - POST /api/private-stories/draft`);
+  console.log(`     - PUT  /api/private-stories/draft/:id`);
+  console.log(`     - POST /api/private-stories/publish/:id`);
+  console.log(`     - POST /api/private-stories/update/:id`);
+  console.log(`     - DELETE /api/private-stories/story/:id`);
   console.log(`     - POST /api/private-stories/story/:id/like`);
   console.log(`   🌍 STORIES PUBLIQUES:`);
   console.log(`     - GET  /api/public-stories/stories`);
   console.log(`     - GET  /api/public-stories/story/:id`);
-  console.log(`     - GET  /api/public-stories/users/:id`);
-  console.log(`     - GET  /api/public-stories/resolve/:username/:title`);
+  console.log(`     - GET  /api/public-stories/user/:id/stories`);
+  console.log(`     - GET  /api/public-stories/user/:id/profile`);
   console.log(`     - GET  /api/public-stories/resolve/:username`);
+  console.log(`     - GET  /api/public-stories/resolve/:username/:title`);
 });
