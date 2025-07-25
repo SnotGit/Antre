@@ -47,6 +47,18 @@ export const routes: Routes = [
     resolve: { data: chroniquesResolver }
   },
 
+
+
+  //============ PUBLIC STORIES (EN DERNIER) ============
+  
+  {
+    path: ':username/:title',
+    loadComponent: () => import('../components/chroniques/stories/story/story').then(m => m.Story),
+    resolve: { data: chroniquesResolver }
+  },
+
+
+
   //============ USER PROFILE (APRÈS routes spécifiques) ============
   
   {
@@ -55,11 +67,4 @@ export const routes: Routes = [
     resolve: { data: chroniquesResolver }
   },
 
-  //============ PUBLIC STORIES (EN DERNIER) ============
-  
-  {
-    path: ':username/:title',
-    loadComponent: () => import('../components/chroniques/stories/story/story').then(m => m.Story),
-    resolve: { data: chroniquesResolver }
-  }
-];
+  ];
