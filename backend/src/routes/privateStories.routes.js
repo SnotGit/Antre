@@ -7,34 +7,35 @@ const { authenticateToken } = require('../controllers/authController');
 
 router.use(authenticateToken);
 
-//============ STATISTIQUES ============
+//============ RÉSOLUTION ============
 
-router.get('/stats', privateStoriesController.getStats);
+router.get('/resolve/:title', privateStoriesController.resolveTitle);
 
-//============ LISTES ============
+//============ LOADING ============
 
-router.get('/drafts', privateStoriesController.getDrafts);
-router.get('/published', privateStoriesController.getPublishedStories);
+router.get('/story/draft/:id', privateStoriesController.loadDraft);
+router.get('/story/published/:id', privateStoriesController.loadPublishedToDraft);
 
-//============ CRÉATION/MODIFICATION ============
+//============ CRUD ============
 
-router.post('/draft', privateStoriesController.saveDraft);
-router.put('/draft/:id', privateStoriesController.updateDraft);
+router.post('/story/draft', privateStoriesController.createDraft);
+router.put('/story/draft/:id', privateStoriesController.updateDraft);
 
 //============ PUBLICATION ============
 
-router.post('/publish/:id', privateStoriesController.publishStory);
-router.post('/republish/:id', privateStoriesController.republishStory);
-
-//============ ÉDITION ============
-
-router.get('/edit/:id', privateStoriesController.getStoryForEdit);
+router.post('/story/publish/:id', privateStoriesController.publishStory);
+router.post('/story/update/:id', privateStoriesController.updateOriginal);
 
 //============ SUPPRESSION ============
 
-router.delete('/cancel/:id', privateStoriesController.cancelNewStory);
-router.delete('/draft/:id', privateStoriesController.deleteDraft);
-router.delete('/published/:id', privateStoriesController.deletePublished);
+router.delete('/story/cancel/:id', privateStoriesController.deleteStory);
+router.delete('/story/draft/:id', privateStoriesController.deleteStory);
+
+//============ LISTES ============
+
+router.get('/stats', privateStoriesController.getStats);
+router.get('/drafts', privateStoriesController.getDrafts);
+router.get('/published', privateStoriesController.getPublished);
 
 //============ LIKES ============
 

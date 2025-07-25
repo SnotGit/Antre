@@ -161,7 +161,7 @@ export class PrivateStoriesService {
     await this.initializeUserData();
   }
 
-  async republishStory(draftId: number, originalId: number): Promise<void> {
+  async updateStory(draftId: number, originalId: number): Promise<void> {
     this._loading.set(true);
 
     await firstValueFrom(
@@ -173,7 +173,7 @@ export class PrivateStoriesService {
 
   //============ SUPPRESSION ============
 
-  async cancelNewStory(storyId: number): Promise<void> {
+  async cancel(storyId: number): Promise<void> {
     this._loading.set(true);
 
     await firstValueFrom(

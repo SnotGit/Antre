@@ -35,20 +35,23 @@ app.use('/api/auth', authRoutes);
 const userRoutes = require('./routes/user.routes');
 app.use('/api/user', userRoutes);
 
+//============ ROUTES STORIES PRIVÉES ============
+
+const privateStoriesRoutes = require('./routes/privateStories.routes');
+app.use('/api/private-stories', privateStoriesRoutes);
+
 //============ ROUTES STORIES PUBLIQUES ============
+
+const publicStoriesRoutes = require('./routes/publicStories.routes');
+app.use('/api/public-stories', publicStoriesRoutes);
+
+//============ ROUTES LEGACY ============
 
 const usersStoriesRoutes = require('./routes/usersStories.routes');
 app.use('/api/users/stories', usersStoriesRoutes);
 
-//============ ROUTES STORIES PRIVÉES ============
-
 const userStoriesRoutes = require('./routes/userStories.routes');
 app.use('/api/user/stories', userStoriesRoutes);
-
-//============ ROUTES CHRONIQUES (legacy) ============
-
-const publicStoriesRoutes = require('./routes/publicStories.routes');
-app.use('/api/public-stories', publicStoriesRoutes);
 
 //============ ROUTE DE TEST ============
 
@@ -56,7 +59,7 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     message: 'L\'Antre API fonctionne !', 
     timestamp: new Date().toISOString(),
-    version: '4.0.0'
+    version: '3.0'
   });
 });
 
@@ -76,21 +79,24 @@ app.listen(PORT, () => {
   console.log(`     - PUT  /api/user/email`);
   console.log(`     - POST /api/user/upload-avatar`);
   console.log(`     - PUT  /api/user/change-password`);
-  console.log(`   🌍 STORIES PUBLIQUES (users):`);
-  console.log(`     - GET  /api/users/stories/:id (consultation histoire)`);
-  console.log(`     - GET  /api/users/stories/find/:username/:title (résolution titre→ID)`);
-  console.log(`   🔒 STORIES PRIVÉES (user):`);
-  console.log(`     - GET  /api/user/stories/stats`);
-  console.log(`     - GET  /api/user/stories/drafts`);
-  console.log(`     - GET  /api/user/stories/published`);
-  console.log(`     - GET  /api/user/stories/draft/:id (récupérer brouillon)`);
-  console.log(`     - GET  /api/user/stories/published-to-draft/:id (créer draft depuis publiée)`);
-  console.log(`     - GET  /api/user/stories/find/:title (résolution titre→ID personnel)`);
-  console.log(`     - POST /api/user/stories/draft (créer brouillon)`);
-  console.log(`     - PUT  /api/user/stories/draft/:id (sauvegarder brouillon)`);
-  console.log(`     - POST /api/user/stories/publish/:id (publier)`);
-  console.log(`     - POST /api/user/stories/republish/:id (republier)`);
-  console.log(`     - DELETE /api/user/stories/cancel/:id (annuler nouvelle)`);
-  console.log(`     - DELETE /api/user/stories/draft/:id (supprimer brouillon)`);
-  console.log(`     - POST /api/user/stories/like/:id (liker)`);
+  console.log(`   🔒 STORIES PRIVÉES:`);
+  console.log(`     - GET  /api/private-stories/stats`);
+  console.log(`     - GET  /api/private-stories/drafts`);
+  console.log(`     - GET  /api/private-stories/published`);
+  console.log(`     - GET  /api/private-stories/resolve/:title`);
+  console.log(`     - GET  /api/private-stories/story/draft/:id`);
+  console.log(`     - GET  /api/private-stories/story/published/:id`);
+  console.log(`     - POST /api/private-stories/story/draft`);
+  console.log(`     - PUT  /api/private-stories/story/draft/:id`);
+  console.log(`     - POST /api/private-stories/story/publish/:id`);
+  console.log(`     - POST /api/private-stories/story/update/:id`);
+  console.log(`     - DELETE /api/private-stories/story/cancel/:id`);
+  console.log(`     - DELETE /api/private-stories/story/draft/:id`);
+  console.log(`     - POST /api/private-stories/story/:id/like`);
+  console.log(`   🌍 STORIES PUBLIQUES:`);
+  console.log(`     - GET  /api/public-stories/stories`);
+  console.log(`     - GET  /api/public-stories/story/:id`);
+  console.log(`     - GET  /api/public-stories/username/:username/stories`);
+  console.log(`     - GET  /api/public-stories/resolve/:username/:title`);
+  console.log(`     - GET  /api/public-stories/resolve/username/:username`);
 });
