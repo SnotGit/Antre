@@ -321,6 +321,7 @@ module.exports = {
   resolveTitle,
   loadDraft,
   loadPublishedToDraft,
+  getStoryForEdit,
   createDraft,
   updateDraft,
   publishStory,

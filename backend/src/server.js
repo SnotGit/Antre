@@ -45,14 +45,6 @@ app.use('/api/private-stories', privateStoriesRoutes);
 const publicStoriesRoutes = require('./routes/publicStories.routes');
 app.use('/api/public-stories', publicStoriesRoutes);
 
-//============ ROUTES LEGACY ============
-
-const usersStoriesRoutes = require('./routes/usersStories.routes');
-app.use('/api/users/stories', usersStoriesRoutes);
-
-const userStoriesRoutes = require('./routes/userStories.routes');
-app.use('/api/user/stories', userStoriesRoutes);
-
 //============ ROUTE DE TEST ============
 
 app.get('/api/health', (req, res) => {
@@ -96,7 +88,7 @@ app.listen(PORT, () => {
   console.log(`   🌍 STORIES PUBLIQUES:`);
   console.log(`     - GET  /api/public-stories/stories`);
   console.log(`     - GET  /api/public-stories/story/:id`);
-  console.log(`     - GET  /api/public-stories/username/:username/stories`);
+  console.log(`     - GET  /api/public-stories/users/:id`);
   console.log(`     - GET  /api/public-stories/resolve/:username/:title`);
-  console.log(`     - GET  /api/public-stories/resolve/username/:username`);
+  console.log(`     - GET  /api/public-stories/resolve/:username`);
 });
