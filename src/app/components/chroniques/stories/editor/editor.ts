@@ -9,7 +9,7 @@ import { AuthService } from '../../../../services/auth.service';
 import { ConfirmationDialogService } from '../../../../services/confirmation-dialog.service';
 import { AutoSaveService } from '../../../../services/auto-save.service';
 import { TypingEffectService } from '../../../../services/typing-effect.service';
-import { StoryData } from '../../../../resolvers/editor-resolver';
+import { PrivateStoryData } from '../../../../resolvers/chroniques-resolver';
 
 interface StoryForm {
   title: string;
@@ -37,7 +37,7 @@ export class Editor implements OnInit, OnDestroy {
 
   //============ DATA FROM RESOLVER ============
 
-  private storyData = toSignal(this.route.data) as () => StoryData | undefined;
+  private storyData = toSignal(this.route.data) as () => PrivateStoryData | undefined;
   
   //============ SIGNALS ============
 

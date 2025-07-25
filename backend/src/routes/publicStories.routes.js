@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const publicStoriesController = require('../controllers/publicStoriesController');
-const { authenticateToken } = require('../controllers/authController');
 
-//============ MIDDLEWARE AUTH ============
+//============ MIDDLEWARE AUTH OPTIONNEL ============
 
 const optionalAuth = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -27,18 +26,14 @@ router.get('/stories', publicStoriesController.getLatestStories);
 
 router.get('/story/:id', optionalAuth, publicStoriesController.getStoryById);
 
-router.get('/username/:username/stories', publicStoriesController.getUsernameStories);
+router.get('/user/:id/stories', publicStoriesController.getUserStories);
+
+router.get('/user/:id/profile', publicStoriesController.getUserProfile);
 
 //============ ROUTES RÉSOLUTION ============
 
+router.get('/resolve/:username', publicStoriesController.resolveUsername);
+
 router.get('/resolve/:username/:title', publicStoriesController.resolveStory);
-
-router.get('/resolve/username/:username', publicStoriesController.resolveUsername);
-
-//============ ROUTES LEGACY (compatibilité) ============
-
-router.get('/story/:username/:title', optionalAuth, publicStoriesController.getStoryByUsernameAndTitle);
-
-router.get('/users/:id', publicStoriesController.getUserProfile);
 
 module.exports = router;
