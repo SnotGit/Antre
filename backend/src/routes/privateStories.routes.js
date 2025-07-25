@@ -11,32 +11,29 @@ router.use(authenticateToken);
 
 router.get('/resolve/:title', privateStoriesController.resolveTitle);
 
-//============ LOADING ============
+//============ ÉDITION ============
 
-router.get('/story/draft/:id', privateStoriesController.loadDraft);
-router.get('/story/published/:id', privateStoriesController.loadPublishedToDraft);
 router.get('/edit/:id', privateStoriesController.getStoryForEdit);
 
 //============ CRUD ============
 
-router.post('/story/draft', privateStoriesController.createDraft);
-router.put('/story/draft/:id', privateStoriesController.updateDraft);
+router.post('/draft', privateStoriesController.createDraft);
+router.put('/draft/:id', privateStoriesController.updateDraft);
 
 //============ PUBLICATION ============
 
-router.post('/story/publish/:id', privateStoriesController.publishStory);
-router.post('/story/update/:id', privateStoriesController.updateOriginal);
+router.post('/publish/:id', privateStoriesController.publishStory);
+router.post('/update/:id', privateStoriesController.updateOriginalStory);
 
-//============ SUPPRESSION ============
+//============ SUPPRESSION UNIFIÉE ============
 
-router.delete('/story/cancel/:id', privateStoriesController.deleteStory);
-router.delete('/story/draft/:id', privateStoriesController.deleteStory);
+router.delete('/story/:id', privateStoriesController.deleteStory); 
 
 //============ LISTES ============
 
 router.get('/stats', privateStoriesController.getStats);
 router.get('/drafts', privateStoriesController.getDrafts);
-router.get('/published', privateStoriesController.getPublished);
+router.get('/published', privateStoriesController.getPublishedStories);
 
 //============ LIKES ============
 

@@ -165,7 +165,7 @@ export class PrivateStoriesService {
     this._loading.set(true);
 
     await firstValueFrom(
-      this.http.post(`${this.API_URL}/republish/${draftId}`, { originalId })
+      this.http.post(`${this.API_URL}/update/${draftId}`, { originalId })
     );
     
     await this.initializeUserData();
@@ -173,31 +173,11 @@ export class PrivateStoriesService {
 
   //============ SUPPRESSION ============
 
-  async cancel(storyId: number): Promise<void> {
+  async deleteStory(storyId: number): Promise<void> {
     this._loading.set(true);
 
     await firstValueFrom(
-      this.http.delete(`${this.API_URL}/cancel/${storyId}`)
-    );
-    
-    await this.initializeUserData();
-  }
-
-  async deleteDraft(storyId: number): Promise<void> {
-    this._loading.set(true);
-
-    await firstValueFrom(
-      this.http.delete(`${this.API_URL}/draft/${storyId}`)
-    );
-    
-    await this.initializeUserData();
-  }
-
-  async deletePublished(storyId: number): Promise<void> {
-    this._loading.set(true);
-
-    await firstValueFrom(
-      this.http.delete(`${this.API_URL}/published/${storyId}`)
+      this.http.delete(`${this.API_URL}/story/${storyId}`)
     );
     
     await this.initializeUserData();

@@ -22,7 +22,7 @@ interface CardData {
   styleUrl: './my-stories.scss'
 })
 export class MyStories implements OnInit, OnDestroy {
-  
+
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private privateStoriesService = inject(PrivateStoriesService);
@@ -41,9 +41,9 @@ export class MyStories implements OnInit, OnDestroy {
     })),
     { initialValue: 'overview' }
   );
-  
+
   stats = this.privateStoriesService.stats;
-  
+
   isOverviewMode = computed(() => this.currentMode() === 'overview');
   isListMode = computed(() => this.currentMode() !== 'overview');
 
@@ -56,7 +56,7 @@ export class MyStories implements OnInit, OnDestroy {
         storyDate: this.formatDate(draft.lastModified)
       }));
     }
-    
+
     if (mode === 'published') {
       return this.privateStoriesService.published().map(storyItem => ({
         id: storyItem.id,
@@ -64,7 +64,7 @@ export class MyStories implements OnInit, OnDestroy {
         storyDate: this.formatDate(storyItem.lastModified)
       }));
     }
-    
+
     return [];
   });
 
@@ -123,11 +123,7 @@ export class MyStories implements OnInit, OnDestroy {
     if (!confirmed) return;
 
     try {
-      if (this.currentMode() === 'drafts') {
-        await this.privateStoriesService.deleteDraft(story.id);
-      } else {
-        await this.privateStoriesService.deletePublished(story.id);
-      }
+      await this.privateStoriesService.deleteStory(story.id); 
     } catch (error) {
       console.error('Erreur lors de la suppression:', error);
     }
