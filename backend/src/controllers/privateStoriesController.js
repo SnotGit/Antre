@@ -346,6 +346,7 @@ const toggleLike = async (req, res) => {
 
 module.exports = {
   resolveTitle,
+  getStats,
   getStoryForEdit,
   createDraft,
   updateDraft,

@@ -62,7 +62,8 @@ export class UserAccount implements OnInit, OnDestroy {
   });
 
   headerTitle = this.typingEffect.headerTitle;
-  typingComplete = this.typingEffect.typingComplete;
+  showCursor = this.typingEffect.showCursor;
+  typing = this.typingEffect.typingComplete;
 
   constructor() {
     const saved = localStorage.getItem('user-account-tab');

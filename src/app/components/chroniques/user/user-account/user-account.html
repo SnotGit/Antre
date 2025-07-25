@@ -3,23 +3,22 @@
   <!-- ============ HEADER : 50% | 50% ============ -->
   <div class="header">
     <div class="header-box1">
-      <h1 class="page-title">
-        <span class="typed-text">{{ headerTitle() }}</span>
-        <span class="typing-effect" [class.hidden]="typingComplete()">|</span>
-      </h1>
+      <h2 class="header-title" [class.typing]="typing()">
+        {{ headerTitle() }}
+      </h2>
     </div>
-    
+
     <div class="header-box2">
       @if (error()) {
-        <div class="message error-message">
-          {{ error() }}
-        </div>
+      <div class="message error-message">
+        {{ error() }}
+      </div>
       }
 
       @if (successMessage()) {
-        <div class="message success-message">
-          {{ successMessage() }}
-        </div>
+      <div class="message success-message">
+        {{ successMessage() }}
+      </div>
       }
     </div>
   </div>
@@ -31,22 +30,13 @@
     </div>
     <div class="tabs-box2">
       <div class="tabs-nav">
-        <button 
-          class="tab-btn" 
-          [class.active]="activeTab() === 'stats'" 
-          (click)="setActiveTab('stats')">
+        <button class="tab-btn" [class.active]="activeTab() === 'stats'" (click)="setActiveTab('stats')">
           Stats
         </button>
-        <button 
-          class="tab-btn" 
-          [class.active]="activeTab() === 'profile'" 
-          (click)="setActiveTab('profile')">
+        <button class="tab-btn" [class.active]="activeTab() === 'profile'" (click)="setActiveTab('profile')">
           Profil
         </button>
-        <button 
-          class="tab-btn" 
-          [class.active]="activeTab() === 'identifiants'" 
-          (click)="setActiveTab('identifiants')">
+        <button class="tab-btn" [class.active]="activeTab() === 'identifiants'" (click)="setActiveTab('identifiants')">
           Identifiants
         </button>
       </div>
@@ -61,287 +51,234 @@
 
     <!-- ============ ONGLET STATS ============ -->
     @if (activeTab() === 'stats') {
-      <div class="tab-content">
-        <div class="titre1">
-          <div class="titre1-box1">
-            <h2 class="section-title">Statistiques</h2>
-          </div>
-          <div class="titre1-box2">
-            <!-- VIDE -->
-          </div>
+    <div class="tab-content">
+      <div class="titre1">
+        <div class="titre1-box1">
+          <h2 class="section-title">Statistiques</h2>
         </div>
-        
-        <div class="card1">
-          <div class="card1-box1">
-            <!-- VIDE -->
-          </div>
-          <div class="card1-box2">
-            <div class="stats-grid">
-              <div class="stat-card" (click)="showMyStories()">
-                <div class="stat-number">{{ getUserStats().totalStories }}</div>
-                <div class="stat-label">Histoires</div>
-              </div>
-
-              <div class="stat-card" (click)="showMyPublishedStories()">
-                <div class="stat-number">{{ getUserStats().publishedStories }}</div>
-                <div class="stat-label">Histoires publiées</div>
-              </div>
-
-              <div class="stat-card" (click)="showMyDrafts()">
-                <div class="stat-number">{{ getUserStats().drafts }}</div>
-                <div class="stat-label">Brouillons</div>
-              </div>
-
-              <div class="stat-card no-hover">
-                <div class="stat-number">{{ getUserStats().totalLikes }}</div>
-                <div class="stat-label">Likes</div>
-              </div>
-            </div>
-
-            <div class="account-info">
-              <h3 class="info-title">Informations du compte</h3>
-              <div class="info-item">
-                <span class="info-label">Membre depuis :</span>
-                <span class="info-value">{{ accountCreatedDate }}</span>
-              </div>
-              <div class="info-item">
-                <span class="info-label">Statut :</span>
-                <span class="info-value">{{ userRole }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="card1-box3">
-            <!-- VIDE -->
-          </div>
+        <div class="titre1-box2">
+          <!-- VIDE -->
         </div>
       </div>
+
+      <div class="card1">
+        <div class="card1-box1">
+          <!-- VIDE -->
+        </div>
+        <div class="card1-box2">
+          <div class="stats-grid">
+            <div class="stat-card" (click)="showMyStories()">
+              <div class="stat-number">{{ getUserStats().totalStories }}</div>
+              <div class="stat-label">Histoires</div>
+            </div>
+
+            <div class="stat-card" (click)="showMyPublishedStories()">
+              <div class="stat-number">{{ getUserStats().publishedStories }}</div>
+              <div class="stat-label">Histoires publiées</div>
+            </div>
+
+            <div class="stat-card" (click)="showMyDrafts()">
+              <div class="stat-number">{{ getUserStats().drafts }}</div>
+              <div class="stat-label">Brouillons</div>
+            </div>
+
+            <div class="stat-card no-hover">
+              <div class="stat-number">{{ getUserStats().totalLikes }}</div>
+              <div class="stat-label">Likes</div>
+            </div>
+          </div>
+
+          <div class="account-info">
+            <h3 class="info-title">Informations du compte</h3>
+            <div class="info-item">
+              <span class="info-label">Membre depuis :</span>
+              <span class="info-value">{{ accountCreatedDate }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Statut :</span>
+              <span class="info-value">{{ userRole }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="card1-box3">
+          <!-- VIDE -->
+        </div>
+      </div>
+    </div>
     }
 
     <!-- ============ ONGLET PROFIL ============ -->
     @if (activeTab() === 'profile') {
-      <div class="tab-content">
-        <div class="titre1">
-          <div class="titre1-box1">
-            <h2 class="section-title">Profil utilisateur</h2>
-          </div>
-          <div class="titre1-box2">
-            <!-- VIDE -->
-          </div>
+    <div class="tab-content">
+      <div class="titre1">
+        <div class="titre1-box1">
+          <h2 class="section-title">Profil utilisateur</h2>
         </div>
-        
-        <div class="card1">
-          <div class="card1-box1">
-            <!-- VIDE -->
-          </div>
-          <div class="card1-box2">
-            <form class="profile-form" (ngSubmit)="saveProfile()" #profileForm="ngForm">
-              <!-- Upload d'avatar -->
-              <div class="avatar-section">
-                <div class="avatar-container">
-                  <div 
-                    class="avatar-circle" 
-                    [style.background-image]="getAvatarUrl() ? 'url(' + getAvatarUrl() + ')' : ''">
-                  </div>
-                  <button 
-                    type="button" 
-                    class="avatar-upload-btn" 
-                    (click)="triggerFileInput()">
-                    Changer
-                  </button>
+        <div class="titre1-box2">
+          <!-- VIDE -->
+        </div>
+      </div>
+
+      <div class="card1">
+        <div class="card1-box1">
+          <!-- VIDE -->
+        </div>
+        <div class="card1-box2">
+          <form class="profile-form" (ngSubmit)="saveProfile()" #profileForm="ngForm">
+            <!-- Upload d'avatar -->
+            <div class="avatar-section">
+              <div class="avatar-container">
+                <div class="avatar-circle"
+                  [style.background-image]="getAvatarUrl() ? 'url(' + getAvatarUrl() + ')' : ''">
                 </div>
-              </div>
-
-              <!-- Nom d'utilisateur -->
-              <div class="form-field">
-                <label class="field-label">Nom d'utilisateur</label>
-                <input 
-                  type="text" 
-                  name="username" 
-                  [(ngModel)]="profileData.username" 
-                  class="form-input" 
-                  required
-                  minlength="3" 
-                  maxlength="50" 
-                  [disabled]="loading()">
-              </div>
-
-              <!-- Description -->
-              <div class="form-field">
-                <label class="field-label">Description</label>
-                <textarea 
-                  name="description" 
-                  [(ngModel)]="profileData.description" 
-                  class="form-textarea"
-                  placeholder="Parlez-nous de vous..." 
-                  maxlength="500" 
-                  rows="4" 
-                  [disabled]="loading()">
-                </textarea>
-              </div>
-
-              <!-- Actions profil -->
-              <div class="form-actions">
-                <button 
-                  type="submit" 
-                  class="save-btn" 
-                  [disabled]="loading() || !profileForm.valid">
-                  @if (loading()) {
-                    <span class="loading-spinner"></span>
-                    Sauvegarde en cours...
-                  } @else {
-                    Sauvegarder les modifications
-                  }
+                <button type="button" class="avatar-upload-btn" (click)="triggerFileInput()">
+                  Changer
                 </button>
               </div>
-            </form>
-          </div>
-          <div class="card1-box3">
-            <!-- VIDE -->
-          </div>
-        </div>
+            </div>
 
-        <input 
-          type="file" 
-          #fileInput 
-          accept="image/*" 
-          (change)="onAvatarSelected($event)" 
-          style="display: none;">
+            <!-- Nom d'utilisateur -->
+            <div class="form-field">
+              <label class="field-label">Nom d'utilisateur</label>
+              <input type="text" name="username" [(ngModel)]="profileData.username" class="form-input" required
+                minlength="3" maxlength="50" [disabled]="loading()">
+            </div>
+
+            <!-- Description -->
+            <div class="form-field">
+              <label class="field-label">Description</label>
+              <textarea name="description" [(ngModel)]="profileData.description" class="form-textarea"
+                placeholder="Parlez-nous de vous..." maxlength="500" rows="4" [disabled]="loading()">
+                </textarea>
+            </div>
+
+            <!-- Actions profil -->
+            <div class="form-actions">
+              <button type="submit" class="save-btn" [disabled]="loading() || !profileForm.valid">
+                @if (loading()) {
+                <span class="loading-spinner"></span>
+                Sauvegarde en cours...
+                } @else {
+                Sauvegarder les modifications
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="card1-box3">
+          <!-- VIDE -->
+        </div>
       </div>
+
+      <input type="file" #fileInput accept="image/*" (change)="onAvatarSelected($event)" style="display: none;">
+    </div>
     }
 
     <!-- ============ ONGLET IDENTIFIANTS ============ -->
     @if (activeTab() === 'identifiants') {
-      <div class="tab-content">
-        
-        <!-- TITRE 1 : 50% | 50% -->
-        <div class="titre1">
-          <div class="titre1-box1">
-            <h2 class="section-title">Identifiants de connexion</h2>
-          </div>
-          <div class="titre1-box2">
-            <!-- VIDE -->
-          </div>
+    <div class="tab-content">
+
+      <!-- TITRE 1 : 50% | 50% -->
+      <div class="titre1">
+        <div class="titre1-box1">
+          <h2 class="section-title">Identifiants de connexion</h2>
         </div>
-
-        <!-- CARD 1 : 25% | 50% | 25% -->
-        <div class="card1">
-          <div class="card1-box1">
-            <!-- VIDE -->
-          </div>
-          <div class="card1-box2">
-            <form class="email-form" (ngSubmit)="saveEmail()" #emailForm="ngForm">
-              <div class="form-field">
-                <label class="field-label">Adresse Email</label>
-                <input 
-                  type="email" 
-                  name="email" 
-                  [(ngModel)]="profileData.email" 
-                  class="form-input" 
-                  required
-                  [disabled]="loading()">
-              </div>
-              <div class="form-actions">
-                <button 
-                  type="submit" 
-                  class="save-btn email-btn" 
-                  [disabled]="loading() || !emailForm.valid">
-                  @if (loading()) {
-                    <span class="loading-spinner"></span>
-                    Modification en cours...
-                  } @else {
-                    Modifier l'e-mail
-                  }
-                </button>
-              </div>
-            </form>
-          </div>
-          <div class="card1-box3">
-            <!-- VIDE -->
-          </div>
+        <div class="titre1-box2">
+          <!-- VIDE -->
         </div>
-
-        <!-- SÉPARATEUR -->
-        <div class="separateur">
-          <div class="line"></div>
-        </div>
-
-        <!-- TITRE : 50% | 50% -->
-        <div class="titre">
-          <div class="titre-box1">
-            <h3 class="subsection-title">Changer de mot de passe</h3>
-          </div>
-          <div class="titre-box2">
-            <span class="password-specs">( 8 Caractères + 1 Maj minimum / Spéciaux acceptés )</span>
-          </div>
-        </div>
-
-        <!-- CARD 2 : 25% | 50% | 25% -->
-        <div class="card2">
-          <div class="card2-box1">
-            <!-- VIDE -->
-          </div>
-          <div class="card2-box2">
-            <form class="password-form" (ngSubmit)="changePassword()" #passwordForm="ngForm">
-              <!-- Mot de passe actuel -->
-              <div class="form-field">
-                <label class="field-label">Mot de passe actuel</label>
-                <input 
-                  type="password" 
-                  name="currentPassword" 
-                  [(ngModel)]="passwordData.currentPassword" 
-                  class="form-input"
-                  required 
-                  [disabled]="loading()">
-              </div>
-
-              <!-- Nouveau mot de passe -->
-              <div class="form-field">
-                <label class="field-label">Nouveau mot de passe</label>
-                <input 
-                  type="password" 
-                  name="newPassword" 
-                  [(ngModel)]="passwordData.newPassword" 
-                  class="form-input" 
-                  required
-                  minlength="8"
-                  [disabled]="loading()">
-              </div>
-
-              <!-- Confirmation mot de passe -->
-              <div class="form-field">
-                <label class="field-label">Confirmer Mot de passe</label>
-                <input 
-                  type="password" 
-                  name="confirmPassword" 
-                  [(ngModel)]="passwordData.confirmPassword" 
-                  class="form-input"
-                  required 
-                  minlength="8" 
-                  [disabled]="loading()">
-              </div>
-
-              <!-- Actions mot de passe -->
-              <div class="form-actions">
-                <button 
-                  type="submit" 
-                  class="save-btn password-btn" 
-                  [disabled]="loading() || !passwordForm.valid">
-                  @if (loading()) {
-                    <span class="loading-spinner"></span>
-                    Modification en cours...
-                  } @else {
-                    Changer mot de passe
-                  }
-                </button>
-              </div>
-            </form>
-          </div>
-          <div class="card2-box3">
-            <!-- VIDE -->
-          </div>
-        </div>
-
       </div>
+
+      <!-- CARD 1 : 25% | 50% | 25% -->
+      <div class="card1">
+        <div class="card1-box1">
+          <!-- VIDE -->
+        </div>
+        <div class="card1-box2">
+          <form class="email-form" (ngSubmit)="saveEmail()" #emailForm="ngForm">
+            <div class="form-field">
+              <label class="field-label">Adresse Email</label>
+              <input type="email" name="email" [(ngModel)]="profileData.email" class="form-input" required
+                [disabled]="loading()">
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="save-btn email-btn" [disabled]="loading() || !emailForm.valid">
+                @if (loading()) {
+                <span class="loading-spinner"></span>
+                Modification en cours...
+                } @else {
+                Modifier l'e-mail
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="card1-box3">
+          <!-- VIDE -->
+        </div>
+      </div>
+
+      <!-- SÉPARATEUR -->
+      <div class="separateur">
+        <div class="line"></div>
+      </div>
+
+      <!-- TITRE : 50% | 50% -->
+      <div class="titre">
+        <div class="titre-box1">
+          <h3 class="subsection-title">Changer de mot de passe</h3>
+        </div>
+        <div class="titre-box2">
+          <span class="password-specs">( 8 Caractères + 1 Maj minimum / Spéciaux acceptés )</span>
+        </div>
+      </div>
+
+      <!-- CARD 2 : 25% | 50% | 25% -->
+      <div class="card2">
+        <div class="card2-box1">
+          <!-- VIDE -->
+        </div>
+        <div class="card2-box2">
+          <form class="password-form" (ngSubmit)="changePassword()" #passwordForm="ngForm">
+            <!-- Mot de passe actuel -->
+            <div class="form-field">
+              <label class="field-label">Mot de passe actuel</label>
+              <input type="password" name="currentPassword" [(ngModel)]="passwordData.currentPassword"
+                class="form-input" required [disabled]="loading()">
+            </div>
+
+            <!-- Nouveau mot de passe -->
+            <div class="form-field">
+              <label class="field-label">Nouveau mot de passe</label>
+              <input type="password" name="newPassword" [(ngModel)]="passwordData.newPassword" class="form-input"
+                required minlength="8" [disabled]="loading()">
+            </div>
+
+            <!-- Confirmation mot de passe -->
+            <div class="form-field">
+              <label class="field-label">Confirmer Mot de passe</label>
+              <input type="password" name="confirmPassword" [(ngModel)]="passwordData.confirmPassword"
+                class="form-input" required minlength="8" [disabled]="loading()">
+            </div>
+
+            <!-- Actions mot de passe -->
+            <div class="form-actions">
+              <button type="submit" class="save-btn password-btn" [disabled]="loading() || !passwordForm.valid">
+                @if (loading()) {
+                <span class="loading-spinner"></span>
+                Modification en cours...
+                } @else {
+                Changer mot de passe
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="card2-box3">
+          <!-- VIDE -->
+        </div>
+      </div>
+
+    </div>
     }
 
   </div>

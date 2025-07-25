@@ -7,7 +7,7 @@ interface StoriesService {
 interface AutoSaveConfig<T> {
   data: () => T;
   mode: () => string;
-  storyId: Signal<number | null>;  // ← Accepte Signal readonly
+  storyId: Signal<number | null>;  
   loading: WritableSignal<boolean>;
   storiesService: StoriesService;
   delay?: number;
@@ -32,12 +32,12 @@ export class AutoSaveService {
     });
 
     let timeoutId: number | undefined;
-    
+
     const scheduleAutoSave = () => {
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
-      
+
       const delay = config.delay ?? 2000;
       timeoutId = window.setTimeout(() => {
         executeSave();
@@ -46,7 +46,7 @@ export class AutoSaveService {
 
     const executeSave = async () => {
       const data = config.data();
-      
+
       if (!this.shouldSave(data)) return;
 
       state.update(s => ({ ...s, isSaving: true }));
@@ -66,7 +66,7 @@ export class AutoSaveService {
 
     const autoSaveEffect = effect(() => {
       const data = config.data();
-      
+
       if (this.shouldSave(data)) {
         state.update(s => ({ ...s, hasUnsavedChanges: true }));
         scheduleAutoSave();
@@ -87,30 +87,26 @@ export class AutoSaveService {
     };
   }
 
-  private async performSave<T>(data: T, config: AutoSaveConfig<T>): Promise<void> {
+  private async performSave<T>(data: T, config: AutoSaveConfig<T>): Promise<number | null> {
     const currentId = config.storyId();
-    
+
     if (!currentId && config.mode() === 'NewStory') {
-      try {
-        config.loading.set(true);
-        const response = await config.storiesService.saveDraft(data);
-        // Le component gérera la mise à jour de l'ID
-      } finally {
-        config.loading.set(false);
-      }
-      return;
+      const response = await config.storiesService.saveDraft(data);
+      return response.story.id;
     }
 
     if (currentId) {
       await config.storiesService.saveDraft(data, currentId);
     }
+
+    return null;
   }
 
   private shouldSave(data: unknown): boolean {
     if (!data || typeof data !== 'object') return false;
-    
+
     const obj = data as Record<string, unknown>;
-    return Object.values(obj).some(value => 
+    return Object.values(obj).some(value =>
       typeof value === 'string' && value.trim().length > 0
     );
   }
