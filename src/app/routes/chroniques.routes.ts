@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { editorResolver } from '../resolvers/editor-resolver';
+import { chroniquesResolver } from '../resolvers/chroniques-resolver';
 
 //============ CHRONIQUES ROUTES ============
 
@@ -24,28 +24,42 @@ export const routes: Routes = [
     loadComponent: () => import('../components/chroniques/stories/my-stories/my-stories').then(m => m.MyStories)
   },
 
-  //============ EDITOR ROUTES AVEC RESOLVER ============
+  //============ EDITOR ============
   
   {
     path: 'edition/nouvelle-histoire',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
-    resolve: { data: editorResolver }
+    resolve: { data: chroniquesResolver }
   },
   {
     path: 'edition/brouillon/:title',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
-    resolve: { data: editorResolver }
+    resolve: { data: chroniquesResolver }
   },
   {
     path: 'edition/publiée/:title',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
-    resolve: { data: editorResolver }
+    resolve: { data: chroniquesResolver }
+  },
+  {
+    path: 'editor/:id',
+    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
+    resolve: { data: chroniquesResolver }
   },
 
-  //============ STORIES PUBLIQUES ============
+  //============ USER PROFILE ============
+  
+  {
+    path: ':username',
+    loadComponent: () => import('../components/chroniques/user/user-profile/user-profile').then(m => m.AuthorProfileComponent),
+    resolve: { data: chroniquesResolver }
+  },
+
+  //============ PUBLIC STORIES ============
   
   {
     path: ':username/:title',
-    loadComponent: () => import('../components/chroniques/stories/story/story').then(m => m.Story)
+    loadComponent: () => import('../components/chroniques/stories/story/story').then(m => m.Story),
+    resolve: { data: chroniquesResolver }
   }
 ];
