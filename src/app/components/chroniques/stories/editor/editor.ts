@@ -114,7 +114,6 @@ export class Editor implements OnInit, OnDestroy {
 
     this.typingEffect = this.typingService.createTypingEffect({
       text: this.titleText(),
-      speed: 150
     });
     this.typingEffect.startTyping();
     this.setupAutoSave();
@@ -140,7 +139,7 @@ export class Editor implements OnInit, OnDestroy {
       const originalId = data?.originalStoryId;
       
       if (originalId && originalId !== storyId) {
-        await this.stories.republishStory(storyId, originalId);
+        await this.stories.updateStory(storyId, originalId);
       } else {
         await this.stories.publishStory(storyId);
       }
@@ -162,7 +161,7 @@ export class Editor implements OnInit, OnDestroy {
     this.loading.set(true);
     try {
       if (isNewStory) {
-        await this.stories.cancelNewStory(storyId);
+        await this.stories.cancel(storyId);
       } else {
         await this.stories.deleteDraft(storyId);
       }
@@ -172,6 +171,8 @@ export class Editor implements OnInit, OnDestroy {
     }
   }
 
+
+  cancel (){}
   //============ NAVIGATION ============
 
   goBack(): void {

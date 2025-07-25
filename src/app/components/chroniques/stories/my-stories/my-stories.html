@@ -30,11 +30,14 @@
   <div class="content">
     <div class="content-grid">
       @for (story of stories(); track story.id) {
-      <div class="card" (click)="onCardClick(story)">
+      <div class="card" [class.delete-mode]="delete()" (click)="onCardClick(story)">
         <div class="story-title">{{ story.storyTitle }}</div>
         <div class="story-date">{{ story.storyDate }}</div>
+        <input type="checkbox" class="delete-checkbox" [(ngModel)]="delete" (click)="onlyCheckbox($event)">
       </div>
       }
     </div>
   </div>
   }
+
+</div>

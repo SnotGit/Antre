@@ -1,11 +1,13 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
 import { PrivateStoriesService } from '../../../../services/private-stories.service';
 import { AuthService } from '../../../../services/auth.service';
 import { TypingEffectService } from '../../../../services/typing-effect.service';
+import { ConfirmationDialogService } from '../../../../services/confirmation-dialog.service';
 
 interface CardData {
   id: number;
@@ -15,7 +17,7 @@ interface CardData {
 
 @Component({
   selector: 'app-my-stories',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './my-stories.html',
   styleUrl: './my-stories.scss'
 })
@@ -26,6 +28,9 @@ export class MyStories implements OnInit, OnDestroy {
   private privateStoriesService = inject(PrivateStoriesService);
   private authService = inject(AuthService);
   private typingService = inject(TypingEffectService);
+  private confirmationService = inject(ConfirmationDialogService);
+
+  delete = signal(false);
 
   currentMode = toSignal(
     this.route.url.pipe(map(segments => {
@@ -95,15 +100,16 @@ export class MyStories implements OnInit, OnDestroy {
     this.typingEffect.cleanup();
   }
 
-  goToDrafts(): void {
-    this.router.navigate(['/chroniques/my-stories/drafts']);
+  onlyCheckbox(event: Event): void {
+    event.stopPropagation();
   }
 
-  goToPublished(): void {
-    this.router.navigate(['/chroniques/my-stories/published']);
-  }
+  async onCardClick(story: CardData): Promise<void> {
+    if (this.delete()) {
+      await this.deleteStory(story);
+      return;
+    }
 
-  onCardClick(story: CardData): void {
     const currentUser = this.authService.currentUser();
     if (!currentUser) return;
 
@@ -112,6 +118,29 @@ export class MyStories implements OnInit, OnDestroy {
     } else {
       this.router.navigate(['/chroniques', currentUser.username, 'édition', story.storyTitle]);
     }
+  }
+
+  async deleteStory(story: CardData): Promise<void> {
+    const confirmed = await this.confirmationService.confirmDeleteStory(false);
+    if (!confirmed) return;
+
+    try {
+      if (this.currentMode() === 'drafts') {
+        await this.privateStoriesService.deleteDraft(story.id);
+      } else {
+        await this.privateStoriesService.deletePublished(story.id);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+    }
+  }
+
+  goToDrafts(): void {
+    this.router.navigate(['/chroniques/my-stories/drafts']);
+  }
+
+  goToPublished(): void {
+    this.router.navigate(['/chroniques/my-stories/published']);
   }
 
   private formatDate(dateString: string): string {

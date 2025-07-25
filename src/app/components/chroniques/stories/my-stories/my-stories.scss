@@ -126,11 +126,16 @@
   gap: 15px;
   width: 320px;
   height: 180px;
+  position: relative;
 
   &:hover {
     color: #d0d0d0;
     border-color: #d0d0d0;
     transform: translateY(-2px);
+  }
+
+  &.delete-mode {
+    border-color: crimson;
   }
 
   .story-title {
@@ -143,5 +148,12 @@
     color: #5d889e;
     font-size: 14px;
     font-weight: 400;
+  }
+
+  .delete-checkbox {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    accent-color: #5d889e;
   }
 }

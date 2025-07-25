@@ -36,7 +36,7 @@ export class UserAccount implements OnInit, OnDestroy {
   private readonly privateStoriesService = inject(PrivateStoriesService);
   private readonly typingService = inject(TypingEffectService);
 
-  //============ SIGNALS PUBLICS ============
+  //============ SIGNALS ============
 
   currentUser = this.authService.currentUser;
   isLoggedIn = this.authService.isLoggedIn;
@@ -49,7 +49,7 @@ export class UserAccount implements OnInit, OnDestroy {
 
   activeTab = signal<TabType>('identifiants');
 
-  //============ DONNÉES FORMULAIRES ============
+  //============ FORMS ============
 
   profileData: UserProfileData = { username: '', email: '', description: '' };
   passwordData: PasswordChangeData = { currentPassword: '', newPassword: '', confirmPassword: '' };
@@ -59,8 +59,6 @@ export class UserAccount implements OnInit, OnDestroy {
 
   private typingEffect = this.typingService.createTypingEffect({
     text: 'Mon compte',
-    speed: 200,
-    finalBlinks: 3
   });
 
   headerTitle = this.typingEffect.headerTitle;
