@@ -15,6 +15,7 @@ router.get('/resolve/:title', privateStoriesController.resolveTitle);
 
 router.get('/story/draft/:id', privateStoriesController.loadDraft);
 router.get('/story/published/:id', privateStoriesController.loadPublishedToDraft);
+router.get('/edit/:id', privateStoriesController.getStoryForEdit);
 
 //============ CRUD ============
 

@@ -42,7 +42,7 @@ export class PublicStoriesService {
   //============ USER STORIES BY ID ============
 
   async getUserStories(userId: number): Promise<Story[]> {
-    const response = await fetch(`${this.API_URL}/users/${userId}`);
+    const response = await fetch(`${this.API_URL}/user/${userId}`);
     if (!response.ok) return [];
     const data = await response.json();
     return data.stories || [];

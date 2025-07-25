@@ -79,8 +79,6 @@ export class MyStories implements OnInit, OnDestroy {
 
   private typingEffect = this.typingService.createTypingEffect({
     text: this.headerText(),
-    speed: 150,
-    finalBlinks: 4
   });
 
   headerTitle = this.typingEffect.headerTitle;
