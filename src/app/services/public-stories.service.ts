@@ -42,7 +42,7 @@ export class PublicStoriesService {
   //============ USER STORIES BY ID ============
 
   async getUserStories(userId: number): Promise<Story[]> {
-    const response = await fetch(`${this.API_URL}/user/${userId}`);
+    const response = await fetch(`${this.API_URL}/user/${userId}/stories`);
     if (!response.ok) return [];
     const data = await response.json();
     return data.stories || [];
@@ -51,16 +51,16 @@ export class PublicStoriesService {
   //============ RESOLVERS ============
 
   async resolveUsername(username: string): Promise<number | null> {
-    const response = await fetch(`${this.API_URL}/resolve/username/${username}`);
+    const response = await fetch(`${this.API_URL}/resolve/${username}`);
     if (!response.ok) return null;
     const data = await response.json();
     return data.userId;
   }
 
-  async resolveStory(username: string, title: string): Promise<{ storyId: number; authorId: number } | null> {
+  async resolveStory(username: string, title: string): Promise<{ storyId: number; userId: number } | null> {
     const response = await fetch(`${this.API_URL}/resolve/${username}/${encodeURIComponent(title)}`);
     if (!response.ok) return null;
     const data = await response.json();
-    return { storyId: data.storyId, authorId: data.authorId };
+    return { storyId: data.storyId, userId: data.userId };
   }
 }
