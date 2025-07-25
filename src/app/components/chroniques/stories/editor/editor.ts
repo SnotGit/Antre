@@ -161,9 +161,9 @@ export class Editor implements OnInit, OnDestroy {
     this.loading.set(true);
     try {
       if (isNewStory) {
-        await this.stories.cancel(storyId);
+        await this.stories.deleteStory(storyId);
       } else {
-        await this.stories.deleteDraft(storyId);
+        await this.stories.deleteStory(storyId);
       }
       this.router.navigate(['/chroniques/mes-histoires']);
     } finally {
