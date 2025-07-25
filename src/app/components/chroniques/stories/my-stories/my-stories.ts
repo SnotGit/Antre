@@ -38,7 +38,6 @@ export class MyStories implements OnInit, OnDestroy {
 
   isDeleteMode = computed(() => this._selectedStoryIds().size > 0);
 
-  // Exposer selectedStoryIds pour le template
   selectedStoryIds = this._selectedStoryIds.asReadonly();
 
   currentMode = toSignal(
@@ -138,14 +137,10 @@ export class MyStories implements OnInit, OnDestroy {
   }
 
   async onCardClick(story: CardData): Promise<void> {
-    // Navigation normale vers l'éditeur - pas de suppression ici
-    const currentUser = this.authService.currentUser();
-    if (!currentUser) return;
-
     if (this.currentMode() === 'drafts') {
       this.router.navigate(['/chroniques/editor', story.id]);
     } else {
-      this.router.navigate(['/chroniques', currentUser.username, 'édition', story.storyTitle]);
+      this.router.navigate(['/chroniques/edition/publiée', story.storyTitle]);
     }
   }
 
@@ -154,21 +149,15 @@ export class MyStories implements OnInit, OnDestroy {
     
     if (selectedIds.length === 0) return;
 
-    // Confirmation avec le service existant
     const confirmed = await this.confirmationService.confirmDeleteStory(false);
     if (!confirmed) return;
 
     try {
-      // Supprimer chaque story via le service existant
-      // Backend route: DELETE /api/private-stories/story/:id
       for (const storyId of selectedIds) {
         await this.privateStoriesService.deleteStory(storyId);
       }
       
-      // Nettoyer la sélection
       this.clearSelection();
-      
-      // Recharger les données via le service existant
       await this.privateStoriesService.initializeUserData();
       
     } catch (error) {

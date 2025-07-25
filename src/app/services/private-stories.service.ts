@@ -51,6 +51,11 @@ interface LikeResponse {
   totalLikes: number;
 }
 
+interface TitleResolution {
+  id: number;
+  status: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -80,6 +85,19 @@ export class PrivateStoriesService {
     ]);
 
     this._loading.set(false);
+  }
+
+  //============ RÉSOLUTION TITRE ============
+
+  async resolveTitle(title: string): Promise<TitleResolution | null> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<TitleResolution>(`${this.API_URL}/resolve/${encodeURIComponent(title)}`)
+      );
+      return response;
+    } catch (error) {
+      return null;
+    }
   }
 
   //============ LISTES ============
@@ -161,11 +179,11 @@ export class PrivateStoriesService {
     await this.initializeUserData();
   }
 
-  async updateStory(draftId: number, originaStorylId: number): Promise<void> {
+  async updateStory(draftId: number, originalStoryId: number): Promise<void> {
     this._loading.set(true);
 
     await firstValueFrom(
-      this.http.post(`${this.API_URL}/update/${draftId}`, { originaStorylId })
+      this.http.post(`${this.API_URL}/update/${draftId}`, { originalId: originalStoryId })
     );
     
     await this.initializeUserData();
