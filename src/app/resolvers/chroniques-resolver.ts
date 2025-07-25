@@ -24,7 +24,7 @@ export interface UserProfileData {
 
 export type ChroniquesData = PrivateStoryData | PublicStoryData | UserProfileData;
 
-//============ CHRONIQUES RESOLVER ============
+//============ CHRONIQUES RESOLVER AVEC DEBUG ============
 
 export const chroniquesResolver: ResolveFn<ChroniquesData> = async (route) => {
   const privateStoriesService = inject(PrivateStoriesService);
@@ -64,15 +64,25 @@ export const chroniquesResolver: ResolveFn<ChroniquesData> = async (route) => {
     } as PrivateStoryData;
   }
   
-  //============ ROUTES PUBLIQUES ============
+  //============ ROUTES PUBLIQUES AVEC DEBUG ============
   
   const username = route.paramMap.get('username');
   const title = route.paramMap.get('title');
   
   if (username && !title) {
+    console.log('🔍 RESOLVER DEBUG: Résolution username =', username);
+    
     const userId = await publicStoriesService.resolveUsername(username);
+    console.log('🔍 RESOLVER DEBUG: userId retourné =', userId);
+    
     if (!userId) {
-      throw new Error('Utilisateur non trouvé');
+      console.error(`🚨 RESOLVER: Username "${username}" non trouvé en BDD`);
+      console.error('🔧 Solutions possibles:');
+      console.error(`   1. Vérifier si username="${username}" existe en BDD`);
+      console.error('   2. Corriger le username en BDD si nécessaire');
+      console.error('   3. Vérifier l\'URL de navigation');
+      
+      throw new Error(`Utilisateur "${username}" non trouvé en base de données`);
     }
     
     return {
@@ -81,14 +91,21 @@ export const chroniquesResolver: ResolveFn<ChroniquesData> = async (route) => {
   }
   
   if (username && title) {
+    console.log('🔍 RESOLVER DEBUG: Résolution story =', { username, title });
+    
     const userId = await publicStoriesService.resolveUsername(username);
+    console.log('🔍 RESOLVER DEBUG: userId pour story =', userId);
+    
     if (!userId) {
-      throw new Error('Utilisateur non trouvé');
+      console.error(`🚨 RESOLVER: Username "${username}" non trouvé pour story "${title}"`);
+      throw new Error(`Utilisateur "${username}" non trouvé en base de données`);
     }
     
     const storyResolution = await publicStoriesService.resolveStory(username, title);
+    console.log('🔍 RESOLVER DEBUG: storyResolution =', storyResolution);
+    
     if (!storyResolution) {
-      throw new Error('Histoire non trouvée');
+      throw new Error(`Histoire "${title}" non trouvée pour utilisateur "${username}"`);
     }
     
     return {

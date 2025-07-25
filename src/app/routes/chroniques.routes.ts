@@ -9,7 +9,7 @@ export const routes: Routes = [
     loadComponent: () => import('../components/chroniques/chroniques').then(m => m.Chroniques)
   },
   
-  //============ MY STORIES ============
+  //============ MY STORIES (AVANT :username) ============
   
   {
     path: 'mes-histoires',
@@ -24,7 +24,7 @@ export const routes: Routes = [
     loadComponent: () => import('../components/chroniques/stories/my-stories/my-stories').then(m => m.MyStories)
   },
 
-  //============ EDITOR ============
+  //============ EDITOR (AVANT :username) ============
   
   {
     path: 'edition/nouvelle-histoire',
@@ -47,7 +47,7 @@ export const routes: Routes = [
     resolve: { data: chroniquesResolver }
   },
 
-  //============ USER PROFILE ============
+  //============ USER PROFILE (APRÈS routes spécifiques) ============
   
   {
     path: ':username',
@@ -55,7 +55,7 @@ export const routes: Routes = [
     resolve: { data: chroniquesResolver }
   },
 
-  //============ PUBLIC STORIES ============
+  //============ PUBLIC STORIES (EN DERNIER) ============
   
   {
     path: ':username/:title',

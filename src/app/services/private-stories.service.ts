@@ -161,11 +161,11 @@ export class PrivateStoriesService {
     await this.initializeUserData();
   }
 
-  async updateStory(draftId: number, originalId: number): Promise<void> {
+  async updateStory(draftId: number, originaStorylId: number): Promise<void> {
     this._loading.set(true);
 
     await firstValueFrom(
-      this.http.post(`${this.API_URL}/update/${draftId}`, { originalId })
+      this.http.post(`${this.API_URL}/update/${draftId}`, { originaStorylId })
     );
     
     await this.initializeUserData();
