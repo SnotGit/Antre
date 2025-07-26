@@ -8,7 +8,7 @@ export interface PrivateStoryData {
     title: string;
     content: string;
   };
-  mode: 'NewStory' | 'EditDraft' | 'EditPublished';
+  mode: 'EditNew' | 'EditDraft' | 'EditPublished';
   storyId: number | null;
   originalStoryId: number | null;
 }
@@ -36,7 +36,7 @@ export const chroniquesResolver: ResolveFn<ChroniquesData> = async (route) => {
   if (url.includes('nouvelle-histoire')) {
     return {
       story: { title: '', content: '' },
-      mode: 'NewStory',
+      mode: 'EditNew',
       storyId: null,
       originalStoryId: null
     } as PrivateStoryData;
