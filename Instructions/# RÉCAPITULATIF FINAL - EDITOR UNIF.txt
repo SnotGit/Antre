@@ -1,6 +1,5 @@
-# RÉCAPITULATIF FINAL - EDITOR UNIFIÉ
-
-## ARCHITECTURE
+ 
+## ARCHITECTURE EDITOR
 
 Editor devient le hub central unique
 Suppression du component my-stories
@@ -11,7 +10,7 @@ Toutes les routes pointent vers Editor
 ```typescript
 private _isList = signal(true);
 private _isEdit = signal(false);
-private _listMode = signal<'draft' | 'published'>('draft');
+private _listMode = signal< 'myStories'|'draft' | 'published'>('myStories');
 private _editMode = signal<'edit-new' | 'edit-draft' | 'edit-published'>('edit-new');
 
 headerTitle = computed(() => {
@@ -37,7 +36,7 @@ interface Story {
   likes?: number;
 }
 
-interface StoryForm {
+interface editStory {
   title: string;
   content: string;
 }
@@ -78,7 +77,7 @@ publishedStories = computed((): Story[] => {
 
 ## SERVICE
 
-Garder privateStories.service
+Ajuster privateStories.service
 Méthodes : getDraftStories() / getPublishedStories()
 Centraliser formatDate()
 Supprimer duplications d'interfaces
@@ -96,5 +95,4 @@ story {
 
 ## BACKEND
 
-Conserver privateStoriesController + publicStoriesController
-Pas de modification architecture backend
+Ajuster privateStoriesController + publicStoriesController

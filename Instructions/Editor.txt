@@ -32,7 +32,7 @@
         "date": "string",
         "likes": "number (optionnel)"
       },
-      "StoryForm": {
+      "EditStory": {
         "title": "string",
         "content": "string"
       }
