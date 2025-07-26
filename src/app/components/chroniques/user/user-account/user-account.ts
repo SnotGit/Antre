@@ -79,7 +79,7 @@ export class UserAccount implements OnInit, OnDestroy {
     }
 
     this.loadUserProfile();
-    this.privateStoriesService.initializeUserData();
+    this.privateStoriesService.stats();
     this.typingEffect.startTyping();
   }
 

@@ -258,11 +258,11 @@ export class Editor implements OnInit, OnDestroy {
   //============ CARD CLICKS ============
 
   onDraftCardClick(story: Story): void {
-    this.router.navigate(['/chroniques/edition/brouillon', story.title]);
+    this.router.navigate(['/chroniques/mes-histoires/brouillon/edition', story.title]);
   }
 
   onPublishedCardClick(story: Story): void {
-    this.router.navigate(['/chroniques/edition/publiée', story.title]);
+    this.router.navigate(['/chroniques/mes-histoires/publiée/edition', story.title]);
   }
 
   //============ EDITOR ACTIONS ============

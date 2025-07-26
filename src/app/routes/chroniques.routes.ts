@@ -12,10 +12,23 @@ export const routes: Routes = [
   //============ MY STORIES ============
   
   {
-    path: 'mes-histoires',
-    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
+    path: 'mes-histoires/brouillon/edition/nouvelle-histoire',
+    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
+    resolve: { data: chroniquesResolver }
   },
   
+  {
+    path: 'mes-histoires/brouillon/edition/:title',
+    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
+    resolve: { data: chroniquesResolver }
+  },
+  
+  {
+    path: 'mes-histoires/publiée/edition/:title',
+    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
+    resolve: { data: chroniquesResolver }
+  },
+
   {
     path: 'mes-histoires/brouillons', 
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
@@ -25,36 +38,19 @@ export const routes: Routes = [
     path: 'mes-histoires/publiées',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
   },
-
-  //============ EDIT ============
   
   {
-    path: 'mes-histoires/brouillons/édition/nouvelle-histoire',
-    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
-    resolve: { data: chroniquesResolver }
-  },
-  
-  {
-    path: 'mes-histoires/brouillons/édition/:title',
-    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
-    resolve: { data: chroniquesResolver }
-  },
-  
-  {
-    path: 'mes-histoires/publiées/édition/:title',
-    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
-    resolve: { data: chroniquesResolver }
+    path: 'mes-histoires',
+    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
   },
 
   //============ PUBLIC ROUTES ============
   
- 
   {
     path: ':username/:title',
     loadComponent: () => import('../components/chroniques/stories/story/story').then(m => m.Story),
     resolve: { data: chroniquesResolver }
   },
-
 
   {
     path: ':username',
