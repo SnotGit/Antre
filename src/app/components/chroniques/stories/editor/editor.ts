@@ -10,7 +10,7 @@ import { ConfirmationDialogService } from '../../../../services/confirmation-dia
 import { AutoSaveService } from '../../../../services/auto-save.service';
 import { TypingEffectService } from '../../../../services/typing-effect.service';
 
-//============ INTERFACES UI ============
+//============ INTERFACES ============
 
 interface EditStory {
   title: string;
@@ -24,8 +24,15 @@ interface Story {
   likes?: number;
 }
 
+interface ResolvedPrivateStory {
+  storyId: number;
+  title: string;
+  content: string;
+  originalStoryId?: number;
+}
+
 type ViewMode = 'my-stories' | 'drafts' | 'published' | 'edit';
-type EditMode = 'new' | 'draft' | 'published';
+type EditMode = 'editNew' | 'editDraft' | 'editPublished';
 
 @Component({
   selector: 'app-editor',
@@ -35,7 +42,7 @@ type EditMode = 'new' | 'draft' | 'published';
 })
 export class Editor implements OnInit, OnDestroy {
 
-  //============ INJECTION ============
+  //============ INJECTIONS ============
 
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -46,10 +53,10 @@ export class Editor implements OnInit, OnDestroy {
   private autoSave = inject(AutoSaveService);
   private typing = inject(TypingEffectService);
 
-  //============ ÉTAT UI LOCAL ============
+  //============ SIGNALS ============
 
   private _viewMode = signal<ViewMode>('my-stories');
-  private _editMode = signal<EditMode>('new');
+  private _editMode = signal<EditMode>('editNew');
   private _loading = signal(false);
   private _storyId = signal<number | null>(null);
   private _originalStoryId = signal<number | null>(null);
@@ -57,12 +64,14 @@ export class Editor implements OnInit, OnDestroy {
 
   story = signal<EditStory>({ title: '', content: '' });
 
-  //============ COMPUTED UI ============
+  //============ READONLY ============
 
   viewMode = this._viewMode.asReadonly();
   editMode = this._editMode.asReadonly();
   loading = this._loading.asReadonly();
   selected = this._selected.asReadonly();
+
+  //============ COMPUTED ============
 
   isListMode = computed(() => this._viewMode() !== 'edit');
   isEditMode = computed(() => this._viewMode() === 'edit');
@@ -71,7 +80,7 @@ export class Editor implements OnInit, OnDestroy {
   isPublishedMode = computed(() => this._viewMode() === 'published');
   isDeleteMode = computed(() => this._selected().size > 0);
 
-  //============ BUSINESS DATA ============
+  //============ STORIES ============
 
   stats = this.stories.stats;
   resolvedData = toSignal(this.route.data);
@@ -93,7 +102,7 @@ export class Editor implements OnInit, OnDestroy {
     }));
   });
 
-  //============ COMPUTED EDITOR ============
+  //============ UI ============
 
   headerTitle = computed(() => {
     if (this.isListMode()) {
@@ -105,37 +114,35 @@ export class Editor implements OnInit, OnDestroy {
       }
     } else {
       switch (this._editMode()) {
-        case 'new': return 'Nouvelle Histoire';
-        case 'draft': return 'Continuer Histoire';
-        case 'published': return 'Modifier Histoire';
+        case 'editNew': return 'Nouvelle Histoire';
+        case 'editDraft': return 'Continuer Histoire';
+        case 'editPublished': return 'Modifier Histoire';
         default: return 'Éditeur';
       }
     }
   });
 
   canDelete = computed(() => {
-    return this._editMode() !== 'new' || this._storyId() !== null;
+    return this._editMode() !== 'editNew' || this._storyId() !== null;
   });
 
   deleteButtonText = computed(() => {
-    return this._editMode() === 'new' ? 'Annuler' : 'Supprimer';
+    return this._editMode() === 'editNew' ? 'Annuler' : 'Supprimer';
   });
 
   publishButtonText = computed(() => {
     switch (this._editMode()) {
-      case 'new': return 'Publier';
-      case 'draft': return 'Publier';
-      case 'published': return 'Republier';
+      case 'editNew': return 'Publier';
+      case 'editDraft': return 'Publier';
+      case 'editPublished': return 'Republier';
       default: return 'Publier';
     }
   });
 
-  //============ TYPING EFFECT ============
+  //============ EFFECTS ============
 
   private typingEffect = this.typing.createTypingEffect({ text: '' });
   typingComplete = this.typingEffect.typingComplete;
-
-  //============ AUTO SAVE ============
 
   private autoSaveInstance: ReturnType<AutoSaveService['createAutoSave']> | null = null;
 
@@ -157,7 +164,7 @@ export class Editor implements OnInit, OnDestroy {
     this.autoSaveInstance?.cleanup();
   }
 
-  //============ INITIALIZATION ============
+  //============ SETUP ============
 
   private setupTyping(): void {
     this.typingEffect = this.typing.createTypingEffect({
@@ -166,23 +173,43 @@ export class Editor implements OnInit, OnDestroy {
     this.typingEffect.startTyping();
   }
 
+  private setupAutoSave(): void {
+    this.autoSaveInstance = this.autoSave.createAutoSave({
+      data: () => this.story(),
+      mode: () => this._editMode(),
+      storyId: computed(() => this._storyId()),
+      loading: this._loading,
+      storiesService: {
+        saveDraft: async (data: EditStory, id?: number) => {
+          const response = await this.stories.saveDraft(data, id);
+          
+          if (!id && this._editMode() === 'editNew' && response.story.id) {
+            this._storyId.set(response.story.id);
+            this._editMode.set('editDraft');
+          }
+          
+          return response;
+        }
+      }
+    });
+  }
+
+  //============ INITIALIZATION ============
+
   private initializeFromRoute(): void {
     const url = this.router.url;
     const data = this.resolvedData();
 
-    //============ ÉDITION (PRIORITÉ) ============
     if (data?.['data']) {
       this.initializeEditMode(data['data']);
       return;
     }
 
-    //============ LISTES ============
     if (this.isListUrl(url)) {
       this.initializeListMode(url);
       return;
     }
 
-    //============ DÉFAUT ============
     this._viewMode.set('my-stories');
   }
 
@@ -200,11 +227,12 @@ export class Editor implements OnInit, OnDestroy {
     );
   }
 
-  private initializeEditMode(data: any): void {
+  private initializeEditMode(data: ResolvedPrivateStory | null): void {
     this._viewMode.set('edit');
     
     if (!data) {
-      this._editMode.set('new');
+      this._editMode.set('editNew');
+      this.setupAutoSave();
       return;
     }
 
@@ -217,30 +245,19 @@ export class Editor implements OnInit, OnDestroy {
 
       if (data.originalStoryId) {
         this._originalStoryId.set(data.originalStoryId);
-        this._editMode.set('published');
+        this._editMode.set('editPublished');
       } else {
-        this._editMode.set('draft');
+        this._editMode.set('editDraft');
       }
 
       this.setupAutoSave();
     } else {
-      this._editMode.set('new');
+      this._editMode.set('editNew');
+      this.setupAutoSave();
     }
   }
 
-
-
-  private setupAutoSave(): void {
-    this.autoSaveInstance = this.autoSave.createAutoSave({
-      data: () => this.story(),
-      mode: () => this._editMode(),
-      storyId: computed(() => this._storyId()),
-      loading: this._loading,
-      storiesService: this.stories
-    });
-  }
-
-  //============ LIST NAVIGATION ============
+  //============ NAVIGATION ============
 
   showDrafts(): void {
     this._viewMode.set('drafts');
@@ -252,7 +269,11 @@ export class Editor implements OnInit, OnDestroy {
     this.router.navigate(['/chroniques/mes-histoires/publiées']);
   }
 
-  //============ DELETE SELECTION ============
+  goBack(): void {
+    this.location.back();
+  }
+
+  //============ SELECTION ============
 
   isStorySelected(storyId: number): boolean {
     return this._selected().has(storyId);
@@ -272,7 +293,7 @@ export class Editor implements OnInit, OnDestroy {
     this._selected.set(newSet);
   }
 
-  //============ CARD CLICKS ============
+  //============ CLICKS ============
 
   onDraftCardClick(story: Story): void {
     this.router.navigate(['/chroniques/mes-histoires/brouillon/edition', story.title]);
@@ -282,7 +303,7 @@ export class Editor implements OnInit, OnDestroy {
     this.router.navigate(['/chroniques/mes-histoires/publiée/edition', story.title]);
   }
 
-  //============ EDITOR ACTIONS ============
+  //============ ACTIONS ============
 
   async publishStory(): Promise<void> {
     const storyId = this._storyId();
@@ -311,7 +332,7 @@ export class Editor implements OnInit, OnDestroy {
     const storyId = this._storyId();
     if (!storyId) return;
 
-    const isNew = this._editMode() === 'new';
+    const isNew = this._editMode() === 'editNew';
     const confirmed = await this.dialog.confirmDeleteStory(isNew);
     if (!confirmed) return;
 
@@ -340,12 +361,6 @@ export class Editor implements OnInit, OnDestroy {
     } finally {
       this._loading.set(false);
     }
-  }
-
-  //============ NAVIGATION ============
-
-  goBack(): void {
-    this.location.back();
   }
 
   //============ UTILS ============
