@@ -1,7 +1,12 @@
 import { Injectable, signal, effect, Signal, WritableSignal } from '@angular/core';
 
+interface EditStory {
+  title: string;
+  content: string;
+}
+
 interface StoriesService {
-  saveDraft: (data: any, id?: number) => Promise<{ story: { id: number } }>;
+  saveDraft: (data: EditStory, id?: number) => Promise<{ story: { id: number } }>;
 }
 
 interface AutoSaveConfig<T> {
@@ -52,7 +57,8 @@ export class AutoSaveService {
       state.update(s => ({ ...s, isSaving: true }));
 
       try {
-        await this.performSave(data, config);
+        const id = await this.performSave(data, config);
+        
         state.update(s => ({
           ...s,
           isSaving: false,
@@ -73,8 +79,6 @@ export class AutoSaveService {
       }
     });
 
-    // ============ RETOUR SIMPLE ============
-
     return {
       state: state.asReadonly(),
       forceSave: executeSave,
@@ -90,13 +94,13 @@ export class AutoSaveService {
   private async performSave<T>(data: T, config: AutoSaveConfig<T>): Promise<number | null> {
     const currentId = config.storyId();
 
-    if (!currentId && config.mode() === 'NewStory') {
-      const response = await config.storiesService.saveDraft(data);
+    if (!currentId && config.mode() === 'editNew') {
+      const response = await config.storiesService.saveDraft(data as EditStory);
       return response.story.id;
     }
 
     if (currentId) {
-      await config.storiesService.saveDraft(data, currentId);
+      await config.storiesService.saveDraft(data as EditStory, currentId);
     }
 
     return null;
