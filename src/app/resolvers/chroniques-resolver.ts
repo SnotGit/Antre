@@ -3,133 +3,97 @@ import { ResolveFn } from '@angular/router';
 import { PrivateStoriesService } from '../services/private-stories.service';
 import { PublicStoriesService } from '../services/public-stories.service';
 
-export interface PrivateStoryData {
-  story: {
-    title: string;
-    content: string;
-  };
-  mode: 'EditNew' | 'EditDraft' | 'EditPublished';
-  storyId: number | null;
-  originalStoryId: number | null;
+
+interface ResolvedPrivateStory {
+  storyId: number;
+  title: string;
+  content: string;
+  originalStoryId?: number;
 }
 
-export interface PublicStoryData {
+interface ResolvedPublicStory {
   storyId: number;
   userId: number;
 }
 
-export interface UserProfileData {
+interface ResolvedUser {
   userId: number;
 }
 
-export type ChroniquesData = PrivateStoryData | PublicStoryData | UserProfileData;
+type ResolvedData = ResolvedPrivateStory | ResolvedPublicStory | ResolvedUser | null;
 
 //============ RESOLVER ============
 
-export const chroniquesResolver: ResolveFn<ChroniquesData> = async (route) => {
-  const privateStoriesService = inject(PrivateStoriesService);
-  const publicStoriesService = inject(PublicStoriesService);
+export const chroniquesResolver: ResolveFn<ResolvedData> = async (route) => {
+  const privateStories = inject(PrivateStoriesService);
+  const publicStories = inject(PublicStoriesService);
   const url = route.url.join('/');
   
-  //============ ROUTES PRIVÉES ============
+  //============ PRIVATE ROUTES ============
   
   if (url.includes('nouvelle-histoire')) {
-    return {
-      story: { title: '', content: '' },
-      mode: 'EditNew',
-      storyId: null,
-      originalStoryId: null
-    } as PrivateStoryData;
+    return null;
   }
   
   if (url.includes('brouillon') || url.includes('publiée')) {
     const title = route.paramMap.get('title');
-    if (!title) {
-      throw new Error('Titre manquant');
-    }
+    if (!title) throw new Error('Titre manquant');
     
-    //============ CORRECTION: RÉSOUDRE TITRE EN ID ============
-    const resolution = await privateStoriesService.resolveTitle(title);
-    if (!resolution) {
-      throw new Error('Histoire non trouvée');
-    }
+    const resolution = await privateStories.resolveTitle(title);
+    if (!resolution) throw new Error('Histoire non trouvée');
     
-    const response = await privateStoriesService.getStoryForEdit(resolution.id);
-    if (!response) {
-      throw new Error('Histoire non trouvée');
-    }
+    const response = await privateStories.getStory(resolution.id);
+    if (!response) throw new Error('Histoire non trouvée');
     
     return {
-      story: {
-        title: response.story.title,
-        content: response.story.content
-      },
-      mode: url.includes('brouillon') ? 'EditDraft' : 'EditPublished',
       storyId: response.story.id,
-      originalStoryId: response.originalStoryId || null
-    } as PrivateStoryData;
+      title: response.story.title,
+      content: response.story.content,
+      originalStoryId: response.originalStoryId
+    } as ResolvedPrivateStory;
   }
 
-  //============ ROUTE EDITOR BY ID ============
-  
   if (url.includes('editor')) {
     const idParam = route.paramMap.get('id');
-    if (!idParam) {
-      throw new Error('ID manquant');
-    }
+    if (!idParam) throw new Error('ID manquant');
     
     const storyId = parseInt(idParam);
-    if (isNaN(storyId)) {
-      throw new Error('ID invalide');
-    }
+    if (isNaN(storyId)) throw new Error('ID invalide');
     
-    const response = await privateStoriesService.getStoryForEdit(storyId);
-    if (!response) {
-      throw new Error('Histoire non trouvée');
-    }
+    const response = await privateStories.getStory(storyId);
+    if (!response) throw new Error('Histoire non trouvée');
     
     return {
-      story: {
-        title: response.story.title,
-        content: response.story.content
-      },
-      mode: 'EditDraft',
       storyId: response.story.id,
-      originalStoryId: response.originalStoryId || null
-    } as PrivateStoryData;
+      title: response.story.title,
+      content: response.story.content,
+      originalStoryId: response.originalStoryId
+    } as ResolvedPrivateStory;
   }
   
-  //============ ROUTES PUBLIQUES ============
+  //============ PUBLIC ROUTES ============
   
   const username = route.paramMap.get('username');
   const title = route.paramMap.get('title');
   
   if (username && !title) {
-    const userId = await publicStoriesService.resolveUsername(username);
-    if (!userId) {
-      throw new Error(`Utilisateur "${username}" non trouvé`);
-    }
+    const userId = await publicStories.resolveUsername(username);
+    if (!userId) throw new Error(`Utilisateur "${username}" non trouvé`);
     
-    return {
-      userId: userId
-    } as UserProfileData;
+    return { userId } as ResolvedUser;
   }
   
   if (username && title) {
-    const userId = await publicStoriesService.resolveUsername(username);
-    if (!userId) {
-      throw new Error(`Utilisateur "${username}" non trouvé`);
-    }
+    const userId = await publicStories.resolveUsername(username);
+    if (!userId) throw new Error(`Utilisateur "${username}" non trouvé`);
     
-    const storyResolution = await publicStoriesService.resolveStory(username, title);
-    if (!storyResolution) {
-      throw new Error(`Histoire "${title}" non trouvée`);
-    }
+    const storyResolution = await publicStories.resolveStory(username, title);
+    if (!storyResolution) throw new Error(`Histoire "${title}" non trouvée`);
     
     return {
       storyId: storyResolution.storyId,
       userId: userId
-    } as PublicStoryData;
+    } as ResolvedPublicStory;
   }
   
   throw new Error('Route non reconnue');
