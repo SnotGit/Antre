@@ -159,15 +159,37 @@ export class Editor implements OnInit, OnDestroy {
 
   //============ INITIALIZATION ============
 
+  private setupTyping(): void {
+    this.typingEffect = this.typing.createTypingEffect({
+      text: this.headerTitle()
+    });
+    this.typingEffect.startTyping();
+  }
+
   private initializeFromRoute(): void {
     const url = this.router.url;
     const data = this.resolvedData();
 
-    if (url.includes('/mes-histoires')) {
-      this.initializeListMode(url);
-    } else if (data) {
-      this.initializeEditMode(data);
+    //============ ÉDITION (PRIORITÉ) ============
+    if (data?.['data']) {
+      this.initializeEditMode(data['data']);
+      return;
     }
+
+    //============ LISTES ============
+    if (this.isListUrl(url)) {
+      this.initializeListMode(url);
+      return;
+    }
+
+    //============ DÉFAUT ============
+    this._viewMode.set('my-stories');
+  }
+
+  private isListUrl(url: string): boolean {
+    return url.endsWith('/mes-histoires') || 
+           url.endsWith('/brouillons') || 
+           url.endsWith('/publiées');
   }
 
   private initializeListMode(url: string): void {
@@ -206,12 +228,7 @@ export class Editor implements OnInit, OnDestroy {
     }
   }
 
-  private setupTyping(): void {
-    this.typingEffect = this.typing.createTypingEffect({
-      text: this.headerTitle()
-    });
-    this.typingEffect.startTyping();
-  }
+
 
   private setupAutoSave(): void {
     this.autoSaveInstance = this.autoSave.createAutoSave({

@@ -73,7 +73,7 @@ const getStoryForEdit = async (req, res) => {
           title: draft.title,
           content: draft.content
         },
-        originalId: story.id
+        originalStoryId: story.id
       });
     }
 
@@ -166,14 +166,14 @@ const publishStory = async (req, res) => {
 const updateOriginalStory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { originalId } = req.body;
+    const { originalStoryId } = req.body;
     const userId = req.user.userId;
     const draftId = parseInt(id);
-    const originalStoryId = parseInt(originalId);
+    const originalId = parseInt(originalStoryId);
 
     const [draft, originalStory] = await Promise.all([
       prisma.story.findFirst({ where: { id: draftId, userId, status: 'DRAFT' } }),
-      prisma.story.findFirst({ where: { id: originalStoryId, userId, status: 'PUBLISHED' } })
+      prisma.story.findFirst({ where: { id: originalId, userId, status: 'PUBLISHED' } })
     ]);
 
     if (!draft || !originalStory) {
@@ -185,7 +185,7 @@ const updateOriginalStory = async (req, res) => {
 
     await prisma.$transaction([
       prisma.story.update({
-        where: { id: originalStoryId },
+        where: { id: originalId },
         data: {
           title: draft.title,
           content: draft.content,
