@@ -38,7 +38,7 @@ GET /story/published/:id     → loadStory(id) + création draft pour édition
 POST /story/draft            → createStory(data)
 PUT /story/draft/:id         → updateStory(id, data)
 POST /story/publish/:id      → publishStory(id)
-POST /story/republish/:id    → republishStory(draftId, originalId)
+POST /story/update/:id    → updateStory(draftId, originalId)
 DELETE /story/cancel/:id     → cancelStory(id)
 DELETE /story/draft/:id      → deleteDraft(id)
 ```
@@ -77,8 +77,16 @@ GET /resolve/:username/:title → resolveTitle(username, title) pour consultatio
 
 ### INTERFACE RESPONSE
 ```javascript
-// Pour Editor
+// Pour Editor 
 {
+interface draft
+  story: { title: string, content: string },
+  mode: string,
+  storyId: number,
+}
+
+{
+interface published
   story: { title: string, content: string },
   mode: string,
   storyId: number,
@@ -97,8 +105,8 @@ GET /resolve/:username/:title → resolveTitle(username, title) pour consultatio
 
 ### LOGIQUE MÉTIER ÉDITION
 - **EditDraft** → récupère brouillon existant par ID
-- **EditPublished** → copie histoire publiée → nouveau brouillon
-- **Republish** → met à jour originale + supprime brouillon
+- **EditPublished** → copie histoire publiée en nouveau brouillon
+- **UpdateOriginalStory** → confirmation → ok = met à jour originalStoryId title/content + supprime brouillon 
 
 ## SERVICES PRISMA
 
@@ -106,7 +114,7 @@ GET /resolve/:username/:title → resolveTitle(username, title) pour consultatio
 - findFirst avec userId pour sécurité
 - select limité aux champs nécessaires
 - include user pour données publiques
-- transactions pour republish
+- transactions pour updateOriginalStory
 
 ### GESTION ERREURS
 - 404 pour story non trouvée
@@ -117,6 +125,6 @@ GET /resolve/:username/:title → resolveTitle(username, title) pour consultatio
 ## RÉSULTAT ATTENDU
 - Backend propre supportant architecture resolver
 - Routes logiques et cohérentes
-- Sécurité correcte
+- Sécurité 
 - Performance optimisée
 - Code maintenable

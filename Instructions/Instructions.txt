@@ -1,0 +1,105 @@
+
+
+  "EDITOR_ARCHITECTURE": {
+    "concept": "Hub central unifié - Nouvel Editor Fusionne editor + my-stories",
+    "suppression_component": "Suppression du component my-stories",
+    "routes": "Toutes les routes pointent vers Editor",
+    
+    "signals_structure": {
+      "_isList": "signal(true) - Mode affichage liste",
+      "_isEdit": "signal(false) - Mode édition",
+      "_listMode": "signal<'draft' | 'published'>('draft') - Type de liste",
+      "_editMode": "signal<'edit-new' | 'edit-draft' | 'edit-published'>('edit-new') - Mode édition"
+    },
+
+    "header_title_logic": `
+    headerTitle = computed(() => {
+      if (this._isList()) {
+        return this._listMode() === 'draft' ? 'Brouillons' : 'Histoires Publiées';
+      } else {
+        switch (this._editMode()) {
+          case 'edit-new': return 'Nouvelle Histoire';
+          case 'edit-draft': return 'Continuer Histoire';  
+          case 'edit-published': return 'Modifier Histoire';
+        }
+      }
+    });`,
+
+    "interfaces": {
+      "Story": {
+        "id": "number",
+        "title": "string", 
+        "date": "string",
+        "likes": "number (optionnel)"
+      },
+      "StoryForm": {
+        "title": "string",
+        "content": "string"
+      }
+    },
+
+    "navigation_logic": {
+      "vue_liste": "Boutons Brouillons/Publiées changent _listMode",
+      "clic_story": "Navigation/affichage seulement",
+      "clic_bouton": "_isList = false + _isEdit = true + définit _editMode"
+    },
+
+    "data_computed": `
+    draftStories = computed((): Story[] => {
+      return this.service.getDraftStories().map(story => ({
+        id: story.id,
+        title: story.title,
+        date: this.formatDate(story.lastModified)
+      }));
+    });
+
+    publishedStories = computed((): Story[] => {
+      return this.service.getPublishedStories().map(story => ({
+        id: story.id,
+        title: story.title,
+        date: this.formatDate(story.lastModified),
+        likes: story.likes
+      }));
+    });`,
+
+    "business_logic": {
+      "edit-new": "Création from scratch",
+      "edit-draft": "Édition directe brouillon",
+      "edit-published": "Copy published → nouveau draft → edit → replace original"
+    },
+
+    "service_requirements": {
+      "keep": "privateStories.service",
+      "methods": ["getDraftStories()", "getPublishedStories()"],
+      "centralize": "formatDate()",
+      "remove": "Duplications d'interfaces"
+    }
+  },
+
+  "EDITOR_LOGIC": {
+    "workflow": [
+      "Nouvelle histoire → Brouillon auto-créé",
+      "Continuer brouillon → Édition brouillon existant", 
+      "Modifier publiée → NOUVEAU DRAFT + RÉFÉRENCE ORIGINALE"
+    ],
+    
+    "edit_published_solution": {
+      "method": "NOUVEAU DRAFT + RÉFÉRENCE ORIGINALE",
+      "steps": [
+        "1. Histoire publiée ID 345 existante",
+        "2. Clic Modifier → Backend crée nouveau draft ID 567",
+        "3. Nouveau draft contient: originalStoryId: 345",
+        "4. Édition sur draft 567",
+        "5. Update confirmation → Met à jour published 345 avec contenu draft 567",
+        "6. Supprime draft temporaire 567"
+      ],
+      "advantages": [
+        "Pas de collision d'ID",
+        "Préserve liens/bookmarks/likes",
+        "Annulation possible",
+        "Transaction atomique",
+        "URLs restent valides"
+      ]
+    }
+  }
+}

@@ -11,6 +11,13 @@ import { AutoSaveService } from '../../../../services/auto-save.service';
 import { TypingEffectService } from '../../../../services/typing-effect.service';
 import { PrivateStoryData } from '../../../../resolvers/chroniques-resolver';
 
+interface Story {
+  id: number;
+  title: string;
+  date: string;
+  likes?: number;
+}
+
 interface StoryForm {
   title: string;
   content: string;
@@ -35,68 +42,101 @@ export class Editor implements OnInit, OnDestroy {
   private autoSaveService = inject(AutoSaveService);
   private typingService = inject(TypingEffectService);
 
-  //============ DATA FROM RESOLVER ============
+  //============ SIGNALS STRUCTURE ============
+
+  private _isList = signal(true);
+  private _isEdit = signal(false);
+  private _listMode = signal<'myStories' | 'draft' | 'published'>('myStories');
+  private _editMode = signal<'edit-new' | 'edit-draft' | 'edit-published'>('edit-new');
+  private _selectedStoryIds = signal<Set<number>>(new Set());
+  private _loading = signal(false);
+  private _currentStoryId = signal<number | null>(null);
+
+  //============ STORY FORM ============
+
+  story = signal<StoryForm>({ title: '', content: '' });
+
+  //============ RESOLVER DATA ============
 
   private storyData = toSignal(this.route.data) as () => PrivateStoryData | undefined;
-  
-  //============ SIGNALS ============
 
-  loading = signal(false);
-  private currentStoryId = signal<number | null>(null);
+  //============ COMPUTED MODES ============
 
-  //============ FORM MANAGEMENT ============
+  isListMode = computed(() => this._isList());
+  isEditMode = computed(() => this._isEdit());
+  isMyStoriesMode = computed(() => this._isList() && this._listMode() === 'myStories');
+  isDraftsMode = computed(() => this._isList() && this._listMode() === 'draft');
+  isPublishedMode = computed(() => this._isList() && this._listMode() === 'published');
+  isDeleteMode = computed(() => this._selectedStoryIds().size > 0);
 
-  story = linkedSignal<StoryForm>(() => this.storyData()?.story || { title: '', content: '' });
+  //============ COMPUTED HEADER TITLE ============
 
-  //============ COMPUTED ============
-
-  mode = computed(() => this.storyData()?.mode || 'NewStory');
-  
-  canDelete = computed(() => {
-    const data = this.storyData();
-    return data?.storyId !== null || this.currentStoryId() !== null;
+  headerTitle = computed(() => {
+    if (this._isList()) {
+      if (this.isMyStoriesMode()) return 'Mes Histoires';
+      return this._listMode() === 'draft' ? 'Brouillons' : 'Histoires Publiées';
+    } else {
+      switch (this._editMode()) {
+        case 'edit-new': return 'Nouvelle Histoire';
+        case 'edit-draft': return 'Continuer Histoire';
+        case 'edit-published': return 'Modifier Histoire';
+        default: return 'Éditeur';
+      }
+    }
   });
-  
+
+  //============ COMPUTED DATA ============
+
+  stats = this.stories.stats;
+  loading = computed(() => this._loading() || this.stories.loading());
+  selectedStoryIds = this._selectedStoryIds.asReadonly();
+
+  draftStories = computed((): Story[] => {
+    return this.stories.drafts().map(draft => ({
+      id: draft.id,
+      title: draft.title,
+      date: this.formatDate(draft.lastModified ?? new Date().toISOString())
+    }));
+  });
+
+  publishedStories = computed((): Story[] => {
+    return this.stories.published().map(published => ({
+      id: published.id,
+      title: published.title,
+      date: this.formatDate(published.lastModified ?? new Date().toISOString()),
+      likes: published.likes
+    }));
+  });
+
+  //============ COMPUTED EDITOR ============
+
+  canDelete = computed(() => {
+    const mode = this._editMode();
+    const storyId = this._currentStoryId();
+    return mode !== 'edit-new' || storyId !== null;
+  });
+
   deleteButtonText = computed(() => {
-    return this.mode() === 'NewStory' ? 'Annuler' : 'Supprimer';
+    return this._editMode() === 'edit-new' ? 'Annuler' : 'Supprimer';
   });
 
   publishButtonText = computed(() => {
-    switch (this.mode()) {
-      case 'NewStory': return 'Publier';
-      case 'EditDraft': return 'Publier';
-      case 'EditPublished': return 'Republier';
+    switch (this._editMode()) {
+      case 'edit-new': return 'Publier';
+      case 'edit-draft': return 'Publier';
+      case 'edit-published': return 'Republier';
+      default: return 'Publier';
     }
   });
 
   //============ TYPING EFFECT ============
 
-  private titleText = computed(() => {
-    switch (this.mode()) {
-      case 'NewStory': return 'Nouvelle histoire';
-      case 'EditDraft': return 'Continuer histoire';
-      case 'EditPublished': return 'Modifier histoire';
-    }
-  });
-
   private typingEffect: ReturnType<TypingEffectService['createTypingEffect']> | null = null;
-
-  headerTitle = computed(() => this.typingEffect?.headerTitle() || '');
   typingComplete = computed(() => this.typingEffect?.typingComplete() || false);
 
   //============ AUTO SAVE ============
 
   private autoSaveInstance: ReturnType<AutoSaveService['createAutoSave']> | null = null;
-
-  private setupAutoSave(): void {
-    this.autoSaveInstance = this.autoSaveService.createAutoSave<StoryForm>({
-      data: () => this.story(),
-      mode: this.mode,
-      storyId: computed(() => this.currentStoryId() || this.storyData()?.storyId || null),
-      loading: this.loading,
-      storiesService: this.stories
-    });
-  }
 
   //============ LIFECYCLE ============
 
@@ -106,17 +146,9 @@ export class Editor implements OnInit, OnDestroy {
       return;
     }
 
-    // Initialiser l'ID courant depuis le resolver
-    const data = this.storyData();
-    if (data?.storyId) {
-      this.currentStoryId.set(data.storyId);
-    }
-
-    this.typingEffect = this.typingService.createTypingEffect({
-      text: this.titleText(),
-    });
-    this.typingEffect.startTyping();
-    this.setupAutoSave();
+    this.initializeFromRoute();
+    this.setupTypingEffect();
+    this.stories.initializeUserData();
   }
 
   ngOnDestroy(): void {
@@ -124,16 +156,130 @@ export class Editor implements OnInit, OnDestroy {
     this.autoSaveInstance?.cleanup();
   }
 
-  //============ ACTIONS ============
+  //============ INITIALIZATION ============
+
+  private initializeFromRoute(): void {
+    const url = this.router.url;
+    const data = this.storyData();
+
+    if (url.includes('/mes-histoires')) {
+      this.initializeListMode();
+    } else if (data) {
+      this.initializeEditMode(data);
+    }
+  }
+
+  private initializeListMode(): void {
+    const url = this.router.url;
+    this._isList.set(true);
+    this._isEdit.set(false);
+    
+    if (url.includes('publiées')) {
+      this._listMode.set('published');
+    } else if (url.includes('brouillons')) {
+      this._listMode.set('draft');
+    } else {
+      this._listMode.set('myStories');
+    }
+  }
+
+  private initializeEditMode(data: PrivateStoryData): void {
+    this._isList.set(false);
+    this._isEdit.set(true);
+    
+    switch (data.mode) {
+      case 'EditNew':
+        this._editMode.set('edit-new');
+        return;
+      case 'EditDraft':
+        this._editMode.set('edit-draft');
+        return;
+      case 'EditPublished':
+        this._editMode.set('edit-published');
+        return;
+    }
+    
+    if (data.storyId) {
+      this._currentStoryId.set(data.storyId);
+    }
+    
+    this.story.set({
+      title: data.story.title,
+      content: data.story.content
+    });
+
+    this.setupAutoSave();
+  }
+
+  private setupTypingEffect(): void {
+    this.typingEffect = this.typingService.createTypingEffect({
+      text: this.headerTitle(),
+    });
+    this.typingEffect.startTyping();
+  }
+
+  private setupAutoSave(): void {
+    this.autoSaveInstance = this.autoSaveService.createAutoSave<StoryForm>({
+      data: () => this.story(),
+      mode: computed(() => this._editMode()),
+      storyId: computed(() => this._currentStoryId()),
+      loading: this._loading,
+      storiesService: this.stories
+    });
+  }
+
+  //============ LIST NAVIGATION ============
+
+  showDrafts(): void {
+    this._listMode.set('draft');
+    this.router.navigate(['/chroniques/mes-histoires/brouillons']);
+  }
+
+  showPublished(): void {
+    this._listMode.set('published');
+    this.router.navigate(['/chroniques/mes-histoires/publiées']);
+  }
+
+  //============ DELETE STORY SELECTION ============
+
+  isStorySelected(storyId: number): boolean {
+    return this._selectedStoryIds().has(storyId);
+  }
+
+  onCheckboxClick(event: Event, storyId: number): void {
+    event.stopPropagation();
+    const currentSet = this._selectedStoryIds();
+    const newSet = new Set(currentSet);
+    
+    if (newSet.has(storyId)) {
+      newSet.delete(storyId);
+    } else {
+      newSet.add(storyId);
+    }
+    
+    this._selectedStoryIds.set(newSet);
+  }
+
+  //============ CARD CLICKS ============
+
+  onDraftCardClick(story: Story): void {
+    this.router.navigate(['/chroniques/edition/brouillon', story.title]);
+  }
+
+  onPublishedCardClick(story: Story): void {
+    this.router.navigate(['/chroniques/edition/publiée', story.title]);
+  }
+
+  //============ EDITOR ACTIONS ============
 
   async publishStory(): Promise<void> {
-    const storyId = this.currentStoryId() || this.storyData()?.storyId;
+    const storyId = this._currentStoryId();
     if (!storyId) return;
 
     const confirmed = await this.dialog.confirmPublishStory();
     if (!confirmed) return;
 
-    this.loading.set(true);
+    this._loading.set(true);
     try {
       const data = this.storyData();
       const originalId = data?.originalStoryId;
@@ -146,36 +292,64 @@ export class Editor implements OnInit, OnDestroy {
       
       this.router.navigate(['/chroniques']);
     } finally {
-      this.loading.set(false);
+      this._loading.set(false);
     }
   }
 
   async deleteStory(): Promise<void> {
-    const storyId = this.currentStoryId() || this.storyData()?.storyId;
+    const storyId = this._currentStoryId();
     if (!storyId) return;
 
-    const isNewStory = this.mode() === 'NewStory';
-    const confirmed = await this.dialog.confirmDeleteStory(isNewStory);
+    const isEditNew = this._editMode() === 'edit-new';
+    const confirmed = await this.dialog.confirmDeleteStory(isEditNew);
     if (!confirmed) return;
 
-    this.loading.set(true);
+    this._loading.set(true);
     try {
-      if (isNewStory) {
-        await this.stories.deleteStory(storyId);
-      } else {
-        await this.stories.deleteStory(storyId);
-      }
+      await this.stories.deleteStory(storyId);
       this.router.navigate(['/chroniques/mes-histoires']);
     } finally {
-      this.loading.set(false);
+      this._loading.set(false);
     }
   }
 
+  async deleteSelectedStories(): Promise<void> {
+    const selectedIds = Array.from(this._selectedStoryIds());
+    
+    if (selectedIds.length === 0) return;
 
-  cancel (){}
+    const confirmed = await this.dialog.confirmDeleteStory(false);
+    if (!confirmed) return;
+
+    this._loading.set(true);
+    try {
+      for (const storyId of selectedIds) {
+        await this.stories.deleteStory(storyId);
+      }
+      
+      this._selectedStoryIds.set(new Set());
+      await this.stories.initializeUserData();
+      
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
   //============ NAVIGATION ============
 
   goBack(): void {
     this.location.back();
+  }
+
+  //============ UTILS ============
+
+  private formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
   }
 }

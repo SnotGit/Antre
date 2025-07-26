@@ -9,48 +9,46 @@ export const routes: Routes = [
     loadComponent: () => import('../components/chroniques/chroniques').then(m => m.Chroniques)
   },
   
-  //============ MY STORIES (AVANT :username) ============
+  //============ MY STORIES ============
   
   {
     path: 'mes-histoires',
-    loadComponent: () => import('../components/chroniques/stories/my-stories/my-stories').then(m => m.MyStories)
+    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
   },
+  
   {
     path: 'mes-histoires/brouillons', 
-    loadComponent: () => import('../components/chroniques/stories/my-stories/my-stories').then(m => m.MyStories)
+    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
   },
+  
   {
     path: 'mes-histoires/publiées',
-    loadComponent: () => import('../components/chroniques/stories/my-stories/my-stories').then(m => m.MyStories)
+    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
   },
 
-  //============ EDITOR (AVANT :username) ============
+  //============ EDIT ============
   
   {
-    path: 'edition/nouvelle-histoire',
+    path: 'mes-histoires/brouillons/édition/nouvelle-histoire',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
     resolve: { data: chroniquesResolver }
   },
-  {
-    path: 'edition/brouillon/:title',
-    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
-    resolve: { data: chroniquesResolver }
-  },
-  {
-    path: 'edition/publiée/:title',
-    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
-    resolve: { data: chroniquesResolver }
-  },
-  {
-    path: 'editor/:id',
-    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
-    resolve: { data: chroniquesResolver }
-  },
-
-
-
-  //============ PUBLIC STORIES (EN DERNIER) ============
   
+  {
+    path: 'mes-histoires/brouillons/édition/:title',
+    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
+    resolve: { data: chroniquesResolver }
+  },
+  
+  {
+    path: 'mes-histoires/publiées/édition/:title',
+    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
+    resolve: { data: chroniquesResolver }
+  },
+
+  //============ PUBLIC ROUTES ============
+  
+ 
   {
     path: ':username/:title',
     loadComponent: () => import('../components/chroniques/stories/story/story').then(m => m.Story),
@@ -58,13 +56,9 @@ export const routes: Routes = [
   },
 
 
-
-  //============ USER PROFILE (APRÈS routes spécifiques) ============
-  
   {
     path: ':username',
     loadComponent: () => import('../components/chroniques/user/user-profile/user-profile').then(m => m.AuthorProfileComponent),
     resolve: { data: chroniquesResolver }
-  },
-
-  ];
+  }
+];
