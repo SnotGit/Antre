@@ -5,7 +5,11 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../../services/auth.service';
 import { PublicStoriesService } from '../../../../services/public-stories.service';
 import { PrivateStoriesService } from '../../../../services/private-stories.service';
-import { PublicStoryData } from '../../../../resolvers/chroniques-resolver';
+
+interface PublicStoryData {
+  storyId: number;
+  userId: number;
+}
 
 @Component({
   selector: 'app-story',
@@ -45,13 +49,11 @@ export class Story {
 
       const currentIndex = userStories.findIndex(s => s.id === params.storyId);
 
-      const storyIsLiked = { 
-        ...story, 
-        isliked: typeof story.isliked === 'boolean' ? story.isliked : false 
-      };
-
       return {
-        story: storyIsLiked,
+        story: { 
+          ...story, 
+          isliked: typeof story.isliked === 'boolean' ? story.isliked : false 
+        },
         userStories,
         currentIndex,
         hasNext: currentIndex > 0,
@@ -70,7 +72,7 @@ export class Story {
     return this.auth.isLoggedIn() && 
            user && 
            data?.story && 
-           user.id !== data.story.user!.id;
+           user.id !== data.story.user?.id;
   });
 
   //============ ACTIONS ============
@@ -83,19 +85,19 @@ export class Story {
     this.storyData.reload();
   }
 
-  goToNextStory(): void {
-    const data = this.storyData.value();
-    if (!data?.hasNext || !data.nextStory) return;
-    
-    const story = data.story;
-    this.router.navigate(['/chroniques', story.user!.username, data.nextStory.title]);
-  }
-
   goToPreviousStory(): void {
     const data = this.storyData.value();
     if (!data?.hasPrevious || !data.previousStory) return;
     
     const story = data.story;
-    this.router.navigate(['/chroniques', story.user!.username, data.previousStory.title]);
+    this.router.navigate(['/chroniques', story.user?.username, data.previousStory.title]);
+  }
+
+  goToNextStory(): void {
+    const data = this.storyData.value();
+    if (!data?.hasNext || !data.nextStory) return;
+    
+    const story = data.story;
+    this.router.navigate(['/chroniques', story.user?.username, data.nextStory.title]);
   }
 }

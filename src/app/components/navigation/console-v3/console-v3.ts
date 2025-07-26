@@ -93,7 +93,7 @@ export class ConsoleV3 {
   //============ ACTIONS UTILISATEUR ============
 
   newStory(): void {
-    this.router.navigate(['/chroniques/edition/nouvelle-histoire']);
+    this.router.navigate(['/chroniques/mes-histoires/brouillons/édition/nouvelle-histoire']);
   }
 
   myStories(): void {

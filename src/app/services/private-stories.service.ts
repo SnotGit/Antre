@@ -2,18 +2,15 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
-interface DraftStory {
-  id: number;
-  title: string;
-  lastModified: string;
-  status: string;
-}
+//============ INTERFACES SERVICE ============
 
-interface PublishedStory {
+interface StoryData {
   id: number;
   title: string;
+  content: string;
+  status: string;
   lastModified: string;
-  likes: number;
+  likes?: number;
 }
 
 interface UserStats {
@@ -22,21 +19,9 @@ interface UserStats {
   totalLikes: number;
 }
 
-interface StoryData {
-  id: number;
-  title: string;
-  content: string;
-  status?: string;
-}
-
 interface SaveDraftResponse {
   message: string;
-  story: {
-    id: number;
-    title: string;
-    content: string;
-    status: string;
-  };
+  story: StoryData;
 }
 
 interface EditStoryResponse {
@@ -63,8 +48,8 @@ export class PrivateStoriesService {
   private readonly http = inject(HttpClient);
   private readonly API_URL = 'http://localhost:3000/api/private-stories';
 
-  private _drafts = signal<DraftStory[]>([]);
-  private _published = signal<PublishedStory[]>([]);
+  private _drafts = signal<StoryData[]>([]);
+  private _published = signal<StoryData[]>([]);
   private _stats = signal<UserStats>({ drafts: 0, published: 0, totalLikes: 0 });
   private _loading = signal<boolean>(false);
 
@@ -78,13 +63,15 @@ export class PrivateStoriesService {
   async initializeUserData(): Promise<void> {
     this._loading.set(true);
 
-    await Promise.all([
-      this.loadDrafts(),
-      this.loadPublished(),
-      this.loadStats()
-    ]);
-
-    this._loading.set(false);
+    try {
+      await Promise.all([
+        this.loadDrafts(),
+        this.loadPublished(),
+        this.loadStats()
+      ]);
+    } finally {
+      this._loading.set(false);
+    }
   }
 
   //============ RÉSOLUTION TITRE ============
@@ -102,25 +89,37 @@ export class PrivateStoriesService {
 
   //============ LISTES ============
 
-  async loadDrafts(): Promise<void> {
-    const data = await firstValueFrom(
-      this.http.get<{ drafts: DraftStory[] }>(`${this.API_URL}/drafts`)
-    );
-    this._drafts.set(data?.drafts || []);
+  private async loadDrafts(): Promise<void> {
+    try {
+      const data = await firstValueFrom(
+        this.http.get<{ drafts: StoryData[] }>(`${this.API_URL}/drafts`)
+      );
+      this._drafts.set(data?.drafts || []);
+    } catch (error) {
+      this._drafts.set([]);
+    }
   }
 
-  async loadPublished(): Promise<void> {
-    const data = await firstValueFrom(
-      this.http.get<{ published: PublishedStory[] }>(`${this.API_URL}/published`)
-    );
-    this._published.set(data?.published || []);
+  private async loadPublished(): Promise<void> {
+    try {
+      const data = await firstValueFrom(
+        this.http.get<{ published: StoryData[] }>(`${this.API_URL}/published`)
+      );
+      this._published.set(data?.published || []);
+    } catch (error) {
+      this._published.set([]);
+    }
   }
 
-  async loadStats(): Promise<void> {
-    const data = await firstValueFrom(
-      this.http.get<{ stats: UserStats }>(`${this.API_URL}/stats`)
-    );
-    this._stats.set(data?.stats || { drafts: 0, published: 0, totalLikes: 0 });
+  private async loadStats(): Promise<void> {
+    try {
+      const data = await firstValueFrom(
+        this.http.get<{ stats: UserStats }>(`${this.API_URL}/stats`)
+      );
+      this._stats.set(data?.stats || { drafts: 0, published: 0, totalLikes: 0 });
+    } catch (error) {
+      this._stats.set({ drafts: 0, published: 0, totalLikes: 0 });
+    }
   }
 
   //============ ÉDITION ============
@@ -132,25 +131,23 @@ export class PrivateStoriesService {
       const data = await firstValueFrom(
         this.http.get<EditStoryResponse>(`${this.API_URL}/edit/${id}`)
       );
-      this._loading.set(false);
       return data;
     } catch (error) {
-      this._loading.set(false);
       return null;
+    } finally {
+      this._loading.set(false);
     }
   }
 
   //============ SAUVEGARDE ============
 
   async saveDraft(data: { title: string; content: string }, storyId?: number): Promise<SaveDraftResponse> {
-    this._loading.set(true);
-
     const result = storyId 
       ? await this.updateDraft(data, storyId)
       : await this.createDraft(data);
     
     await this.loadDrafts();
-    this._loading.set(false);
+    await this.loadStats();
     
     return result;
   }
@@ -172,21 +169,29 @@ export class PrivateStoriesService {
   async publishStory(storyId: number): Promise<void> {
     this._loading.set(true);
 
-    await firstValueFrom(
-      this.http.post(`${this.API_URL}/publish/${storyId}`, {})
-    );
-    
-    await this.initializeUserData();
+    try {
+      await firstValueFrom(
+        this.http.post(`${this.API_URL}/publish/${storyId}`, {})
+      );
+      
+      await this.initializeUserData();
+    } finally {
+      this._loading.set(false);
+    }
   }
 
   async updateStory(draftId: number, originalStoryId: number): Promise<void> {
     this._loading.set(true);
 
-    await firstValueFrom(
-      this.http.post(`${this.API_URL}/update/${draftId}`, { originalStoryId: originalStoryId })
-    );
-    
-    await this.initializeUserData();
+    try {
+      await firstValueFrom(
+        this.http.post(`${this.API_URL}/update/${draftId}`, { originalStoryId: originalStoryId })
+      );
+      
+      await this.initializeUserData();
+    } finally {
+      this._loading.set(false);
+    }
   }
 
   //============ SUPPRESSION ============
@@ -194,11 +199,15 @@ export class PrivateStoriesService {
   async deleteStory(storyId: number): Promise<void> {
     this._loading.set(true);
 
-    await firstValueFrom(
-      this.http.delete(`${this.API_URL}/story/${storyId}`)
-    );
-    
-    await this.initializeUserData();
+    try {
+      await firstValueFrom(
+        this.http.delete(`${this.API_URL}/story/${storyId}`)
+      );
+      
+      await this.initializeUserData();
+    } finally {
+      this._loading.set(false);
+    }
   }
 
   //============ LIKES ============

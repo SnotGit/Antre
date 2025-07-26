@@ -1,17 +1,96 @@
 <div class="container">
 
+  <!-- ============ HEADER ============ -->
   <div class="header">
     <h1 class="header-title" [class.typing]="!typingComplete()">
       {{ headerTitle() }}
     </h1>
+    
+    @if (isEditMode() || !isMyStoriesMode()) {
     <div class="back-button">
       <button class="btn" (click)="goBack()">
         <span>← Retour</span>
       </button>
     </div>
-  </div>  
+    }
+    
+    @if (isDeleteMode()) {
+    <div class="delete-button">
+      <button class="btn" (click)="deleteSelectedStories()">
+        Supprimer ({{ selectedStoryIds().size }})
+      </button>
+    </div>
+    }
+  </div>
 
-  <div class="card-editor">
+  <!-- ============ SEPARATOR ============ -->
+  <div class="separator">
+    <div class="line"></div>
+  </div>
+
+  <!-- ============ LIST MODE ============ -->
+  @if (isListMode()) {
+  
+    @if (isMyStoriesMode()) {
+    <div class="content">
+      <div class="content-grid">
+        <button class="button" (click)="showDrafts()">
+          <div class="number">{{ stats().drafts }}</div>
+          <div class="title">Brouillons</div>
+        </button>
+
+        <button class="button" (click)="showPublished()">
+          <div class="number">{{ stats().published }}</div>
+          <div class="title">Publiées</div>
+        </button>
+      </div>
+    </div>
+    }
+
+    @if (isDraftsMode()) {
+    <div class="content">
+      <div class="content-grid">
+        @for (story of draftStories(); track story.id) {
+        <div class="card" 
+             [class.selected]="isStorySelected(story.id)"
+             (click)="onDraftCardClick(story)">
+          <div class="story-title">{{ story.title }}</div>
+          <div class="story-date">{{ story.date }}</div>
+          <input type="checkbox" 
+                 class="delete-checkbox" 
+                 [checked]="isStorySelected(story.id)"
+                 (click)="onCheckboxClick($event, story.id)">
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+    @if (isPublishedMode()) {
+    <div class="content">
+      <div class="content-grid">
+        @for (story of publishedStories(); track story.id) {
+        <div class="card" 
+             [class.selected]="isStorySelected(story.id)"
+             (click)="onPublishedCardClick(story)">
+          <div class="story-title">{{ story.title }}</div>
+          <div class="story-date">{{ story.date }}</div>
+          <input type="checkbox" 
+                 class="delete-checkbox" 
+                 [checked]="isStorySelected(story.id)"
+                 (click)="onCheckboxClick($event, story.id)">
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+  }
+
+  <!-- ============ EDIT MODE ============ -->
+  @if (isEditMode()) {
+  
+  <div class="editor">
 
     <div class="field-title">
       <label>Titre de l'histoire</label>
@@ -19,43 +98,47 @@
         type="text" 
         [(ngModel)]="story().title"
         [disabled]="loading()"
-        placeholder="Exemple : Brain Operational Security Service et Boris la pancarte">
+        placeholder="Donnez un titre à votre histoire...">
     </div>
 
     <div class="field-content">
-      <label>Texte</label>
+      <label>Contenu</label>
       <textarea 
         [(ngModel)]="story().content"
         [disabled]="loading()"
-        placeholder="Exemple : Observation des lumières indigo, niveau 12. Théorie : elles clignotent selon un code. Réalité : c'est juste Sulfuro qui fait de la soudure en bas, quelle ironie cette trappe encore ouverte...">
+        placeholder="Écrivez votre histoire ici...">
       </textarea>
     </div>
 
-    <div class="card-footer">
+    <div class="footer">
       @if (canDelete()) {
-        <div class="delete-button">
-          <button 
-            class="btn" 
-            [class.cancel-btn]="mode() === 'NewStory'"
-            [class.delete-btn]="mode() !== 'NewStory'"
-            (click)="deleteStory()" 
-            [disabled]="loading()">
-            <span>{{ deleteButtonText() }}</span>
-          </button>
-        </div>
+      <div class="delete-button">
+        <button 
+          class="btn" 
+          (click)="deleteStory()" 
+          [disabled]="loading()">
+          <span>{{ deleteButtonText() }}</span>
+        </button>
+      </div>
       }
 
       <div class="publish-button">
-        <button class="btn" (click)="publishStory()" [disabled]="loading()">
+        <button 
+          class="btn" 
+          (click)="publishStory()" 
+          [disabled]="loading()">
           @if (loading()) {
-            <span>Publication en cours...</span>
+          <span class="loading-spinner"></span>
+          <span>Publication en cours...</span>
           } @else {
-            <span>{{ publishButtonText() }}</span>
+          <span>{{ publishButtonText() }}</span>
           }
         </button>
       </div>
     </div>
 
   </div>
+
+  }
 
 </div>
