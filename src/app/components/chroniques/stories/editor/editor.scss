@@ -31,6 +31,20 @@
   .back-button {
     @include button;
   }
+
+  .delete-button {
+    @include button;
+    
+    .btn {
+      border-color: crimson;
+      color: crimson;
+
+      &:hover {
+        color: #d0d0d0;
+        border-color: #d0d0d0;
+      }
+    }
+  }
 }
 
 //============ SEPARATOR ============
