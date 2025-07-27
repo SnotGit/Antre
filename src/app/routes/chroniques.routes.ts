@@ -24,7 +24,7 @@ export const routes: Routes = [
   },
   
   {
-    path: 'mes-histoires/publiee/edition/:title',
+    path: 'mes-histoires/publiée/edition/:title',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
     resolve: { data: chroniquesResolver }
   },
@@ -35,7 +35,7 @@ export const routes: Routes = [
   },
   
   {
-    path: 'mes-histoires/publiees',
+    path: 'mes-histoires/publiées',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
   },
   

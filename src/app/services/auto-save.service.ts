@@ -17,9 +17,13 @@ interface AutoSaveState {
 })
 export class AutoSaveService {
 
+  //============ INJECTION CONTEXT ============
+
+  private readonly injector = inject(Injector);
+
+  //============ AUTOSAVE FACTORY ============
+
   autoSave(config: AutoSave) {
-    const injector = inject(Injector);
-    
     const state = signal<AutoSaveState>({
       isSaving: false,
       lastSaveTime: null,
@@ -50,7 +54,7 @@ export class AutoSaveService {
           await this.saving(config, state);
         }, delay);
       }
-    }, { injector });
+    }, { injector: this.injector });
 
     return {
       state: state.asReadonly(),
@@ -70,6 +74,8 @@ export class AutoSaveService {
       }
     };
   }
+
+  //============ PRIVATE SAVE ============
 
   private async saving(
     config: AutoSave,
