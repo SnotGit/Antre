@@ -10,8 +10,7 @@ import { TypingEffectService } from '../../services/typing-effect.service';
 export class MarsballComponent {
   private typingService = inject(TypingEffectService);
 
-
-  private typingEffect = this.typingService.createTypingEffect({
+  private typingEffect = this.typingService.title({
     text: 'Marsball',
   });
 
@@ -21,10 +20,10 @@ export class MarsballComponent {
 
 
   ngOnInit(): void {
-    this.typingEffect.startTyping();
+    this.typingEffect.typing();
   }
 
   ngOnDestroy(): void {
-    this.typingEffect.cleanup();
+    this.typingEffect.destroy();
   }
 }
