@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -61,7 +61,15 @@ export class Editor implements OnInit, OnDestroy {
   private _originalStoryId = signal<number | null>(null);
   private _selected = signal<Set<number>>(new Set());
 
-  story = signal<EditStory>({ title: '', content: '' });
+  //============ STORY SIGNALS ============
+
+  private _storyTitle = signal<string>('');
+  private _storyContent = signal<string>('');
+
+  story = linkedSignal(() => ({
+    title: this._storyTitle(),
+    content: this._storyContent()
+  }));
 
   //============ READONLY ============
 
@@ -97,35 +105,34 @@ export class Editor implements OnInit, OnDestroy {
     }
   });
 
-  //============ TITRE DYNAMIQUE ============
+  //============ DYNAMICS TITLES ============
+
+  private readonly TITLES = {
+    editNew: 'Nouvelle Histoire',
+    editDraft: 'Continuer Histoire', 
+    editPublished: 'Modifier Histoire',
+    'my-stories': 'Mes Histoires',
+    drafts: 'Brouillons',
+    published: 'Histoires Publiées'
+  };
 
   currentTitle = computed(() => {
     if (this._isEditing()) {
-      switch (this._editMode()) {
-        case 'editNew': return 'Nouvelle Histoire';
-        case 'editDraft': return 'Continuer Histoire';
-        case 'editPublished': return 'Modifier Histoire';
-        default: return 'Éditeur';
-      }
+      return this.TITLES[this._editMode()];
     } else {
-      switch (this._viewMode()) {
-        case 'my-stories': return 'Mes Histoires';
-        case 'drafts': return `Brouillons (${this.stats().drafts})`;  
-        case 'published': return `Histoires Publiées (${this.stats().published})`;
-        default: return 'Mes Histoires';
-      }
+      return this.TITLES[this._viewMode()];
     }
   });
 
-  //============ TYPING EFFECT SIMPLE ============
+  //============ TYPING EFFECT ============
+  
+  headerTitle = this.typingService.headerTitle;
+  showCursor = this.typingService.showCursor;
+  typingComplete = this.typingService.typingComplete;
 
-  private typingEffect = this.typingService.createTypingEffect({
-    text: 'Mes Histoires'
+  private typingEffect = effect(() => {
+    this.typingService.title(this.currentTitle());
   });
-
-  headerTitle = this.typingEffect.headerTitle;
-  showCursor = this.typingEffect.showCursor;
-  typingComplete = this.typingEffect.typingComplete;
 
   //============ AUTOSAVE ============
 
@@ -184,22 +191,11 @@ export class Editor implements OnInit, OnDestroy {
 
     this.initializeFromRoute();
     this.stories.loadStories();
-    this.updateTypingTitle();
   }
 
   ngOnDestroy(): void {
-    this.typingEffect.cleanup();
+    this.typingEffect.destroy();
     this.autoSaveInstance?.cleanup();
-  }
-
-  //============ UPDATE TYPING ============
-
-  private updateTypingTitle(): void {
-    this.typingEffect.cleanup();
-    this.typingEffect = this.typingService.createTypingEffect({
-      text: this.currentTitle()
-    });
-    this.typingEffect.startTyping();
   }
 
   //============ INITIALIZATION ============
@@ -235,7 +231,6 @@ export class Editor implements OnInit, OnDestroy {
       url.includes('brouillons') ? 'drafts' : 
       'my-stories'
     );
-    this.updateTypingTitle();
   }
 
   private initializeEditMode(data: ResolvedPrivateStory | null): void {
@@ -244,7 +239,6 @@ export class Editor implements OnInit, OnDestroy {
     if (!data) {
       this._editMode.set('editNew');
       this.setupAutoSave();
-      this.updateTypingTitle();
       return;
     }
 
@@ -263,11 +257,9 @@ export class Editor implements OnInit, OnDestroy {
       }
 
       this.setupAutoSave();
-      this.updateTypingTitle();
     } else {
       this._editMode.set('editNew');
       this.setupAutoSave();
-      this.updateTypingTitle();
     }
   }
 
@@ -277,14 +269,12 @@ export class Editor implements OnInit, OnDestroy {
     this._isEditing.set(false);
     this._viewMode.set('drafts');
     this.router.navigate(['/chroniques/mes-histoires/brouillons']);
-    this.updateTypingTitle();
   }
 
   showPublished(): void {
     this._isEditing.set(false);
     this._viewMode.set('published');
     this.router.navigate(['/chroniques/mes-histoires/publiées']);
-    this.updateTypingTitle();
   }
 
   goBack(): void {
