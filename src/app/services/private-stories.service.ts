@@ -13,10 +13,7 @@ interface StoryData {
   likes?: number;
 }
 
-interface EditStory {
-  title: string;
-  content: string;
-}
+
 
 interface UserStats {
   drafts: number;
@@ -90,7 +87,7 @@ export class PrivateStoriesService {
 
   //============ SAVE ============
 
-  async saveDraft(data: EditStory, id?: number): Promise<StoryResponse> {
+  async saveDraft(data: { title: string; content: string }, id?: number): Promise<StoryResponse> {
     const response = id 
       ? await firstValueFrom(this.http.put<StoryResponse>(`${this.API_URL}/draft/${id}`, data))
       : await firstValueFrom(this.http.post<StoryResponse>(`${this.API_URL}/draft`, data));

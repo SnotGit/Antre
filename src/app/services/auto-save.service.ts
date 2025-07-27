@@ -32,23 +32,29 @@ export class AutoSaveService {
 
     let previousData = '';
     let timeoutId: number | undefined;
+    let firstRun = true;
 
     const autoSaveEffect = effect(() => {
       const currentData = JSON.stringify(config.data());
       
-      if (previousData === '') {
+      // Ignorer la première exécution (valeur initiale)
+      if (firstRun) {
         previousData = currentData;
+        firstRun = false;
         return;
       }
 
+      // Vérifier si les données ont vraiment changé
       if (currentData !== previousData) {
         previousData = currentData;
         state.update(s => ({ ...s, hasUnsavedChanges: true }));
 
+        // Annuler le timeout précédent s'il existe
         if (timeoutId) {
           clearTimeout(timeoutId);
         }
 
+        // Planifier la sauvegarde après le délai
         const delay = config.delay ?? 2000;
         timeoutId = window.setTimeout(async () => {
           await this.saving(config, state);
@@ -62,6 +68,7 @@ export class AutoSaveService {
       forceSave: async () => {
         if (timeoutId) {
           clearTimeout(timeoutId);
+          timeoutId = undefined;
         }
         await this.saving(config, state);
       },
@@ -69,6 +76,7 @@ export class AutoSaveService {
       cleanup: () => {
         if (timeoutId) {
           clearTimeout(timeoutId);
+          timeoutId = undefined;
         }
         autoSaveEffect.destroy();
       }

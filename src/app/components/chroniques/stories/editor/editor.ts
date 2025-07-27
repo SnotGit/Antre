@@ -10,20 +10,15 @@ import { ConfirmationDialogService } from '../../../../services/confirmation-dia
 import { AutoSaveService } from '../../../../services/auto-save.service';
 import { TypingEffectService } from '../../../../services/typing-effect.service';
 
-interface EditStory {
-  title: string;
-  content: string;
-}
-
-interface Story {
+interface StoryCard {
   id: number;
   title: string;
   date: string;
   likes?: number;
 }
 
-interface ResolvedPrivateStory {
-  storyId: number;
+interface Story {
+  storyId?: number;
   title: string;
   content: string;
   originalStoryId?: number;
@@ -60,6 +55,7 @@ export class Editor implements OnInit, OnDestroy {
   private _storyId = signal<number | null>(null);
   private _originalStoryId = signal<number | null>(null);
   private _selected = signal<Set<number>>(new Set());
+  private _dataLoaded = signal<boolean>(false);
 
   //============ STORY SIGNALS ============
 
@@ -139,10 +135,33 @@ export class Editor implements OnInit, OnDestroy {
   private autoSaveInstance: ReturnType<AutoSaveService['autoSave']> | null = null;
 
   private setupAutoSave(): void {
+    if (this.autoSaveInstance) {
+      this.autoSaveInstance.cleanup();
+    }
+
     this.autoSaveInstance = this.autoSaveService.autoSave({
       data: this.story,
       onSave: async () => {
-        await this.handleAutoSave();
+        if (this._dataLoaded()) {
+          await this.handleAutoSave();
+        }
+      },
+      delay: 2000
+    });
+  }
+
+  private setupAutoSaveForNewStory(): void {
+    if (this.autoSaveInstance) {
+      this.autoSaveInstance.cleanup();
+    }
+
+    this.autoSaveInstance = this.autoSaveService.autoSave({
+      data: this.story,
+      onSave: async () => {
+        const data = this.story();
+        if (this.shouldSave(data)) {
+          await this.handleAutoSave();
+        }
       },
       delay: 2000
     });
@@ -155,21 +174,30 @@ export class Editor implements OnInit, OnDestroy {
 
     if (!this.shouldSave(data)) return;
 
-    if (mode === 'editNew' && !currentId) {
-      await this.createFirstDraft(data);
-      return;
-    }
+    try {
+      if (mode === 'editNew' && !currentId) {
+        await this.createFirstDraft(data);
+        return;
+      }
 
-    if (currentId) {
-      await this.saveExistingDraft(data, currentId);
+      if (mode === 'editPublished' && !currentId) {
+        await this.createEditDraft(data);
+        return;
+      }
+
+      if (currentId) {
+        await this.saveExistingDraft(data, currentId);
+      }
+    } catch (error) {
+      console.error('Erreur autosave:', error);
     }
   }
 
-  private shouldSave(data: EditStory): boolean {
+  private shouldSave(data: Story): boolean {
     return data.title.trim().length > 0 || data.content.trim().length > 0;
   }
 
-  private async createFirstDraft(data: EditStory): Promise<void> {
+  private async createFirstDraft(data: Story): Promise<void> {
     const storyData = {
       title: data.title.trim() || 'Histoire sans titre',
       content: data.content.trim()
@@ -179,7 +207,17 @@ export class Editor implements OnInit, OnDestroy {
     this._storyId.set(response.story.id);
   }
 
-  private async saveExistingDraft(data: EditStory, id: number): Promise<void> {
+  private async createEditDraft(data: Story): Promise<void> {
+    const storyData = {
+      title: data.title.trim() || 'Histoire sans titre',
+      content: data.content.trim()
+    };
+
+    const response = await this.stories.saveDraft(storyData);
+    this._storyId.set(response.story.id);
+  }
+
+  private async saveExistingDraft(data: Story, id: number): Promise<void> {
     const storyData = {
       title: data.title.trim() || 'Histoire sans titre',
       content: data.content.trim()
@@ -193,7 +231,7 @@ export class Editor implements OnInit, OnDestroy {
   stats = this.stories.stats;
   resolvedData = toSignal(this.route.data);
 
-  draftStories = computed((): Story[] => {
+  draftStories = computed((): StoryCard[] => {
     return this.stories.drafts().map(draft => ({
       id: draft.id,
       title: draft.title,
@@ -201,7 +239,7 @@ export class Editor implements OnInit, OnDestroy {
     }));
   });
 
-  publishedStories = computed((): Story[] => {
+  publishedStories = computed((): StoryCard[] => {
     return this.stories.published().map(published => ({
       id: published.id,
       title: published.title,
@@ -262,20 +300,19 @@ export class Editor implements OnInit, OnDestroy {
     );
   }
 
-  private initializeEditMode(data: ResolvedPrivateStory | null): void {
+  private initializeEditMode(data: Story | null): void {
     this._isEditing.set(true);
 
     if (!data) {
       this._editMode.set('editNew');
-      this.setupAutoSave();
+      this._dataLoaded.set(true);
+      this.setupAutoSaveForNewStory();
       return;
     }
 
     if (data.storyId) {
       this._storyId.set(data.storyId);
-      this._storyTitle.set(data.title || '');
-      this._storyContent.set(data.content || '');
-
+      
       if (data.originalStoryId) {
         this._originalStoryId.set(data.originalStoryId);
         this._editMode.set('editPublished');
@@ -283,10 +320,15 @@ export class Editor implements OnInit, OnDestroy {
         this._editMode.set('editDraft');
       }
 
+      this._storyTitle.set(data.title || '');
+      this._storyContent.set(data.content || '');
+      
+      this._dataLoaded.set(true);
       this.setupAutoSave();
     } else {
       this._editMode.set('editNew');
-      this.setupAutoSave();
+      this._dataLoaded.set(true);
+      this.setupAutoSaveForNewStory();
     }
   }
 
@@ -330,11 +372,11 @@ export class Editor implements OnInit, OnDestroy {
 
   //============ CLICKS ============
 
-  onDraftCardClick(story: Story): void {
+  onDraftCardClick(story: StoryCard): void {
     this.router.navigate(['/chroniques/mes-histoires/brouillon/edition', story.title]);
   }
 
-  onPublishedCardClick(story: Story): void {
+  onPublishedCardClick(story: StoryCard): void {
     this.router.navigate(['/chroniques/mes-histoires/publiée/edition', story.title]);
   }
 
