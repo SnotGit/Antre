@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, linkedSignal, effect} from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, effect} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -61,10 +61,26 @@ export class Editor implements OnInit, OnDestroy {
   private _storyTitle = signal<string>('');
   private _storyContent = signal<string>('');
 
-  story = linkedSignal(() => ({
+  story = computed(() => ({
     title: this._storyTitle(),
     content: this._storyContent()
   }));
+
+  get storyTitle(): string {
+    return this._storyTitle();
+  }
+
+  set storyTitle(value: string) {
+    this._storyTitle.set(value);
+  }
+
+  get storyContent(): string {
+    return this._storyContent();
+  }
+
+  set storyContent(value: string) {
+    this._storyContent.set(value);
+  }
 
   //============ READONLY ============
 
@@ -123,31 +139,29 @@ export class Editor implements OnInit, OnDestroy {
   showCursor = this.typingService.showCursor;
   typingComplete = this.typingService.typingComplete;
 
-  //============ TITRE AUTOMATIQUE ============
-
   private readonly titleEffect = effect(() => {
     this.typingService.title(this.currentTitle());
   });
 
-  //============ AUTOSAVE UNIFIÉ ============
+  //============ AUTOSAVE ============
 
   private autoSaveInstance: ReturnType<AutoSaveService['autoSave']> | null = null;
 
   private setupAutoSave(): void {
     if (this.autoSaveInstance) {
-      this.autoSaveInstance.cleanup();
+      this.autoSaveInstance.destroy();
     }
 
     this.autoSaveInstance = this.autoSaveService.autoSave({
       data: this.story,
       onSave: async () => {
-        await this.handleAutoSave();
+        await this.performAutoSave();
       },
       delay: 2000
     });
   }
 
-  private async handleAutoSave(): Promise<void> {
+  private async performAutoSave(): Promise<void> {
     const data = this.story();
     const mode = this._editMode();
     const currentId = this._storyId();
@@ -156,7 +170,7 @@ export class Editor implements OnInit, OnDestroy {
 
     try {
       if (mode === 'editNew' && !currentId) {
-        await this.createFirstDraft(data);
+        await this.createNewDraft(data);
         return;
       }
 
@@ -166,7 +180,7 @@ export class Editor implements OnInit, OnDestroy {
       }
 
       if (currentId) {
-        await this.saveExistingDraft(data, currentId);
+        await this.updateExistingDraft(data, currentId);
       }
     } catch (error) {
       console.error('Erreur autosave:', error);
@@ -177,7 +191,7 @@ export class Editor implements OnInit, OnDestroy {
     return data.title.trim().length > 0 || data.content.trim().length > 0;
   }
 
-  private async createFirstDraft(data: Story): Promise<void> {
+  private async createNewDraft(data: Story): Promise<void> {
     const storyData = {
       title: data.title.trim() || 'Histoire sans titre',
       content: data.content.trim()
@@ -197,7 +211,7 @@ export class Editor implements OnInit, OnDestroy {
     this._storyId.set(response.story.id);
   }
 
-  private async saveExistingDraft(data: Story, id: number): Promise<void> {
+  private async updateExistingDraft(data: Story, id: number): Promise<void> {
     const storyData = {
       title: data.title.trim() || 'Histoire sans titre',
       content: data.content.trim()
@@ -241,7 +255,7 @@ export class Editor implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.autoSaveInstance?.cleanup();
+    this.autoSaveInstance?.destroy();
     this.titleEffect.destroy();
   }
 
@@ -302,7 +316,9 @@ export class Editor implements OnInit, OnDestroy {
       this._storyTitle.set(data.title || '');
       this._storyContent.set(data.content || '');
       
-      this.setupAutoSave();
+      setTimeout(() => {
+        this.setupAutoSave();
+      }, 0);
     } else {
       this._editMode.set('editNew');
       this.setupAutoSave();

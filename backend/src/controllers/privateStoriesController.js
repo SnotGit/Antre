@@ -8,7 +8,7 @@ const validateStory = (title, content) => {
   return null;
 };
 
-//============ RÉSOLUTION ============
+//============ RESOLVE ============
 
 const resolveTitle = async (req, res) => {
   try {
@@ -54,7 +54,7 @@ const resolveTitle = async (req, res) => {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
-//============ ÉDITION UNIFIÉE ============
+//============ EDIT  ============
 
 const getStoryForEdit = async (req, res) => {
   try {
@@ -70,7 +70,6 @@ const getStoryForEdit = async (req, res) => {
       return res.status(404).json({ error: 'Histoire non trouvée' });
     }
 
-    // DRAFT : Retour direct
     if (story.status === 'DRAFT') {
       return res.json({
         story: {
@@ -81,8 +80,28 @@ const getStoryForEdit = async (req, res) => {
       });
     }
 
-    // PUBLISHED : Création draft automatique pour édition sécurisée
     if (story.status === 'PUBLISHED') {
+      
+      const existingDraft = await prisma.story.findFirst({
+        where: {
+          title: story.title,
+          userId,
+          status: 'DRAFT'
+        },
+        orderBy: { updatedAt: 'desc' }
+      });
+
+      if (existingDraft) {
+        return res.json({
+          story: {
+            id: existingDraft.id,
+            title: existingDraft.title,
+            content: existingDraft.content
+          },
+          originalStoryId: story.id
+        });
+      }
+
       const draft = await prisma.story.create({
         data: {
           title: story.title,
@@ -160,7 +179,7 @@ const updateDraft = async (req, res) => {
   }
 };
 
-//============ PUBLICATION ============
+//============ PUBLISH ============
 
 const publishStory = async (req, res) => {
   try {
@@ -226,7 +245,7 @@ const updateOriginalStory = async (req, res) => {
   }
 };
 
-//============ SUPPRESSION ============
+//============ DELETE ============
 
 const deleteStory = async (req, res) => {
   try {
@@ -252,7 +271,7 @@ const deleteStory = async (req, res) => {
   }
 };
 
-//============ STATISTIQUES ============
+//============ STATS ============
 
 const getStats = async (req, res) => {
   try {
