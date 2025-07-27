@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, linkedSignal} from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, linkedSignal, effect} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -48,7 +48,7 @@ export class Editor implements OnInit, OnDestroy {
   private stories = inject(PrivateStoriesService);
   private auth = inject(AuthService);
   private dialog = inject(ConfirmationDialogService);
-  private autoSave = inject(AutoSaveService);
+  private autoSaveService = inject(AutoSaveService);
   private typingService = inject(TypingEffectService);
 
   //============ SIGNALS ============
@@ -128,30 +128,64 @@ export class Editor implements OnInit, OnDestroy {
   showCursor = this.typingService.showCursor;
   typingComplete = this.typingService.typingComplete;
 
+  //============ TITRE AUTOMATIQUE ============
+
+  private readonly titleEffect = effect(() => {
+    this.typingService.title(this.currentTitle());
+  });
 
   //============ AUTOSAVE ============
 
-  private autoSaveInstance: ReturnType<AutoSaveService['createAutoSave']> | null = null;
+  private autoSaveInstance: ReturnType<AutoSaveService['autoSave']> | null = null;
 
   private setupAutoSave(): void {
-    this.autoSaveInstance = this.autoSave.createAutoSave({
-      data: () => this.story(),
-      mode: () => this._editMode(),
-      storyId: computed(() => this._storyId()),
-      loading: this._loading,
-      storiesService: {
-        saveDraft: async (data: EditStory, id?: number) => {
-          const response = await this.stories.saveDraft(data, id);
-
-          if (!id && this._editMode() === 'editNew' && response.story.id) {
-            this._storyId.set(response.story.id);
-            this._editMode.set('editDraft');
-          }
-
-          return response;
-        }
-      }
+    this.autoSaveInstance = this.autoSaveService.autoSave({
+      data: this.story,
+      onSave: async () => {
+        await this.handleAutoSave();
+      },
+      delay: 2000
     });
+  }
+
+  private async handleAutoSave(): Promise<void> {
+    const data = this.story();
+    const mode = this._editMode();
+    const currentId = this._storyId();
+
+    if (!this.shouldSave(data)) return;
+
+    if (mode === 'editNew' && !currentId) {
+      await this.createFirstDraft(data);
+      return;
+    }
+
+    if (currentId) {
+      await this.saveExistingDraft(data, currentId);
+    }
+  }
+
+  private shouldSave(data: EditStory): boolean {
+    return data.title.trim().length > 0 || data.content.trim().length > 0;
+  }
+
+  private async createFirstDraft(data: EditStory): Promise<void> {
+    const storyData = {
+      title: data.title.trim() || 'Histoire sans titre',
+      content: data.content.trim()
+    };
+
+    const response = await this.stories.saveDraft(storyData);
+    this._storyId.set(response.story.id);
+  }
+
+  private async saveExistingDraft(data: EditStory, id: number): Promise<void> {
+    const storyData = {
+      title: data.title.trim() || 'Histoire sans titre',
+      content: data.content.trim()
+    };
+
+    await this.stories.saveDraft(storyData, id);
   }
 
   //============ STORIES ============
@@ -183,7 +217,6 @@ export class Editor implements OnInit, OnDestroy {
       this.router.navigate(['/auth/login']);
       return;
     }
-    this.typingService.title(this.currentTitle());
 
     this.initializeFromRoute();
     this.stories.loadStories();
@@ -191,6 +224,7 @@ export class Editor implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.autoSaveInstance?.cleanup();
+    this.titleEffect.destroy();
   }
 
   //============ INITIALIZATION ============
@@ -239,10 +273,8 @@ export class Editor implements OnInit, OnDestroy {
 
     if (data.storyId) {
       this._storyId.set(data.storyId);
-      this.story.set({
-        title: data.title || '',
-        content: data.content || ''
-      });
+      this._storyTitle.set(data.title || '');
+      this._storyContent.set(data.content || '');
 
       if (data.originalStoryId) {
         this._originalStoryId.set(data.originalStoryId);

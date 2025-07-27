@@ -16,19 +16,44 @@ const resolveTitle = async (req, res) => {
     const userId = req.user.userId;
     const decodedTitle = decodeURIComponent(title);
 
-    const story = await prisma.story.findFirst({
-      where: { title: decodedTitle, userId },
+    const existingDraft = await prisma.story.findFirst({
+      where: { 
+        title: decodedTitle, 
+        userId, 
+        status: 'DRAFT' 
+      },
       select: { id: true, status: true }
     });
 
-    if (!story) return res.status(404).json({ error: 'Histoire non trouvée' });
+    if (existingDraft) {
+      return res.json({ 
+        id: existingDraft.id, 
+        status: existingDraft.status 
+      });
+    }
 
-    res.json({ id: story.id, status: story.status });
+    const publishedStory = await prisma.story.findFirst({
+      where: { 
+        title: decodedTitle, 
+        userId, 
+        status: 'PUBLISHED' 
+      },
+      select: { id: true, status: true }
+    });
+
+    if (!publishedStory) {
+      return res.status(404).json({ error: 'Histoire non trouvée' });
+    }
+
+    res.json({ 
+      id: publishedStory.id, 
+      status: publishedStory.status 
+    });
+
   } catch (error) {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
-
 //============ ÉDITION UNIFIÉE ============
 
 const getStoryForEdit = async (req, res) => {

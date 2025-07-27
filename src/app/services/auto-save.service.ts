@@ -1,20 +1,8 @@
-import { Injectable, signal, effect, Signal, WritableSignal } from '@angular/core';
+import { Injectable, signal, effect, Signal, WritableSignal, inject, Injector } from '@angular/core';
 
-interface EditStory {
-  title: string;
-  content: string;
-}
-
-interface StoriesService {
-  saveDraft: (data: EditStory, id?: number) => Promise<{ story: { id: number } }>;
-}
-
-interface AutoSaveConfig<T> {
-  data: () => T;
-  mode: () => string;
-  storyId: Signal<number | null>;  
-  loading: WritableSignal<boolean>;
-  storiesService: StoriesService;
+interface AutoSave {
+  data: Signal<{ title: string, content: string }>;
+  onSave: () => Promise<void>;
   delay?: number;
 }
 
@@ -29,59 +17,51 @@ interface AutoSaveState {
 })
 export class AutoSaveService {
 
-  createAutoSave<T>(config: AutoSaveConfig<T>) {
+  autoSave(config: AutoSave) {
+    const injector = inject(Injector);
+    
     const state = signal<AutoSaveState>({
       isSaving: false,
       lastSaveTime: null,
       hasUnsavedChanges: false
     });
 
+    let previousData = '';
     let timeoutId: number | undefined;
 
-    const scheduleAutoSave = () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-
-      const delay = config.delay ?? 2000;
-      timeoutId = window.setTimeout(() => {
-        executeSave();
-      }, delay);
-    };
-
-    const executeSave = async () => {
-      const data = config.data();
-
-      if (!this.shouldSave(data)) return;
-
-      state.update(s => ({ ...s, isSaving: true }));
-
-      try {
-        const id = await this.performSave(data, config);
-        
-        state.update(s => ({
-          ...s,
-          isSaving: false,
-          lastSaveTime: new Date(),
-          hasUnsavedChanges: false
-        }));
-      } catch (error) {
-        state.update(s => ({ ...s, isSaving: false }));
-      }
-    };
-
     const autoSaveEffect = effect(() => {
-      const data = config.data();
-
-      if (this.shouldSave(data)) {
-        state.update(s => ({ ...s, hasUnsavedChanges: true }));
-        scheduleAutoSave();
+      const currentData = JSON.stringify(config.data());
+      
+      if (previousData === '') {
+        previousData = currentData;
+        return;
       }
-    });
+
+      if (currentData !== previousData) {
+        previousData = currentData;
+        state.update(s => ({ ...s, hasUnsavedChanges: true }));
+
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+
+        const delay = config.delay ?? 2000;
+        timeoutId = window.setTimeout(async () => {
+          await this.saving(config, state);
+        }, delay);
+      }
+    }, { injector });
 
     return {
       state: state.asReadonly(),
-      forceSave: executeSave,
+
+      forceSave: async () => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        await this.saving(config, state);
+      },
+
       cleanup: () => {
         if (timeoutId) {
           clearTimeout(timeoutId);
@@ -91,27 +71,26 @@ export class AutoSaveService {
     };
   }
 
-  private async performSave<T>(data: T, config: AutoSaveConfig<T>): Promise<number | null> {
-    const currentId = config.storyId();
+  private async saving(
+    config: AutoSave,
+    state: WritableSignal<AutoSaveState>
+  ): Promise<void> {
+    if (state().isSaving) return;
 
-    if (!currentId && config.mode() === 'editNew') {
-      const response = await config.storiesService.saveDraft(data as EditStory);
-      return response.story.id;
+    state.update(s => ({ ...s, isSaving: true }));
+
+    try {
+      await config.onSave();
+      
+      state.update(s => ({
+        ...s,
+        isSaving: false,
+        lastSaveTime: new Date(),
+        hasUnsavedChanges: false
+      }));
+
+    } catch (error) {
+      state.update(s => ({ ...s, isSaving: false }));
     }
-
-    if (currentId) {
-      await config.storiesService.saveDraft(data as EditStory, currentId);
-    }
-
-    return null;
-  }
-
-  private shouldSave(data: unknown): boolean {
-    if (!data || typeof data !== 'object') return false;
-
-    const obj = data as Record<string, unknown>;
-    return Object.values(obj).some(value =>
-      typeof value === 'string' && value.trim().length > 0
-    );
   }
 }
