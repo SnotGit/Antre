@@ -1,0 +1,150 @@
+# AUTOSAVE 
+
+
+1 -  clic new story = edit new ( mode nouvelle histoire )  = créer draft avec nouvel id. + autosave 2 secondes après fin de frappe. bouton annuler = delete ce draft par id.
+
+2 -  clic un histoire draft = edit draft ( mode continuer histoire ) = si je ne tape rien , pas d'autosave? Si je tape du texte = autosave 2 secondes apres fin de frappe. bouton supprimer = supprimer ce draft par id. 
+
+3 - clic une histoire published  = edtit published ( mode modifier histoire ) = si je ne tape rien pas de sauvegarde en draft. 
+Si je tape du texte  : new draft + nouvel id + original id + autosave 2 secondes après fin de frappe. Supprimer = supprimer ce draft par id. ( sécurité histoire originale ) . 
+
+
+……………………
+
+# Sécurité maximale 🛡️
+
+Les histoires publiées ne sont jamais modifiées directement
+Toujours passer par un draft intermédiaire → Zéro risque de corruption
+
+# Performance optimisée ⚡
+
+Pas d'autosave inutile si l'utilisateur ne fait que consulter
+Autosave uniquement après action utilisateur réelle
+
+# UX cohérente 🎨
+
+Même délai (2 secondes) pour tous les modes
+Même comportement : autosave après fin de frappe
+
+# Logique métier claire 🧠
+ModeTrigger DraftAutosaveBouton SupprimerNew Story1er caractère2s après frappeDelete draftEdit DraftDéjà existe2s après frappeDelete draftEdit Published1er caractère2s après frappeDelete draft (original safe)
+Ajustement nécessaire 🔧
+Votre logique implique une nuance importante :
+Pour editNew et editPublished :
+
+Création draft = Immédiate au 1er caractère
+Autosave = 2 secondes après fin de frappe pour les modifications suivantes
+
+Pour editDraft :
+
+Autosave = 2 secondes après fin de frappe
+
+
+flow user =
+
+
+1er cas :
+
+ je clique nouvelle histoire = edit new editor vide. pas de bouton annuler visible. 
+
+Je quitte la page? il ne s'est rien passer , pas de draft inutile. 
+
+2eme cas : 
+
+ je clique nouvelle histoire = edit new editor vide. pas de bouton annuler visible. 
+
+je rédige un texte , pas de titre = "histoire sans titre". 
+
+1er caractère → createDraft() → storyId.set(newId)
+
+bouton annuler apparait 
+
+j'annule ? delete by id. 
+
+3eme cas : 
+
+ je clique nouvelle histoire = edit new editor vide. pas de bouton annuler visible. 
+
+1er caractère → createDraft() → storyId.set(newId)
+
+bouton annuler apparait 
+
+je met un titre ou pas puis je rédige un texte 
+
+arrêt frappe = autosave 
+
+je quitte la page = draft sauvé. 
+
+
+Récapitulatif précis du travail attendu 📋
+Problème à corriger ❌
+L'autosave actuel se déclenche dès l'ouverture d'un brouillon, avant même que l'utilisateur tape quoi que ce soit.
+Comportement souhaité ✅
+Autosave uniquement 2 secondes après avoir arrêté de taper au clavier.
+Flow utilisateur validé 🎯
+Mode editNew (nouvelle histoire) :
+
+Ouvre éditeur vide → storyId = null → Pas de bouton annuler
+Premier caractère → createDraft() → storyId.set(newId) → Bouton annuler apparaît
+Arrêt frappe → Autosave 2s après
+Reste en mode editNew (pas de switch)
+
+Mode editDraft (continuer brouillon) :
+
+storyId existe déjà
+Si pas de modifications → Pas d'autosave
+Si modifications → Autosave 2s après arrêt frappe
+
+Mode editPublished (modifier publiée) :
+
+originalStoryId existe, storyId = null
+Premier caractère → Nouveau draft → storyId.set(newId)
+Modifications → Autosave 2s après arrêt frappe
+
+Architecture simplifiée 🏗️
+Service AutoSave :
+
+Détecter changement utilisateur ✅
+Attendre 2 secondes après arrêt ✅
+Appeler callback fourni par Editor ✅
+PAS de logique métier (modes, création draft)
+
+Editor garde le contrôle :
+
+Logique des modes
+Création/suppression drafts
+Boutons annuler/supprimer
+
+Interface service 📝
+typescriptinterface AutoSave {
+  data: Signal<{title: string, content: string}>;
+  onSave: () => Promise<void>;
+  delay?: number;
+}
+C'est tout. Simple et DRY. ✅
+
+
+Fichiers à mettre à jour 📁
+1. Service AutoSave 🔧
+src/app/services/auto-save.service.ts
+
+Simplifier l'interface AutoSave
+Supprimer la logique métier (modes, création draft)
+Garder seulement : détection changement + debounce 2s + callback
+
+2. Editor Component ⚙️
+src/app/components/chroniques/stories/editor/editor.ts
+
+Adapter l'utilisation du service AutoSave simplifié
+Garder la logique métier existante (modes, création draft)
+Fournir le callback onSave au service
+
+C'est tout ! ✅
+2 fichiers seulement car :
+
+Les routes → OK ✅
+Les templates → OK ✅
+Les autres services → OK ✅
+L'architecture → OK ✅
+
+Modification ciblée et minimale pour corriger juste le problème d'autosave intempestif.
