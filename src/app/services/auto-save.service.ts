@@ -32,23 +32,34 @@ export class AutoSaveService {
       hasUnsavedChanges: false
     });
 
-    let previousData = '';
+    let previousTitle = '';
+    let previousContent = '';
     let timeoutId: number | undefined;
     let isInitialized = false;
 
     const autoSaveEffect = effect((onCleanup) => {
-      const currentData = JSON.stringify(config.data());
+      const currentData = config.data();
+      const title = currentData.title || '';
+      const content = currentData.content || '';
       
+      // CORRECTION: Comparaison séparée title/content au lieu de JSON.stringify
+      const titleChanged = title !== previousTitle;
+      const contentChanged = content !== previousContent;
+      const hasChanges = titleChanged || contentChanged;
+
       if (!isInitialized) {
-        previousData = currentData;
+        // CORRECTION: Initialisation sans déclencher de save
+        previousTitle = title;
+        previousContent = content;
         isInitialized = true;
         return;
       }
 
-      if (currentData !== previousData) {
-        const data = config.data();
-        if (data.title.trim().length > 0 || data.content.trim().length > 0) {
-          previousData = currentData;
+      if (hasChanges) {
+        // Vérifier si les données ne sont pas vides
+        if (title.trim().length > 0 || content.trim().length > 0) {
+          previousTitle = title;
+          previousContent = content;
           state.update(s => ({ ...s, hasUnsavedChanges: true }));
 
           if (timeoutId) {
@@ -59,6 +70,10 @@ export class AutoSaveService {
           timeoutId = window.setTimeout(async () => {
             await this.performSave(config, state);
           }, delay);
+        } else {
+          // Données vides, mettre à jour les valeurs précédentes sans sauvegarder
+          previousTitle = title;
+          previousContent = content;
         }
       }
 
@@ -81,7 +96,7 @@ export class AutoSaveService {
         await this.performSave(config, state);
       },
 
-      cleanup: () => {
+      destroy: () => {
         if (timeoutId) {
           clearTimeout(timeoutId);
           timeoutId = undefined;
