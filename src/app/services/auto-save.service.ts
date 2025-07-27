@@ -1,5 +1,7 @@
 import { Injectable, signal, effect, Signal, WritableSignal, inject, Injector } from '@angular/core';
 
+//============ INTERFACE SIMPLIFIÉE ============
+
 interface AutoSave {
   data: Signal<{ title: string, content: string }>;
   onSave: () => Promise<void>;
@@ -32,34 +34,40 @@ export class AutoSaveService {
 
     let previousData = '';
     let timeoutId: number | undefined;
-    let firstRun = true;
+    let isInitialized = false;
 
-    const autoSaveEffect = effect(() => {
+    const autoSaveEffect = effect((onCleanup) => {
       const currentData = JSON.stringify(config.data());
       
-      // Ignorer la première exécution (valeur initiale)
-      if (firstRun) {
+      if (!isInitialized) {
         previousData = currentData;
-        firstRun = false;
+        isInitialized = true;
         return;
       }
 
-      // Vérifier si les données ont vraiment changé
       if (currentData !== previousData) {
-        previousData = currentData;
-        state.update(s => ({ ...s, hasUnsavedChanges: true }));
+        const data = config.data();
+        if (data.title.trim().length > 0 || data.content.trim().length > 0) {
+          previousData = currentData;
+          state.update(s => ({ ...s, hasUnsavedChanges: true }));
 
-        // Annuler le timeout précédent s'il existe
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
+
+          const delay = config.delay ?? 2000;
+          timeoutId = window.setTimeout(async () => {
+            await this.performSave(config, state);
+          }, delay);
+        }
+      }
+
+      onCleanup(() => {
         if (timeoutId) {
           clearTimeout(timeoutId);
+          timeoutId = undefined;
         }
-
-        // Planifier la sauvegarde après le délai
-        const delay = config.delay ?? 2000;
-        timeoutId = window.setTimeout(async () => {
-          await this.saving(config, state);
-        }, delay);
-      }
+      });
     }, { injector: this.injector });
 
     return {
@@ -70,7 +78,7 @@ export class AutoSaveService {
           clearTimeout(timeoutId);
           timeoutId = undefined;
         }
-        await this.saving(config, state);
+        await this.performSave(config, state);
       },
 
       cleanup: () => {
@@ -85,7 +93,7 @@ export class AutoSaveService {
 
   //============ PRIVATE SAVE ============
 
-  private async saving(
+  private async performSave(
     config: AutoSave,
     state: WritableSignal<AutoSaveState>
   ): Promise<void> {
@@ -105,6 +113,7 @@ export class AutoSaveService {
 
     } catch (error) {
       state.update(s => ({ ...s, isSaving: false }));
+      throw error;
     }
   }
 }
