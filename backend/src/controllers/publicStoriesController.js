@@ -27,11 +27,13 @@ const resolveUsername = async (req, res) => {
 const resolveStory = async (req, res) => {
   try {
     const { username, title } = req.params;
-    const decodedTitle = decodeURIComponent(title);
+    const urlTitle = decodeURIComponent(title);
+    
+    const searchTitle = urlTitle.replace(/-/g, ' ');
 
     const story = await prisma.story.findFirst({
       where: {
-        title: decodedTitle,
+        title: searchTitle,
         status: 'PUBLISHED',
         user: { username }
       },
