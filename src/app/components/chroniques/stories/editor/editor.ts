@@ -55,7 +55,6 @@ export class Editor implements OnInit, OnDestroy {
   private _storyId = signal<number | null>(null);
   private _originalStoryId = signal<number | null>(null);
   private _selected = signal<Set<number>>(new Set());
-  private _dataLoaded = signal<boolean>(false);
 
   //============ STORY SIGNALS ============
 
@@ -130,7 +129,7 @@ export class Editor implements OnInit, OnDestroy {
     this.typingService.title(this.currentTitle());
   });
 
-  //============ AUTOSAVE ============
+  //============ AUTOSAVE UNIFIÉ ============
 
   private autoSaveInstance: ReturnType<AutoSaveService['autoSave']> | null = null;
 
@@ -142,26 +141,7 @@ export class Editor implements OnInit, OnDestroy {
     this.autoSaveInstance = this.autoSaveService.autoSave({
       data: this.story,
       onSave: async () => {
-        if (this._dataLoaded()) {
-          await this.handleAutoSave();
-        }
-      },
-      delay: 2000
-    });
-  }
-
-  private setupAutoSaveForNewStory(): void {
-    if (this.autoSaveInstance) {
-      this.autoSaveInstance.cleanup();
-    }
-
-    this.autoSaveInstance = this.autoSaveService.autoSave({
-      data: this.story,
-      onSave: async () => {
-        const data = this.story();
-        if (this.shouldSave(data)) {
-          await this.handleAutoSave();
-        }
+        await this.handleAutoSave();
       },
       delay: 2000
     });
@@ -305,8 +285,7 @@ export class Editor implements OnInit, OnDestroy {
 
     if (!data) {
       this._editMode.set('editNew');
-      this._dataLoaded.set(true);
-      this.setupAutoSaveForNewStory();
+      this.setupAutoSave();
       return;
     }
 
@@ -323,12 +302,10 @@ export class Editor implements OnInit, OnDestroy {
       this._storyTitle.set(data.title || '');
       this._storyContent.set(data.content || '');
       
-      this._dataLoaded.set(true);
       this.setupAutoSave();
     } else {
       this._editMode.set('editNew');
-      this._dataLoaded.set(true);
-      this.setupAutoSaveForNewStory();
+      this.setupAutoSave();
     }
   }
 
