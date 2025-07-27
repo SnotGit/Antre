@@ -58,6 +58,13 @@ export class Chroniques implements OnInit, OnDestroy {
   //============ ACTIONS ============
 
   onStoryCardClick(storyCard: any): void {
-    this.router.navigate(['/chroniques', storyCard.username, storyCard.storyTitle]);
+    const cleanTitle = storyCard.storyTitle
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-zA-Z0-9\-àéèêîôùûüÿç]/g, '')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+    
+    this.router.navigate(['/chroniques', storyCard.username, cleanTitle]);
   }
 }

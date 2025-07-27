@@ -366,11 +366,25 @@ export class Editor implements OnInit, OnDestroy {
   //============ CLICKS ============
 
   onDraftCardClick(story: StoryCard): void {
-    this.router.navigate(['/chroniques/mes-histoires/brouillon/edition', story.title]);
+    const cleanTitle = story.title
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-zA-Z0-9\-àéèêîôùûüÿç]/g, '')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+
+    this.router.navigate(['/chroniques/mes-histoires/brouillon/edition', cleanTitle]);
   }
 
   onPublishedCardClick(story: StoryCard): void {
-    this.router.navigate(['/chroniques/mes-histoires/publiée/edition', story.title]);
+    const cleanTitle = story.title
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-zA-Z0-9\-àéèêîôùûüÿç]/g, '')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+
+    this.router.navigate(['/chroniques/mes-histoires/publiée/edition', cleanTitle]);
   }
 
   //============ ACTIONS ============
@@ -403,13 +417,16 @@ export class Editor implements OnInit, OnDestroy {
     if (!storyId) return;
 
     const isNew = this._editMode() === 'editNew';
-    const confirmed = await this.dialog.confirmDeleteStory(isNew);
-    if (!confirmed) return;
-
-    this._loading.set(true);
+    
     try {
+      const confirmed = await this.dialog.confirmDeleteStory(isNew);
+      if (!confirmed) return;
+
+      this._loading.set(true);
       await this.stories.deleteStory(storyId);
       this.router.navigate(['/chroniques/mes-histoires']);
+    } catch (error) {
+      alert('Erreur lors de la suppression');
     } finally {
       this._loading.set(false);
     }
@@ -419,15 +436,19 @@ export class Editor implements OnInit, OnDestroy {
     const ids = Array.from(this._selected());
     if (ids.length === 0) return;
 
-    const confirmed = await this.dialog.confirmDeleteStory(false);
-    if (!confirmed) return;
-
-    this._loading.set(true);
     try {
+      const confirmed = await this.dialog.confirmDeleteStory(false);
+      if (!confirmed) return;
+
+      this._loading.set(true);
+
       for (const id of ids) {
         await this.stories.deleteStory(id);
       }
+      
       this._selected.set(new Set());
+    } catch (error) {
+      alert('Erreur lors de la suppression');
     } finally {
       this._loading.set(false);
     }
