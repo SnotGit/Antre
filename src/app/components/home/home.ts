@@ -14,7 +14,7 @@ export class Home implements OnInit, OnDestroy {
 
   private typingService = inject(TypingEffectService);
 
-  private readonly title = 'Home';
+  private readonly title = 'Bienvenue Gros Têtard !';
 
   headerTitle = this.typingService.headerTitle;
   showCursor = this.typingService.showCursor;
