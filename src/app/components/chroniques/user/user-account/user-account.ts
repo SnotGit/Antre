@@ -30,6 +30,8 @@ type TabType = 'stats' | 'profile' | 'identifiants';
 export class UserAccount implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
+  //============ INJECTIONS ============
+
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
@@ -55,15 +57,13 @@ export class UserAccount implements OnInit, OnDestroy {
   passwordData: PasswordChangeData = { currentPassword: '', newPassword: '', confirmPassword: '' };
   private avatarState = { selectedFile: null as File | null, preview: null as string | null };
 
-  //============ TYPING EFFECT ============
+    //============ TYPING EFFECT ============
 
-  private typingEffect = this.typingService.createTypingEffect({
-    text: 'Mon compte',
-  });
+  private readonly title = 'Marsball';
 
-  headerTitle = this.typingEffect.headerTitle;
-  showCursor = this.typingEffect.showCursor;
-  typing = this.typingEffect.typingComplete;
+  headerTitle = this.typingService.headerTitle;
+  showCursor = this.typingService.showCursor;
+  typing = this.typingService.typingComplete;
 
   constructor() {
     const saved = localStorage.getItem('user-account-tab');
@@ -80,11 +80,10 @@ export class UserAccount implements OnInit, OnDestroy {
 
     this.loadUserProfile();
     this.privateStoriesService.stats();
-    this.typingEffect.startTyping();
+    this.typingService.title(this.title);
   }
 
   ngOnDestroy(): void {
-    this.typingEffect.cleanup();
   }
 
   //============ COMPUTED GETTERS ============

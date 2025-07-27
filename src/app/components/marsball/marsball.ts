@@ -3,23 +3,24 @@ import { CommonModule } from '@angular/common';
 import { TypingEffectService } from '../../services/typing-effect.service';
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-marsball',
   imports: [CommonModule],
-  templateUrl: './home.html',
-  styleUrl: './home.scss'
+  templateUrl: './marsball.html',
+  styleUrl: './marsball.scss'
 })
-export class Home implements OnInit, OnDestroy {
+export class MarsballComponent implements OnInit, OnDestroy {
 
-  //============ TYPING EFFECT ============
+  //============ INJECTIONS ============
 
   private typingService = inject(TypingEffectService);
+  
+  //============ TYPING EFFECT ============
 
-  private readonly title = 'Home';
+  private readonly title = 'Marsball';
 
   headerTitle = this.typingService.headerTitle;
   showCursor = this.typingService.showCursor;
   typing = this.typingService.typingComplete;
-
 
   //============ LIFECYCLE ============
 
