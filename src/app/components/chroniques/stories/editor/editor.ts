@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, linkedSignal} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -105,11 +105,11 @@ export class Editor implements OnInit, OnDestroy {
     }
   });
 
-  //============ DYNAMICS TITLES ============
+  //============ TYPING EFFECT ============
 
   private readonly TITLES = {
     editNew: 'Nouvelle Histoire',
-    editDraft: 'Continuer Histoire', 
+    editDraft: 'Continuer Histoire',
     editPublished: 'Modifier Histoire',
     'my-stories': 'Mes Histoires',
     drafts: 'Brouillons',
@@ -124,15 +124,10 @@ export class Editor implements OnInit, OnDestroy {
     }
   });
 
-  //============ TYPING EFFECT ============
-  
   headerTitle = this.typingService.headerTitle;
   showCursor = this.typingService.showCursor;
   typingComplete = this.typingService.typingComplete;
 
-  private typingEffect = effect(() => {
-    this.typingService.title(this.currentTitle());
-  });
 
   //============ AUTOSAVE ============
 
@@ -147,12 +142,12 @@ export class Editor implements OnInit, OnDestroy {
       storiesService: {
         saveDraft: async (data: EditStory, id?: number) => {
           const response = await this.stories.saveDraft(data, id);
-          
+
           if (!id && this._editMode() === 'editNew' && response.story.id) {
             this._storyId.set(response.story.id);
             this._editMode.set('editDraft');
           }
-          
+
           return response;
         }
       }
@@ -188,13 +183,13 @@ export class Editor implements OnInit, OnDestroy {
       this.router.navigate(['/auth/login']);
       return;
     }
+    this.typingService.title(this.currentTitle());
 
     this.initializeFromRoute();
     this.stories.loadStories();
   }
 
   ngOnDestroy(): void {
-    this.typingEffect.destroy();
     this.autoSaveInstance?.cleanup();
   }
 
@@ -219,23 +214,23 @@ export class Editor implements OnInit, OnDestroy {
   }
 
   private isListUrl(url: string): boolean {
-    return url.endsWith('/mes-histoires') || 
-           url.endsWith('/brouillons') || 
-           url.endsWith('/publiées');
+    return url.endsWith('/mes-histoires') ||
+      url.endsWith('/brouillons') ||
+      url.endsWith('/publiées');
   }
 
   private initializeListMode(url: string): void {
     this._isEditing.set(false);
     this._viewMode.set(
       url.includes('publiées') ? 'published' :
-      url.includes('brouillons') ? 'drafts' : 
-      'my-stories'
+        url.includes('brouillons') ? 'drafts' :
+          'my-stories'
     );
   }
 
   private initializeEditMode(data: ResolvedPrivateStory | null): void {
     this._isEditing.set(true);
-    
+
     if (!data) {
       this._editMode.set('editNew');
       this.setupAutoSave();
@@ -291,13 +286,13 @@ export class Editor implements OnInit, OnDestroy {
     event.stopPropagation();
     const current = this._selected();
     const newSet = new Set(current);
-    
+
     if (newSet.has(storyId)) {
       newSet.delete(storyId);
     } else {
       newSet.add(storyId);
     }
-    
+
     this._selected.set(newSet);
   }
 
@@ -323,13 +318,13 @@ export class Editor implements OnInit, OnDestroy {
     this._loading.set(true);
     try {
       const originalId = this._originalStoryId();
-      
+
       if (originalId) {
         await this.stories.updatePublishedStory(storyId, originalId);
       } else {
         await this.stories.publishStory(storyId);
       }
-      
+
       this.router.navigate(['/chroniques']);
     } finally {
       this._loading.set(false);
@@ -376,7 +371,7 @@ export class Editor implements OnInit, OnDestroy {
   private formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: '2-digit',
-      month: '2-digit', 
+      month: '2-digit',
       year: 'numeric'
     });
   }

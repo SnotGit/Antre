@@ -1,30 +1,30 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal} from "@angular/core";
 
 @Injectable({
   providedIn: 'root'
 })
 export class TypingEffectService {
-
-  //============ SIGNALS PRIVÉS ============
-
+  
+  //============ SIGNALS GLOBAUX ============
+  
   private _headerTitle = signal<string>('');
   private _showCursor = signal<boolean>(true);
   private _typingComplete = signal<boolean>(false);
-
-  //============ SIGNALS PUBLICS ============
-
+  
+  //============ PUBLICS READONLY ============
+  
   readonly headerTitle = this._headerTitle.asReadonly();
   readonly showCursor = this._showCursor.asReadonly();
   readonly typingComplete = this._typingComplete.asReadonly();
-
+  
   //============ ÉTAT INTERNE ============
-
+  
   private typingInterval: number | undefined;
-
+  
   //============ MÉTHODE PRINCIPALE ============
-
+  
   title(title: string): void {
-    this.cleanup();
+    this.destroy();
     
     this._headerTitle.set('');
     this._typingComplete.set(false);
@@ -38,15 +38,15 @@ export class TypingEffectService {
         this._headerTitle.set(title.substring(0, currentIndex + 1));
         currentIndex++;
       } else {
-        this.cleanup();
+        this.destroy();
         this._typingComplete.set(true);
       }
     }, speed);
   }
-
-  //============ NETTOYAGE ============
-
-  private cleanup(): void {
+  
+  //============ CLEANUP ============
+  
+  private destroy(): void {
     if (this.typingInterval) {
       clearInterval(this.typingInterval);
       this.typingInterval = undefined;
