@@ -90,29 +90,11 @@ export class Editor implements OnInit, OnDestroy {
   isDeleteMode = computed(() => this._selected().size > 0);
 
   canDelete = computed(() => {
-    const mode = this._editMode();
-    const id = this._storyId();
-    
-    if (mode === 'editNew') {
-      return id !== null;
-    }
-    
-    return mode === 'editDraft' || mode === 'editPublished';
+    return this._editMode() !== 'editNew' || this._storyId() !== null;
   });
 
   deleteButtonText = computed(() => {
-    const mode = this._editMode();
-    
-    if (mode === 'editNew') {
-      return 'Annuler';
-    }
-    if (mode === 'editDraft') {
-      return 'Supprimer';
-    }
-    if (mode === 'editPublished') {
-      return 'Supprimer brouillon';
-    }
-    return 'Supprimer';
+    return this._editMode() === 'editNew' ? 'Annuler' : 'Supprimer';
   });
 
   publishButtonText = computed(() => {
@@ -187,6 +169,7 @@ export class Editor implements OnInit, OnDestroy {
         await this.updateExistingDraft(data, currentId);
       }
     } catch (error) {
+      console.error('Erreur autosave:', error);
     }
   }
 
@@ -322,20 +305,6 @@ export class Editor implements OnInit, OnDestroy {
     }
   }
 
-  private getNavigationPath(): string {
-    const url = this.router.url;
-    
-    if (url.includes('/brouillons/')) {
-      return '/chroniques/mes-histoires/brouillons';
-    }
-    
-    if (url.includes('/publiées/') || url.includes('/publiée/')) {
-      return '/chroniques/mes-histoires/publiées';
-    }
-    
-    return '/chroniques/mes-histoires';
-  }
-
   showDrafts(): void {
     this._isEditing.set(false);
     this._viewMode.set('drafts');
@@ -357,9 +326,7 @@ export class Editor implements OnInit, OnDestroy {
   }
 
   onCheckboxClick(event: Event, storyId: number): void {
-    event.preventDefault();
     event.stopPropagation();
-    
     const current = this._selected();
     const newSet = new Set(current);
 
@@ -373,6 +340,10 @@ export class Editor implements OnInit, OnDestroy {
   }
 
   onDraftCardClick(story: StoryCard): void {
+    if (this.isDeleteMode()) {
+      return;
+    }
+
     const cleanTitle = story.title
       .trim()
       .replace(/\s+/g, '-')
@@ -384,6 +355,10 @@ export class Editor implements OnInit, OnDestroy {
   }
 
   onPublishedCardClick(story: StoryCard): void {
+    if (this.isDeleteMode()) {
+      return;
+    }
+
     const cleanTitle = story.title
       .trim()
       .replace(/\s+/g, '-')
@@ -429,12 +404,9 @@ export class Editor implements OnInit, OnDestroy {
 
       this._loading.set(true);
       await this.stories.deleteStory(storyId);
-      
-      this.cleanupAfterDelete();
-      this.router.navigate([this.getNavigationPath()]);
-      
+      this.router.navigate(['/chroniques/mes-histoires']);
     } catch (error) {
-      
+      alert('Erreur lors de la suppression');
     } finally {
       this._loading.set(false);
     }
@@ -445,37 +417,21 @@ export class Editor implements OnInit, OnDestroy {
     if (ids.length === 0) return;
 
     try {
-      const confirmed = await this.dialog.confirmDeleteStory(true);
+      const confirmed = await this.dialog.confirmDeleteStory(false);
       if (!confirmed) return;
 
       this._loading.set(true);
 
-      const results = await Promise.allSettled(
-        ids.map(id => this.stories.deleteStory(id))
-      );
-
-      const successes = results.filter(r => r.status === 'fulfilled').length;
+      for (const id of ids) {
+        await this.stories.deleteStory(id);
+      }
       
       this._selected.set(new Set());
-      
     } catch (error) {
-      
+      alert('Erreur lors de la suppression');
     } finally {
       this._loading.set(false);
     }
-  }
-
-  private cleanupAfterDelete(): void {
-    if (this.autoSaveInstance) {
-      this.autoSaveInstance.destroy();
-      this.autoSaveInstance = null;
-    }
-    
-    this._storyId.set(null);
-    this._originalStoryId.set(null);
-    this._storyTitle.set('');
-    this._storyContent.set('');
-    this._selected.set(new Set());
   }
 
   private formatDate(dateString: string): string {
