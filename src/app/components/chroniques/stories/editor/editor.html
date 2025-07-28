@@ -86,14 +86,12 @@
 
     <div class="field-title">
       <label>Titre de l'histoire</label>
-      <!-- CORRECTION: Binding avec getters/setters pour déclencher les signals -->
       <input type="text" [(ngModel)]="storyTitle" [disabled]="loading()"
         placeholder="Donnez un titre à votre histoire...">
     </div>
 
     <div class="field-content">
       <label>Contenu</label>
-      <!-- CORRECTION: Binding avec getters/setters pour déclencher les signals -->
       <textarea [(ngModel)]="storyContent" [disabled]="loading()" placeholder="Écrivez votre histoire ici...">
       </textarea>
     </div>

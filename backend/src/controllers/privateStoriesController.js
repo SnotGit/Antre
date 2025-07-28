@@ -54,6 +54,7 @@ const resolveTitle = async (req, res) => {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
+
 //============ EDIT  ============
 
 const getStoryForEdit = async (req, res) => {
@@ -245,7 +246,7 @@ const updateOriginalStory = async (req, res) => {
   }
 };
 
-//============ DELETE ============
+//============ DELETE TRANSACTIONNEL ============
 
 const deleteStory = async (req, res) => {
   try {
@@ -253,21 +254,58 @@ const deleteStory = async (req, res) => {
     const userId = req.user.userId;
     const storyId = parseInt(id);
 
+    if (!storyId || storyId <= 0) {
+      return res.status(400).json({ error: 'ID histoire invalide' });
+    }
+
     const story = await prisma.story.findFirst({
-      where: { id: storyId, userId }
+      where: { id: storyId, userId },
+      select: { id: true, status: true, title: true }
     });
 
     if (!story) {
-      return res.status(404).json({ error: 'Histoire non trouvée' });
+      return res.status(404).json({ error: 'Histoire non trouvée ou accès non autorisé' });
     }
 
-    await prisma.story.delete({ where: { id: storyId } });
+    await prisma.$transaction(async (tx) => {
+      await tx.like.deleteMany({
+        where: { storyId: storyId }
+      });
+
+      await tx.story.delete({
+        where: { id: storyId }
+      });
+    });
 
     res.json({
-      message: `${story.status === 'DRAFT' ? 'Brouillon' : 'Histoire'} supprimé avec succès`
+      success: true,
+      message: `${story.status === 'DRAFT' ? 'Brouillon' : 'Histoire'} supprimé avec succès`,
+      deletedStory: {
+        id: story.id,
+        title: story.title,
+        status: story.status
+      }
     });
+
   } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    if (error.code === 'P2002') {
+      return res.status(409).json({ 
+        error: 'Conflit de contrainte lors de la suppression',
+        code: 'CONSTRAINT_VIOLATION'
+      });
+    }
+
+    if (error.code === 'P2025') {
+      return res.status(404).json({ 
+        error: 'Histoire introuvable pour suppression',
+        code: 'RECORD_NOT_FOUND'
+      });
+    }
+
+    res.status(500).json({ 
+      error: 'Erreur lors de la suppression',
+      code: 'DELETE_FAILED'
+    });
   }
 };
 
