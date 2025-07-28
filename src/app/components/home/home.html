@@ -1,13 +1,33 @@
 <div class="container">
-  
+
   <div class="header">
-    <h2 class="header-title" [class.typing]="typing()">
-      {{ headerTitle() }}
-    </h2>
+    <!-- Titre 1 : "Salut à toi Gros Têtard." - apparaît puis disparaît -->
+    @if (showTitle1) {
+      <h2 
+        class="header-title" 
+        [class.typing]="typing()"
+        [class.fade-out]="fadeOutTitle1">
+        {{ headerTitle() }}
+      </h2>
+    }
+    
+    <!-- Titre 2 : "Bienvenue dans l'Antre" - apparaît et reste -->
+    @if (showTitle2) {
+      <h2 
+        class="header-title" 
+        [class.typing]="typing()">
+        {{ headerTitle() }}
+      </h2>
+    }
   </div>
 
   <div class="separator">
     <div class="line"></div>
   </div>
 
+  <div class="content">
+    <p>Des travaux sont en cours ...</p>
+    <p>Attention à la marche en sortant</p>
+  </div>
+  
 </div>

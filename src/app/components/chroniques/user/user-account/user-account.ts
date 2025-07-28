@@ -59,7 +59,7 @@ export class UserAccount implements OnInit, OnDestroy {
 
     //============ TYPING EFFECT ============
 
-  private readonly title = 'Marsball';
+  private readonly title = 'Mon Compte';
 
   headerTitle = this.typingService.headerTitle;
   showCursor = this.typingService.showCursor;
@@ -119,18 +119,19 @@ export class UserAccount implements OnInit, OnDestroy {
     this.userService.clearMessages();
   }
 
+  //============ NAVIGATION ROUTES ============
+
   showMyStories(): void {
-    this.router.navigate(['/chroniques/my-stories']);
+    this.router.navigate(['/chroniques/mes-histoires']);
   }
 
   showMyPublishedStories(): void {
-    this.router.navigate(['/chroniques/my-stories/published']);
+    this.router.navigate(['/chroniques/mes-histoires/publiées']);
   }
 
   showMyDrafts(): void {
-    this.router.navigate(['/chroniques/my-stories/drafts']);
+    this.router.navigate(['/chroniques/mes-histoires/brouillons']);
   }
-
 
   //============ GESTION AVATAR ============
 
