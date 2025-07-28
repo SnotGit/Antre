@@ -1,8 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-
-//============ BUSINESS INTERFACES ============
 
 interface StoryData {
   id: number;
@@ -13,15 +11,11 @@ interface StoryData {
   likes?: number;
 }
 
-
-
 interface UserStats {
   drafts: number;
   published: number;
   totalLikes: number;
 }
-
-//============ API RESPONSES ============
 
 interface StoryResponse {
   message: string;
@@ -41,8 +35,6 @@ export class PrivateStoriesService {
   private readonly http = inject(HttpClient);
   private readonly API_URL = 'http://localhost:3000/api/private-stories';
 
-  //============ BUSINESS STATE ============
-
   private _drafts = signal<StoryData[]>([]);
   private _published = signal<StoryData[]>([]);
   private _stats = signal<UserStats>({ drafts: 0, published: 0, totalLikes: 0 });
@@ -51,8 +43,6 @@ export class PrivateStoriesService {
   readonly published = this._published.asReadonly();
   readonly stats = this._stats.asReadonly();
 
-  //============ INITIALISATION ============
-
   async loadStories(): Promise<void> {
     await Promise.all([
       this.getDrafts(),
@@ -60,8 +50,6 @@ export class PrivateStoriesService {
       this.getStats()
     ]);
   }
-
-  //============ RESOLUTION ============
 
   async resolveTitle(title: string): Promise<TitleResolution | null> {
     try {
@@ -73,8 +61,6 @@ export class PrivateStoriesService {
     }
   }
 
-  //============ RETRIEVAL ============
-
   async getStory(id: number): Promise<StoryResponse | null> {
     try {
       return await firstValueFrom(
@@ -85,8 +71,6 @@ export class PrivateStoriesService {
     }
   }
 
-  //============ SAVE ============
-
   async saveDraft(data: { title: string; content: string }, id?: number): Promise<StoryResponse> {
     const response = id 
       ? await firstValueFrom(this.http.put<StoryResponse>(`${this.API_URL}/draft/${id}`, data))
@@ -95,8 +79,6 @@ export class PrivateStoriesService {
     await this.refreshData();
     return response;
   }
-
-  //============ PUBLICATION ============
 
   async publishStory(id: number): Promise<void> {
     await firstValueFrom(this.http.post(`${this.API_URL}/publish/${id}`, {}));
@@ -110,22 +92,38 @@ export class PrivateStoriesService {
     await this.refreshData();
   }
 
-  //============ DELETION ============
-
   async deleteStory(id: number): Promise<void> {
-    await firstValueFrom(this.http.delete(`${this.API_URL}/story/${id}`));
-    await this.refreshData();
-  }
+    if (!id || typeof id !== 'number' || id <= 0) {
+      throw new Error('ID histoire invalide');
+    }
 
-  //============ LIKES ============
+    try {
+      await firstValueFrom(this.http.delete(`${this.API_URL}/story/${id}`));
+      await this.refreshData();
+    } catch (error) {
+      if (error instanceof HttpErrorResponse) {
+        switch (error.status) {
+          case 401:
+            throw new Error('Session expirée');
+          case 403:
+            throw new Error('Non autorisé');
+          case 404:
+            throw new Error('Histoire non trouvée');
+          case 500:
+            throw new Error('Erreur serveur');
+          default:
+            throw new Error('Erreur de suppression');
+        }
+      }
+      throw new Error('Erreur de connexion');
+    }
+  }
 
   async toggleLike(storyId: number): Promise<{ liked: boolean; totalLikes: number }> {
     return await firstValueFrom(
       this.http.post<{ liked: boolean; totalLikes: number }>(`${this.API_URL}/story/${storyId}/like`, {})
     );
   }
-
-  //============ DATA LOADING ============
 
   private async getDrafts(): Promise<void> {
     try {
