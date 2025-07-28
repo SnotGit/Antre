@@ -35,6 +35,8 @@ type EditMode = 'editNew' | 'editDraft' | 'editPublished';
 })
 export class Editor implements OnInit, OnDestroy {
 
+  //============ INJECTIONS ============
+
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private location = inject(Location);
@@ -44,6 +46,8 @@ export class Editor implements OnInit, OnDestroy {
   private autoSaveService = inject(AutoSaveService);
   private typingService = inject(TypingEffectService);
 
+  //============ SIGNALS ============
+
   private _viewMode = signal<ViewMode>('my-stories');
   private _editMode = signal<EditMode>('editNew');
   private _isEditing = signal<boolean>(false);
@@ -51,6 +55,8 @@ export class Editor implements OnInit, OnDestroy {
   private _storyId = signal<number | null>(null);
   private _originalStoryId = signal<number | null>(null);
   private _selected = signal<Set<number>>(new Set());
+
+  //============ STORY SIGNALS ============
 
   private _storyTitle = signal<string>('');
   private _storyContent = signal<string>('');
@@ -76,11 +82,15 @@ export class Editor implements OnInit, OnDestroy {
     this._storyContent.set(value);
   }
 
+  //============ READONLY ============
+
   viewMode = this._viewMode.asReadonly();
   editMode = this._editMode.asReadonly();
   isEditing = this._isEditing.asReadonly();
   loading = this._loading.asReadonly();
   selected = this._selected.asReadonly();
+
+  //============ COMPUTED ============
 
   isListMode = computed(() => !this._isEditing());
   isEditMode = computed(() => this._isEditing());
@@ -94,7 +104,8 @@ export class Editor implements OnInit, OnDestroy {
   });
 
   deleteButtonText = computed(() => {
-    return this._editMode() === 'editNew' ? 'Annuler' : 'Supprimer';
+    const mode = this._editMode();
+    return mode === 'editNew' ? 'Annuler' : 'Supprimer';
   });
 
   publishButtonText = computed(() => {
@@ -105,6 +116,8 @@ export class Editor implements OnInit, OnDestroy {
       default: return 'Publier';
     }
   });
+
+  //============ TYPING EFFECT ============
 
   private readonly TITLES = {
     editNew: 'Nouvelle Histoire',
@@ -130,6 +143,8 @@ export class Editor implements OnInit, OnDestroy {
   private readonly titleEffect = effect(() => {
     this.typingService.title(this.currentTitle());
   });
+
+  //============ AUTOSAVE ============
 
   private autoSaveInstance: ReturnType<AutoSaveService['autoSave']> | null = null;
 
@@ -206,6 +221,8 @@ export class Editor implements OnInit, OnDestroy {
     await this.stories.saveDraft(storyData, id);
   }
 
+  //============ STORIES ============
+
   stats = this.stories.stats;
   resolvedData = toSignal(this.route.data);
 
@@ -226,6 +243,8 @@ export class Editor implements OnInit, OnDestroy {
     }));
   });
 
+  //============ LIFECYCLE ============
+
   ngOnInit(): void {
     if (!this.auth.isLoggedIn()) {
       this.router.navigate(['/auth/login']);
@@ -240,6 +259,8 @@ export class Editor implements OnInit, OnDestroy {
     this.autoSaveInstance?.destroy();
     this.titleEffect.destroy();
   }
+
+  //============ INITIALIZATION ============
 
   private initializeFromRoute(): void {
     const url = this.router.url;
@@ -305,6 +326,22 @@ export class Editor implements OnInit, OnDestroy {
     }
   }
 
+  //============ NAVIGATION ============
+
+  private getNavigationPath(): string {
+    const url = this.router.url;
+    
+    if (url.includes('/brouillons/')) {
+      return '/chroniques/mes-histoires/brouillons';
+    }
+    
+    if (url.includes('/publiées/') || url.includes('/publiée/')) {
+      return '/chroniques/mes-histoires/publiées';
+    }
+    
+    return '/chroniques/mes-histoires';
+  }
+
   showDrafts(): void {
     this._isEditing.set(false);
     this._viewMode.set('drafts');
@@ -320,6 +357,8 @@ export class Editor implements OnInit, OnDestroy {
   goBack(): void {
     this.location.back();
   }
+
+  //============ SELECTION ============
 
   isStorySelected(storyId: number): boolean {
     return this._selected().has(storyId);
@@ -339,11 +378,9 @@ export class Editor implements OnInit, OnDestroy {
     this._selected.set(newSet);
   }
 
-  onDraftCardClick(story: StoryCard): void {
-    if (this.isDeleteMode()) {
-      return;
-    }
+  //============ CLICKS ============
 
+  onDraftCardClick(story: StoryCard): void {
     const cleanTitle = story.title
       .trim()
       .replace(/\s+/g, '-')
@@ -355,10 +392,6 @@ export class Editor implements OnInit, OnDestroy {
   }
 
   onPublishedCardClick(story: StoryCard): void {
-    if (this.isDeleteMode()) {
-      return;
-    }
-
     const cleanTitle = story.title
       .trim()
       .replace(/\s+/g, '-')
@@ -368,6 +401,8 @@ export class Editor implements OnInit, OnDestroy {
 
     this.router.navigate(['/chroniques/mes-histoires/publiée/edition', cleanTitle]);
   }
+
+  //============ ACTIONS ============
 
   async publishStory(): Promise<void> {
     const storyId = this._storyId();
@@ -404,7 +439,7 @@ export class Editor implements OnInit, OnDestroy {
 
       this._loading.set(true);
       await this.stories.deleteStory(storyId);
-      this.router.navigate(['/chroniques/mes-histoires']);
+      this.router.navigate([this.getNavigationPath()]);
     } catch (error) {
       alert('Erreur lors de la suppression');
     } finally {
@@ -422,9 +457,7 @@ export class Editor implements OnInit, OnDestroy {
 
       this._loading.set(true);
 
-      for (const id of ids) {
-        await this.stories.deleteStory(id);
-      }
+      await Promise.all(ids.map(id => this.stories.deleteStory(id)));
       
       this._selected.set(new Set());
     } catch (error) {
@@ -433,6 +466,8 @@ export class Editor implements OnInit, OnDestroy {
       this._loading.set(false);
     }
   }
+
+  //============ UTILS ============
 
   private formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString('fr-FR', {

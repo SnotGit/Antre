@@ -109,7 +109,7 @@
         <button class="btn" (click)="publishStory()" [disabled]="loading()">
           @if (loading()) {
           <span class="loading-spinner"></span>
-          <span>Publication en cours...</span>
+          Publier en cours...
           } @else {
           <span>{{ publishButtonText() }}</span>
           }
