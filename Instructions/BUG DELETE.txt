@@ -1,0 +1,145 @@
+{
+  "MISSION": "Corriger le système de suppression défaillant dans L'Antre Editor - Angular 20",
+  
+  "ERREURS_IDENTIFIEES": {
+    "bug_1": {
+      "nom": "canDelete Logic Bug",
+      "probleme": "canDelete() avec logique OR incorrecte - confusion entre modes",
+      "impact": "Bouton delete apparaît/disparaît de façon imprévisible",
+      "localisation": "editor.ts - computed canDelete()"
+    },
+    "bug_2": {
+      "nom": "Delete vs Cancel Confusion", 
+      "probleme": "Mélange entre 'annuler nouvelle histoire' et 'supprimer story existante'",
+      "impact": "UX confuse + actions incorrectes selon le contexte",
+      "localisation": "editor.ts - deleteStory() + deleteButtonText()"
+    },
+    "bug_3": {
+      "nom": "State Cleanup Missing",
+      "probleme": "Aucun nettoyage d'état après suppression (autosave, signals, etc.)",
+      "impact": "États incohérents + memory leaks potentiels",
+      "localisation": "editor.ts - deleteStory() + deleteSelectedStories()"
+    },
+    "bug_4": {
+      "nom": "Batch Delete Inefficient",
+      "probleme": "Suppression multiple en série au lieu de parallèle",
+      "impact": "Performance dégradée + UX bloquante",
+      "localisation": "editor.ts - deleteSelectedStories() boucle for"
+    },
+    "bug_5": {
+      "nom": "Navigation Logic Inconsistent",
+      "probleme": "Navigation fixe vers /mes-histoires sans considérer le contexte",
+      "impact": "Retour incorrect selon le mode d'origine",
+      "localisation": "editor.ts - deleteStory() navigation"
+    },
+    "bug_6": {
+      "nom": "Error Handling Primitive",
+      "probleme": "alert() basique au lieu de système d'erreur cohérent",
+      "impact": "UX dégradée + pas de retry/recovery",
+      "localisation": "editor.ts - try/catch blocks"
+    }
+  },
+
+  "CORRECTIONS_VALIDEES": {
+    "correction_1": {
+      "fichier": "src/app/components/chroniques/stories/editor/editor.ts",
+      "action": "REFACTORER LOGIQUE DELETE COMPLETE",
+      "solution": "Séparer delete/cancel + logique contextuelle + cleanup état",
+      "sections": [
+        "canDelete computed (ligne ~100)",
+        "deleteStory method (lignes ~300-320)",
+        "deleteSelectedStories method (lignes ~322-340)",
+        "deleteButtonText computed (ligne ~85)"
+      ]
+    },
+    "correction_2": {
+      "fichier": "src/app/components/chroniques/stories/editor/editor.html", 
+      "action": "CORRIGER CONDITIONS AFFICHAGE",
+      "solution": "Logique delete/cancel cohérente + loading states",
+      "sections": ["bouton delete footer", "bouton delete header", "checkboxes selection"]
+    }
+  },
+
+  "PROCEDURE_EXECUTION": {
+    "etape_1": {
+      "action": "ANALYSER FLOW DELETE COMPLET",
+      "commande": "Tester tous les chemins de suppression avec l'outil d'analyse",
+      "validation": "Confirmer : delete vs cancel + states cleanup + navigation contextuelle"
+    },
+    "etape_2": {
+      "action": "IMPLEMENTATION LOGIQUE CORRIGEE",
+      "ordre": [
+        "editor.ts - refactor méthodes delete/cancel",
+        "editor.html - conditions affichage boutons"
+      ]
+    },
+    "etape_3": {
+      "action": "VALIDATION SCENARIOS COMPLETS",
+      "tests": [
+        "Nouvelle histoire → Bouton 'Annuler' → Navigation correcte",
+        "Brouillon existant → Bouton 'Supprimer' → Cleanup + navigation", 
+        "Story publiée → Bouton 'Supprimer draft' → Logic correcte",
+        "Sélection multiple → Suppression parallèle → Refresh view",
+        "Erreur réseau → Gestion graceful sans alert()"
+      ]
+    }
+  },
+
+  "LOGIQUE_CORRIGEE": {
+    "delete_vs_cancel": {
+      "editNew_no_id": "Pas de bouton (rien à supprimer)",
+      "editNew_with_id": "Bouton 'Annuler' (supprime draft auto-créé)",
+      "editDraft": "Bouton 'Supprimer' (supprime brouillon)",
+      "editPublished": "Bouton 'Supprimer brouillon' (supprime draft de modification)"
+    },
+    "navigation_contextuelle": {
+      "depuis_mes_histoires": "Retour → /chroniques/mes-histoires",
+      "depuis_brouillons": "Retour → /chroniques/mes-histoires/brouillons", 
+      "depuis_publiees": "Retour → /chroniques/mes-histoires/publiées",
+      "depuis_edition_directe": "Retour → /chroniques"
+    },
+    "cleanup_obligatoire": [
+      "Détruire autoSave instance",
+      "Reset tous les signals d'état",
+      "Clear sélections multiples",
+      "Update liste stories affichée"
+    ]
+  },
+
+  "GARDE_FOUS": {
+    "preservation": [
+      "Garder TOUTE la logique autosave existante",
+      "Maintenir les styles/themes UI",
+      "Préserver autres fonctionnalités editor",
+      "Conserver structure routing existante"
+    ],
+    "tests_obligatoires": [
+      "Valider chaque scenario delete avec outil analyse",
+      "Tester navigation contextuelle complète",
+      "Vérifier cleanup mémoire après suppressions",
+      "Confirmer pas de régression autosave"
+    ]
+  },
+
+  "DELIVRABLES": {
+    "fichier_1": "editor.ts - LOGIQUE DELETE/CANCEL REFACTORISÉE",
+    "fichier_2": "editor.html - CONDITIONS AFFICHAGE CORRIGÉES",
+    "validation": "Flow delete complet testé = tous scenarios validés"
+  },
+
+  "ARCHITECTURE_FINALE": {
+    "separation_concerns": "delete !== cancel (logiques distinctes)",
+    "contextual_navigation": "Navigation intelligente selon origine",
+    "proper_cleanup": "Destruction complète des états",
+    "error_recovery": "Gestion erreurs sans alert() primitif",
+    "batch_efficiency": "Suppressions multiples en parallèle",
+    "state_consistency": "États cohérents post-suppression"
+  },
+
+  "PROMESSE_QUALITE": {
+    "engagement": "Analyse flow complet avant implémentation",
+    "garantie": "Tous scenarios delete testés et validés", 
+    "methode": "Test logique → implémentation → validation",
+    "objectif": "Suppression robuste et intuitive"
+  }
+}
