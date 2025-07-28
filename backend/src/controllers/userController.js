@@ -100,8 +100,7 @@ const updateProfile = async (req, res) => {
       where: { id: userId },
       data: {
         username: username.trim(),
-        description: description?.trim() || '',
-        updatedAt: new Date()
+        description: description?.trim() || ''
       },
       select: {
         id: true,
@@ -160,8 +159,7 @@ const updateEmail = async (req, res) => {
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
-        email: email.trim(),
-        updatedAt: new Date()
+        email: email.trim()
       },
       select: {
         id: true,
@@ -216,8 +214,7 @@ const uploadAvatar = async (req, res) => {
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
-        avatar: avatarUrl,
-        updatedAt: new Date()
+        avatar: avatarUrl
       },
       select: {
         id: true,
@@ -284,8 +281,7 @@ const changePassword = async (req, res) => {
     await prisma.user.update({
       where: { id: userId },
       data: {
-        passwordHash: hashedNewPassword,
-        updatedAt: new Date()
+        passwordHash: hashedNewPassword
       }
     });
 

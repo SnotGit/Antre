@@ -1,6 +1,6 @@
 @use 'content/artefacts/typing-effect/typing-effect' as *;
 
-.container {  
+.container {
   padding: 0;
   background-color: #121416;
   color: #d0d0d0;
@@ -12,12 +12,11 @@
   flex: 1;
 }
 
-
 .header {
   width: 100%;
   padding: 30px;
   flex-shrink: 0;
-  
+
   .header-title {
     font-size: 32px;
     font-weight: 700;
@@ -26,7 +25,7 @@
     text-align: start;
     display: inline;
     width: auto;
-    
+
     @include typing-effect;
   }
 }
@@ -40,5 +39,21 @@
     background: linear-gradient(90deg, transparent, #5d889e, transparent);
     margin: 0 auto;
     border-radius: 1px;
+  }
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  margin-bottom: 50px;
+
+  p {
+    margin: 10px 0;
+    font-size: 25px;
+    color: #d0d0d0;
   }
 }

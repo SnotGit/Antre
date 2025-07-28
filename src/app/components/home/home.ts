@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, effect, EffectRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TypingEffectService } from '../../services/typing-effect.service';
 
@@ -14,19 +14,45 @@ export class Home implements OnInit, OnDestroy {
 
   private typingService = inject(TypingEffectService);
 
-  private readonly title = 'Bienvenue Gros Têtard !';
+  private readonly title1 = "Salut à toi Gros Têtard.";
+  private readonly title2 = "Bienvenue dans l'Antre";
+
+  private currentTitle = signal<string>('');
+
+  private titleEffect: EffectRef = effect(() => {
+    const title = this.currentTitle();
+    if (title) {
+      this.typingService.title(title);
+    }
+  });
 
   headerTitle = this.typingService.headerTitle;
   showCursor = this.typingService.showCursor;
   typing = this.typingService.typingComplete;
 
+  //============ STATE MANAGEMENT ============
+
+  showTitle1 = true;
+  showTitle2 = false;
+  fadeOutTitle1 = false;
 
   //============ LIFECYCLE ============
 
   ngOnInit(): void {
-    this.typingService.title(this.title);
+    this.currentTitle.set(this.title1);
+    
+    setTimeout(() => {
+      this.fadeOutTitle1 = true;
+      
+      setTimeout(() => {
+        this.showTitle1 = false;
+        this.showTitle2 = true;
+        this.currentTitle.set(this.title2);
+      }, 600);
+    }, 5000);
   }
 
   ngOnDestroy(): void {
+    this.titleEffect.destroy();
   }
 }
