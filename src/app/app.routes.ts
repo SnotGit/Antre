@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './components/utilities/auth-guard/auth-guard';
 import { 
   authRoutes, 
   chroniquesRoutes, 
@@ -25,11 +26,14 @@ export const routes: Routes = [
     children: chroniquesRoutes
   },
 
+  //============ ROUTE PROTÉGÉE UTILISATEUR ============
   {
     path: 'mon-compte',
-    loadComponent: () => import('./components/chroniques/user/user-account/user-account').then(m => m.UserAccount)
+    loadComponent: () => import('./components/chroniques/user/user-account/user-account').then(m => m.UserAccount),
+    canActivate: [authGuard]
   },
 
+  //============ ROUTES PUBLIQUES ============
   {
     path: 'archives',
     children: archivesRoutes
@@ -45,9 +49,11 @@ export const routes: Routes = [
     children: terraformarsRoutes
   },
 
+  //============ ROUTES ADMIN ============
   {
     path: 'staff',
-    children: staffRoutes
+    children: staffRoutes,
+    canActivate: [authGuard]  // ← Protège toute la section staff
   },
 
   {
@@ -59,5 +65,4 @@ export const routes: Routes = [
     path: '**',
     loadComponent: () => import('./components/utilities/not-found/not-found').then(m => m.NotFound)
   }
-
 ];
