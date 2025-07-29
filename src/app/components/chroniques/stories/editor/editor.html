@@ -1,6 +1,5 @@
 <div class="container">
 
-  <!-- ============ HEADER ============ -->
   <div class="header">
     <h1 class="header-title" [class.typing]="!typingComplete()">
       {{ headerTitle() }}
@@ -16,19 +15,17 @@
 
     @if (isDeleteMode()) {
     <div class="delete-button">
-      <button class="btn" (click)="deleteSelectedStories()">
+      <button class="btn" (click)="deleteSelectedStories()" [disabled]="loading()">
         Supprimer ({{ selected().size }})
       </button>
     </div>
     }
   </div>
 
-  <!-- ============ SEPARATOR ============ -->
   <div class="separator">
     <div class="line"></div>
   </div>
 
-  <!-- ============ LIST MODE ============ -->
   @if (isListMode()) {
 
   @if (isMyStoriesMode()) {
@@ -79,7 +76,6 @@
 
   }
 
-  <!-- ============ EDIT MODE ============ -->
   @if (isEditMode()) {
 
   <div class="editor">
@@ -97,13 +93,11 @@
     </div>
 
     <div class="footer">
-      @if (canDelete()) {
       <div class="delete-button">
         <button class="btn" (click)="deleteStory()" [disabled]="loading()">
           <span>{{ deleteButtonText() }}</span>
         </button>
       </div>
-      }
 
       <div class="publish-button">
         <button class="btn" (click)="publishStory()" [disabled]="loading()">

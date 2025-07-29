@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, effect} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -99,37 +99,9 @@ export class Editor implements OnInit, OnDestroy {
   isPublishedMode = computed(() => this._viewMode() === 'published');
   isDeleteMode = computed(() => this._selected().size > 0);
 
-canDelete = computed(() => {
-  const mode = this._editMode();
-  const hasId = this._storyId() !== null;
-  
-  switch(mode) {
-    case 'editNew':
-      return hasId;
-    case 'editDraft':
-      return hasId;
-    case 'editPublished':
-      return hasId;
-    default:
-      return false;
-  }
-});
-
-deleteButtonText = computed(() => {
-  const mode = this._editMode();
-  
-  switch(mode) {
-    case 'editNew':
-      return 'Annuler';
-    case 'editDraft':
-      return 'Supprimer';
-    case 'editPublished':
-      return 'Supprimer';
-    default:
-      return 'Supprimer';
-  }
-});
-
+  deleteButtonText = computed(() => {
+    return this._editMode() === 'editNew' ? 'Annuler' : 'Supprimer';
+  });
 
   publishButtonText = computed(() => {
     switch (this._editMode()) {
@@ -189,25 +161,17 @@ deleteButtonText = computed(() => {
 
   private async performAutoSave(): Promise<void> {
     const data = this.story();
-    const mode = this._editMode();
     const currentId = this._storyId();
 
-    if (!this.shouldSave(data)) return;
+    if (!this.shouldSave(data) || !currentId) return;
 
     try {
-      if (mode === 'editNew' && !currentId) {
-        await this.createNewDraft(data);
-        return;
-      }
+      const storyData = {
+        title: data.title.trim() || 'Histoire sans titre',
+        content: data.content.trim()
+      };
 
-      if (mode === 'editPublished' && !currentId) {
-        await this.createEditDraft(data);
-        return;
-      }
-
-      if (currentId) {
-        await this.updateExistingDraft(data, currentId);
-      }
+      await this.stories.saveDraft(storyData, currentId);
     } catch (error) {
       console.error('Erreur autosave:', error);
     }
@@ -215,37 +179,6 @@ deleteButtonText = computed(() => {
 
   private shouldSave(data: Story): boolean {
     return data.title.trim().length > 0 || data.content.trim().length > 0;
-  }
-
-  //============ EDIT ============
-
-  private async createNewDraft(data: Story): Promise<void> {
-    const storyData = {
-      title: data.title.trim() || 'Histoire sans titre',
-      content: data.content.trim()
-    };
-
-    const response = await this.stories.saveDraft(storyData);
-    this._storyId.set(response.story.id);
-  }
-
-  private async createEditDraft(data: Story): Promise<void> {
-    const storyData = {
-      title: data.title.trim() || 'Histoire sans titre',
-      content: data.content.trim()
-    };
-
-    const response = await this.stories.saveDraft(storyData);
-    this._storyId.set(response.story.id);
-  }
-
-  private async updateExistingDraft(data: Story, id: number): Promise<void> {
-    const storyData = {
-      title: data.title.trim() || 'Histoire sans titre',
-      content: data.content.trim()
-    };
-
-    await this.stories.saveDraft(storyData, id);
   }
 
   stats = this.stories.stats;
@@ -326,18 +259,17 @@ deleteButtonText = computed(() => {
     );
   }
 
-  private initializeEditMode(data: Story | null): void {
+  private async initializeEditMode(data: Story | null): Promise<void> {
     this._isEditing.set(true);
 
     if (!data) {
-      this._editMode.set('editNew');
-      this.setupAutoSave();
+      await this.createNewDraft();
       return;
     }
 
     if (data.storyId) {
       this._storyId.set(data.storyId);
-
+      
       if (data.originalStoryId) {
         this._originalStoryId.set(data.originalStoryId);
         this._editMode.set('editPublished');
@@ -347,13 +279,35 @@ deleteButtonText = computed(() => {
 
       this._storyTitle.set(data.title || '');
       this._storyContent.set(data.content || '');
-
-      setTimeout(() => {
-        this.setupAutoSave();
-      }, 0);
-    } else {
-      this._editMode.set('editNew');
+      
       this.setupAutoSave();
+    } else {
+      // Fallback editNew
+      await this.createNewDraft();
+    }
+  }
+
+  //======= EDIT NEW =======
+
+  private async createNewDraft(): Promise<void> {
+    try {
+      this._editMode.set('editNew');
+      
+      const storyData = {
+        title: 'Histoire sans titre',
+        content: ''
+      };
+
+      const response = await this.stories.saveDraft(storyData);
+      this._storyId.set(response.story.id);
+      this._storyTitle.set('');
+      this._storyContent.set('');
+      
+      this.setupAutoSave();
+    } catch (error) {
+      console.error('Erreur création draft:', error);
+      alert('Erreur lors de la création de l\'histoire');
+      this.router.navigate(['/chroniques/mes-histoires']);
     }
   }
 
@@ -431,7 +385,10 @@ deleteButtonText = computed(() => {
 
   async publishStory(): Promise<void> {
     const storyId = this._storyId();
-    if (!storyId) return;
+    if (!storyId) {
+      alert('Erreur: Histoire non sauvegardée');
+      return;
+    }
 
     this._loading.set(true);
     try {
@@ -444,37 +401,42 @@ deleteButtonText = computed(() => {
       }
 
       this.router.navigate(['/chroniques']);
+    } catch (error) {
+      alert('Erreur lors de la publication');
     } finally {
       this._loading.set(false);
     }
   }
 
+  //======= DELETE =======
+
   async deleteStory(): Promise<void> {
     const storyId = this._storyId();
-    if (!storyId) return;
-
     const mode = this._editMode();
-    const isNew = mode === 'editNew';
+    
+    console.log('DELETE: storyId =', storyId, 'mode =', mode);
+    
+    if (!storyId) {
+      console.error('Suppression impossible: aucun ID story');
+      alert('Erreur: Histoire non sauvegardée, impossible de supprimer');
+      return;
+    }
 
+    const isNew = mode === 'editNew';
+    
     try {
       const confirmed = await this.dialog.confirmDeleteStory(isNew);
       if (!confirmed) return;
 
       this._loading.set(true);
       await this.stories.deleteStory(storyId);
-
-      if (this.autoSaveInstance) {
-        this.autoSaveInstance.destroy();
-        this.autoSaveInstance = null;
-      }
-
-      this._storyId.set(null);
-      this._storyTitle.set('');
-      this._storyContent.set('');
-
-      this.router.navigate(['/chroniques/mes-histoires']);
+      
+      this.cleanupAfterDelete();
+      
+      this.navigateAfterDelete();
+      
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
+      console.error('Erreur suppression:', error);
       alert('Erreur lors de la suppression');
     } finally {
       this._loading.set(false);
@@ -490,13 +452,43 @@ deleteButtonText = computed(() => {
       if (!confirmed) return;
 
       this._loading.set(true);
+
       await Promise.all(ids.map(id => this.stories.deleteStory(id)));
+      
       this._selected.set(new Set());
     } catch (error) {
-      console.error('Erreur lors de la suppression multiple:', error);
+      console.error('Erreur suppression multiple:', error);
       alert('Erreur lors de la suppression');
     } finally {
       this._loading.set(false);
+    }
+  }
+
+  //======= CLEANUP & NAVIGATION =======
+
+  private cleanupAfterDelete(): void {
+    if (this.autoSaveInstance) {
+      this.autoSaveInstance.destroy();
+      this.autoSaveInstance = null;
+    }
+    
+    this._storyId.set(null);
+    this._originalStoryId.set(null);
+    this._storyTitle.set('');
+    this._storyContent.set('');
+  }
+
+  private navigateAfterDelete(): void {
+    const currentUrl = this.router.url;
+    
+    if (currentUrl.includes('/brouillons')) {
+      this.router.navigate(['/chroniques/mes-histoires/brouillons']);
+    } else if (currentUrl.includes('/publiées')) {
+      this.router.navigate(['/chroniques/mes-histoires/publiées']);
+    } else if (currentUrl.includes('/mes-histoires')) {
+      this.router.navigate(['/chroniques/mes-histoires']);
+    } else {
+      this.router.navigate(['/chroniques']);
     }
   }
 
