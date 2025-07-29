@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const prisma = new PrismaClient();
 
-//============ MIDDLEWARE AUTHENTIFICATION ============
+//============ MIDDLEWARE AUTHENTIFICATION CORRIGÉ ============
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -12,14 +12,32 @@ const authenticateToken = (req, res, next) => {
 
   if (!token) {
     return res.status(401).json({ 
-      error: 'Token d\'accès requis' 
+      error: 'Token d\'accès requis',
+      code: 'NO_TOKEN'
     });
   }
 
   jwt.verify(token, process.env.JWT_SECRET || 'votre-secret-jwt-temporaire', (err, user) => {
     if (err) {
+      console.error('JWT Verification failed:', err.message);
+      
+      if (err.name === 'TokenExpiredError') {
+        return res.status(401).json({ 
+          error: 'Token expiré - Veuillez vous reconnecter',
+          code: 'TOKEN_EXPIRED'
+        });
+      }
+      
+      if (err.name === 'JsonWebTokenError') {
+        return res.status(401).json({ 
+          error: 'Token invalide',
+          code: 'TOKEN_INVALID'
+        });
+      }
+      
       return res.status(403).json({ 
-        error: 'Token invalide ou expiré' 
+        error: 'Token invalide ou expiré',
+        code: 'TOKEN_ERROR'
       });
     }
 
@@ -100,6 +118,7 @@ const register = async (req, res) => {
     });
 
   } catch (error) {
+    console.error('Register error:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -157,6 +176,7 @@ const login = async (req, res) => {
     });
 
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -190,6 +210,7 @@ const validateToken = async (req, res) => {
     });
 
   } catch (error) {
+    console.error('Validate token error:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };

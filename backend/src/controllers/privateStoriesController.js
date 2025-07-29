@@ -51,6 +51,7 @@ const resolveTitle = async (req, res) => {
     });
 
   } catch (error) {
+    console.error('Resolve title error:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -123,6 +124,7 @@ const getStoryForEdit = async (req, res) => {
     }
 
   } catch (error) {
+    console.error('Get story for edit error:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -146,6 +148,7 @@ const createDraft = async (req, res) => {
       story: { id: story.id, title: story.title, content: story.content, status: story.status }
     });
   } catch (error) {
+    console.error('Create draft error:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -176,6 +179,7 @@ const updateDraft = async (req, res) => {
       story: { id: updated.id, title: updated.title, content: updated.content, status: updated.status }
     });
   } catch (error) {
+    console.error('Update draft error:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -204,6 +208,7 @@ const publishStory = async (req, res) => {
 
     res.json({ message: 'Histoire publiée avec succès' });
   } catch (error) {
+    console.error('Publish story error:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -242,11 +247,12 @@ const updateOriginalStory = async (req, res) => {
 
     res.json({ message: 'Histoire originale mise à jour avec succès' });
   } catch (error) {
+    console.error('Update original story error:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
 
-//============ DELETE TRANSACTIONNEL ============
+//============ DELETE TRANSACTIONNEL CORRIGÉ ============
 
 const deleteStory = async (req, res) => {
   try {
@@ -254,19 +260,46 @@ const deleteStory = async (req, res) => {
     const userId = req.user.userId;
     const storyId = parseInt(id);
 
-    if (!storyId || storyId <= 0) {
-      return res.status(400).json({ error: 'ID histoire invalide' });
+    //============ VALIDATION INPUT ============
+    
+    if (!id || isNaN(storyId) || storyId <= 0) {
+      return res.status(400).json({ 
+        error: 'ID histoire invalide',
+        code: 'INVALID_ID'
+      });
     }
 
+    if (!userId || typeof userId !== 'number') {
+      return res.status(401).json({ 
+        error: 'Utilisateur non authentifié',
+        code: 'INVALID_USER'
+      });
+    }
+
+    //============ VERIFICATION OWNERSHIP ============
+    
     const story = await prisma.story.findFirst({
-      where: { id: storyId, userId },
-      select: { id: true, status: true, title: true }
+      where: { 
+        id: storyId,
+        userId: userId
+      },
+      select: { 
+        id: true, 
+        status: true, 
+        title: true,
+        userId: true
+      }
     });
 
     if (!story) {
-      return res.status(404).json({ error: 'Histoire non trouvée ou accès non autorisé' });
+      return res.status(404).json({ 
+        error: 'Histoire non trouvée ou accès non autorisé',
+        code: 'STORY_NOT_FOUND'
+      });
     }
 
+    //============ SUPPRESSION TRANSACTIONNELLE ============
+    
     await prisma.$transaction(async (tx) => {
       await tx.like.deleteMany({
         where: { storyId: storyId }
@@ -277,6 +310,8 @@ const deleteStory = async (req, res) => {
       });
     });
 
+    //============ RESPONSE SUCCESS ============
+    
     res.json({
       success: true,
       message: `${story.status === 'DRAFT' ? 'Brouillon' : 'Histoire'} supprimé avec succès`,
@@ -288,6 +323,10 @@ const deleteStory = async (req, res) => {
     });
 
   } catch (error) {
+    console.error('Delete story error:', error);
+
+    //============ GESTION ERREURS PRISMA ============
+    
     if (error.code === 'P2002') {
       return res.status(409).json({ 
         error: 'Conflit de contrainte lors de la suppression',
@@ -302,6 +341,15 @@ const deleteStory = async (req, res) => {
       });
     }
 
+    if (error.code === 'P2023') {
+      return res.status(400).json({ 
+        error: 'ID histoire invalide',
+        code: 'INVALID_ID_FORMAT'
+      });
+    }
+
+    //============ ERREUR GENERIQUE ============
+    
     res.status(500).json({ 
       error: 'Erreur lors de la suppression',
       code: 'DELETE_FAILED'
@@ -326,6 +374,7 @@ const getStats = async (req, res) => {
       stats: { drafts, published, totalLikes }
     });
   } catch (error) {
+    console.error('Get stats error:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -349,6 +398,7 @@ const getDrafts = async (req, res) => {
       }))
     });
   } catch (error) {
+    console.error('Get drafts error:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -373,6 +423,7 @@ const getPublishedStories = async (req, res) => {
       }))
     });
   } catch (error) {
+    console.error('Get published stories error:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
@@ -420,6 +471,7 @@ const toggleLike = async (req, res) => {
       message: isLiked ? 'Histoire likée' : 'Like retiré'
     });
   } catch (error) {
+    console.error('Toggle like error:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
