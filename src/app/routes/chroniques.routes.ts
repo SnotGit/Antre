@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { chroniquesResolver } from '../resolvers/chroniques-resolver';
-
-//============ CHRONIQUES ROUTES ============
+import { authGuard } from '../components/utilities/auth-guard/auth-guard';
+//============ CHRONIQUES ROUTES (ARCHITECTURE ACTUELLE) ============
 
 export const routes: Routes = [
   {
@@ -9,42 +9,48 @@ export const routes: Routes = [
     loadComponent: () => import('../components/chroniques/chroniques').then(m => m.Chroniques)
   },
   
-  //============ MY STORIES ============
+  //============ ROUTES PRIVÉES (avec authGuard) ============
   
   {
     path: 'mes-histoires/brouillon/edition/nouvelle-histoire',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
-    resolve: { data: chroniquesResolver }
+    resolve: { data: chroniquesResolver },
+    canActivate: [authGuard]
   },
   
   {
     path: 'mes-histoires/brouillon/edition/:title',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
-    resolve: { data: chroniquesResolver }
+    resolve: { data: chroniquesResolver },
+    canActivate: [authGuard]
   },
   
   {
     path: 'mes-histoires/publiée/edition/:title',
     loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
-    resolve: { data: chroniquesResolver }
+    resolve: { data: chroniquesResolver },
+    canActivate: [authGuard]
   },
 
   {
     path: 'mes-histoires/brouillons', 
-    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
+    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
+    canActivate: [authGuard]
   },
   
   {
     path: 'mes-histoires/publiées',
-    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
+    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
+    canActivate: [authGuard]
   },
   
   {
     path: 'mes-histoires',
-    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor)
+    loadComponent: () => import('../components/chroniques/stories/editor/editor').then(m => m.Editor),
+    canActivate: [authGuard]
   },
 
-  //============ PUBLIC ROUTES ============
+  //============ ROUTES PUBLIQUES (sans guard) ============
   
   {
     path: ':username/:title',
@@ -52,9 +58,4 @@ export const routes: Routes = [
     resolve: { data: chroniquesResolver }
   },
 
-  {
-    path: ':username',
-    loadComponent: () => import('../components/chroniques/user/user-profile/user-profile').then(m => m.AuthorProfileComponent),
-    resolve: { data: chroniquesResolver }
-  }
 ];
