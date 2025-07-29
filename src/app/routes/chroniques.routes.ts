@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { chroniquesResolver } from '../resolvers/chroniques-resolver';
 import { authGuard } from '../components/utilities/auth-guard/auth-guard';
-//============ CHRONIQUES ROUTES (ARCHITECTURE ACTUELLE) ============
+//============ CHRONIQUES ROUTES ============
 
 export const routes: Routes = [
   {
@@ -9,7 +9,7 @@ export const routes: Routes = [
     loadComponent: () => import('../components/chroniques/chroniques').then(m => m.Chroniques)
   },
   
-  //============ ROUTES PRIVÉES (avec authGuard) ============
+  //============ PRIVATES ROUTES ============
   
   {
     path: 'mes-histoires/brouillon/edition/nouvelle-histoire',
@@ -50,7 +50,7 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
-  //============ ROUTES PUBLIQUES (sans guard) ============
+  //============ PUBLIC ROUTES ============
   
   {
     path: ':username/:title',
