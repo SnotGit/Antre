@@ -15,10 +15,11 @@ export class ConfirmationDialogService {
   private visible = signal(false);
   private dialogConfig = signal<ConfirmationConfig | null>(null);
   private resolvePromise: ((result: boolean) => void) | null = null;
-  private timeoutId: number | null = null;
 
   isVisible = this.visible.asReadonly();
   config = this.dialogConfig.asReadonly();
+
+  //============ PROMISES ROBUSTES ============
 
   confirmDeleteStory(isNewStory: boolean): Promise<boolean> {
     const config: ConfirmationConfig = {
@@ -46,58 +47,54 @@ export class ConfirmationDialogService {
     return this.showDialog(config);
   }
 
-  confirmCancelChanges(): Promise<boolean> {
-    const config: ConfirmationConfig = {
-      title: 'Annuler les modifications',
-      message: 'Voulez-vous vraiment quitter sans sauvegarder vos modifications ?',
-      confirmText: 'Quitter',
-      cancelText: 'Continuer l\'édition',
-      isDanger: true
-    };
-
-    return this.showDialog(config);
-  }
+  //============ CORE DIALOG LOGIC ============
 
   private showDialog(config: ConfirmationConfig): Promise<boolean> {
-    return new Promise((resolve) => {
-      this.cleanup();
+    // Cleanup any previous dialog
+    this.forceCloseDialog();
+
+    return new Promise<boolean>((resolve) => {
       this.resolvePromise = resolve;
       this.dialogConfig.set(config);
       this.visible.set(true);
-      
-      this.timeoutId = window.setTimeout(() => {
-        console.warn('ConfirmationDialog: Timeout atteint - fermeture automatique');
-        this.closeDialog(false);
-      }, 30000); // 30 secondes de sécurité
     });
   }
 
+  //============ USER ACTIONS ============
+
   onConfirm(): void {
-    console.log('ConfirmationDialog: onConfirm() appelée');
     this.closeDialog(true);
   }
 
   onCancel(): void {
-    console.log('ConfirmationDialog: onCancel() appelée');
     this.closeDialog(false);
   }
 
+  //============ CLEANUP LOGIC ============
+
   private closeDialog(result: boolean): void {
-    this.cleanup();
-    
+    // Always resolve the Promise first
     if (this.resolvePromise) {
       this.resolvePromise(result);
       this.resolvePromise = null;
     }
+
+    // Then cleanup the UI
+    this.cleanup();
+  }
+
+  private forceCloseDialog(): void {
+    // Resolve any pending Promise with false
+    if (this.resolvePromise) {
+      this.resolvePromise(false);
+      this.resolvePromise = null;
+    }
+    
+    this.cleanup();
   }
 
   private cleanup(): void {
     this.visible.set(false);
     this.dialogConfig.set(null);
-    
-    if (this.timeoutId) {
-      clearTimeout(this.timeoutId);
-      this.timeoutId = null;
-    }
   }
 }
