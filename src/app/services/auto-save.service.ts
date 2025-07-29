@@ -42,13 +42,11 @@ export class AutoSaveService {
       const title = currentData.title || '';
       const content = currentData.content || '';
       
-      // CORRECTION: Comparaison séparée title/content au lieu de JSON.stringify
       const titleChanged = title !== previousTitle;
       const contentChanged = content !== previousContent;
       const hasChanges = titleChanged || contentChanged;
 
       if (!isInitialized) {
-        // CORRECTION: Initialisation sans déclencher de save
         previousTitle = title;
         previousContent = content;
         isInitialized = true;
@@ -56,7 +54,6 @@ export class AutoSaveService {
       }
 
       if (hasChanges) {
-        // Vérifier si les données ne sont pas vides
         if (title.trim().length > 0 || content.trim().length > 0) {
           previousTitle = title;
           previousContent = content;
@@ -71,7 +68,6 @@ export class AutoSaveService {
             await this.performSave(config, state);
           }, delay);
         } else {
-          // Données vides, mettre à jour les valeurs précédentes sans sauvegarder
           previousTitle = title;
           previousContent = content;
         }

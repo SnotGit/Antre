@@ -14,7 +14,7 @@ export class Home implements OnInit, OnDestroy {
 
   private typingService = inject(TypingEffectService);
 
-  private readonly title1 = "Salut à toi Gros Têtard.";
+  private readonly title1 = "Salut à toi Gros Têtard !";
   private readonly title2 = "Bienvenue dans l'Antre";
 
   private currentTitle = signal<string>('');
