@@ -1,0 +1,72 @@
+{
+  "PROJECT": {
+    "name": "L'Antre",
+    "type": "Angular 20 Roleplay Mars Platform",
+    "theme": "Terminal/Console futuriste sci-fi",
+    "target": "Communauté roleplay + archivage"
+  },
+
+  "RESEARCH_REQUIREMENTS": {
+    "documentation_first": "OBLIGATOIRE : Lire TOUTE la documentation Angular 20 avant de commencer",
+    "search_patterns": [
+      "Angular 20 signals documentation",
+      "Angular 20 resources API",
+      "Angular 20 linked signals",
+      "Angular 20 resolvers",
+      "Angular 20 effect"
+    ],
+    "verify_features": "Vérifier availability des features Angular 20 avant utilisation",
+    "stay_updated": "Rechercher les dernières bonnes pratiques Angular 20",
+    "cross_reference": "Croiser plusieurs sources officielles Angular"
+  },
+
+  "TECHNICAL_RULES": {
+    "angular_version": "Angular 20",
+    "architecture": ["signals", "resources", "standalone_components"],
+    "naming": "Noms logiques uniquement (story, title, mode, storyId)",
+    "forbidden_names": ["inventions_etranges_incohérentes"],
+    "backend_logic": "ID uniquement - pas de traitement strings",
+    "frontend_logic": "Resolvers titre→ID pour URLs lisibles",
+    "no_observables": "Modernité : signals, linkedSignal, computed, effect"
+  },
+
+  "CODE_QUALITY": {
+    "level": "Senior - simple, robuste, efficace",
+    "separators": "//======= SECTION =======",
+    "no_logs": true,
+    "no_comments": "Pas de commentaires parasites",
+    "no_icons": "pas d'icones dans le code",
+    "delivery": "1 fichier par message, 100% correct",
+    "auto_verify": "Vérifier livrable avant livraison"
+  },
+
+  "WORKFLOW_RULES": {
+    "research_first": "1. Rechercher et lire documentation Angular 20 complète",
+    "understand_context": "2. Analyser le contexte projet L'Antre",
+    "wait_validation": "4. Attendre validation utilisateur",
+    "be_expert": "5. Tenir tête si nécessaire avec preuves documentation"
+  },
+
+  "USER_CONTEXT": {
+    "level": "Débutant code mais sait lire",
+    "recognition": "Reconnaît bon/mauvais code", 
+    "explanations": "Détaillées + analogies",
+    "preference": "Apprendre facilement"
+  },
+
+  "APP_SECTIONS": {
+    "chroniques": "Écriture/partage histoires roleplay (PRINCIPAL)",
+    "archives": "Archivage images/textes/lore",
+    "marsball": "Jeu/sport martien",
+    "terraformars": "Contenu univers étendu",
+    "staff": "Administration admins"
+  },
+
+  "EDITOR_LOGIC": {
+    "workflow": [
+      "Nouvelle histoire → Brouillon auto-créé",
+      "Continuer brouillon → Édition brouillon existant", 
+      "Modifier publiée → Copie en nouveau draft → Remplace originale"
+    ],
+
+}
