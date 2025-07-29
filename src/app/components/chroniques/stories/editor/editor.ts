@@ -46,7 +46,6 @@ export class Editor implements OnInit, OnDestroy {
   private autoSaveService = inject(AutoSaveService);
   private typingService = inject(TypingEffectService);
 
-
   //============ STATE MANAGEMENT ============
 
   private _viewMode = signal<ViewMode>('my-stories');
@@ -101,7 +100,10 @@ export class Editor implements OnInit, OnDestroy {
   isDeleteMode = computed(() => this._selected().size > 0);
 
   canDelete = computed(() => {
-    return this._editMode() !== 'editNew' || this._storyId() !== null;
+    const mode = this._editMode();
+    const hasId = this._storyId() !== null;
+    if (mode === 'editNew' && !hasId) return false;
+    return true;
   });
 
   deleteButtonText = computed(() => {
@@ -136,7 +138,7 @@ export class Editor implements OnInit, OnDestroy {
     }
   });
 
-    //======= TYPING EFFECT =======
+  //======= TYPING EFFECT =======
 
   headerTitle = this.typingService.headerTitle;
   showCursor = this.typingService.showCursor;
@@ -146,8 +148,7 @@ export class Editor implements OnInit, OnDestroy {
     this.typingService.title(this.currentTitle());
   });
 
-
-  //======= AUTO-SAVE =======  
+  //======= AUTO-SAVE =======
 
   private autoSaveInstance: ReturnType<AutoSaveService['autoSave']> | null = null;
 
@@ -194,7 +195,6 @@ export class Editor implements OnInit, OnDestroy {
   private shouldSave(data: Story): boolean {
     return data.title.trim().length > 0 || data.content.trim().length > 0;
   }
-
 
   //============ EDIT ============
 
@@ -293,7 +293,6 @@ export class Editor implements OnInit, OnDestroy {
       url.endsWith('/brouillons') ||
       url.endsWith('/publiées');
   }
-
 
   //======= INIT =======
 
@@ -413,9 +412,6 @@ export class Editor implements OnInit, OnDestroy {
     const storyId = this._storyId();
     if (!storyId) return;
 
-    const confirmed = await this.dialog.confirmPublishStory();
-    if (!confirmed) return;
-
     this._loading.set(true);
     try {
       const originalId = this._originalStoryId();
@@ -444,6 +440,16 @@ export class Editor implements OnInit, OnDestroy {
 
       this._loading.set(true);
       await this.stories.deleteStory(storyId);
+      
+      if (this.autoSaveInstance) {
+        this.autoSaveInstance.destroy();
+        this.autoSaveInstance = null;
+      }
+      
+      this._storyId.set(null);
+      this._storyTitle.set('');
+      this._storyContent.set('');
+      
       this.router.navigate(['/chroniques/mes-histoires']);
     } catch (error) {
       alert('Erreur lors de la suppression');
@@ -462,9 +468,7 @@ export class Editor implements OnInit, OnDestroy {
 
       this._loading.set(true);
 
-      for (const id of ids) {
-        await this.stories.deleteStory(id);
-      }
+      await Promise.all(ids.map(id => this.stories.deleteStory(id)));
       
       this._selected.set(new Set());
     } catch (error) {
