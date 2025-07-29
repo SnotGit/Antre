@@ -15,6 +15,7 @@ export class ConfirmationDialogService {
   private visible = signal(false);
   private dialogConfig = signal<ConfirmationConfig | null>(null);
   private resolvePromise: ((result: boolean) => void) | null = null;
+  private timeoutId: number | null = null;
 
   isVisible = this.visible.asReadonly();
   config = this.dialogConfig.asReadonly();
@@ -59,26 +60,44 @@ export class ConfirmationDialogService {
 
   private showDialog(config: ConfirmationConfig): Promise<boolean> {
     return new Promise((resolve) => {
+      this.cleanup();
       this.resolvePromise = resolve;
       this.dialogConfig.set(config);
       this.visible.set(true);
+      
+      this.timeoutId = window.setTimeout(() => {
+        console.warn('ConfirmationDialog: Timeout atteint - fermeture automatique');
+        this.closeDialog(false);
+      }, 30000); // 30 secondes de sécurité
     });
   }
 
   onConfirm(): void {
+    console.log('ConfirmationDialog: onConfirm() appelée');
     this.closeDialog(true);
   }
 
   onCancel(): void {
+    console.log('ConfirmationDialog: onCancel() appelée');
     this.closeDialog(false);
   }
 
   private closeDialog(result: boolean): void {
-    this.visible.set(false);
-    this.dialogConfig.set(null);
+    this.cleanup();
+    
     if (this.resolvePromise) {
       this.resolvePromise(result);
       this.resolvePromise = null;
+    }
+  }
+
+  private cleanup(): void {
+    this.visible.set(false);
+    this.dialogConfig.set(null);
+    
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
     }
   }
 }

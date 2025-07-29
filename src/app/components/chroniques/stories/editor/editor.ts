@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, effect} from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -99,16 +99,37 @@ export class Editor implements OnInit, OnDestroy {
   isPublishedMode = computed(() => this._viewMode() === 'published');
   isDeleteMode = computed(() => this._selected().size > 0);
 
-  canDelete = computed(() => {
-    const mode = this._editMode();
-    const hasId = this._storyId() !== null;
-    if (mode === 'editNew' && !hasId) return false;
-    return true;
-  });
+canDelete = computed(() => {
+  const mode = this._editMode();
+  const hasId = this._storyId() !== null;
+  
+  switch(mode) {
+    case 'editNew':
+      return hasId;
+    case 'editDraft':
+      return hasId;
+    case 'editPublished':
+      return hasId;
+    default:
+      return false;
+  }
+});
 
-  deleteButtonText = computed(() => {
-    return this._editMode() === 'editNew' ? 'Annuler' : 'Supprimer';
-  });
+deleteButtonText = computed(() => {
+  const mode = this._editMode();
+  
+  switch(mode) {
+    case 'editNew':
+      return 'Annuler';
+    case 'editDraft':
+      return 'Supprimer';
+    case 'editPublished':
+      return 'Supprimer';
+    default:
+      return 'Supprimer';
+  }
+});
+
 
   publishButtonText = computed(() => {
     switch (this._editMode()) {
@@ -316,7 +337,7 @@ export class Editor implements OnInit, OnDestroy {
 
     if (data.storyId) {
       this._storyId.set(data.storyId);
-      
+
       if (data.originalStoryId) {
         this._originalStoryId.set(data.originalStoryId);
         this._editMode.set('editPublished');
@@ -326,7 +347,7 @@ export class Editor implements OnInit, OnDestroy {
 
       this._storyTitle.set(data.title || '');
       this._storyContent.set(data.content || '');
-      
+
       setTimeout(() => {
         this.setupAutoSave();
       }, 0);
@@ -432,26 +453,28 @@ export class Editor implements OnInit, OnDestroy {
     const storyId = this._storyId();
     if (!storyId) return;
 
-    const isNew = this._editMode() === 'editNew';
-    
+    const mode = this._editMode();
+    const isNew = mode === 'editNew';
+
     try {
       const confirmed = await this.dialog.confirmDeleteStory(isNew);
       if (!confirmed) return;
 
       this._loading.set(true);
       await this.stories.deleteStory(storyId);
-      
+
       if (this.autoSaveInstance) {
         this.autoSaveInstance.destroy();
         this.autoSaveInstance = null;
       }
-      
+
       this._storyId.set(null);
       this._storyTitle.set('');
       this._storyContent.set('');
-      
+
       this.router.navigate(['/chroniques/mes-histoires']);
     } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
       alert('Erreur lors de la suppression');
     } finally {
       this._loading.set(false);
@@ -467,11 +490,10 @@ export class Editor implements OnInit, OnDestroy {
       if (!confirmed) return;
 
       this._loading.set(true);
-
       await Promise.all(ids.map(id => this.stories.deleteStory(id)));
-      
       this._selected.set(new Set());
     } catch (error) {
+      console.error('Erreur lors de la suppression multiple:', error);
       alert('Erreur lors de la suppression');
     } finally {
       this._loading.set(false);
