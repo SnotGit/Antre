@@ -1,4 +1,4 @@
-# REFACTORING EDITOR - ARCHITECTURE SIMPLE & EFFICACE
+# ARCHITECTURE SIMPLE & EFFICACE
 
 ## OBJECTIF
 Refactoriser Editor Component + créer Resolver selon logique simple. Angular 20 niveau senior.

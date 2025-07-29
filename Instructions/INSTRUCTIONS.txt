@@ -32,7 +32,7 @@
 
   "CODE_QUALITY": {
     "level": "Senior - simple, robuste, efficace",
-    "separators": "//======= SECTION =======",
+    "separators": "séparateurs de responsabilité simple , en anglais //======= EXEMPLE =======",
     "no_logs": true,
     "no_comments": "Pas de commentaires parasites",
     "no_icons": "pas d'icones dans le code",
