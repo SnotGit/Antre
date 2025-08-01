@@ -1,22 +1,20 @@
 import { Component, signal, inject, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { NgClass } from '@angular/common';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-navbar',
-  standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [NgClass, RouterLink, RouterLinkActive],
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.scss']
 })
 export class Navbar {
-  private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly STORAGE_KEY = 'navbar-mobile-open';
 
-  //============ SIGNALS ============
-
+  //============ SIGNAL ============
+  
   private _mobileMenuOpen = signal<boolean>(false);
 
   //============ COMPUTED ============
@@ -24,21 +22,26 @@ export class Navbar {
   mobileMenuOpen = this._mobileMenuOpen.asReadonly();
   isAdmin = this.authService.isAdmin;
 
+  //============ HELPERS ============
+
+  private getStoredState(): boolean {
+    return localStorage.getItem(this.STORAGE_KEY) === 'true';
+  }
+
+  private updateStoredState(isOpen: boolean): void {
+    localStorage.setItem(this.STORAGE_KEY, isOpen.toString());
+  }
+
+  //============ EFFECT ============
+
+  localStorageEffect = effect(() => {
+    this.updateStoredState(this._mobileMenuOpen());
+  });
+
   //============ INITIALISATION ============
 
   constructor() {
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
-      this._mobileMenuOpen.set(false);
-    });
-
-    effect(() => {
-      localStorage.setItem('navbar-mobile-open', this._mobileMenuOpen().toString());
-    });
-
-    const savedState = localStorage.getItem('navbar-mobile-open');
-    if (savedState === 'true') {
+    if (this.getStoredState()) {
       this._mobileMenuOpen.set(true);
     }
   }
@@ -46,12 +49,10 @@ export class Navbar {
   //============ ACTIONS ============
 
   toggleMobileMenu(): void {
-    this._mobileMenuOpen.set(!this._mobileMenuOpen());
+    this._mobileMenuOpen.update(open => !open);
   }
 
-  onNavigationClick(): void {
-    setTimeout(() => {
-      this._mobileMenuOpen.set(false);
-    }, 150);
+  onClick(): void {
+    this._mobileMenuOpen.set(false);
   }
 }

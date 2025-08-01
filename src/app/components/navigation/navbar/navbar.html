@@ -21,20 +21,20 @@
 
   <!-- Menu content -->
   <div class="menu-content">
-    <a routerLink="/archives" routerLinkActive="active" class="menu-btn">
+    <a routerLink="/archives" routerLinkActive="active" class="menu-btn" (click)="onClick()">
       Archives
     </a>
-    <a routerLink="/marsball" routerLinkActive="active" class="menu-btn">
+    <a routerLink="/marsball" routerLinkActive="active" class="menu-btn" (click)="onClick()">
       Marsball
     </a>
-    <a routerLink="/terraformars" routerLinkActive="active" class="menu-btn">
+    <a routerLink="/terraformars" routerLinkActive="active" class="menu-btn" (click)="onClick()">
       Terraformars
     </a>
-    <a routerLink="/chroniques" routerLinkActive="active" class="menu-btn">
+    <a routerLink="/chroniques" routerLinkActive="active" class="menu-btn" (click)="onClick()">
       Chroniques de Mars
     </a>
     @if (isAdmin()) {
-      <a routerLink="/staff" routerLinkActive="active" class="menu-btn staff-only">
+      <a routerLink="/staff" routerLinkActive="active" class="menu-btn staff-only" (click)="onClick()">
         Staff
       </a>
     }

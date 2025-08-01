@@ -11,5 +11,4 @@ import { Terminal } from './components/navigation/terminal/terminal';
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'antre';
 }
