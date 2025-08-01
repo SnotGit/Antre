@@ -1,4 +1,4 @@
-<nav class="navbar-container" [ngClass]="`${!mobileMenuOpen() ? 'collapsed' : 'expanded'}`">
+<nav class="navbar-container" [ngClass]="`${!openMenu() ? 'collapsed' : 'expanded'}`">
   <!-- Logo (masqué sur mobile) -->
   <div class="logo">
     <div class="logo-container">
@@ -13,7 +13,7 @@
 
   <!-- Bouton hamburger mobile (masqué sur desktop) -->
   <button class="menu-toggle" 
-          [ngClass]="`${mobileMenuOpen() ? 'expanded' : 'collapsed'}`"
+          [ngClass]="`${openMenu() ? 'expanded' : 'collapsed'}`"
           (click)="toggleMobileMenu()">
     <span class="hamburger-icon">☰</span>
     MENU
