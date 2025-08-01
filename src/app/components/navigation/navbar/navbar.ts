@@ -21,7 +21,7 @@ export class Navbar {
 
   //============ ACTIONS ============
 
-  toggleMobileMenu(): void {
+  toggleMenu(): void {
     this.mobileMenuService.toggleNavbar();
   }
 

@@ -11,6 +11,9 @@ import { MobileMenuService } from '../../../services/mobile-menu.service';
   styleUrls: ['./console-v3.scss']
 })
 export class ConsoleV3 {
+
+  //============ INJECTIONS ============
+  
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly mobileMenuService = inject(MobileMenuService);
