@@ -1,22 +1,31 @@
+<!--======= CONTAINER ======= -->
+
 <div class="console-container" [ngClass]="{
-  'collapsed': isCollapsed(),
-  'expanded': !isCollapsed()
+  'collapsed': openMenu(),
+  'expanded': !openMenu()
 }">
 
-  <!-- Bouton toggle (visible seulement sur mobile/tablet portrait) -->
-  <button class="console-toggle" [ngClass]="{ 'expanded': !isCollapsed() }" (click)="toggleConsole()">
+<!--======= TOGGLE ======= -->
+  
+  <button class="console-toggle" 
+          [ngClass]="{ 'expanded': !openMenu() }" 
+          (click)="toggleMenu()">
     <span class="hamburger-icon">☰</span>
     CONSOLE
   </button>
 
-  <!-- Contenu console -->
+<!--======= CONTENT ======= -->
+  
   <div class="console-content">
-    <!-- Header fixe - visible sur desktop/tablette landscape seulement -->
+    
+<!--======= HEADER ======= -->
+    
     <div class="console-header">
       <span class="console-title">CONSOLE V3</span>
     </div>
 
-    <!-- Section status fixe - visible sur desktop/tablette landscape seulement -->
+<!--======= STATUS ======= -->
+    
     <div class="console-status">
       <div class="status-line">
         <span>> STATUS:
@@ -33,53 +42,47 @@
       </div>
     </div>
 
-    <!-- Section commandes flexible -->
+<!--======= COMMANDS ======= -->
+    
     <div class="console-commands">
+      
       @if (isLoggedIn()) {
-      <!-- Boutons admin (seulement hors chroniques ET hors mon-compte) -->
-      @if (showAdminActions() && currentUser()?.role === 'admin') {
-      <div class="action-group">
-        <span class="group-title">> FONCTIONS ADMIN</span>
-        <button class="console-btn" (click)="addCategory()">AJOUTER CATEGORIE</button>
-        <button class="console-btn" (click)="addList()">AJOUTER LISTE</button>
-        <button class="console-btn" (click)="addItem()">AJOUTER ITEM</button>
-      </div>
-      }
+        
+        @if (showAdminActions() && currentUser()?.role === 'admin') {
+        <div class="action-group">
+          <span class="group-title">> FONCTIONS ADMIN</span>
+          <button class="console-btn" (click)="addCategory()">AJOUTER CATEGORIE</button>
+          <button class="console-btn" (click)="addList()">AJOUTER LISTE</button>
+          <button class="console-btn" (click)="addItem()">AJOUTER ITEM</button>
+        </div>
+        }
 
-      <!-- Boutons chroniques (pour tous les utilisateurs connectés dans chroniques) -->
-      @if (showUserActions()) {
-      <div class="action-group no-separator">
-        <span class="group-title">> FONCTIONS UTILISATEUR</span>
-        <button class="console-btn" (click)="newStory()">NOUVELLE HISTOIRE</button>
-        <button class="console-btn" (click)="myStories()">MES HISTOIRES</button>
-      </div>
-      }
+        @if (showUserActions()) {
+        <div class="action-group no-separator">
+          <span class="group-title">> FONCTIONS UTILISATEUR</span>
+          <button class="console-btn" (click)="newStory()">NOUVELLE HISTOIRE</button>
+          <button class="console-btn" (click)="myStories()">MES HISTOIRES</button>
+        </div>
+        }
+        
       }
     </div>
 
-    <!-- Footer adaptatif -->
-    @if (isLoggedIn()) {
-    <!-- Footer pour utilisateurs connectés -->
+<!--======= FOOTER ======= -->
+    
     <div class="console-footer">
-      <span class="group-title">> PARAMETRES DU COMPTE</span>
-      <button class="console-btn" (click)="openAccount()">
-        MON COMPTE
-      </button>
-      <button class="console-btn logout" (click)="logout()">
-        DECONNEXION
-      </button>
+      
+      @if (isLoggedIn()) {
+        <span class="group-title">> PARAMETRES DU COMPTE</span>
+        <button class="console-btn" (click)="openAccount()">MON COMPTE</button>
+        <button class="console-btn logout" (click)="logout()">DECONNEXION</button>
+        
+      } @else {
+        <span class="group-title">> SYSTÈME VERROUILLÉ</span>
+        <button class="console-btn" (click)="openLogin()">[⚡] CONNEXION</button>
+        <button class="console-btn" (click)="openRegister()">[👤] INSCRIPTION</button>
+      }
+      
     </div>
-    } @else {
-    <!-- Footer pour visiteurs non connectés -->
-    <div class="console-footer">
-      <span class="group-title">> SYSTÈME VERROUILLÉ</span>
-      <button class="console-btn" (click)="openLogin()">
-        `[⚡] CONNEXION`
-      </button>
-      <button class="console-btn" (click)="openRegister()">
-        `[👤] INSCRIPTION`
-      </button>
-    </div>
-    }
   </div>
 </div>

@@ -1,7 +1,6 @@
 import { Component, signal, computed, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
@@ -14,18 +13,19 @@ import { AuthService } from '../../../services/auth.service';
 export class ConsoleV3 {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly STORAGE_KEY = 'console-collapsed';
 
-  //============ SIGNALS ÉTAT ============
+  //============ SIGNAL ============
 
   private _currentRoute = signal<string>('');
-  private _isCollapsed = signal<boolean>(true);
+  private _openMenu = signal<boolean>(true);
 
-  //============ COMPUTED PUBLICS ============
+  //============ COMPUTED  ============
 
   currentUser = this.authService.currentUser;
   isLoggedIn = this.authService.isLoggedIn;
   isAdmin = this.authService.isAdmin;
-  isCollapsed = this._isCollapsed.asReadonly();
+  openMenu = this._openMenu.asReadonly();
 
   showUserActions = computed(() => {
     return this.isLoggedIn() && this._currentRoute().includes('/chroniques');
@@ -34,8 +34,6 @@ export class ConsoleV3 {
   showAdminActions = computed(() => {
     return this.isAdmin() && !this._currentRoute().includes('/chroniques');
   });
-
-  // ============ COMPUTED ============
 
   getCurrentStatus = computed(() => {
     return this.currentUser() ? 'CONNECTÉ' : 'DÉCONNECTÉ';
@@ -49,78 +47,87 @@ export class ConsoleV3 {
     return this.currentUser()?.role?.toUpperCase() || 'VISITEUR';
   });
 
+  //============ HELPERS ============
+
+  private getState(): boolean {
+    return localStorage.getItem(this.STORAGE_KEY) === 'false'; 
+  }
+
+  private updateState(isCollapsed: boolean): void {
+    localStorage.setItem(this.STORAGE_KEY, isCollapsed.toString());
+  }
+
+  //============ EFFECT ============
+
+  localStorageEffect = effect(() => {
+    this.updateState(this._openMenu());
+  });
+
   //============ INITIALISATION ============
 
   constructor() {
     this._currentRoute.set(this.router.url);
 
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
-      this._currentRoute.set(this.router.url);
-    });
-
-    effect(() => {
-      localStorage.setItem('console-collapsed', this._isCollapsed().toString());
-    });
-
-    const savedState = localStorage.getItem('console-collapsed');
-    if (savedState === 'false') {
-      this._isCollapsed.set(false);
+    if (this.getState()) {
+      this._openMenu.set(false);
     }
   }
 
-  //============ ACTIONS CONSOLE ============
+  //============ CONSOLE ACTIONS ============
 
-  toggleConsole(): void {
-    this._isCollapsed.set(!this._isCollapsed());
+  toggleMenu(): void {
+    this._openMenu.update(open => !open);
   }
 
-  //============ ACTIONS AUTHENTIFICATION ============
+  onClick(): void {
+    this._openMenu.set(true);
+  }
+
+  //============ AUTH ACTIONS ============
 
   openLogin(): void {
     this.router.navigate(['/auth/login']);
+    this.onClick();
   }
 
   openRegister(): void {
     this.router.navigate(['/auth/register']);
+    this.onClick();
   }
 
   logout(): void {
     this.authService.logout();
+    this.onClick();
   }
 
-  //============ ACTIONS UTILISATEUR ============
+  //============ USER ACTIONS ============
 
   newStory(): void {
     this.router.navigate(['/chroniques/mes-histoires/brouillon/edition/nouvelle-histoire']);
+    this.onClick();
   }
 
   myStories(): void {
     this.router.navigate(['/chroniques/mes-histoires']);
+    this.onClick();
   }
 
   openAccount(): void {
     this.router.navigate(['/mon-compte']);
+    this.onClick();
   }
 
-  //============ ACTIONS ADMIN ============
+  //============ ADMIN ACTIONS ============
 
   addCategory(): void {
-    // TODO: Implémenter quand composant archives sera créé
+    // TODO: Implémenter + onClick()
   }
 
   addList(): void {
-    // TODO: Implémenter quand composant terraformars sera créé  
+    // TODO: Implémenter + onClick()
   }
 
   addItem(): void {
-    // TODO: Implémenter quand composant marsball sera créé
-  }
-
-  //============ HELPERS ============
-
-  isInRoute(route: string): boolean {
-    return this._currentRoute().includes(route);
+    // TODO: Implémenter + onClick()
   }
 }

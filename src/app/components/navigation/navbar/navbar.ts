@@ -15,44 +15,44 @@ export class Navbar {
 
   //============ SIGNAL ============
   
-  private _mobileMenuOpen = signal<boolean>(false);
+  private _openMenu = signal<boolean>(false);
 
   //============ COMPUTED ============
 
-  mobileMenuOpen = this._mobileMenuOpen.asReadonly();
+  openMenu = this._openMenu.asReadonly();
   isAdmin = this.authService.isAdmin;
 
   //============ HELPERS ============
 
-  private getStoredState(): boolean {
+  private getState(): boolean {
     return localStorage.getItem(this.STORAGE_KEY) === 'true';
   }
 
-  private updateStoredState(isOpen: boolean): void {
+  private updateState(isOpen: boolean): void {
     localStorage.setItem(this.STORAGE_KEY, isOpen.toString());
   }
 
   //============ EFFECT ============
 
   localStorageEffect = effect(() => {
-    this.updateStoredState(this._mobileMenuOpen());
+    this.updateState(this._openMenu());
   });
 
   //============ INITIALISATION ============
 
   constructor() {
-    if (this.getStoredState()) {
-      this._mobileMenuOpen.set(true);
+    if (this.getState()) {
+      this._openMenu.set(true);
     }
   }
 
   //============ ACTIONS ============
 
   toggleMobileMenu(): void {
-    this._mobileMenuOpen.update(open => !open);
+    this._openMenu.update(open => !open);
   }
 
   onClick(): void {
-    this._mobileMenuOpen.set(false);
+    this._openMenu.set(false);
   }
 }
