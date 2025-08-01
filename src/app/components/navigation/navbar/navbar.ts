@@ -1,7 +1,8 @@
-import { Component, signal, inject, effect } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
+import { MobileMenuService } from '../../../services/mobile-menu.service';
 
 @Component({
   selector: 'app-navbar',
@@ -11,48 +12,20 @@ import { AuthService } from '../../../services/auth.service';
 })
 export class Navbar {
   private readonly authService = inject(AuthService);
-  private readonly STORAGE_KEY = 'navbar-mobile-open';
-
-  //============ SIGNAL ============
-  
-  private _openMenu = signal<boolean>(false);
+  private readonly mobileMenuService = inject(MobileMenuService);
 
   //============ COMPUTED ============
 
-  openMenu = this._openMenu.asReadonly();
+  openMenu = this.mobileMenuService.isNavbarOpen;
   isAdmin = this.authService.isAdmin;
-
-  //============ HELPERS ============
-
-  private getState(): boolean {
-    return localStorage.getItem(this.STORAGE_KEY) === 'true';
-  }
-
-  private updateState(isOpen: boolean): void {
-    localStorage.setItem(this.STORAGE_KEY, isOpen.toString());
-  }
-
-  //============ EFFECT ============
-
-  localStorageEffect = effect(() => {
-    this.updateState(this._openMenu());
-  });
-
-  //============ INITIALISATION ============
-
-  constructor() {
-    if (this.getState()) {
-      this._openMenu.set(true);
-    }
-  }
 
   //============ ACTIONS ============
 
   toggleMobileMenu(): void {
-    this._openMenu.update(open => !open);
+    this.mobileMenuService.toggleNavbar();
   }
 
   onClick(): void {
-    this._openMenu.set(false);
+    this.mobileMenuService.closeAll();
   }
 }

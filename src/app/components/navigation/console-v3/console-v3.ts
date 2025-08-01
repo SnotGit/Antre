@@ -1,11 +1,11 @@
-import { Component, signal, computed, inject, effect } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
+import { MobileMenuService } from '../../../services/mobile-menu.service';
 
 @Component({
   selector: 'app-console-v3',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './console-v3.html',
   styleUrls: ['./console-v3.scss']
@@ -13,19 +13,18 @@ import { AuthService } from '../../../services/auth.service';
 export class ConsoleV3 {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
-  private readonly STORAGE_KEY = 'console-collapsed';
+  private readonly mobileMenuService = inject(MobileMenuService);
 
-  //============ SIGNAL ============
+  //============ SIGNALS ============
 
   private _currentRoute = signal<string>('');
-  private _openMenu = signal<boolean>(true);
 
-  //============ COMPUTED  ============
+  //============ COMPUTED ============
 
   currentUser = this.authService.currentUser;
   isLoggedIn = this.authService.isLoggedIn;
   isAdmin = this.authService.isAdmin;
-  openMenu = this._openMenu.asReadonly();
+  openMenu = this.mobileMenuService.isConsoleOpen;
 
   showUserActions = computed(() => {
     return this.isLoggedIn() && this._currentRoute().includes('/chroniques');
@@ -47,40 +46,20 @@ export class ConsoleV3 {
     return this.currentUser()?.role?.toUpperCase() || 'VISITEUR';
   });
 
-  //============ HELPERS ============
-
-  private getState(): boolean {
-    return localStorage.getItem(this.STORAGE_KEY) === 'false'; 
-  }
-
-  private updateState(isCollapsed: boolean): void {
-    localStorage.setItem(this.STORAGE_KEY, isCollapsed.toString());
-  }
-
-  //============ EFFECT ============
-
-  localStorageEffect = effect(() => {
-    this.updateState(this._openMenu());
-  });
-
   //============ INITIALISATION ============
 
   constructor() {
     this._currentRoute.set(this.router.url);
-
-    if (this.getState()) {
-      this._openMenu.set(false);
-    }
   }
 
   //============ CONSOLE ACTIONS ============
 
   toggleMenu(): void {
-    this._openMenu.update(open => !open);
+    this.mobileMenuService.toggleConsole();
   }
 
   onClick(): void {
-    this._openMenu.set(true);
+    this.mobileMenuService.closeAll();
   }
 
   //============ AUTH ACTIONS ============
