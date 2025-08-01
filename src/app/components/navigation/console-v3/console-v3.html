@@ -1,14 +1,14 @@
 <!--======= CONTAINER ======= -->
 
 <div class="console-container" [ngClass]="{
-  'collapsed': openMenu(),
-  'expanded': !openMenu()
+  'collapsed': !openMenu(),
+  'expanded': openMenu()
 }">
 
 <!--======= TOGGLE ======= -->
   
   <button class="console-toggle" 
-          [ngClass]="{ 'expanded': !openMenu() }" 
+          [ngClass]="{ 'expanded': openMenu() }" 
           (click)="toggleMenu()">
     <span class="hamburger-icon">☰</span>
     CONSOLE

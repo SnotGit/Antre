@@ -1,7 +1,7 @@
 import {
   BehaviorSubject,
   Observable
-} from "./chunk-RTGP7ALM.js";
+} from "./chunk-3KKC7HMJ.js";
 import {
   __async,
   __spreadProps,
@@ -1133,13 +1133,13 @@ function newArray(size, value) {
   }
   return list;
 }
-function arraySplice(array, index, count) {
-  const length = array.length - count;
+function arraySplice(array, index, count2) {
+  const length = array.length - count2;
   while (index < length) {
-    array[index] = array[index + count];
+    array[index] = array[index + count2];
     index++;
   }
-  while (count--) {
+  while (count2--) {
     array.pop();
   }
 }
@@ -2286,10 +2286,10 @@ function setBindingIndex(value) {
 function nextBindingIndex() {
   return instructionState.lFrame.bindingIndex++;
 }
-function incrementBindingIndex(count) {
+function incrementBindingIndex(count2) {
   const lFrame = instructionState.lFrame;
   const index = lFrame.bindingIndex;
-  lFrame.bindingIndex = lFrame.bindingIndex + count;
+  lFrame.bindingIndex = lFrame.bindingIndex + count2;
   return index;
 }
 function isInI18nBlock() {
@@ -2574,8 +2574,8 @@ var globalErrorListeners = new InjectionToken(ngDevMode ? "GlobalErrorListeners"
     if (false) {
       return;
     }
-    const window = inject(DOCUMENT).defaultView;
-    if (!window) {
+    const window2 = inject(DOCUMENT).defaultView;
+    if (!window2) {
       return;
     }
     const errorHandler = inject(INTERNAL_APPLICATION_ERROR_HANDLER);
@@ -2588,8 +2588,8 @@ var globalErrorListeners = new InjectionToken(ngDevMode ? "GlobalErrorListeners"
       e.preventDefault();
     };
     const setupEventListeners = () => {
-      window.addEventListener("unhandledrejection", rejectionListener);
-      window.addEventListener("error", errorListener);
+      window2.addEventListener("unhandledrejection", rejectionListener);
+      window2.addEventListener("error", errorListener);
     };
     if (typeof Zone !== "undefined") {
       Zone.root.run(setupEventListeners);
@@ -2597,8 +2597,8 @@ var globalErrorListeners = new InjectionToken(ngDevMode ? "GlobalErrorListeners"
       setupEventListeners();
     }
     inject(DestroyRef).onDestroy(() => {
-      window.removeEventListener("error", errorListener);
-      window.removeEventListener("unhandledrejection", rejectionListener);
+      window2.removeEventListener("error", errorListener);
+      window2.removeEventListener("unhandledrejection", rejectionListener);
     });
   }
 });
@@ -3654,4 +3654,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-W7VW56BZ.js.map
+//# sourceMappingURL=chunk-ZAXEVBS6.js.map
