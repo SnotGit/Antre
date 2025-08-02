@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './components/utilities/auth-guard/auth-guard';
+import { authGuard } from '../core/guards/auth-guard';
 import { 
   authRoutes, 
   chroniquesRoutes, 
@@ -7,7 +7,7 @@ import {
   staffRoutes, 
   terraformarsRoutes,
   archivesRoutes 
-} from './routes';
+} from '../routes/index';
 
 export const routes: Routes = [
   {
@@ -18,7 +18,7 @@ export const routes: Routes = [
 
   {
     path: 'home',
-    loadComponent: () => import('./components/home/home').then(m => m.Home)
+    loadComponent: () => import('../features/home/components/home').then(m => m.Home)
   },
 
   {
@@ -29,7 +29,7 @@ export const routes: Routes = [
   //============ ROUTE PROTÉGÉE UTILISATEUR ============
   {
     path: 'mon-compte',
-    loadComponent: () => import('./components/chroniques/user/user-account/user-account').then(m => m.UserAccount),
+    loadComponent: () => import('../features/user/components/user-account/user-account').then(m => m.UserAccount),
     canActivate: [authGuard]
   },
 

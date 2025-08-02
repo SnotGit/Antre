@@ -1,12 +1,9 @@
 import {
   BehaviorSubject,
-  Observable
-} from "./chunk-3KKC7HMJ.js";
-import {
-  __async,
+  Observable,
   __spreadProps,
   __spreadValues
-} from "./chunk-WDMUDEB6.js";
+} from "./chunk-SESUV4G6.js";
 
 // node_modules/@angular/core/fesm2022/primitives/di.mjs
 var _currentInjector = void 0;
@@ -3236,54 +3233,52 @@ var ResourceImpl = class extends BaseWritableResource {
       stream: void 0
     });
   }
-  loadEffect() {
-    return __async(this, null, function* () {
-      const extRequest = this.extRequest();
-      const { status: currentStatus, previousStatus } = untracked2(this.state);
-      if (extRequest.request === void 0) {
-        return;
-      } else if (currentStatus !== "loading") {
+  async loadEffect() {
+    const extRequest = this.extRequest();
+    const { status: currentStatus, previousStatus } = untracked2(this.state);
+    if (extRequest.request === void 0) {
+      return;
+    } else if (currentStatus !== "loading") {
+      return;
+    }
+    this.abortInProgressLoad();
+    let resolvePendingTask = this.resolvePendingTask = this.pendingTasks.add();
+    const { signal: abortSignal } = this.pendingController = new AbortController();
+    try {
+      const stream = await untracked2(() => {
+        return this.loaderFn({
+          params: extRequest.request,
+          // TODO(alxhub): cleanup after g3 removal of `request` alias.
+          request: extRequest.request,
+          abortSignal,
+          previous: {
+            status: previousStatus
+          }
+        });
+      });
+      if (abortSignal.aborted || untracked2(this.extRequest) !== extRequest) {
         return;
       }
-      this.abortInProgressLoad();
-      let resolvePendingTask = this.resolvePendingTask = this.pendingTasks.add();
-      const { signal: abortSignal } = this.pendingController = new AbortController();
-      try {
-        const stream = yield untracked2(() => {
-          return this.loaderFn({
-            params: extRequest.request,
-            // TODO(alxhub): cleanup after g3 removal of `request` alias.
-            request: extRequest.request,
-            abortSignal,
-            previous: {
-              status: previousStatus
-            }
-          });
-        });
-        if (abortSignal.aborted || untracked2(this.extRequest) !== extRequest) {
-          return;
-        }
-        this.state.set({
-          extRequest,
-          status: "resolved",
-          previousStatus: "resolved",
-          stream
-        });
-      } catch (err) {
-        if (abortSignal.aborted || untracked2(this.extRequest) !== extRequest) {
-          return;
-        }
-        this.state.set({
-          extRequest,
-          status: "resolved",
-          previousStatus: "error",
-          stream: signal({ error: encapsulateResourceError(err) })
-        });
-      } finally {
-        resolvePendingTask?.();
-        resolvePendingTask = void 0;
+      this.state.set({
+        extRequest,
+        status: "resolved",
+        previousStatus: "resolved",
+        stream
+      });
+    } catch (err) {
+      if (abortSignal.aborted || untracked2(this.extRequest) !== extRequest) {
+        return;
       }
-    });
+      this.state.set({
+        extRequest,
+        status: "resolved",
+        previousStatus: "error",
+        stream: signal({ error: encapsulateResourceError(err) })
+      });
+    } finally {
+      resolvePendingTask?.();
+      resolvePendingTask = void 0;
+    }
   }
   abortInProgressLoad() {
     untracked2(() => this.pendingController?.abort());
@@ -3299,13 +3294,13 @@ function getLoader(options) {
   if (isStreamingResourceOptions(options)) {
     return options.stream;
   }
-  return (params) => __async(null, null, function* () {
+  return async (params) => {
     try {
-      return signal({ value: yield options.loader(params) });
+      return signal({ value: await options.loader(params) });
     } catch (err) {
       return signal({ error: encapsulateResourceError(err) });
     }
-  });
+  };
 }
 function isStreamingResourceOptions(options) {
   return !!options.stream;
@@ -3654,4 +3649,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-ZAXEVBS6.js.map
+//# sourceMappingURL=chunk-AKCMG45L.js.map

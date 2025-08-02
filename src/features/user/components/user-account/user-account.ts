@@ -2,10 +2,10 @@ import { Component, OnInit, OnDestroy, inject, signal, ViewChild, ElementRef } f
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../../services/auth.service';
-import { UserService } from '../../../../services/user.service';
-import { PrivateStoriesService } from '../../../../services/private-stories.service';
-import { TypingEffectService } from '../../../../services/typing-effect.service';
+import { AuthService } from '../../../auth/services/auth.service';
+import { UserService } from '../../services/user.service';
+import { PrivateStoriesService } from '../../../chroniques/services/private-stories.service';
+import { TypingEffectService } from '../../../../shared/services/typing-effect.service';
 
 interface UserProfileData {
   username: string;

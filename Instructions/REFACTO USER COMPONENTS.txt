@@ -1,0 +1,197 @@
+{
+  "task": "REFACTORISATION USER-ACCOUNT - Séparation en composants spécialisés",
+  "project": "L'Antre - Angular 20 Roleplay Platform", 
+  "objective": "Diviser user-account monolithique (280 lignes) en 4 composants maintenables et réutilisables",
+
+  "requirements": {
+    "architecture": "Angular 20 + signals + standalone components",
+    "code_style": "Séparateurs //============, pas de commentaires parasites, niveau senior",
+    "maintainability": "1 composant = 1 responsabilité claire",
+    "reusability": "Components réutilisables dans d'autres contextes"
+  },
+
+  "current_state": {
+    "monolithic_component": "src/features/user/components/user-account/user-account.ts",
+    "issues": [
+      "280+ lignes HTML complexes",
+      "Mélange stats/profile/credentials dans 1 fichier",
+      "Difficile à maintenir et tester",
+      "Logique métier dispersée"
+    ]
+  },
+
+  "target_architecture": {
+    "container": "user-account (orchestrateur)",
+    "children": [
+      "user-stats (statistiques lecture seule)",
+      "user-profile (édition profil privé)", 
+      "user-credentials (sécurité/auth)",
+      "author-profile (consultation profil public)"
+    ]
+  },
+
+  "step_by_step_refactoring": {
+
+    "ÉTAPE 1 - USER-STATS COMPONENT": {
+      "files_to_create": [
+        "src/features/user/components/user-stats/user-stats.ts",
+        "src/features/user/components/user-stats/user-stats.html",
+        "src/features/user/components/user-stats/user-stats.scss"
+      ],
+      "responsibilities": [
+        "Affichage statistiques (total, brouillons, publiés, likes)",
+        "Navigation vers mes histoires, brouillon, publiées",
+        "Lecture seule - pas d'édition"
+      ],
+      "extracted_logic": [
+        "getUserStats() method",
+        "showMyStories(), showMyPublishedStories(), showMyDrafts() methods",
+        "stats signal et computed"
+      ]
+    },
+
+    "ÉTAPE 2 - USER-PROFILE COMPONENT": {
+      "files_to_create": [
+        "src/features/user/components/user-profile/user-profile.ts",
+        "src/features/user/components/user-profile/user-profile.html", 
+        "src/features/user/components/user-profile/user-profile.scss"
+      ],
+      "responsibilities": [
+        "Édition profil utilisateur connecté",
+        "Gestion avatar, username, description",
+        "NOUVEAUX CHAMPS: playerId, playerDays",
+        "Sauvegarde modifications"
+      ],
+      "extracted_logic": [
+        "profileData interface et signals",
+        "saveProfile() method",
+        "Avatar upload logic",
+        "Form validation"
+      ]
+    },
+
+    "ÉTAPE 3 - USER-CREDENTIALS COMPONENT": {
+      "files_to_create": [
+        "src/features/user/components/user-credentials/user-credentials.ts",
+        "src/features/user/components/user-credentials/user-credentials.html",
+        "src/features/user/components/user-credentials/user-credentials.scss"
+      ],
+      "responsibilities": [
+        "Gestion email utilisateur",
+        "Changement mot de passe",
+        "Sécurité et authentification"
+      ],
+      "extracted_logic": [
+        "passwordData interface et signals",
+        "saveEmail() method",
+        "changePassword() method",
+        "Security validation"
+      ]
+    },
+
+    "ÉTAPE 4 - AUTHOR-PROFILE COMPONENT": {
+      "files_to_create": [
+        "src/features/user/components/author-profile/author-profile.ts",
+        "src/features/user/components/author-profile/author-profile.html",
+        "src/features/user/components/author-profile/author-profile.scss"
+      ],
+      "responsibilities": [
+        "Consultation profil public d'un auteur",
+        "Affichage avatar, username, description, playerId",
+        "Lecture seule - pas d'édition",
+        "Réutilisable dans story-component, chroniques, etc."
+      ],
+      "new_logic": [
+        "@Input() authorId: number",
+        "loadAuthorProfile() method",
+        "Public profile display"
+      ]
+    },
+
+    "ÉTAPE 5 - USER-ACCOUNT REFACTORISÉ": {
+      "file": "src/features/user/components/user-account/user-account.ts",
+      "action": "Transformer en orchestrateur simple",
+      "new_structure": {
+        "imports": "[UserStats, UserProfile, UserCredentials]",
+        "template_simplified": "Navigation onglets + composants enfants",
+        "logic_minimal": [
+          "activeTab signal",
+          "setActiveTab() method", 
+          "Tab navigation only"
+        ]
+      },
+      "html_structure": [
+        "Header avec navigation onglets",
+        "@if conditions pour afficher composants",
+        "~30 lignes au lieu de 280+"
+      ]
+    },
+
+    "ÉTAPE 6 - SERVICES UPDATES": {
+      "files_to_update": [
+        "src/features/user/services/user.service.ts"
+      ],
+      "changes": {
+        "new_methods": [
+          "getAuthorProfile(authorId: number)",
+          "updateProfile avec playerId/playerDays"
+        ]
+      }
+    },
+
+    "ÉTAPE 7 - ROUTING UPDATES": {
+      "considerations": [
+        "Routes /mon-compte restent identiques",
+        "Nouveaux usages d'author-profile dans chroniques",
+        "Lazy loading des nouveaux composants"
+      ]
+    }
+  },
+
+  "component_interfaces": {
+    "UserStats": {
+      "inputs": "Aucun (utilise AuthService.currentUser)",
+      "outputs": "Navigation events vers routes histoires",
+      "state": "Readonly stats from PrivateStoriesService"
+    },
+    "UserProfile": {
+      "inputs": "Aucun (édite utilisateur connecté)",
+      "outputs": "Profile updated events",
+      "state": "Editable profile data + playerId/playerDays"
+    },
+    "UserCredentials": {
+      "inputs": "Aucun (utilisateur connecté)",
+      "outputs": "Security events (password changed, etc.)",
+      "state": "Email/password forms"
+    },
+    "AuthorProfile": {
+      "inputs": "@Input() userId: number",
+      "outputs": "Aucun (readonly)",
+      "state": "Public author data display + view menu stories"
+    }
+  },
+
+  "benefits": [
+    "HTML simplifié: 280+ lignes → ~30 lignes",
+    "Séparation responsabilités claire",
+    "Components réutilisables",
+    "Maintenance facilitée",
+  ],
+
+  "testing_strategy": [
+    "Tests unitaires par composant",
+    "Tests d'intégration user-account orchestrateur",
+    "Tests navigation onglets",
+    "Tests author-profile standalone"
+  ],
+
+  "order_of_execution": [
+    "1. Créer user-stats (plus simple)",
+    "2. Créer user-credentials (logique isolée)",
+    "3. Créer user-profile (avec playerId/playerDays)",
+    "4. Créer author-profile (nouveau)",
+    "5. Refactoriser user-account orchestrateur", 
+    "6. Mettre à jour services/routing",
+    "7. Tests complets"
+  ]
+}

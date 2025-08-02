@@ -2,9 +2,9 @@ import { Component, inject, computed, resource } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { AuthService } from '../../../../services/auth.service';
-import { PublicStoriesService } from '../../../../services/public-stories.service';
-import { PrivateStoriesService } from '../../../../services/private-stories.service';
+import { AuthService } from '../../../auth/services/auth.service';
+import { PublicStoriesService } from '../../services/public-stories.service';
+import { PrivateStoriesService } from '../../services/private-stories.service';
 
 interface PublicStoryData {
   storyId: number;
