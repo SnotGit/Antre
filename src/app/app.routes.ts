@@ -53,7 +53,7 @@ export const routes: Routes = [
   {
     path: 'staff',
     children: staffRoutes,
-    canActivate: [authGuard]  // ← Protège toute la section staff
+    canActivate: [authGuard] 
   },
 
   {
