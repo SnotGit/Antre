@@ -44,7 +44,7 @@ import {
   ɵɵdirectiveInject,
   ɵɵinjectAttribute,
   ɵɵstyleProp
-} from "./chunk-4LBOHJPJ.js";
+} from "./chunk-C2BSNY2Z.js";
 import {
   DOCUMENT,
   DestroyRef,
@@ -59,15 +59,12 @@ import {
   ɵɵdefineInjectable,
   ɵɵdefineInjector,
   ɵɵinject
-} from "./chunk-ZAXEVBS6.js";
+} from "./chunk-AKCMG45L.js";
 import {
-  Subject
-} from "./chunk-3KKC7HMJ.js";
-import {
-  __async,
+  Subject,
   __spreadProps,
   __spreadValues
-} from "./chunk-WDMUDEB6.js";
+} from "./chunk-SESUV4G6.js";
 
 // node_modules/@angular/common/fesm2022/location-BIEtBxGx.mjs
 var _DOM = null;
@@ -5006,18 +5003,16 @@ function assertNoLoaderParamsWithoutLoader(dir, imageLoader) {
     console.warn(formatRuntimeError(2963, `${imgDirectiveDetails(dir.ngSrc)} the \`loaderParams\` attribute is present but no image loader is configured (i.e. the default one is being used), which means that the loaderParams data will not be consumed and will not affect the URL. To fix this, provide a custom loader or remove the \`loaderParams\` attribute from the image.`));
   }
 }
-function assetPriorityCountBelowThreshold(appRef) {
-  return __async(this, null, function* () {
-    if (IMGS_WITH_PRIORITY_ATTR_COUNT === 0) {
-      IMGS_WITH_PRIORITY_ATTR_COUNT++;
-      yield appRef.whenStable();
-      if (IMGS_WITH_PRIORITY_ATTR_COUNT > PRIORITY_COUNT_THRESHOLD) {
-        console.warn(formatRuntimeError(2966, `NgOptimizedImage: The "priority" attribute is set to true more than ${PRIORITY_COUNT_THRESHOLD} times (${IMGS_WITH_PRIORITY_ATTR_COUNT} times). Marking too many images as "high" priority can hurt your application's LCP (https://web.dev/lcp). "Priority" should only be set on the image expected to be the page's LCP element.`));
-      }
-    } else {
-      IMGS_WITH_PRIORITY_ATTR_COUNT++;
+async function assetPriorityCountBelowThreshold(appRef) {
+  if (IMGS_WITH_PRIORITY_ATTR_COUNT === 0) {
+    IMGS_WITH_PRIORITY_ATTR_COUNT++;
+    await appRef.whenStable();
+    if (IMGS_WITH_PRIORITY_ATTR_COUNT > PRIORITY_COUNT_THRESHOLD) {
+      console.warn(formatRuntimeError(2966, `NgOptimizedImage: The "priority" attribute is set to true more than ${PRIORITY_COUNT_THRESHOLD} times (${IMGS_WITH_PRIORITY_ATTR_COUNT} times). Marking too many images as "high" priority can hurt your application's LCP (https://web.dev/lcp). "Priority" should only be set on the image expected to be the page's LCP element.`));
     }
-  });
+  } else {
+    IMGS_WITH_PRIORITY_ATTR_COUNT++;
+  }
 }
 function assertPlaceholderDimensions(dir, imgElement) {
   const computedStyle = window.getComputedStyle(imgElement);
@@ -5154,4 +5149,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-ZFLVHHEK.js.map
+//# sourceMappingURL=chunk-NJ4MMCGX.js.map

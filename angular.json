@@ -43,7 +43,6 @@
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
-              "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
@@ -59,7 +58,7 @@
             "scripts": [],
             "stylePreprocessorOptions": {
               "includePaths": [
-                "src/app/styles"
+                "src/shared/styles"
               ]
             }
           },
@@ -106,8 +105,6 @@
           "builder": "@angular/build:karma",
           "options": {
             "polyfills": [
-              "zone.js",
-              "zone.js/testing"
             ],
             "tsConfig": "tsconfig.spec.json",
             "inlineStyleLanguage": "scss",

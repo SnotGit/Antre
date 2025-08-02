@@ -5,11 +5,10 @@
   
   <div class="terminal-screen">
     <div class="terminal-content" #terminalContent>
-      @for (line of terminalLines; track $index) {
+      @for (line of terminalLines(); track $index) {
         <div class="command-line">
           <span class="text" [ngClass]="line.type">{{line.content}}</span>
-          <!-- Curseur seulement sur la dernière ligne de commande en attente -->
-          @if ($index === terminalLines.length - 1 && line.type === 'command' && !isTyping && showCursor) {
+          @if ($index === terminalLines().length - 1 && line.type === 'command' && !isTyping() && showCursor()) {
             <span class="cursor">█</span>
           }
         </div>

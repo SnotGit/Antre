@@ -1,7 +1,7 @@
 import {
   Title
-} from "./chunk-KS7BAOBD.js";
-import "./chunk-VEP6CBE4.js";
+} from "./chunk-BDLVCB45.js";
+import "./chunk-DYIZEKZK.js";
 import {
   HashLocationStrategy,
   LOCATION_INITIALIZED,
@@ -9,7 +9,7 @@ import {
   LocationStrategy,
   PathLocationStrategy,
   ViewportScroller
-} from "./chunk-ZFLVHHEK.js";
+} from "./chunk-NJ4MMCGX.js";
 import "./chunk-W7ENOTKE.js";
 import {
   APP_BOOTSTRAP_LISTENER,
@@ -62,7 +62,7 @@ import {
   ɵɵloadQuery,
   ɵɵqueryRefresh,
   ɵɵsanitizeUrlOrResourceUrl
-} from "./chunk-4LBOHJPJ.js";
+} from "./chunk-C2BSNY2Z.js";
 import {
   DOCUMENT,
   DestroyRef,
@@ -83,7 +83,7 @@ import {
   ɵɵdefineInjectable,
   ɵɵdefineInjector,
   ɵɵinject
-} from "./chunk-ZAXEVBS6.js";
+} from "./chunk-AKCMG45L.js";
 import {
   BehaviorSubject,
   ConnectableObservable,
@@ -92,6 +92,8 @@ import {
   Observable,
   Subject,
   Subscription,
+  __spreadProps,
+  __spreadValues,
   catchError,
   combineLatest,
   concat,
@@ -118,12 +120,7 @@ import {
   takeUntil,
   tap,
   throwError
-} from "./chunk-3KKC7HMJ.js";
-import {
-  __async,
-  __spreadProps,
-  __spreadValues
-} from "./chunk-WDMUDEB6.js";
+} from "./chunk-SESUV4G6.js";
 
 // node_modules/@angular/router/fesm2022/router-CsukTOog.mjs
 var PRIMARY_OUTLET = "primary";
@@ -5530,8 +5527,8 @@ var RouterScroller = class _RouterScroller {
     });
   }
   scheduleScrollEvent(routerEvent, anchor) {
-    this.zone.runOutsideAngular(() => __async(this, null, function* () {
-      yield new Promise((resolve) => {
+    this.zone.runOutsideAngular(async () => {
+      await new Promise((resolve) => {
         setTimeout(resolve);
         if (typeof requestAnimationFrame !== "undefined") {
           requestAnimationFrame(resolve);
@@ -5540,7 +5537,7 @@ var RouterScroller = class _RouterScroller {
       this.zone.run(() => {
         this.transitions.events.next(new Scroll(routerEvent, this.lastSource === "popstate" ? this.store[this.restoredId] : null, anchor));
       });
-    }));
+    });
   }
   /** @docs-private */
   ngOnDestroy() {
