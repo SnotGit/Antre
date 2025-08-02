@@ -1,0 +1,63 @@
+{
+  "saving_methods_architecture": {
+    "description": "Méthodes de sauvegarde pour les éditeurs L'Antre",
+    "methods": {
+      "auto_save_local": {
+        "purpose": "Sauvegarde automatique locale pendant la frappe",
+        "technology": "effect + localStorage",
+        "trigger": "2 secondes APRÈS avoir arrêté de taper au clavier",
+        "delay": "2000ms (debounce)",
+        "storage": "localStorage",
+        "key_format": "draft-{id} ou published-{id}",
+        "behavior": "setTimeout effacé à chaque frappe, déclenché uniquement après pause de 2s"
+      },
+      "change_detection": {
+        "purpose": "Détecter les modifications non sauvegardées",
+        "technology": "computed signal",
+        "logic": "current !== lastSaved",
+        "result": "boolean hasUnsavedChanges"
+      },
+      "manual_save": {
+        "purpose": "Sauvegarde manuelle en BDD",
+        "technology": "bouton + service API",
+        "actions": [
+          "service.saveDraft() ou updatePublished()",
+          "lastSaved.set(current)",
+          "localStorage.clear()"
+        ]
+      },
+      "navigation_protection": {
+        "purpose": "Empêcher la perte de données",
+        "technology": "signal + dialog modal existant",
+        "method": "SIMPLICITÉ MAXIMALE",
+        "logic": [
+          "if (hasUnsavedChanges()) {",
+          "  dialog.confirm('Sauvegardez avant de quitter');",
+          "  return; // Reste sur la page",
+          "}",
+          "// Navigation normale"
+        ],
+        "advantage": "Dialog modal bloque naturellement l'interface - pas besoin de guards/canNavigate/effects"
+      },
+      "restoration": {
+        "purpose": "Restaurer le travail au rechargement",
+        "technology": "ngOnInit + localStorage",
+        "logic": "localStorage.getItem() → restore si existe"
+      }
+    },
+    "workflow": [
+      "Frappe → Auto-save local (2s après fin de frappe)",
+      "Signal → Détecte changements",
+      "Navigation → Dialog bloque si non sauvé",
+      "Bouton Save → Sauvegarde BDD + Clear local",
+      "Rechargement → Restauration auto"
+    ],
+    "principles": [
+      "SIMPLICITÉ MAXIMALE - Dialog modal = protection naturelle",
+      "Sécurité anti-perte",
+      "Performance (pas d'API pendant la frappe)",
+      "UX simple et claire",
+      "KISS - Keep It Simple"
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "chroniques_services_architecture": {
+    "description": "Services pour la section Chroniques de L'Antre",
+    "services": {
+      "ChroniquesMenuService": {
+        "file": "chroniques-menu.ts",
+        "purpose": "Menu accueil chroniques",
+        "methods": [
+          "getLatestPublishers(6)",
+          "getLatestUserStory(1)"
+        ]
+      },
+      "StoryService": {
+        "file": "story.ts", 
+        "purpose": "Lecture publique des histoires",
+        "methods": [
+          "getAllUserStories()",
+          "getUserStory()"
+        ]
+      },
+      "LikeService": {
+        "file": "like.ts",
+        "purpose": "Système de likes",
+        "methods": [
+          "getLikes()",
+          "toggleLike()"
+        ]
+      },
+      "DraftService": {
+        "file": "draft.ts",
+        "purpose": "Gestion des brouillons",
+        "methods": [
+          "getDrafts()",
+          "createDraft()",
+          "saveDraft()",
+          "deleteDraft()",
+          "publishStory()"
+        ]
+      },
+      "PublishedService": {
+        "file": "published.ts",
+        "purpose": "Gestion des histoires publiées",
+        "methods": [
+          "getMyPublished()",
+          "updatePublished()",
+          "deletePublished()"
+        ]
+      }
+    },
+    "principles": [
+      "Architecture par domaines",
+      "Responsabilité unique par service",
+      "Code simple et DRY",
+      "Séparation public/privé"
+    ]
+  }
+}
