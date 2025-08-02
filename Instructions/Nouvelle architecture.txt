@@ -1,0 +1,64 @@
+└── angular-app
+    ├── src
+    │   ├── app
+    │   │   ├── app.component.html
+    │   │   ├── app.component.ts
+    │   │   └── app.module.ts
+    │   ├── core
+    │   │   ├── guards
+    │   │   ├── interceptors
+    │   │   └── services
+    │   ├── features
+    │   │   ├── chroniques
+    │   │   │   ├── components
+    │   │   │   │   ├── editors
+    │   │   │   │   │   ├── edit-draft
+    │   │   │   │   │   │   ├── edit-draft.html
+    │   │   │   │   │   │   ├── edit-draft.scss
+    │   │   │   │   │   │   └── edit-draft.ts
+    │   │   │   │   │   ├── edit-published
+    │   │   │   │   │   │   ├── edit-published.html
+    │   │   │   │   │   │   ├── edit-published.scss
+    │   │   │   │   │   │   └── edit-published.ts
+    │   │   │   │   │   └── new-story
+    │   │   │   │   │       ├── new-story.html
+    │   │   │   │   │       ├── new-story.scss
+    │   │   │   │   │       └── new-story.ts
+    │   │   │   │   ├── stories
+    │   │   │   │   │   ├── draft-list
+    │   │   │   │   │   │   ├── draft-list.html
+    │   │   │   │   │   │   ├── draft-list.scss
+    │   │   │   │   │   │   └── draft-list.ts
+    │   │   │   │   │   ├── my-stories
+    │   │   │   │   │   │   ├── my-stories.html
+    │   │   │   │   │   │   ├── my-stories.scss
+    │   │   │   │   │   │   └── my-stories.ts
+    │   │   │   │   │   └── published-list
+    │   │   │   │   │       ├── published-list.html
+    │   │   │   │   │       ├── published-list.scss
+    │   │   │   │   │       └── published-list.ts
+    │   │   │   │   ├── story
+    │   │   │   │   │   ├── story.html
+    │   │   │   │   │   ├── story.scss
+    │   │   │   │   │   └── story.ts
+    │   │   │   │   ├── chroniques.html
+    │   │   │   │   ├── chroniques.scss
+    │   │   │   │   └── chroniques.ts
+    │   │   │   ├── models
+    │   │   │   ├── routes
+    │   │   │   └── services
+    │   │   ├── marsball
+    │   │   │   ├── components
+    │   │   │   ├── models
+    │   │   │   ├── routes
+    │   │   │   └── services
+    │   │   └── user
+    │   ├── shared
+    │   │   ├── menus
+    │   │   ├── services
+    │   │   ├── styles
+    │   │   └── tools
+    │   ├── main.ts
+    │   └── styles.css
+    ├── angular.json
+    └── package.json
