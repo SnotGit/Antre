@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angul
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { PublicStoriesService } from '../services/public-stories.service';
-import { TypingEffectService } from '../../../shared/services/typing-effect.service';
+import { TypingEffectService } from '@shared/services/typing-effect.service';
 import { StoryCard } from './story-card/story-card';
 
 @Component({

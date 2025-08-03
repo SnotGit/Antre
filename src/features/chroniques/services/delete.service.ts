@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { ConfirmationDialogService } from '../../../shared/utilities/confirmation-dialog/confirmation-dialog.service';
+import { ConfirmationDialogService } from '../../../shared/services/confirmation-dialog.service';
 
 @Injectable({
   providedIn: 'root'

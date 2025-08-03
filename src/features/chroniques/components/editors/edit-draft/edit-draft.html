@@ -1,34 +1,40 @@
 <div class="container">
 
-    <div class="field-title">
-      <label>Titre de l'histoire</label>
-      <input type="text" [(ngModel)]="storyTitle" [disabled]="loading()"
-        placeholder="Donnez un titre à votre histoire">
+  <div class="header">
+    <h1 class="header-title" [class.typing]="!typing()">
+      {{ headerTitle() }}
+    </h1>
+
+    <div class="back-button">
+      <button class="btn" (click)="goBack()">
+        <span>← Retour</span>
+      </button>
     </div>
-
-    <div class="field-content">
-      <label>Contenu</label>
-      <textarea [(ngModel)]="storyContent" [disabled]="loading()" placeholder="Écrivez votre histoire ici">
-      </textarea>
-    </div>
-
-    <div class="footer">
-      <div class="delete-button">
-        <button class="btn" (click)="deleteStory()" [disabled]="loading()">
-          <span>{{ deleteButtonText() }}</span>
-        </button>
-      </div>
-
-      <div class="publish-button">
-        <button class="btn" (click)="publishStory()" [disabled]="loading()">
-          @if (loading()) {
-          <span class="loading-spinner"></span>
-          Publier en cours...
-          } @else {
-          <span>{{ publishButtonText() }}</span>
-          }
-        </button>
-      </div>
-    </div>
-
   </div>
+
+  <div class="field-title">
+    <label>Titre de l'histoire</label>
+    <input type="text" [(ngModel)]="storyTitle">
+  </div>
+
+  <div class="field-content">
+    <label>Contenu</label>
+    <textarea [(ngModel)]="storyContent">
+    </textarea>
+  </div>
+
+  <div class="footer">
+    <div class="delete-button">
+      <button class="btn" (click)="deleteStory()">
+        <span>Annuler</span>
+      </button>
+    </div>
+
+    <div class="publish-button">
+      <button class="btn" (click)="publishStory()">
+        <span>Publier</span>
+      </button>
+    </div>
+  </div>
+
+</div>
