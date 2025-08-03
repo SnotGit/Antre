@@ -1,1 +1,33 @@
-<p>published-editor works!</p>
+<div class="container">
+
+    <div class="field-title">
+      <label>Titre de l'histoire</label>
+      <input type="text" [(ngModel)]="storyTitle" [disabled]="loading()"
+    </div>
+
+    <div class="field-content">
+      <label>Contenu</label>
+      <textarea [(ngModel)]="storyContent" [disabled]="loading()">
+      </textarea>
+    </div>
+
+    <div class="footer">
+      <div class="delete-button">
+        <button class="btn" (click)="deleteStory()" [disabled]="loading()">
+          <span>{{ deleteButtonText() }}</span>
+        </button>
+      </div>
+
+      <div class="publish-button">
+        <button class="btn" (click)="publishStory()" [disabled]="loading()">
+          @if (loading()) {
+          <span class="loading-spinner"></span>
+          Publier en cours...
+          } @else {
+          <span>{{ publishButtonText() }}</span>
+          }
+        </button>
+      </div>
+    </div>
+
+  </div>
