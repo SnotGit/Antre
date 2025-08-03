@@ -1,1 +1,13 @@
-<p>my-stories works!</p>
+  <div class="container">
+    <div class="content-grid">
+      <button class="button" (click)="goToDrafts()">
+        <div class="number">{{ stats().drafts }}</div>
+        <div class="title">Brouillons</div>
+      </button>
+
+      <button class="button" (click)="goToPublished()">
+        <div class="number">{{ stats().published }}</div>
+        <div class="title">Publiées</div>
+      </button>
+    </div>
+  </div>

@@ -1,1 +1,12 @@
-<p>draft-list works!</p>
+  <div class="container">
+    <div class="content-grid">
+      @for (story of draftStories(); track story.id) {
+      <div class="card" [class.selected]="isSelectedStory(story.id)" (click)="onCardClick(story)">
+        <div class="story-title">{{ story.title }}</div>
+        <div class="story-date">{{ story.date }}</div>
+        <input type="checkbox" class="delete-checkbox" [checked]="isSelectedStory(story.id)"
+          (click)="onCheckboxClick($event, story.id)">
+      </div>
+      }
+    </div>
+  </div>
