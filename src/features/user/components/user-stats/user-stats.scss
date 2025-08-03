@@ -1,0 +1,116 @@
+.tab-content {
+  // ============ TITRE 1 : 50% | 50% ============
+  .titre1 {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    margin-bottom: 30px;
+    margin-top: 50px;
+
+    .titre1-box1 {
+      text-align: center;
+
+      .section-title {
+        color: #5d889e;
+        font-size: 20px;
+        font-weight: bold;
+        margin: 0;
+      }
+    }
+  }
+
+  // ============ CARD 1 : 30% | 40% | 30% ============
+  .card1 {
+    display: grid;
+    grid-template-columns: 30% 40% 30%;
+    margin-bottom: 40px;
+
+    .card1-box2 {
+      .stats-grid {
+        display: grid;
+        gap: 2rem;
+        margin: 2rem 0;
+        grid-template-columns: repeat(2, 1fr);
+        
+        @media (max-width: 768px) {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+
+        .stat-card {
+          background: #1a1d20;
+          border: 2px solid rgba(93, 136, 158, 0.3);
+          border-radius: 12px;
+          padding: 25px;
+          text-align: center;
+          transition: all 0.3s ease;
+          cursor: pointer;
+
+          &:hover {
+            border-color: #d0d0d0;
+            transform: translateY(2px);
+          }
+
+          &.no-hover {
+            cursor: default;
+            
+            &:hover {
+              border-color: rgba(93, 136, 158, 0.3);
+              transform: none;
+            }
+          }
+
+          &:hover .stat-number {
+            color: #d0d0d0;
+          }
+
+          .stat-number {
+            color: #5d889e;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
+          }
+
+          .stat-label {
+            color: #d0d0d0;
+            font-size: 14px;
+          }
+        }
+      }
+
+      .account-info {
+        margin-top: 30px;
+
+        .info-title {
+          color: #5d889e;
+          font-size: 16px;
+          font-weight: bold;
+          margin: 0 0 15px 0;
+          text-align: center;
+        }
+
+        .info-item {
+          display: flex;
+          justify-content: space-between;
+          padding: 10px 0;
+          border-bottom: 1px solid rgba(93, 136, 158, 0.2);
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .info-label {
+            color: #5d889e;
+            font-weight: bold;
+            font-size: 14px;
+          }
+
+          .info-value {
+            color: #d0d0d0;
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+}
+

@@ -1,0 +1,183 @@
+.tab-content {
+  // ============ TITRE 1 : 50% | 50% ============
+  .titre1 {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    margin-bottom: 30px;
+    margin-top: 50px;
+
+    .titre1-box1 {
+      text-align: center;
+
+      .section-title {
+        color: #5d889e;
+        font-size: 20px;
+        font-weight: bold;
+        margin: 0;
+      }
+    }
+  }
+
+  // ============ CARD 1 : 30% | 40% | 30% ============
+  .card1 {
+    display: grid;
+    grid-template-columns: 30% 40% 30%;
+    margin-bottom: 40px;
+
+    .card1-box2 {
+      // ============ AVATAR SECTION ============
+      .avatar-section {
+        text-align: center;
+        margin-bottom: 30px;
+
+        .avatar-container {
+          display: inline-block;
+
+          .avatar-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #1a1d20;
+            border: 3px solid #5d889e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            overflow: hidden;
+
+            &:empty {
+              content: '👤';
+              font-size: 2.5rem;
+            }
+          }
+
+          .avatar-upload-btn {
+            background: #5d889e;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            color: #121416;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+
+            &:hover {
+              background: #6a9bb0;
+              transform: translateY(-2px);
+            }
+          }
+        }
+      }
+
+      // ============ FORMULAIRE PROFIL ============
+      .profile-form {
+        .form-field {
+          margin-bottom: 20px;
+
+          .field-label {
+            display: block;
+            color: #5d889e;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-align: start;
+          }
+
+          .form-input,
+          .form-textarea {
+            width: 100%;
+            background: rgba(26, 29, 32, 0.8);
+            border: 1px solid rgba(93, 136, 158, 0.5);
+            border-radius: 6px;
+            padding: 12px;
+            color: #d0d0d0;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            text-align: start;
+
+            &::placeholder {
+              color: rgba(93, 136, 158, 0.6);
+            }
+
+            &:focus {
+              outline: none;
+              border-color: #5d889e;
+              background: rgba(26, 29, 32, 1);
+            }
+
+            &:disabled {
+              opacity: 0.6;
+              cursor: not-allowed;
+            }
+          }
+
+          .form-textarea {
+            resize: none;
+            min-height: 80px;
+          }
+        }
+
+        .form-actions {
+          margin-top: 20px;
+          text-align: center;
+
+          .save-btn {
+            width: 100%;
+            background: #5d889e;
+            color: #121416;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 20px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+
+            &:hover:not(:disabled) {
+              background: #6a9bb0;
+              transform: translateY(-2px);
+            }
+
+            &:disabled {
+              opacity: 0.6;
+              cursor: not-allowed;
+              transform: none;
+            }
+
+            .loading-spinner {
+              width: 16px;
+              height: 16px;
+              border: 2px solid transparent;
+              border-top: 2px solid currentColor;
+              border-radius: 50%;
+              animation: spin 1s linear infinite;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// ============ ANIMATIONS ============
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
