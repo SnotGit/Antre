@@ -1,6 +1,8 @@
 @use 'content/artefacts/typing-effect/typing-effect' as *;
 
 .user-account-container {
+  background-color: #121416;
+
   padding: 0;
   color: #d0d0d0;
   height: 100%;
@@ -94,7 +96,7 @@
 
         .tab-btn {
           flex: 1;
-          background: transparent;
+          background-color: #1a1d20;
           border: none;
           border-right: 1px solid #5d889e;
           padding: 12px 20px;
@@ -103,7 +105,7 @@
           font-weight: bold;
           cursor: pointer;
           transition: all 0.3s ease;
-          font-size: 14px;
+          font-size: 16px;
           text-align: center;
 
           &:last-child {
@@ -116,7 +118,7 @@
 
           &.active {
             background: #5d889e;
-            color: #121416;
+            color: #000000;
           }
         }
       }

@@ -27,58 +27,28 @@
 
     @include typing-effect;
   }
-
-  .back-button {
-    @include button;
-  }
 }
 
-//============ SEPARATOR ============
-
-.separator {
-  text-align: center;
-
-  .line {
-    width: 80%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #5d889e, transparent);
-    margin: 0 auto;
-    border-radius: 1px;
-  }
-}
-
-// ============ CONTENT ============
-.content {
-  flex: 1;
-  overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding: 30px;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
 
 // ============ EDITOR ============
 
 .editor {
-  padding: 30px;
   flex: 1;
+  padding: 30px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 30px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   .field-title {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-
-    label {
-      color: #5d889e;
-      font-weight: 700;
-      font-size: 16px;
-    }
 
     input {
       background-color: #121416;
@@ -97,12 +67,6 @@
     gap: 8px;
     flex: 1;
 
-    label {
-      color: #5d889e;
-      font-weight: 700;
-      font-size: 16px;
-    }
-
     textarea {
       background-color: #121416;
       border: 2px solid #5d889e;
@@ -116,6 +80,8 @@
     }
   }
 
+  //============ FOOTER ============
+
   .footer {
     display: flex;
     justify-content: space-between;
@@ -124,19 +90,9 @@
     .delete-button {
       @include button;
 
-      .cancel-btn {
-        border-color: crimson;
-        color: crimson;
-
-        &:hover {
-          color: #d0d0d0;
-          border-color: #d0d0d0;
-        }
-      }
-
-      .delete-btn {
-        border-color: crimson;
-        color: crimson;
+      .btn {
+        border-color: #b55a44;
+        color: #b55a44;
 
         &:hover {
           color: #d0d0d0;

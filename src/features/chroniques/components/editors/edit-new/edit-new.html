@@ -6,29 +6,32 @@
     </h1>
   </div>
 
-  <div class="field-title">
-    <label>Titre de l'histoire</label>
-    <input type="text" [(ngModel)]="storyTitle" placeholder="Titre...">
-  </div>
+  <div class="editor">
+    <div class="field-title">
+      <input type="text" [(ngModel)]="storyTitle" placeholder="Titre...">
+    </div>
 
-  <div class="field-content">
-    <label>Contenu</label>
-    <textarea [(ngModel)]="storyContent" placeholder="Votre texte ici...">
+    <div class="field-content">
+      <textarea [(ngModel)]="storyContent" placeholder="Texte...">
     </textarea>
-  </div>
-
-  <div class="footer">
-    <div class="delete-button">
-      <button class="btn" (click)="deleteStory()">
-        <span>Annuler</span>
-      </button>
     </div>
 
-    <div class="publish-button">
-      <button class="btn" (click)="publishStory()">
-        <span>Publier</span>
-      </button>
+    <div class="footer">
+
+      <div class="delete-button">
+        <button class="btn" (click)="deleteStory()">
+          <span>Annuler</span>
+        </button>
+      </div>
+
+      <div class="publish-button">
+        <button class="btn" (click)="publishStory()">
+          <span>Publier</span>
+        </button>
+      </div>
+
     </div>
+
   </div>
 
 </div>
