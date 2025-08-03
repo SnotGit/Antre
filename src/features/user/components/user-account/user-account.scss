@@ -1,8 +1,7 @@
 @use 'content/artefacts/typing-effect/typing-effect' as *;
 
 .user-account-container {
-  padding: 30px;
-  background-color: #121416;
+  padding: 0;
   color: #d0d0d0;
   height: 100%;
   width: 100%;
@@ -11,11 +10,11 @@
   flex-direction: column;
   overflow-y: auto;
   box-sizing: border-box;
-  
+
   // ============ SCROLLBAR INVISIBLE ============
   scrollbar-width: none;
   -ms-overflow-style: none;
-  
+
   &::-webkit-scrollbar {
     display: none;
   }
@@ -26,6 +25,8 @@
     grid-template-columns: 50% 50%;
     margin-bottom: 30px;
     align-items: center;
+    flex-shrink: 0;
+    padding: 30px 30px 0 30px;
 
     .header-box1 {
       text-align: start;
@@ -38,7 +39,7 @@
         text-align: start;
         display: inline;
         width: auto;
-        
+
         @include typing-effect;
       }
     }
@@ -76,6 +77,9 @@
     display: grid;
     grid-template-columns: 30% 40% 30%;
     align-items: center;
+    flex-shrink: 0;
+    padding: 0 30px;
+
 
     .tabs-box2 {
       display: flex;
@@ -122,6 +126,6 @@
   // ============ CONTENU PRINCIPAL ============
   .content-container {
     flex: 1;
+    overflow: hidden;
   }
 }
-

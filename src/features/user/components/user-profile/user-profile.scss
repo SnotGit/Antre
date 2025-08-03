@@ -1,12 +1,13 @@
-.tab-content {
-  // ============ TITRE 1 : 50% | 50% ============
-  .titre1 {
+.user-profile-content {
+
+  // ============ TITLE 1 : 50% | 50% ============
+  .title {
     display: grid;
     grid-template-columns: 50% 50%;
     margin-bottom: 30px;
     margin-top: 50px;
 
-    .titre1-box1 {
+    .title-box1 {
       text-align: center;
 
       .section-title {
@@ -25,7 +26,7 @@
     margin-bottom: 40px;
 
     .card1-box2 {
-      // ============ AVATAR SECTION ============
+      // ============ AVATAR ============
       .avatar-section {
         text-align: center;
         margin-bottom: 30px;
@@ -74,7 +75,7 @@
         }
       }
 
-      // ============ FORMULAIRE PROFIL ============
+      // ============ PROFIL FORM ============
       .profile-form {
         .form-field {
           margin-bottom: 20px;
@@ -88,6 +89,7 @@
             text-align: start;
           }
 
+          // ============ INPUTS ============
           .form-input,
           .form-textarea {
             width: 100%;
@@ -100,7 +102,6 @@
             font-size: 14px;
             transition: all 0.3s ease;
             box-sizing: border-box;
-            text-align: start;
 
             &::placeholder {
               color: rgba(93, 136, 158, 0.6);
@@ -118,9 +119,30 @@
             }
           }
 
+          .form-input {
+            text-align: start;
+          }
+
           .form-textarea {
+            text-align: start;
             resize: none;
             min-height: 80px;
+          }
+        }
+
+        // ============ FORM ID + DAYS ============
+        .form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 15px;
+          margin-bottom: 20px;
+
+          .form-field {
+            margin-bottom: 0;
+
+            .field-label {
+              text-align: center;
+            }
           }
         }
 
@@ -171,6 +193,17 @@
   }
 }
 
+// ============ INPUT NUMBER ============
+input[type=number] {
+  appearance: textfield;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
 // ============ ANIMATIONS ============
 @keyframes spin {
   0% {
@@ -180,4 +213,3 @@
     transform: rotate(360deg);
   }
 }
-

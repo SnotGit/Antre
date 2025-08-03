@@ -1,12 +1,13 @@
-.tab-content {
+.user-stats-content {
+
   // ============ TITRE 1 : 50% | 50% ============
-  .titre1 {
+  .title {
     display: grid;
     grid-template-columns: 50% 50%;
     margin-bottom: 30px;
     margin-top: 50px;
 
-    .titre1-box1 {
+    .title-box1 {
       text-align: center;
 
       .section-title {
@@ -78,7 +79,7 @@
       }
 
       .account-info {
-        margin-top: 30px;
+        margin-top: 100px;
 
         .info-title {
           color: #5d889e;
