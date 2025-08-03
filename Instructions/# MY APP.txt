@@ -19,7 +19,7 @@ Interface style **terminal/console futuriste** avec effets immersifs.
 - **Frontend** : Angular 20 (signals, resources, standalone components)
 - **Backend** : Express + Prisma + PostgreSQL
 - **Authentification** : JWT + guards
-- **Design** : SCSS thème terminal Mars
+- **Design** : SCSS 
 
 ### PRINCIPES ARCHITECTURE
 - **Backend** : ID uniquement (pas de traitement strings)
@@ -31,18 +31,16 @@ Interface style **terminal/console futuriste** avec effets immersifs.
 
 ### FONCTIONNALITÉS
 - **Écriture histoires** : Brouillons → Publication
-- **Navigation** : Timeline auteur (Previous/Next)
-- **Interaction** : Système likes, profils utilisateurs
-- **Sécurité** : Édition publiée = nouveau draft (protection)
+- **Sécurité** : Édition histoire publiée = sauvegarde en local
 
 ### COMPOSANTS CLÉS
 - **Chroniques** → Miniatures dernières histoires tous auteurs
-- **Story** → Lecture histoire + navigation timeline auteur
+- **Story-reader** → Lecture histoire + navigation timeline auteur
 - **My-Stories** → Gestion mes histoires (brouillons/publiées)
-- **Editor** → Création/édition (3 modes: Nouvelle/Continuer/Modifier)
+- **3 Editors** → Création nouvelle histoire, édition brouillon, édition histoire publiée)
 
 ### UX IMMERSIVE
-- **Typing Effects** → Simulation saisie terminal
+- **Typing Effects** → Simulation saisie terminal, décoratif
 - **Console/Terminal** → Panels navigation thème sci-fi
 - **Auto-save** → Sauvegarde transparente brouillons
 - **Responsive** → Mobile/desktop avec hamburgers
@@ -50,9 +48,9 @@ Interface style **terminal/console futuriste** avec effets immersifs.
 ## LOGIQUE MÉTIER CHRONIQUES
 
 ### WORKFLOW ÉCRITURE
-1. **Nouvelle histoire** → Brouillon auto-créé au premier caractère
-2. **Continuer brouillon** → Édition brouillon existant
-3. **Modifier publiée** → Copie en nouveau draft → Remplace originale
+1. **Nouvelle histoire** → id Brouillon créé = post
+2. **Continuer brouillon** → Édition id brouillon existant = put
+3. **Modifier histoire publiée** → updateStory id = put
 
 ### NAVIGATION INTELLIGENTE
 - **Clic miniature** → Dernière histoire auteur

@@ -32,10 +32,7 @@
     "data": [
       "storyTitle = signal('')",
       "storyContent = signal('')"
-    ],
-    "save_state": [
-      "isSaved = signal(false)"
-    ]
+
   },
   "methods": {
     "ngOnInit": "Setup services uniquement",
@@ -45,16 +42,10 @@
     "deleteStory": "DeleteService.delete() + navigation retour"
   },
   "autosave_logic": {
-    "source": "REFACTO AUTO SAVE.txt",
+    "source": "SAVE SERVICE.txt",
     "trigger": "2 secondes APRÈS avoir arrêté de taper",
-    "technology": "SaveService + localStorage SEULEMENT",
-    "storage": "localStorage draft-new",
-    "behavior": "setTimeout effacé à chaque frappe - PAS D'API CALL"
   },
-  "navigation_protection": {
-    "method": "isSaved + dialog.confirm",
-    "logic": "Si isSaved() === false → dialog demande confirmation"
-  },
+
   "constraints": [
     "SIMPLICITÉ MAXIMALE - pas de complexité IA",
     "Pas d'invention - logique pure",
