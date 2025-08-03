@@ -1,0 +1,128 @@
+{
+  "task": "Créer le service save.service.ts pour L'Antre",
+  "requirements": {
+    "framework": "Angular 20",
+    "code_quality": "Senior level - simple, robuste, efficace",
+    "naming": "Noms logiques uniquement, pas d'inventions",
+    "separators": "//======= SECTION =======",
+    "no_logs": true,
+    "no_comments": "Pas de commentaires parasites",
+    "no_icons": "Pas d'icônes dans le code"
+  },
+  "service_specs": {
+    "class_name": "SaveService",
+    "injectable": "providedIn: 'root'",
+    "purpose": "Gestion complète stories - auto-save BDD + publish"
+  },
+  "interfaces": {
+    "StoryData": {
+      "title": "string",
+      "content": "string"
+    }
+  },
+  "dependencies": [
+    "HttpClient"
+  ],
+  "methods": {
+    "createStory": {
+      "purpose": "Créer nouvelle story avec ID",
+      "signature": "createStory(): Promise<number>",
+      "logic": [
+        "HTTP POST vers API",
+        "Création story status DRAFT",
+        "Retour ID généré",
+        "Gestion erreurs"
+      ]
+    },
+    "save": {
+      "purpose": "Sauvegarde directe BDD",
+      "signature": "save(id: number, data: StoryData): void",
+      "logic": [
+        "Debounce X secondes après arrêt de frappe",
+        "setTimeout effacé à chaque appel",
+        "HTTP PUT vers API directement",
+        "Pour edit-new et draft-editor uniquement"
+      ]
+    },
+    "saveLocal": {
+      "purpose": "Sauvegarde localStorage pour published-editor",
+      "signature": "saveLocal(key: string, data: StoryData): void",
+      "logic": [
+        "Debounce X secondes après arrêt de frappe",
+        "setTimeout effacé à chaque appel",
+        "localStorage.setItem() uniquement",
+        "Protection histoire publiée originale"
+      ]
+    },
+    "restoreLocal": {
+      "purpose": "Restaurer modifications depuis localStorage",
+      "signature": "restoreLocal(key: string): StoryData | null",
+      "logic": [
+        "localStorage.getItem()",
+        "Parse JSON si existe",
+        "Retour null si pas de modifications"
+      ]
+    },
+    "clearLocal": {
+      "purpose": "Nettoyer localStorage après republication ou annulation",
+      "signature": "clearLocal(key: string): void",
+      "logic": [
+        "localStorage.removeItem(key)",
+        "Utilisé après update() ou bouton annuler"
+      ]
+    },
+    "publish": {
+      "purpose": "Publier story draft vers published",
+      "signature": "publish(id: number): Promise<void>",
+      "logic": [
+        "HTTP POST vers API",
+        "Change status DRAFT → PUBLISHED",
+        "Gestion erreurs"
+      ]
+    },
+    "update": {
+      "purpose": "Republier story published modifiée",
+      "signature": "update(id: number, data: StoryData): Promise<void>",
+      "logic": [
+        "HTTP POST vers API",
+        "Republication story published avec nouvelles données",
+        "Gestion erreurs"
+      ]
+    }
+  },
+  "api_endpoints": {
+    "create_story": "POST /api/private-stories/createStory/:id",
+    "save": "PUT /api/private-stories/saveStory/:id",
+    "publish_story": "POST /api/private-stories/publishStory/:id",
+    "update_story": "POST /api/private-stories/updateStory/:id"
+  },
+  "storage_keys": {
+    "published_editor": "published-{id}-modifications"
+  },
+  "workflow": {
+    "edit_new": "createStory() → save() BDD → publish()",
+    "draft_editor": "load draft → save() BDD → publish()",
+    "published_editor": "load published → saveLocal() localStorage → update() BDD (si republier)"
+  },
+  "navigation": {
+    "edit_new_and_draft": "Navigation libre - toujours auto-sauvé en BDD",
+    "published_editor": "Navigation avec bouton Annuler - clearLocal() + retour",
+    "no_dialog": "Pas de dialog confirmation (sauf delete)",
+    "ux": "Protection histoire originale + modifications locales"
+  },
+  "error_handling": {
+    "method": "try/catch avec alert simple",
+    "no_complex_error_management": true
+  },
+  "constraints": [
+    "SIMPLICITÉ MAXIMALE",
+    "Pas d'invention - logique pure",
+    "Les choses portent bien leurs noms",
+    "Senior level - efficace et direct",
+    "Respect architecture Angular 20",
+    "edit-new/draft-editor = save() BDD directement",
+    "published-editor = saveLocal() localStorage + protection originale",
+    "Annuler = clearLocal() + navigation",
+    "Architecture hybride intelligente"
+  ]
+}

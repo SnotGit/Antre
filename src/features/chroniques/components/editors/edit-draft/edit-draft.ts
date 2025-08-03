@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-draft-editor',
+  selector: 'app-edit-draft',
   imports: [],
-  templateUrl: './draft-editor.html',
-  styleUrl: './draft-editor.scss'
+  templateUrl: './edit-draft.html',
+  styleUrl: './edit-draft.scss'
 })
 export class DraftEditor {
 

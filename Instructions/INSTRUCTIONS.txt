@@ -27,7 +27,6 @@
     "forbidden_names": ["inventions_etranges_incohérentes"],
     "backend_logic": "ID uniquement - pas de traitement strings",
     "frontend_logic": "Resolvers titre→ID pour URLs lisibles",
-    "no_observables": "Modernité : signals, linkedSignal, computed, effect"
   },
 
   "CODE_QUALITY": {
