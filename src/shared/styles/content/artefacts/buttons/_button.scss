@@ -15,6 +15,10 @@
         transition: all 0.3s ease;
         display: flex;
         align-items: center;
+        justify-content: center;
+        text-align: center;
+        height: 45px;
+        width: 180px;
 
         &:hover {
             color: #d0d0d0;

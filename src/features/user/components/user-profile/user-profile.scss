@@ -4,7 +4,7 @@
   .title {
     display: grid;
     grid-template-columns: 50% 50%;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
     margin-top: 50px;
 
     .title-box1 {
@@ -23,9 +23,9 @@
   .card1 {
     display: grid;
     grid-template-columns: 30% 40% 30%;
-    margin-bottom: 40px;
 
     .card1-box2 {
+
       // ============ AVATAR ============
       .avatar-section {
         text-align: center;
@@ -68,8 +68,8 @@
             transition: all 0.3s ease;
 
             &:hover {
-              background: #6a9bb0;
-              transform: translateY(-2px);
+              background: #64da99;
+              color: #000000;
             }
           }
         }
@@ -119,10 +119,6 @@
             }
           }
 
-          .form-input {
-            text-align: start;
-          }
-
           .form-textarea {
             text-align: start;
             resize: none;
@@ -135,19 +131,17 @@
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 15px;
-          margin-bottom: 20px;
-
-          .form-field {
-            margin-bottom: 0;
+  
+            .form-input {
+              text-align: center;
+            }
 
             .field-label {
               text-align: center;
             }
-          }
         }
 
         .form-actions {
-          margin-top: 20px;
           text-align: center;
 
           .save-btn {
@@ -165,11 +159,11 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            margin-top: 20px;
 
             &:hover:not(:disabled) {
-              background: #6a9bb0;
-              transform: translateY(-2px);
+              background: #64da99;
+              color: #000000;
             }
 
             &:disabled {
@@ -209,6 +203,7 @@ input[type=number]::-webkit-outer-spin-button {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }

@@ -7,7 +7,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { PrivateStoriesService } from '../../services/private-stories.service';
 import { AuthService } from '../../../auth/services/auth.service';
 import { ConfirmationDialogService } from '../../../../shared/services/confirmation-dialog.service';
-import { AutoSaveService } from '../../../../shared/services/auto-save.service';
+import { SaveService } from '@features/chroniques/services/save.service';
 import { TypingEffectService } from '../../../../shared/services/typing-effect.service';
 
 interface StoryCard {
@@ -143,14 +143,14 @@ export class Editor implements OnInit, OnDestroy {
 
   //======= AUTO-SAVE =======
 
-  private autoSaveInstance: ReturnType<AutoSaveService['autoSave']> | null = null;
+  private autoSaveInstance: ReturnType<SaveService['Save']> | null = null;
 
   private setupAutoSave(): void {
     if (this.autoSaveInstance) {
       this.autoSaveInstance.destroy();
     }
 
-    this.autoSaveInstance = this.autoSaveService.autoSave({
+    this.autoSaveInstance = this.SaveService.autoSave({
       data: this.story,
       onSave: async () => {
         await this.performAutoSave();
