@@ -6,7 +6,7 @@ import { Location } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { PrivateStoriesService } from '../../services/private-stories.service';
 import { AuthService } from '../../../auth/services/auth.service';
-import { ConfirmationDialogService } from '../../../../shared/utilities/confirmation-dialog/confirmation-dialog.service';
+import { ConfirmationDialogService } from '../../../../shared/services/confirmation-dialog.service';
 import { AutoSaveService } from '../../../../shared/services/auto-save.service';
 import { TypingEffectService } from '../../../../shared/services/typing-effect.service';
 

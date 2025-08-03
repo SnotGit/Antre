@@ -1,5 +1,11 @@
 <div class="container">
 
+  <div class="header">
+    <h1 class="header-title" [class.typing]="!typing()">
+      {{ headerTitle() }}
+    </h1>
+  </div>
+
   <div class="field-title">
     <label>Titre de l'histoire</label>
     <input type="text" [(ngModel)]="storyTitle" placeholder="Titre...">
