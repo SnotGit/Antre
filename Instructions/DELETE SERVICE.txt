@@ -7,7 +7,7 @@
     "separators": "//======= SECTION =======",
     "no_logs": true,
     "no_comments": "Pas de commentaires parasites",
-    "no_icons": "Pas d'icônes dans le code"
+    "no_icons": "Pas d'icônes dans le code ni la conversation"
   },
   "service_specs": {
     "class_name": "DeleteService",
@@ -39,7 +39,7 @@
     }
   },
   "api_endpoints": {
-    "delete_single": "DELETE /api/private-stories/story/:id"
+    "delete": "DELETE /api/private-stories/deleteStory/:id"
   },
   "error_handling": {
     "method": "try/catch avec alert simple",

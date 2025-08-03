@@ -22,7 +22,7 @@
 
   "TECHNICAL_RULES": {
     "angular_version": "Angular 20",
-    "architecture": ["signals", "resources", "standalone_components"],
+    "architecture": ["signals","computed", "linkedsignals" "resources"],
     "naming": "Noms logiques uniquement (story, title, mode, storyId)",
     "forbidden_names": ["inventions_etranges_incohérentes"],
     "backend_logic": "ID uniquement - pas de traitement strings",
@@ -35,14 +35,14 @@
     "no_logs": true,
     "no_comments": "Pas de commentaires parasites",
     "no_icons": "pas d'icones dans le code",
-    "delivery": "1 fichier par message, 100% correct",
+    "delivery": "1 fichier par message, 100% correct" + validation pour continuer,
     "auto_verify": "Vérifier livrable avant livraison"
   },
 
   "WORKFLOW_RULES": {
     "research_first": "1. Rechercher et lire documentation Angular 20 complète",
     "understand_context": "2. Analyser le contexte projet L'Antre",
-    "wait_validation": "4. Attendre validation utilisateur",
+    "wait_validation": "4. Attendre validation utilisateur après chaque fichier livré",
     "be_expert": "5. Tenir tête si nécessaire avec preuves documentation"
   },
 
@@ -60,12 +60,5 @@
     "terraformars": "Contenu univers étendu",
     "staff": "Administration admins"
   },
-
-  "EDITOR_LOGIC": {
-    "workflow": [
-      "Nouvelle histoire → Brouillon auto-créé",
-      "Continuer brouillon → Édition brouillon existant", 
-      "Modifier publiée → Copie en nouveau draft → Remplace originale"
-    ],
 
 }
