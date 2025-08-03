@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { chroniquesResolver } from '../../../shared/utilities/resolvers/chroniques-resolver';
 import { authGuard } from '../../../core/guards/auth-guard';
+
 //============ CHRONIQUES ROUTES ============
 
 export const routes: Routes = [
@@ -54,7 +55,7 @@ export const routes: Routes = [
   
   {
     path: ':username/:title',
-    loadComponent: () => import('../components/story/story').then(m => m.Story),
+    loadComponent: () => import('../components/story-reader/story-reader').then(m => m.Story),
     resolve: { data: chroniquesResolver }
   },
 

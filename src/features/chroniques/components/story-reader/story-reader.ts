@@ -12,10 +12,10 @@ interface PublicStoryData {
 }
 
 @Component({
-  selector: 'app-story',
+  selector: 'app-story-reader',
   imports: [CommonModule],
-  templateUrl: './story.html',
-  styleUrl: './story.scss'
+  templateUrl: './story-reader.html',
+  styleUrl: './story-reader.scss'
 })
 export class Story {
   
