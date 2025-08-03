@@ -1,0 +1,65 @@
+{
+  "task": "Créer le composant edit-new.ts pour L'Antre",
+  "requirements": {
+    "framework": "Angular 20",
+    "code_quality": "Senior level - simple, robuste, efficace",
+    "naming": "Noms logiques uniquement, pas d'inventions",
+    "separators": "//======= SECTION =======",
+    "no_logs": true,
+    "no_comments": "Pas de commentaires parasites",
+    "no_icons": "Pas d'icônes dans le code"
+  },
+  "component_specs": {
+    "selector": "app-edit-new",
+    "purpose": "Création nouvelle histoire - interface simple et efficace",
+    "template_bindings": [
+      "[(ngModel)]=\"storyTitle\"",
+      "[(ngModel)]=\"storyContent\"",
+      "(click)=\"deleteStory()\"",
+      "(click)=\"save()\"",
+      "(click)=\"publishStory()\""
+    ]
+  },
+  "services_injection": [
+    "SaveService",
+    "PublishService",
+    "DeleteService",
+    "TypingEffectService", 
+    "ConfirmationDialogService",
+    "Router"
+  ],
+  "state_signals": {
+    "data": [
+      "storyTitle = signal('')",
+      "storyContent = signal('')"
+    ],
+    "save_state": [
+      "isSaved = signal(false)"
+    ]
+  },
+  "methods": {
+    "ngOnInit": "Setup services uniquement",
+    "autoSave": "SaveService.autoSave() vers localStorage uniquement",
+    "save": "SaveService.saveDraft() + isSaved.set(true)",
+    "publishStory": "PublishService.publish() + navigation",
+    "deleteStory": "DeleteService.delete() + navigation retour"
+  },
+  "autosave_logic": {
+    "source": "REFACTO AUTO SAVE.txt",
+    "trigger": "2 secondes APRÈS avoir arrêté de taper",
+    "technology": "SaveService + localStorage SEULEMENT",
+    "storage": "localStorage draft-new",
+    "behavior": "setTimeout effacé à chaque frappe - PAS D'API CALL"
+  },
+  "navigation_protection": {
+    "method": "isSaved + dialog.confirm",
+    "logic": "Si isSaved() === false → dialog demande confirmation"
+  },
+  "constraints": [
+    "SIMPLICITÉ MAXIMALE - pas de complexité IA",
+    "Pas d'invention - logique pure",
+    "Les choses portent bien leurs noms",
+    "Senior level - efficace et direct",
+    "Respect architecture Angular 20 signals"
+  ]
+}
