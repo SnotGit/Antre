@@ -1,12 +1,13 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '../core/guards/auth-guard';
-import { 
-  authRoutes, 
-  chroniquesRoutes, 
-  marsballRoutes, 
-  staffRoutes, 
+import {
+  authRoutes,
+  chroniquesRoutes,
+  marsballRoutes,
+  staffRoutes,
   terraformarsRoutes,
-  archivesRoutes 
+  archivesRoutes,
+  userRoutes
 } from '../routes/index';
 
 export const routes: Routes = [
@@ -29,7 +30,7 @@ export const routes: Routes = [
   //============ ROUTE PROTÉGÉE UTILISATEUR ============
   {
     path: 'mon-compte',
-    loadComponent: () => import('../features/user/components/user-account/user-account').then(m => m.UserAccount),
+    children: userRoutes,
     canActivate: [authGuard]
   },
 
@@ -38,12 +39,12 @@ export const routes: Routes = [
     path: 'archives',
     children: archivesRoutes
   },
-  
+
   {
     path: 'marsball',
     children: marsballRoutes
   },
-  
+
   {
     path: 'terraformars',
     children: terraformarsRoutes
@@ -53,7 +54,7 @@ export const routes: Routes = [
   {
     path: 'staff',
     children: staffRoutes,
-    canActivate: [authGuard] 
+    canActivate: [authGuard]
   },
 
   {
