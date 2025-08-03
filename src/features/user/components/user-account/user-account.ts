@@ -39,10 +39,6 @@ export class UserAccount implements OnInit, OnDestroy {
   headerTitle = this.typingService.headerTitle;
   typing = this.typingService.typingComplete;
 
-  private readonly titleEffect = effect(() => {
-    this.typingService.title(this.title);
-  });
-
   //============ LOCALSTORAGE PERSISTENCE ============
 
   private readonly storageKey = 'user-account-tab';
@@ -69,11 +65,12 @@ export class UserAccount implements OnInit, OnDestroy {
       return;
     }
 
+    this.typingService.title(this.title);
+    
     this.privateStoriesService.loadStories();
   }
 
   ngOnDestroy(): void {
-    this.titleEffect.destroy();
     this.tabPersistenceEffect.destroy();
   }
 

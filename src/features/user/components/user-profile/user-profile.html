@@ -1,9 +1,9 @@
-<div class="tab-content">
-  <div class="titre1">
-    <div class="titre1-box1">
+<div class="user-profile-content">
+  <div class="title">
+    <div class="title-box1">
       <h2 class="section-title">Profil utilisateur</h2>
     </div>
-    <div class="titre1-box2">
+    <div class="title-box2">
       <!-- VIDE -->
     </div>
   </div>
@@ -33,20 +33,6 @@
             minlength="3" maxlength="50" [disabled]="loading()">
         </div>
 
-        <!-- Player ID -->
-        <div class="form-field">
-          <label class="field-label">ID Joueur</label>
-          <input type="text" name="playerId" [(ngModel)]="playerId" class="form-input"
-            maxlength="20" [disabled]="loading()">
-        </div>
-
-        <!-- Player Days -->
-        <div class="form-field">
-          <label class="field-label">Jours sur Mars</label>
-          <input type="number" name="playerDays" [(ngModel)]="playerDays" class="form-input"
-            min="0" [disabled]="loading()">
-        </div>
-
         <!-- Description -->
         <div class="form-field">
           <label class="field-label">Description</label>
@@ -54,6 +40,21 @@
             placeholder="Parlez-nous de vous..." maxlength="500" rows="4" [disabled]="loading()">
             </textarea>
         </div>
+
+        <!-- ID Joueur et Jours sur Mars en ligne -->
+        <div class="form-row">
+          <div class="form-field">
+            <label class="field-label">ID Joueur</label>
+            <input type="text" name="playerId" [(ngModel)]="playerId" class="form-input"
+              maxlength="20" [disabled]="loading()">
+          </div>
+          
+          <div class="form-field">
+            <label class="field-label">Jours sur Mars</label>
+            <input type="number" name="playerDays" [(ngModel)]="playerDays" class="form-input"
+              [disabled]="loading()">
+          </div>
+        </div>        
 
         <!-- Actions profil -->
         <div class="form-actions">

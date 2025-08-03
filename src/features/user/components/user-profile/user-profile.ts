@@ -26,7 +26,7 @@ export class UserProfile {
 
   username = '';
   playerId = '';
-  playerDays = 0;
+  playerDays = '';
   description = '';
 
   private avatarState = { 
@@ -60,7 +60,7 @@ export class UserProfile {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/') || file.size > 500 * 1024) {
+    if (!file.type.startsWith('image/') || file.size > 200 * 200) {
       return;
     }
 
