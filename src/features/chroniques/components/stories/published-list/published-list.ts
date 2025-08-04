@@ -2,8 +2,17 @@ import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angul
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
-import { LoadService } from '@features/chroniques/services/load.service';
+import { LoadService, Published } from '@features/chroniques/services/load.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
+
+//======= INTERFACE FOR TEMPLATE =======
+
+interface PublishedCardData {
+  id: number;
+  title: string;
+  date: string;
+  likes: number;
+}
 
 @Component({
   selector: 'app-published-list',
@@ -30,13 +39,13 @@ export class PublishedList implements OnInit, OnDestroy {
 
   //============ DATA LOADING ============
 
-  private publishedResource = resource({
+  private readonly publishedResource = resource({
     loader: async () => {
-      return await this.loadService.loadPublished();
+      return await this.loadService.getPublished();
     }
   });
 
-  publishedCards = computed(() => {
+  publishedCards = computed((): PublishedCardData[] => {
     const published = this.publishedResource.value() || [];
     return published.map(story => ({
       id: story.id,
@@ -63,15 +72,8 @@ export class PublishedList implements OnInit, OnDestroy {
 
   //============ ACTIONS ============
 
-  onPublishedCardClick(story: any): void {
-    const cleanTitle = story.title
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-zA-Z0-9\-àéèêîôùûüÿç]/g, '')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-
-    this.router.navigate(['/chroniques/mes-histoires/publiée/edition', cleanTitle]);
+  onPublishedCardClick(story: PublishedCardData): void {
+    this.router.navigate(['/chroniques/mes-histoires/publiée/edition', story.title]);
   }
 
   //============ UTILS ============

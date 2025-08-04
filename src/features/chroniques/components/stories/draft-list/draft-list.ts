@@ -2,8 +2,16 @@ import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angul
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
-import { LoadService } from '@features/chroniques/services/load.service';
+import { LoadService, Draft } from '@features/chroniques/services/load.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
+
+//======= INTERFACE FOR TEMPLATE =======
+
+interface DraftCardData {
+  id: number;
+  title: string;
+  date: string;
+}
 
 @Component({
   selector: 'app-draft-list',
@@ -30,13 +38,13 @@ export class DraftList implements OnInit, OnDestroy {
 
   //============ DATA LOADING ============
 
-  private draftsResource = resource({
+  private readonly draftsResource = resource({
     loader: async () => {
-      return await this.loadService.loadDrafts();
+      return await this.loadService.getDrafts();
     }
   });
 
-  draftCards = computed(() => {
+  draftCards = computed((): DraftCardData[] => {
     const drafts = this.draftsResource.value() || [];
     return drafts.map(draft => ({
       id: draft.id,
@@ -62,15 +70,8 @@ export class DraftList implements OnInit, OnDestroy {
 
   //============ ACTIONS ============
 
-  onDraftCardClick(draft: any): void {
-    const cleanTitle = draft.title
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-zA-Z0-9\-àéèêîôùûüÿç]/g, '')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-
-    this.router.navigate(['/chroniques/mes-histoires/brouillon/edition', cleanTitle]);
+  onDraftCardClick(draft: DraftCardData): void {
+    this.router.navigate(['/chroniques/mes-histoires/brouillon/edition', draft.title]);
   }
 
   //============ UTILS ============

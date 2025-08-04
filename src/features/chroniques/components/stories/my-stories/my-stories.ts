@@ -32,7 +32,7 @@ export class MyStories implements OnInit, OnDestroy {
 
   private statsResource = resource({
     loader: async () => {
-      return await this.loadService.loadStats();
+      return await this.loadService.getStats();
     }
   });
 
