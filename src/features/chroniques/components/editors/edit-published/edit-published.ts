@@ -22,8 +22,9 @@ export class PublishedEditor implements OnInit, OnDestroy {
   private readonly location = inject(Location);
   private readonly saveService = inject(SaveService);
   private readonly loadService = inject(LoadService);
-  private readonly typingService = inject(TypingEffectService);
   private readonly confirmationService = inject(ConfirmationDialogService);
+  private readonly typingService = inject(TypingEffectService);
+
 
   //========= SIGNALS =========
 
@@ -158,6 +159,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.typingService.destroy();
     this.autoSaveEffect.destroy();
   }
 

@@ -1,7 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { AuthService, User } from '../../auth/services/auth.service';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '@environments/environment';
+import { AuthService, User } from '@features/auth/services/auth.service';
 
 export interface UpdateProfileRequest {
   username: string;
@@ -29,7 +30,7 @@ export interface UploadAvatarResponse {
 export class UserService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
-  private readonly API_URL = 'http://localhost:3000/api/user';
+  private readonly API_URL = `${environment.apiUrl}/user`;
 
   //============ SIGNALS ÉTAT ============
 

@@ -71,6 +71,7 @@ export class UserAccount implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.typingService.destroy();
     this.tabPersistenceEffect.destroy();
   }
 

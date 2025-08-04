@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject, signal, effect, EffectRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TypingEffectService } from '../../../shared/services/typing-effect.service';
+import { TypingEffectService } from '@shared/services/typing-effect.service';
 
 @Component({
   selector: 'app-home',
@@ -12,7 +12,7 @@ export class Home implements OnInit, OnDestroy {
 
   //============ TYPING EFFECT ============
 
-  private typingService = inject(TypingEffectService);
+  private readonly typingService = inject(TypingEffectService);
 
   private readonly title1 = "Salut à toi Gros Têtard !";
   private readonly title2 = "Bienvenue dans l'Antre";
@@ -54,5 +54,6 @@ export class Home implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.titleEffect.destroy();
+    this.typingService.destroy();
   }
 }

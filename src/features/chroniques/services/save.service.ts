@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '@environments/environment';
 
 //======= INTERFACE =======
 
@@ -25,7 +26,7 @@ export class SaveService {
   //======= INJECTIONS =======
 
   private readonly http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:3000/api/private-stories';
+  private readonly API_URL = `${environment.apiUrl}/private-stories`;
 
   //======= DEBOUNCE =======
 

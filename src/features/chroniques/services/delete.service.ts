@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { ConfirmationDialogService } from '../../../shared/services/confirmation-dialog.service';
+import { environment } from '@environments/environment';
+import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class DeleteService {
 
   private readonly http = inject(HttpClient);
   private readonly confirmationService = inject(ConfirmationDialogService);
-  private readonly API_URL = 'http://localhost:3000/api/private-stories';
+  private readonly API_URL = `${environment.apiUrl}/private-stories`;
 
   //======= DELETE METHOD =======
 
@@ -22,7 +23,7 @@ export class DeleteService {
       if (!confirmed) return;
 
       await firstValueFrom(
-        this.http.delete(`${this.API_URL}/deleteStory/${id}`)
+        this.http.delete(`${this.API_URL}/story/${id}`)
       );
     } catch (error) {
       alert('Erreur lors de la suppression');

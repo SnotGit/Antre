@@ -1,12 +1,26 @@
-<!--   <div class="container">
+<div class="container">
+
+  <div class="header">
+    <h1 class="header-title" [class.typing]="typing()">
+      {{ headerTitle() }}
+    </h1>
+  </div>
+
+  <div class="separator">
+    <div class="line"></div>
+  </div>
+
+  <div class="content">
     <div class="content-grid">
-      @for (story of draftStories(); track story.id) {
-      <div class="card" [class.selected]="isSelectedStory(story.id)" (click)="onCardClick(story)">
-        <div class="story-title">{{ story.title }}</div>
-        <div class="story-date">{{ story.date }}</div>
-        <input type="checkbox" class="delete-checkbox" [checked]="isSelectedStory(story.id)"
-          (click)="onCheckboxClick($event, story.id)">
-      </div>
+      @for (draft of draftCards(); track draft.id) {
+        <div class="story-card-btn" (click)="onDraftCardClick(draft)">
+          <div class="btn">
+            <div class="story-title">{{ draft.title }}</div>
+            <div class="story-date">{{ draft.date }}</div>
+          </div>
+        </div>
       }
     </div>
-  </div> -->
+  </div>
+
+</div>
