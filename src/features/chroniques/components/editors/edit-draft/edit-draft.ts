@@ -24,8 +24,8 @@ export class DraftEditor implements OnInit, OnDestroy {
   private readonly saveService = inject(SaveService);
   private readonly deleteService = inject(DeleteService);
   private readonly loadService = inject(LoadService);
-  private readonly typingService = inject(TypingEffectService);
   private readonly confirmationService = inject(ConfirmationDialogService);
+  private readonly typingService = inject(TypingEffectService);
 
   //========= SIGNALS =========
 
@@ -137,6 +137,7 @@ export class DraftEditor implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.typingService.destroy();
     this.autoSaveEffect.destroy();
   }
 

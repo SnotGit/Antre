@@ -2,6 +2,7 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '@environments/environment';
 
 export interface User {
   id: number;
@@ -31,7 +32,7 @@ export interface LoginRequest {
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  private readonly API_URL = 'http://localhost:3000/api/auth';
+  private readonly API_URL = `${environment.apiUrl}/auth`;
 
   //============ SIGNALS ÉTAT ============
 
@@ -67,106 +68,97 @@ export class AuthService {
 
       this.storeAuthData(response.token, response.user);
       this._currentUser.set(response.user);
-      
+
     } catch (error) {
-      const errorMessage = this.extractErrorMessage(error);
-      this._error.set(errorMessage);
-      throw new Error(errorMessage);
+      this.handleError(error);
     } finally {
       this._loading.set(false);
     }
   }
 
-  async register(data: RegisterRequest): Promise<void> {
+  async register(userData: RegisterRequest): Promise<void> {
     this._loading.set(true);
     this._error.set(null);
 
     try {
-      await firstValueFrom(
-        this.http.post<{ message: string; user: User }>(`${this.API_URL}/register`, data)
+      const response = await firstValueFrom(
+        this.http.post<{ message: string; token: string; user: User }>(`${this.API_URL}/register`, userData)
       );
 
+      this.storeAuthData(response.token, response.user);
+      this._currentUser.set(response.user);
+
     } catch (error) {
-      const errorMessage = this.extractErrorMessage(error);
-      this._error.set(errorMessage);
-      throw new Error(errorMessage);
+      this.handleError(error);
     } finally {
       this._loading.set(false);
     }
   }
 
-  logout(): void {
-    this.clearAuthData();
-    this._currentUser.set(null);
-    this.router.navigate(['/auth/login']);
-  }
-
-  //============ VALIDATION TOKEN ============
-
   async validateToken(): Promise<boolean> {
-    const token = this.getStoredToken();
+    const token = localStorage.getItem('token');
     if (!token) return false;
 
     try {
       const response = await firstValueFrom(
-        this.http.get<{ message: string; user: User }>(`${this.API_URL}/validate`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
+        this.http.get<{ user: User }>(`${this.API_URL}/validate`)
       );
 
       this._currentUser.set(response.user);
       return true;
 
-    } catch {
+    } catch (error) {
       this.logout();
       return false;
     }
   }
 
-  //============ GESTION STOCKAGE ============
-
-  private initializeFromStorage(): void {
-    const userData = localStorage.getItem('antre_user');
-    if (userData) {
-      try {
-        this._currentUser.set(JSON.parse(userData));
-      } catch {
-        this.clearAuthData();
-      }
-    }
+  logout(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    this._currentUser.set(null);
+    this.router.navigate(['/auth/login']);
   }
 
-  private storeAuthData(token: string, user: User): void {
-    localStorage.setItem('antre_auth_token', token);
-    localStorage.setItem('antre_user', JSON.stringify(user));
-  }
-
-  private clearAuthData(): void {
-    localStorage.removeItem('antre_auth_token');
-    localStorage.removeItem('antre_user');
-  }
-
-  getStoredToken(): string | null {
-    return localStorage.getItem('antre_auth_token');
-  }
-
-  //============ SYNCHRONISATION ÉTAT ============
-
-  updateCurrentUser(user: User): void {
-    this._currentUser.set(user);
-    localStorage.setItem('antre_user', JSON.stringify(user));
-  }
+  //============ GESTION ERREURS ============
 
   clearError(): void {
     this._error.set(null);
   }
 
-  //============ UTILITAIRES ============
+  //============ UPDATE USER ============
 
-  private extractErrorMessage(error: any): string {
-    if (error instanceof HttpErrorResponse) {
-      return error.error?.error || error.message || 'Erreur serveur';
+  updateCurrentUser(user: User): void {
+    this._currentUser.set(user);
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+
+  //============ PRIVATE METHODS ============
+
+  private initializeFromStorage(): void {
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+
+    if (token && userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        this._currentUser.set(user);
+      } catch {
+        this.logout();
+      }
     }
-    return error instanceof Error ? error.message : 'Erreur inconnue';
+  }
+
+  private storeAuthData(token: string, user: User): void {
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+
+  private handleError(error: unknown): void {
+    if (error instanceof HttpErrorResponse) {
+      this._error.set(error.error?.message || 'Une erreur est survenue');
+    } else {
+      this._error.set('Une erreur inattendue est survenue');
+    }
   }
 }

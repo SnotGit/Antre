@@ -46,7 +46,7 @@ export class TypingEffectService {
   
   //============ CLEANUP ============
   
-  private destroy(): void {
+  public destroy(): void {
     if (this.typingInterval) {
       clearInterval(this.typingInterval);
       this.typingInterval = undefined;

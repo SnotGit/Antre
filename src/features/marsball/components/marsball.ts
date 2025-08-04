@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TypingEffectService } from '../../../shared/services/typing-effect.service';
+import { TypingEffectService } from '@shared/services/typing-effect.service';
+
 @Component({
   selector: 'app-marsball',
   imports: [CommonModule],
@@ -11,7 +12,7 @@ export class MarsballComponent implements OnInit, OnDestroy {
 
   //============ INJECTIONS ============
 
-  private typingService = inject(TypingEffectService);
+  private readonly typingService = inject(TypingEffectService);
   
   //============ TYPING EFFECT ============
 
@@ -28,5 +29,6 @@ export class MarsballComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.typingService.destroy();
   }
 }

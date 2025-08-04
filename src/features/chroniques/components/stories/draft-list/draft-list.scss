@@ -9,7 +9,6 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-
 }
 
 //============ HEADER ============
@@ -61,7 +60,8 @@
   }
 }
 
-// ============ CONTENT ============
+//============ CONTENT ============
+
 .content {
   flex: 1;
   overflow-y: auto;
@@ -71,5 +71,80 @@
 
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+//============ GRIDS ============
+
+.content-grid {
+  display: grid;
+  align-items: center;
+  gap: 30px;
+  justify-items: center;
+  margin: 0 auto;
+  
+  grid-template-columns: repeat(3, 1fr);
+  
+  &:has(button) {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 800px;
+  }
+}
+
+//============ STORY CARDS ============
+
+.story-card-btn {
+  @include button;
+  
+  .btn {
+    background-color: #1a1d20;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    width: 320px;
+    height: 180px;
+    position: relative;
+    transition: all 0.3s ease;
+
+    &:hover:not(.selected) {
+      transform: translateY(-2px);
+    }
+
+    &.selected {
+      border-color: crimson;
+      background-color: transparent;
+      
+      .story-title {
+        color: crimson;
+      }
+      .story-date {
+        color: crimson;
+      }
+    }
+
+    .story-title {
+      color: #d0d0d0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .story-date {
+      color: #5d889e;
+      font-size: 14px;
+      font-weight: 400;
+    }
+
+    .delete-checkbox {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 20px;
+      bottom: 15px;
+      right: 15px;
+      accent-color: crimson;
+      transform: scale(1.2);
+      cursor: pointer;
+    }
   }
 }

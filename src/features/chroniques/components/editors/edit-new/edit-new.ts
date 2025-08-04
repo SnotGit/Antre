@@ -26,8 +26,8 @@ export class EditNew implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly saveService = inject(SaveService);
   private readonly deleteService = inject(DeleteService);
-  private readonly typingService = inject(TypingEffectService);
   private readonly confirmationService = inject(ConfirmationDialogService);
+  private readonly typingService = inject(TypingEffectService);
 
   //========= SIGNALS =========
 
@@ -54,7 +54,7 @@ export class EditNew implements OnInit, OnDestroy {
   //========= TYPING-EFFECT =========
 
   private readonly title = 'Nouvelle Histoire';
-  
+
   headerTitle = this.typingService.headerTitle;
   showCursor = this.typingService.showCursor;
   typing = this.typingService.typingComplete;
@@ -142,6 +142,7 @@ export class EditNew implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.typingService.destroy();
     this.autoSaveEffect.destroy();
   }
 

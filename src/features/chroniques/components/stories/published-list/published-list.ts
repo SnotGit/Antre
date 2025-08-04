@@ -1,11 +1,86 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { AuthService } from '@features/auth/services/auth.service';
+import { LoadService } from '@features/chroniques/services/load.service';
+import { TypingEffectService } from '@shared/services/typing-effect.service';
 
 @Component({
   selector: 'app-published-list',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './published-list.html',
   styleUrl: './published-list.scss'
 })
-export class PublishedList {
+export class PublishedList implements OnInit, OnDestroy {
 
+  //============ INJECTIONS ============
+
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly loadService = inject(LoadService);
+  private readonly typingService = inject(TypingEffectService);
+
+  //============ TYPING EFFECT ============
+
+  private readonly title = 'Histoires Publiées';
+
+  headerTitle = this.typingService.headerTitle;
+  showCursor = this.typingService.showCursor;
+  typing = this.typingService.typingComplete;
+
+  //============ DATA LOADING ============
+
+  private publishedResource = resource({
+    loader: async () => {
+      return await this.loadService.loadPublished();
+    }
+  });
+
+  publishedCards = computed(() => {
+    const published = this.publishedResource.value() || [];
+    return published.map(story => ({
+      id: story.id,
+      title: story.title,
+      date: this.formatDate(story.lastModified),
+      likes: story.likes
+    }));
+  });
+
+  //============ LIFECYCLE ============
+
+  ngOnInit(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+
+    this.typingService.title(this.title);
+  }
+
+  ngOnDestroy(): void {
+    this.typingService.destroy();
+  }
+
+  //============ ACTIONS ============
+
+  onPublishedCardClick(story: any): void {
+    const cleanTitle = story.title
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-zA-Z0-9\-àéèêîôùûüÿç]/g, '')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+
+    this.router.navigate(['/chroniques/mes-histoires/publiée/edition', cleanTitle]);
+  }
+
+  //============ UTILS ============
+
+  private formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  }
 }
