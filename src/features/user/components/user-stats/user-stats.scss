@@ -25,7 +25,6 @@
     grid-template-columns: 30% 40% 30%;
     padding: 20px;
 
-
     .card1-box2 {
       .stats-grid {
         display: grid;
@@ -50,22 +49,31 @@
         cursor: pointer;
         gap: 10px;
 
-        &:hover {
+        // Effets hover pour les cartes cliquables uniquement
+        &:not(.no-hover):hover {
           border-color: #d0d0d0;
           transform: translateY(2px);
-        }
-
-        &.no-hover {
-          cursor: default;
-
-          &:hover {
-            border-color: rgba(93, 136, 158, 0.3);
-            transform: none;
+          
+          .stat-number {
+            color: #d0d0d0;
           }
         }
 
-        &:hover .stat-number {
-          color: #d0d0d0;
+        // Carte Likes - complètement statique
+        &.no-hover {
+          cursor: default;
+          // Pas de transition pour être complètement statique
+          transition: none;
+
+          // Override complet de tous les effets hover
+          &:hover {
+            border-color: rgba(93, 136, 158, 0.3) !important;
+            transform: none !important;
+            
+            .stat-number {
+              color: #5d889e !important;
+            }
+          }
         }
 
         .stat-number {
@@ -82,7 +90,6 @@
     }
 
     .account-info {
-
       margin-top: 60px;
 
       .info-title {
