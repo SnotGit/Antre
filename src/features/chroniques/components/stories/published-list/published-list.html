@@ -16,7 +16,7 @@
         <div class="story-card-btn" (click)="onPublishedCardClick(story)">
           <div class="btn">
             <div class="story-title">{{ story.title }}</div>
-            <div class="story-date">{{ story.date }}</div>
+            <div class="story-date">{{ formatDate(story.lastModified) }}</div>
             <div class="story-likes">
               <span class="heart-icon">♥</span>
               <span class="likes-count">{{ story.likes }}</span>
