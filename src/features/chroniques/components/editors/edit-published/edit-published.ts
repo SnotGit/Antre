@@ -134,7 +134,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
   private async loadPublishedStory(): Promise<void> {
     try {
       const id = Number(this.route.snapshot.params['id']);
-      const story = await this.loadService.loadStory(id);
+      const story = await this.loadService.getStory(id);
       
       this.storyId.set(story.id);
       this.storyTitle.set(story.title);

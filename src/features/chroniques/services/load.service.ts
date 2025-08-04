@@ -60,14 +60,14 @@ export class LoadService {
   //======= INJECTIONS =======
 
   private readonly http = inject(HttpClient);
-  private readonly API_URL = `${environment.apiUrl}/private-stories`;
+  private readonly API_URL = `${environment.apiUrl}/get`;
 
-  //======= LOAD STORY =======
+  //======= GET STORY =======
 
-  async loadStory(id: number): Promise<StoryData> {
+  async getStory(id: number): Promise<StoryData> {
     try {
       const response = await firstValueFrom(
-        this.http.get<StoryResponse>(`${this.API_URL}/edit/${id}`)
+        this.http.get<StoryResponse>(`${this.API_URL}/story/${id}`)
       );
       return response.story;
     } catch (error) {
@@ -76,9 +76,9 @@ export class LoadService {
     }
   }
 
-  //======= LOAD STATS =======
+  //======= GET STATS =======
 
-  async loadStats(): Promise<UserStats> {
+  async getStats(): Promise<UserStats> {
     try {
       const response = await firstValueFrom(
         this.http.get<StatsResponse>(`${this.API_URL}/stats`)
@@ -90,12 +90,12 @@ export class LoadService {
     }
   }
 
-  //======= LATEST USER STORIES =======
+  //======= GET LATEST USER STORIES =======
 
-  async loadLatestUserStories(): Promise<PublicStory[]> {
+  async getLatestUserStories(): Promise<PublicStory[]> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ stories: PublicStory[] }>(`${environment.apiUrl}/public-stories/stories`)
+        this.http.get<{ stories: PublicStory[] }>(`${this.API_URL}/latest-stories`)
       );
       return response.stories || [];
     } catch (error) {
@@ -104,9 +104,23 @@ export class LoadService {
     }
   }
 
-  //======= LOAD DRAFTS =======
+  //======= GET USER STORIES =======
 
-  async loadDrafts(): Promise<DraftStory[]> {
+  async getUserStories(userId: number): Promise<PublicStory[]> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<{ stories: PublicStory[] }>(`${this.API_URL}/user-stories/${userId}`)
+      );
+      return response.stories || [];
+    } catch (error) {
+      alert('Erreur lors du chargement des histoires utilisateur');
+      throw error;
+    }
+  }
+
+  //======= GET DRAFTS =======
+
+  async getDrafts(): Promise<DraftStory[]> {
     try {
       const response = await firstValueFrom(
         this.http.get<{ drafts: DraftStory[] }>(`${this.API_URL}/drafts`)
@@ -118,9 +132,9 @@ export class LoadService {
     }
   }
 
-  //======= LOAD PUBLISHED =======
+  //======= GET PUBLISHED =======
 
-  async loadPublished(): Promise<PublishedStory[]> {
+  async getPublished(): Promise<PublishedStory[]> {
     try {
       const response = await firstValueFrom(
         this.http.get<{ published: PublishedStory[] }>(`${this.API_URL}/published`)
