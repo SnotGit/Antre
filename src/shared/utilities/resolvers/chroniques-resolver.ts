@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { ResolveFn } from '@angular/router';
-import { PrivateStoriesService } from '../../../features/chroniques/services/private-stories.service';
-import { PublicStoriesService } from '../../../features/chroniques/services/public-stories.service';
+import { LoadService } from '@features/chroniques/services/load.service';
+
 
 interface ResolvedPrivateStory {
   storyId: number;
@@ -24,8 +24,7 @@ type ResolvedData = ResolvedPrivateStory | ResolvedPublicStory | ResolvedUser | 
 //============ RESOLVER ============
 
 export const chroniquesResolver: ResolveFn<ResolvedData> = async (route) => {
-  const privateStories = inject(PrivateStoriesService);
-  const publicStories = inject(PublicStoriesService);
+  const loadStory = inject(LoadService);
   
   const segments = route.url.map(segment => segment.path);
   const fullPath = segments.join('/');
@@ -63,12 +62,12 @@ export const chroniquesResolver: ResolveFn<ResolvedData> = async (route) => {
       throw new Error('Missing title');
     }
     
-    const resolution = await privateStories.resolveTitle(title);
+    const resolution = await loadStory.resolveTitle(title);
     if (!resolution) {
       throw new Error(`Story "${title}" not found`);
     }
     
-    const response = await privateStories.getStory(resolution.id);
+    const response = await loadStory.loadStory(resolution.id);
     if (!response) {
       throw new Error(`Story "${title}" not found`);
     }
@@ -87,7 +86,7 @@ export const chroniquesResolver: ResolveFn<ResolvedData> = async (route) => {
   const title = route.paramMap.get('title');
   
   if (username && !title) {
-    const userId = await publicStories.resolveUsername(username);
+    const userId = await loadStory.resolveUsername(username);
     if (!userId) {
       throw new Error(`User "${username}" not found`);
     }
@@ -96,12 +95,12 @@ export const chroniquesResolver: ResolveFn<ResolvedData> = async (route) => {
   }
   
   if (username && title) {
-    const userId = await publicStories.resolveUsername(username);
+    const userId = await loadStory.resolveUsername(username);
     if (!userId) {
       throw new Error(`User "${username}" not found`);
     }
     
-    const storyResolution = await publicStories.resolveStory(username, title);
+    const storyResolution = await loadStory.resolveStory(username, title);
     if (!storyResolution) {
       throw new Error(`Story "${title}" by ${username} not found`);
     }
