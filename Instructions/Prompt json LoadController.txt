@@ -1,0 +1,111 @@
+{
+  "task": "Créer le controller loadController.js pour L'Antre",
+  "requirements": {
+    "framework": "Express + Prisma",
+    "code_quality": "Senior level - simple, robuste, efficace",
+    "naming": "Noms logiques uniquement, pas d'inventions",
+    "separators": "//======= SECTION =======",
+    "no_logs": true,
+    "no_comments": "Pas de commentaires parasites",
+    "no_icons": "Pas d'icônes dans le code"
+  },
+  "controller_specs": {
+    "filename": "loadController.js",
+    "purpose": "Controller centralisé pour TOUT le chargement de données",
+    "base_route": "/api/load"
+  },
+  "dependencies": [
+    "PrismaClient",
+    "authenticateToken middleware pour routes privées"
+  ],
+  "routes": {
+    "getLatest": {
+      "method": "GET",
+      "path": "/latest",
+      "auth": false,
+      "purpose": "Dernières histoires publiques pour chroniques"
+    },
+    "getStory": {
+      "method": "GET", 
+      "path": "/story/:id",
+      "auth": false,
+      "purpose": "Story complète pour reader"
+    },
+    "getStories": {
+      "method": "GET",
+      "path": "/stories/:userId", 
+      "auth": false,
+      "purpose": "Liste histoires d'un utilisateur pour navigation"
+    },
+    "resolveUsername": {
+      "method": "GET",
+      "path": "/resolve/username/:username",
+      "auth": false,
+      "purpose": "Résoudre username vers userId"
+    },
+    "resolveTitle": {
+      "method": "GET",
+      "path": "/resolve/title/:title",
+      "auth": false, 
+      "purpose": "Résoudre title vers storyId"
+    },
+    "resolveStory": {
+      "method": "GET",
+      "path": "/resolve/story/:username/:title",
+      "auth": false,
+      "purpose": "Résoudre username/title vers storyId et userId"
+    },
+    "getStats": {
+      "method": "GET",
+      "path": "/stats",
+      "auth": true,
+      "purpose": "Statistiques utilisateur connecté"
+    },
+    "getDrafts": {
+      "method": "GET",
+      "path": "/drafts",
+      "auth": true,
+      "purpose": "Liste brouillons utilisateur connecté"
+    },
+    "getPublished": {
+      "method": "GET", 
+      "path": "/published",
+      "auth": true,
+      "purpose": "Liste histoires publiées utilisateur connecté"
+    },
+    "getDraftStory": {
+      "method": "GET",
+      "path": "/draft-story/:id",
+      "auth": true,
+      "purpose": "Brouillon pour édition"
+    },
+    "getPublishedStory": {
+      "method": "GET",
+      "path": "/published-story/:id", 
+      "auth": true,
+      "purpose": "Histoire publiée pour édition"
+    },
+    "toggleLike": {
+      "method": "POST",
+      "path": "/like/:id",
+      "auth": true,
+      "purpose": "Liker/unliker une histoire"
+    }
+  },
+  "database_operations": {
+    "prisma_queries": "SELECT avec relations user, likes selon besoins",
+    "ownership_check": "Vérifier ownership pour routes privées d'édition",
+    "like_logic": "INSERT ou DELETE dans table likes"
+  },
+  "error_handling": {
+    "method": "try/catch avec res.status().json()",
+    "no_complex_error_management": true
+  },
+  "constraints": [
+    "SIMPLICITÉ MAXIMALE",
+    "Pas d'invention - logique pure", 
+    "Middleware auth seulement sur routes privées",
+    "Retours JSON standardisés",
+    "Gestion ownership stories pour édition"
+  ]
+}

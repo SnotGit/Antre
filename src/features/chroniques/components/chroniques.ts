@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { LoadService } from '../services/load.service';
+import { LoadService } from '@features/chroniques/services/load.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 import { StoryCard } from './story-card/story-card';
 
@@ -15,9 +15,9 @@ export class Chroniques implements OnInit, OnDestroy {
 
   //============ INJECTIONS ============
 
-  private router = inject(Router);
-  private loadService = inject(LoadService);
-  private typingService = inject(TypingEffectService);
+  private readonly router = inject(Router);
+  private readonly loadService = inject(LoadService);
+  private readonly typingService = inject(TypingEffectService);
 
   //============ TYPING EFFECT ============
 
@@ -31,13 +31,13 @@ export class Chroniques implements OnInit, OnDestroy {
   
   private storiesResource = resource({
     loader: async () => {
-      return await this.loadService.loadLatestUserStories();
+      return await this.loadService.getLatest();
     }
   });
 
   storyCards = computed(() => {
-    const apiStories = this.storiesResource.value() || [];
-    return apiStories.map(story => ({
+    const stories = this.storiesResource.value() || [];
+    return stories.map(story => ({
       storyId: story.id,
       username: story.user?.username || '',
       avatar: story.user?.avatar || '',

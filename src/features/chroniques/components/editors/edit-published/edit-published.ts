@@ -2,10 +2,17 @@ import { Component, OnInit, OnDestroy, inject, signal, computed, effect } from '
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { SaveService, StoryFormData } from '@features/chroniques/services/save.service';
-import { LoadService, StoryData } from '@features/chroniques/services/load.service';
+import { LoadService } from '@features/chroniques/services/load.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
+
+interface PrivateStoryResolve {
+  storyId: number;
+  title: string;
+  content: string;
+}
 
 @Component({
   selector: 'app-edit-published',
@@ -25,6 +32,10 @@ export class PublishedEditor implements OnInit, OnDestroy {
   private readonly confirmationService = inject(ConfirmationDialogService);
   private readonly typingService = inject(TypingEffectService);
 
+  //========= RESOLVER DATA =========
+
+  private routeData = toSignal(this.route.data);
+  private resolvedData = computed(() => this.routeData()?.['data'] as PrivateStoryResolve);
 
   //========= SIGNALS =========
 
@@ -50,7 +61,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
 
   //========= TYPING-EFFECT =========
 
-  private readonly title = 'Modifier Histoire Publiée';
+  private readonly title = 'Modifier Histoire';
   
   headerTitle = this.typingService.headerTitle;
   showCursor = this.typingService.showCursor;
@@ -126,24 +137,23 @@ export class PublishedEditor implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.typingService.title(this.title);
-    this.loadPublishedStory();
+    this.loadResolvedStory();
   }
 
-  //========= LOAD PUBLISHED STORY =========
+  //========= LOAD FROM RESOLVER =========
 
-  private async loadPublishedStory(): Promise<void> {
-    try {
-      const id = Number(this.route.snapshot.params['id']);
-      const story = await this.loadService.getStory(id);
-      
-      this.storyId.set(story.id);
-      this.storyTitle.set(story.title);
-      this.storyContent.set(story.content);
-      
-      this.restoreModifications();
-    } catch (error) {
+  private loadResolvedStory(): void {
+    const resolved = this.resolvedData();
+    if (!resolved) {
       this.router.navigate(['/chroniques/mes-histoires']);
+      return;
     }
+
+    this.storyId.set(resolved.storyId);
+    this.storyTitle.set(resolved.title);
+    this.storyContent.set(resolved.content);
+    
+    this.restoreModifications();
   }
 
   //========= RESTORE MODIFICATIONS =========

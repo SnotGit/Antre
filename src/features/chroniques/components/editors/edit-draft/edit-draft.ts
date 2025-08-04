@@ -2,11 +2,17 @@ import { Component, OnInit, OnDestroy, inject, signal, computed, effect } from '
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { SaveService, StoryFormData } from '@features/chroniques/services/save.service';
 import { DeleteService } from '@features/chroniques/services/delete.service';
-import { LoadService, StoryData } from '@features/chroniques/services/load.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
+
+interface PrivateStoryResolve {
+  storyId: number;
+  title: string;
+  content: string;
+}
 
 @Component({
   selector: 'app-edit-draft',
@@ -23,9 +29,13 @@ export class DraftEditor implements OnInit, OnDestroy {
   private readonly location = inject(Location);
   private readonly saveService = inject(SaveService);
   private readonly deleteService = inject(DeleteService);
-  private readonly loadService = inject(LoadService);
   private readonly confirmationService = inject(ConfirmationDialogService);
   private readonly typingService = inject(TypingEffectService);
+
+  //========= RESOLVER DATA =========
+
+  private routeData = toSignal(this.route.data);
+  private resolvedData = computed(() => this.routeData()?.['data'] as PrivateStoryResolve);
 
   //========= SIGNALS =========
 
@@ -65,6 +75,32 @@ export class DraftEditor implements OnInit, OnDestroy {
       this.saveService.save(this.storyId(), data);
     }
   });
+
+  //========= LIFECYCLE =========
+
+  ngOnInit(): void {
+    this.typingService.title(this.title);
+    this.loadResolvedStory();
+  }
+
+  ngOnDestroy(): void {
+    this.typingService.destroy();
+    this.autoSaveEffect.destroy();
+  }
+ 
+  //========= LOAD FROM RESOLVER =========
+
+  private loadResolvedStory(): void {
+    const resolved = this.resolvedData();
+    if (!resolved) {
+      this.router.navigate(['/chroniques/mes-histoires']);
+      return;
+    }
+
+    this.storyId.set(resolved.storyId);
+    this.storyTitle.set(resolved.title);
+    this.storyContent.set(resolved.content);
+  }
 
   //========= SAVE =========
 
@@ -113,32 +149,4 @@ export class DraftEditor implements OnInit, OnDestroy {
   goBack(): void {
     this.location.back();
   }
-
-  //========= LIFECYCLE =========
-
-  ngOnInit(): void {
-    this.typingService.title(this.title);
-    this.loadDraft();
-  }
-
-  //========= LOAD DRAFT =========
-
-  private async loadDraft(): Promise<void> {
-    try {
-      const id = Number(this.route.snapshot.params['id']);
-      const story = await this.loadService.getStory(id);
-
-      this.storyId.set(story.id);
-      this.storyTitle.set(story.title);
-      this.storyContent.set(story.content);
-    } catch (error) {
-      this.router.navigate(['/chroniques/mes-histoires']);
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.typingService.destroy();
-    this.autoSaveEffect.destroy();
-  }
-
 }

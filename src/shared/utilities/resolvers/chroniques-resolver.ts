@@ -1,30 +1,33 @@
 import { inject } from '@angular/core';
 import { ResolveFn } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '@environments/environment';
 import { LoadService } from '@features/chroniques/services/load.service';
 
-
-interface ResolvedPrivateStory {
+interface PrivateStoryResolve {
   storyId: number;
   title: string;
   content: string;
-  originalStoryId?: number;
 }
 
-interface ResolvedPublicStory {
+interface PublicStoryResolve {
   storyId: number;
   userId: number;
 }
 
-interface ResolvedUser {
+interface UserResolve {
   userId: number;
 }
 
-type ResolvedData = ResolvedPrivateStory | ResolvedPublicStory | ResolvedUser | null;
+type ResolvedData = PrivateStoryResolve | PublicStoryResolve | UserResolve | null;
 
 //============ RESOLVER ============
 
 export const chroniquesResolver: ResolveFn<ResolvedData> = async (route) => {
-  const loadStory = inject(LoadService);
+  const http = inject(HttpClient);
+  const loadService = inject(LoadService);
+  const API_URL = `${environment.apiUrl}/resolve`;
   
   const segments = route.url.map(segment => segment.path);
   const fullPath = segments.join('/');
@@ -62,22 +65,25 @@ export const chroniquesResolver: ResolveFn<ResolvedData> = async (route) => {
       throw new Error('Missing title');
     }
     
-    const resolution = await loadStory.resolveTitle(title);
-    if (!resolution) {
+    try {
+      const response = await firstValueFrom(
+        http.get<{ storyId: number }>(`${API_URL}/title/${title}`)
+      );
+      
+      const isDraft = segments.includes('brouillon');
+      const story = isDraft 
+        ? await loadService.getDraftStory(response.storyId)
+        : await loadService.getPublishedStory(response.storyId);
+      
+      return {
+        storyId: story.id,
+        title: story.title,
+        content: story.content
+      } as PrivateStoryResolve;
+      
+    } catch (error) {
       throw new Error(`Story "${title}" not found`);
     }
-    
-    const response = await loadStory.loadStory(resolution.id);
-    if (!response) {
-      throw new Error(`Story "${title}" not found`);
-    }
-    
-    return {
-      storyId: response.story.id,
-      title: response.story.title,
-      content: response.story.content,
-      originalStoryId: response.originalStoryId
-    } as ResolvedPrivateStory;
   }
   
   //============ PUBLIC ROUTES ============
@@ -86,29 +92,33 @@ export const chroniquesResolver: ResolveFn<ResolvedData> = async (route) => {
   const title = route.paramMap.get('title');
   
   if (username && !title) {
-    const userId = await loadStory.resolveUsername(username);
-    if (!userId) {
+    try {
+      const response = await firstValueFrom(
+        http.get<{ userId: number }>(`${API_URL}/username/${username}`)
+      );
+      
+      return { userId: response.userId } as UserResolve;
+      
+    } catch (error) {
       throw new Error(`User "${username}" not found`);
     }
-    
-    return { userId } as ResolvedUser;
   }
   
   if (username && title) {
-    const userId = await loadStory.resolveUsername(username);
-    if (!userId) {
-      throw new Error(`User "${username}" not found`);
-    }
-    
-    const storyResolution = await loadStory.resolveStory(username, title);
-    if (!storyResolution) {
+    try {
+      const [userResponse, storyResponse] = await Promise.all([
+        firstValueFrom(http.get<{ userId: number }>(`${API_URL}/username/${username}`)),
+        firstValueFrom(http.get<{ storyId: number }>(`${API_URL}/story/${username}/${title}`))
+      ]);
+      
+      return {
+        storyId: storyResponse.storyId,
+        userId: userResponse.userId
+      } as PublicStoryResolve;
+      
+    } catch (error) {
       throw new Error(`Story "${title}" by ${username} not found`);
     }
-    
-    return {
-      storyId: storyResolution.storyId,
-      userId: userId
-    } as ResolvedPublicStory;
   }
   
   //============ ERROR ============
