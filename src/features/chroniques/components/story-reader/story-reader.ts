@@ -3,13 +3,15 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../auth/services/auth.service';
-import { PublicStoriesService } from '../../services/public-stories.service';
-import { PrivateStoriesService } from '../../services/private-stories.service';
+import { LoadService } from '@features/chroniques/services/load.service';
+import { LikeService } from '@features/chroniques/services/like.service';
+
 
 interface PublicStoryData {
   storyId: number;
   userId: number;
 }
+
 
 @Component({
   selector: 'app-story-reader',
@@ -19,11 +21,11 @@ interface PublicStoryData {
 })
 export class Story {
   
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private auth = inject(AuthService);
-  private publicStories = inject(PublicStoriesService);
-  private privateStories = inject(PrivateStoriesService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly auth = inject(AuthService);
+  private readonly loadService = inject(LoadService);
+  private readonly likeService = inject(LikeService);
 
   //============ RESOLVER DATA ============
 
@@ -41,8 +43,8 @@ export class Story {
       if (!params.storyId || !params.userId) return null;
 
       const [story, userStories] = await Promise.all([
-        this.publicStories.getStoryById(params.storyId),
-        this.publicStories.getUserStories(params.userId)
+        this.loadService.getStory(params.storyId),
+        this.loadService.getStories(params.userId)
       ]);
 
       if (!story) return null;
@@ -81,7 +83,7 @@ export class Story {
     const data = this.storyData.value();
     if (!data?.story || !this.canLike()) return;
     
-    await this.privateStories.toggleLike(data.story.id);
+    await this.likeService.toggle(data.story.id);
     this.storyData.reload();
   }
 

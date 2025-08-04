@@ -1,0 +1,104 @@
+{
+  "task": "Créer le service load.service.ts pour L'Antre",
+  "requirements": {
+    "framework": "Angular 20",
+    "code_quality": "Senior level - simple, robuste, efficace",
+    "naming": "Noms logiques uniquement, pas d'inventions",
+    "separators": "//======= SECTION =======",
+    "no_logs": true,
+    "no_comments": "Pas de commentaires parasites",
+    "no_icons": "Pas d'icônes dans le code"
+  },
+  "service_specs": {
+    "class_name": "LoadService",
+    "injectable": "providedIn: 'root'",
+    "purpose": "Service centralisé pour TOUT le chargement de données"
+  },
+  "dependencies": [
+    "HttpClient",
+    "environment"
+  ],
+  "api_base": "environment.apiUrl + '/load'",
+  "interfaces": {
+    "StoryReader": "{ id: number; title: string; content: string; publishDate: string; likes: number; isliked: boolean; user: { id: number; username: string; avatar: string; description: string; }; }",
+    "StoryCard": "{ id: number; title: string; publishDate: string; user: { username: string; avatar: string; }; }",
+    "EditStory": "{ id: number; title: string; content: string; }",
+    "Draft": "{ id: number; title: string; lastModified: string; }",
+    "Published": "{ id: number; title: string; lastModified: string; likes: number; }",
+    "UserStats": "{ drafts: number; published: number; totalLikes: number; }",
+    "UserStories": "{ id: number; title: string; }",
+    "Resolve": "{ userId?: number; storyId?: number; }"
+  },
+  "methods": {
+    "getLatest": {
+      "signature": "getLatest(): Promise<StoryCard[]>",
+      "endpoint": "GET /latest",
+      "auth": false
+    },
+    "getStory": {
+      "signature": "getStory(id: number): Promise<StoryReader>",
+      "endpoint": "GET /story/:id",
+      "auth": false
+    },
+    "getStories": {
+      "signature": "getStories(userId: number): Promise<UserStories[]>",
+      "endpoint": "GET /stories/:userId",
+      "auth": false
+    },
+    "resolveUsername": {
+      "signature": "resolveUsername(username: string): Promise<Resolve>",
+      "endpoint": "GET /resolve/username/:username",
+      "auth": false
+    },
+    "resolveTitle": {
+      "signature": "resolveTitle(title: string): Promise<Resolve>",
+      "endpoint": "GET /resolve/title/:title",
+      "auth": false
+    },
+    "resolveStory": {
+      "signature": "resolveStory(username: string, title: string): Promise<Resolve>",
+      "endpoint": "GET /resolve/story/:username/:title",
+      "auth": false
+    },
+    "getStats": {
+      "signature": "getStats(): Promise<UserStats>",
+      "endpoint": "GET /stats",
+      "auth": true
+    },
+    "getDrafts": {
+      "signature": "getDrafts(): Promise<Draft[]>",
+      "endpoint": "GET /drafts",
+      "auth": true
+    },
+    "getPublished": {
+      "signature": "getPublished(): Promise<Published[]>",
+      "endpoint": "GET /published",
+      "auth": true
+    },
+    "getDraftStory": {
+      "signature": "getDraftStory(id: number): Promise<EditStory>",
+      "endpoint": "GET /draft-story/:id",
+      "auth": true
+    },
+    "getPublishedStory": {
+      "signature": "getPublishedStory(id: number): Promise<EditStory>",
+      "endpoint": "GET /published-story/:id",
+      "auth": true
+    },
+    "toggleLike": {
+      "signature": "toggleLike(id: number): Promise<void>",
+      "endpoint": "POST /like/:id",
+      "auth": true
+    }
+  },
+  "error_handling": {
+    "method": "try/catch avec alert simple",
+    "no_complex_error_management": true
+  },
+  "constraints": [
+    "SIMPLICITÉ MAXIMALE",
+    "firstValueFrom pour HTTP requests",
+    "alert() simple pour gestion erreurs",
+    "Remplace PublicStoriesService et parties load de PrivateStoriesService"
+  ]
+}
