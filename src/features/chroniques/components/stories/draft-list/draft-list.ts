@@ -5,14 +5,6 @@ import { AuthService } from '@features/auth/services/auth.service';
 import { LoadService, Draft } from '@features/chroniques/services/load.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 
-//======= INTERFACE FOR TEMPLATE =======
-
-interface DraftCardData {
-  id: number;
-  title: string;
-  date: string;
-}
-
 @Component({
   selector: 'app-draft-list',
   imports: [CommonModule],
@@ -44,13 +36,8 @@ export class DraftList implements OnInit, OnDestroy {
     }
   });
 
-  draftCards = computed((): DraftCardData[] => {
-    const drafts = this.draftsResource.value() || [];
-    return drafts.map(draft => ({
-      id: draft.id,
-      title: draft.title,
-      date: this.formatDate(draft.lastModified)
-    }));
+  draftCards = computed((): Draft[] => {
+    return this.draftsResource.value() || [];
   });
 
   //============ LIFECYCLE ============
@@ -70,13 +57,13 @@ export class DraftList implements OnInit, OnDestroy {
 
   //============ ACTIONS ============
 
-  onDraftCardClick(draft: DraftCardData): void {
+  onDraftCardClick(draft: Draft): void {
     this.router.navigate(['/chroniques/mes-histoires/brouillon/edition', draft.title]);
   }
 
   //============ UTILS ============
 
-  private formatDate(dateString: string): string {
+  formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: '2-digit',

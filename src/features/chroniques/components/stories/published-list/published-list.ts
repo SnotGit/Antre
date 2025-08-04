@@ -5,15 +5,6 @@ import { AuthService } from '@features/auth/services/auth.service';
 import { LoadService, Published } from '@features/chroniques/services/load.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 
-//======= INTERFACE FOR TEMPLATE =======
-
-interface PublishedCardData {
-  id: number;
-  title: string;
-  date: string;
-  likes: number;
-}
-
 @Component({
   selector: 'app-published-list',
   imports: [CommonModule],
@@ -45,14 +36,8 @@ export class PublishedList implements OnInit, OnDestroy {
     }
   });
 
-  publishedCards = computed((): PublishedCardData[] => {
-    const published = this.publishedResource.value() || [];
-    return published.map(story => ({
-      id: story.id,
-      title: story.title,
-      date: this.formatDate(story.lastModified),
-      likes: story.likes
-    }));
+  publishedCards = computed((): Published[] => {
+    return this.publishedResource.value() || [];
   });
 
   //============ LIFECYCLE ============
@@ -72,13 +57,13 @@ export class PublishedList implements OnInit, OnDestroy {
 
   //============ ACTIONS ============
 
-  onPublishedCardClick(story: PublishedCardData): void {
+  onPublishedCardClick(story: Published): void {
     this.router.navigate(['/chroniques/mes-histoires/publiée/edition', story.title]);
   }
 
   //============ UTILS ============
 
-  private formatDate(dateString: string): string {
+  formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: '2-digit',
