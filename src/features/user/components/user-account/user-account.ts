@@ -1,9 +1,8 @@
 import { Component, OnInit, OnDestroy, inject, signal, effect } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../auth/services/auth.service';
-import { UserService } from '../../services/user.service';
-import { PrivateStoriesService } from '../../../chroniques/services/private-stories.service';
-import { TypingEffectService } from '../../../../shared/services/typing-effect.service';
+import { AuthService } from '@features/auth/services/auth.service';
+import { UserService } from '@features/user/services/user.service';
+import { TypingEffectService } from '@shared/services/typing-effect.service';
 import { UserStats } from '../user-stats/user-stats';
 import { UserProfile } from '../user-profile/user-profile';
 import { UserCredentials } from '../user-credentials/user-credentials';
@@ -23,7 +22,6 @@ export class UserAccount implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
-  private readonly privateStoriesService = inject(PrivateStoriesService);
   private readonly typingService = inject(TypingEffectService);
 
   //============ SIGNALS ============
@@ -66,9 +64,7 @@ export class UserAccount implements OnInit, OnDestroy {
     }
 
     this.typingService.title(this.title);
-    
-    this.privateStoriesService.loadStories();
-  }
+      }
 
   ngOnDestroy(): void {
     this.typingService.destroy();
