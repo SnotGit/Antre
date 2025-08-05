@@ -15,7 +15,7 @@ export class UserStats {
 
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
-  private readonly UserService = inject(LUserService);
+  private readonly UserService = inject(UserService);
 
   //============ SIGNALS ============
 
