@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, resource } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
 import { UserService } from '@features/user/services/user.service';
@@ -15,22 +15,33 @@ export class UserStats {
 
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
-  private readonly UserService = inject(UserService);
+  private readonly userService = inject(UserService);
 
   //============ SIGNALS ============
 
   currentUser = this.authService.currentUser;
-  stats = this.userService.getStats();
+
+  //============ DATA LOADING ============
+
+  private statsResource = resource({
+    loader: async () => {
+      return await this.userService.getStats();
+    }
+  });
+
+  stats = computed(() => {
+    return this.statsResource.value() || { drafts: 0, published: 0, totalLikes: 0 };
+  });
 
   //============ COMPUTED ============
 
-  UserStats = computed(() => {
-    const stats = this.getStats();
+  userStats = computed(() => {
+    const statsData = this.stats();
     return {
-      totalStories: stats.drafts + stats.published,
-      publishedStories: stats.published,
-      drafts: stats.drafts,
-      totalLikes: stats.totalLikes
+      totalStories: statsData.drafts + statsData.published,
+      publishedStories: statsData.published,
+      drafts: statsData.drafts,
+      totalLikes: statsData.totalLikes
     };
   });
 

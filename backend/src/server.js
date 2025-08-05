@@ -37,7 +37,7 @@ app.use('/api/user', userRoutes);
 
 //============ ROUTES CHRONIQUES ============
 
-const chroniquesRoutes = require('./routes/chroniques.routes');
+const chroniquesRoutes = require('./routes/chroniques/chroniques.routes');
 app.use('/api/chroniques', chroniquesRoutes);
 
 //============ ROUTE DE TEST ============

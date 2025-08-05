@@ -24,6 +24,12 @@ export interface UploadAvatarResponse {
   avatarUrl: string;
 }
 
+export interface UserStats {
+  drafts: number;
+  published: number;
+  totalLikes: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -53,7 +59,7 @@ export class UserService {
 
     try {
       const response = await firstValueFrom(
-        this.http.get<{ message: string; user: User }>(`${this.API_URL}/user/profile`)
+        this.http.get<{ message: string; user: User }>(`${this.API_URL}/profile`)
       );
       
       this.updateUserInStorage(response.user);
@@ -73,7 +79,7 @@ export class UserService {
 
     try {
       const response = await firstValueFrom(
-        this.http.put<{ message: string; user: User }>(`${this.API_URL}/user/profile`, {
+        this.http.put<{ message: string; user: User }>(`${this.API_URL}/profile`, {
           username: username.trim(),
           description: description.trim()
         })
@@ -110,39 +116,13 @@ export class UserService {
     }
   }
 
-  //============ GESTION AVATAR ============
-
-  async uploadAvatar(file: File): Promise<void> {
-    this._loading.set(true);
-    this._error.set(null);
-
-    try {
-      const formData = new FormData();
-      formData.append('avatar', file);
-
-      const response = await firstValueFrom(
-        this.http.post<UploadAvatarResponse>(`${this.API_URL}/upload-avatar`, formData)
-      );
-
-      this.updateUserInStorage(response.user);
-      this._successMessage.set('Avatar mis à jour avec succès');
-
-    } catch (error) {
-      this._error.set(error instanceof Error ? error.message : 'Erreur inconnue');
-    } finally {
-      this._loading.set(false);
-    }
-  }
-
-  //============ GESTION MOT DE PASSE ============
-
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
     this._loading.set(true);
     this._error.set(null);
 
     try {
       await firstValueFrom(
-        this.http.put<{ message: string }>(`${this.API_URL}/change-password`, {
+        this.http.put<{ message: string }>(`${this.API_URL}/password`, {
           currentPassword,
           newPassword
         })
@@ -157,18 +137,60 @@ export class UserService {
     }
   }
 
-  //============ UTILITAIRES ============
+  async uploadAvatar(file: File): Promise<void> {
+    this._loading.set(true);
+    this._error.set(null);
 
-  private updateUserInStorage(user: User): void {
-    this.authService.updateCurrentUser(user);
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const response = await firstValueFrom(
+        this.http.post<UploadAvatarResponse>(`${this.API_URL}/avatar`, formData)
+      );
+
+      this.updateUserInStorage(response.user);
+      this._successMessage.set('Avatar mis à jour avec succès');
+
+    } catch (error) {
+      this._error.set(error instanceof Error ? error.message : 'Erreur inconnue');
+    } finally {
+      this._loading.set(false);
+    }
   }
+
+  //============ STATISTIQUES UTILISATEUR ============
+
+  async getStats(): Promise<UserStats> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<{ stats: UserStats }>(`${this.API_URL}/stats`)
+      );
+      return response.stats || { drafts: 0, published: 0, totalLikes: 0 };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  //============ UTILITIES ============
 
   clearMessages(): void {
     this._error.set(null);
     this._successMessage.set(null);
   }
 
-  clearError(): void {
-    this._error.set(null);
+  private updateUserInStorage(user: User): void {
+    localStorage.setItem('user', JSON.stringify(user));
+    this.authService['_currentUser'].set(user);
+  }
+
+  private handleError(error: any): void {
+    if (error?.error?.message) {
+      this._error.set(error.error.message);
+    } else if (error instanceof Error) {
+      this._error.set(error.message);
+    } else {
+      this._error.set('Erreur inconnue');
+    }
   }
 }

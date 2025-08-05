@@ -1,6 +1,4 @@
 const { PrismaClient } = require('@prisma/client');
-const { authenticateToken } = require('../authController');
-
 const prisma = new PrismaClient();
 
 //======= GET LATEST =======
@@ -11,7 +9,7 @@ const getLatest = async (req, res) => {
       where: { status: 'PUBLISHED' },
       orderBy: { publishedAt: 'desc' },
       take: 20,
-      select: {       
+      select: {
         id: true,
         title: true,
         publishedAt: true,
@@ -57,7 +55,11 @@ const getStory = async (req, res) => {
         id: storyId,
         status: 'PUBLISHED' 
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        publishedAt: true,
         user: {
           select: {
             id: true,
@@ -65,8 +67,7 @@ const getStory = async (req, res) => {
             avatar: true,
             description: true
           }
-        },
-        likes: true
+        }
       }
     });
 
@@ -74,30 +75,11 @@ const getStory = async (req, res) => {
       return res.status(404).json({ error: 'Histoire non trouvée' });
     }
 
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    let currentUserId = null;
-
-    if (token) {
-      try {
-        const jwt = require('jsonwebtoken');
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'votre-secret-jwt-temporaire');
-        currentUserId = decoded.userId;
-      } catch (error) {
-        // Token invalide, utilisateur non connecté
-      }
-    }
-
-    const isLiked = currentUserId ? 
-      story.likes.some(like => like.userId === currentUserId) : false;
-
     const storyReader = {
       id: story.id,
       title: story.title,
       content: story.content,
       publishDate: story.publishedAt.toISOString(),
-      likes: story.likes.length,
-      isliked: isLiked,
       user: {
         id: story.user.id,
         username: story.user.username,
@@ -143,48 +125,6 @@ const getStories = async (req, res) => {
   }
 };
 
-//======= GET STATS =======
-
-const getStats = async (req, res) => {
-  try {
-    const userId = req.user.userId;
-
-    const draftsCount = await prisma.story.count({
-      where: { 
-        userId: userId,
-        status: 'DRAFT' 
-      }
-    });
-
-    const publishedCount = await prisma.story.count({
-      where: { 
-        userId: userId,
-        status: 'PUBLISHED' 
-      }
-    });
-
-    const totalLikes = await prisma.like.count({
-      where: {
-        story: {
-          userId: userId,
-          status: 'PUBLISHED'
-        }
-      }
-    });
-
-    const stats = {
-      drafts: draftsCount,
-      published: publishedCount,
-      totalLikes: totalLikes
-    };
-
-    res.json({ stats });
-
-  } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-};
-
 //======= GET DRAFTS =======
 
 const getDrafts = async (req, res) => {
@@ -210,7 +150,7 @@ const getDrafts = async (req, res) => {
       lastModified: draft.updatedAt.toISOString()
     }));
 
-    res.json({ drafts: draftsList });
+    res.json({ stories: draftsList });
 
   } catch (error) {
     res.status(500).json({ error: 'Erreur serveur' });
@@ -232,19 +172,17 @@ const getPublished = async (req, res) => {
       select: {
         id: true,
         title: true,
-        updatedAt: true,
-        likes: true
+        updatedAt: true
       }
     });
 
     const publishedList = published.map(story => ({
       id: story.id,
       title: story.title,
-      lastModified: story.updatedAt.toISOString(),
-      likes: story.likes.length
+      lastModified: story.updatedAt.toISOString()
     }));
 
-    res.json({ published: publishedList });
+    res.json({ stories: publishedList });
 
   } catch (error) {
     res.status(500).json({ error: 'Erreur serveur' });
@@ -329,7 +267,6 @@ module.exports = {
   getLatest,
   getStory,
   getStories,
-  getStats,
   getDrafts,
   getPublished,
   getDraftStory,
