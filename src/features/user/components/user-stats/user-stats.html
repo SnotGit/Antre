@@ -15,22 +15,22 @@
     <div class="card1-box2">
       <div class="stats-grid">
         <div class="stat-card" (click)="showMyStories()">
-          <div class="stat-number">{{ getUserStats().totalStories }}</div>
+          <div class="stat-number">{{ userStats().totalStories }}</div>
           <div class="stat-label">Histoires</div>
         </div>
 
         <div class="stat-card" (click)="showMyPublishedStories()">
-          <div class="stat-number">{{ getUserStats().publishedStories }}</div>
+          <div class="stat-number">{{ userStats().publishedStories }}</div>
           <div class="stat-label">Histoires publiées</div>
         </div>
 
         <div class="stat-card" (click)="showMyDrafts()">
-          <div class="stat-number">{{ getUserStats().drafts }}</div>
+          <div class="stat-number">{{ userStats().drafts }}</div>
           <div class="stat-label">Brouillons</div>
         </div>
 
         <div class="stat-card no-hover">
-          <div class="stat-number">{{ getUserStats().totalLikes }}</div>
+          <div class="stat-number">{{ userStats().totalLikes }}</div>
           <div class="stat-label">Likes</div>
         </div>
       </div>

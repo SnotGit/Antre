@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angul
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
-import { LoadService } from '@features/chroniques/services/load.service';
+import { UserService } from '@features/user/services/user.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 
 @Component({
@@ -17,7 +17,7 @@ export class MyStories implements OnInit, OnDestroy {
 
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
-  private readonly loadService = inject(LoadService);
+  private readonly userService = inject(UserService);
   private readonly typingService = inject(TypingEffectService);
 
   //============ TYPING EFFECT ============
@@ -32,12 +32,12 @@ export class MyStories implements OnInit, OnDestroy {
 
   private statsResource = resource({
     loader: async () => {
-      return await this.loadService.getStats();
+      return await this.userService.getStats();
     }
   });
 
   stats = computed(() => {
-    return this.statsResource.value() || { drafts: 0, published: 0 };
+    return this.statsResource.value() || { drafts: 0, published: 0, totalLikes: 0 };
   });
 
   //============ LIFECYCLE ============

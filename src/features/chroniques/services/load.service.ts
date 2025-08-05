@@ -53,14 +53,6 @@ export interface Published {
   likes: number;
 }
 
-//======= STATS =======
-
-export interface UserStats {
-  drafts: number;
-  published: number;
-  totalLikes: number;
-}
-
 //======= USER STORIES =======
 
 export interface UserStories {
@@ -87,7 +79,6 @@ export class LoadService {
       );
       return response.stories || [];
     } catch (error) {
-      alert('Erreur lors du chargement des chroniques');
       throw error;
     }
   }
@@ -99,7 +90,6 @@ export class LoadService {
       );
       return response.story;
     } catch (error) {
-      alert('Erreur lors du chargement de l\'histoire');
       throw error;
     }
   }
@@ -111,33 +101,19 @@ export class LoadService {
       );
       return response.stories || [];
     } catch (error) {
-      alert('Erreur lors du chargement des histoires utilisateur');
       throw error;
     }
   }
 
   //======= PRIVATE STORIES =======
 
-  async getStats(): Promise<UserStats> {
-    try {
-      const response = await firstValueFrom(
-        this.http.get<{ stats: UserStats }>(`${this.API_URL}/private/stats`)
-      );
-      return response.stats || { drafts: 0, published: 0, totalLikes: 0 };
-    } catch (error) {
-      alert('Erreur lors du chargement des statistiques');
-      throw error;
-    }
-  }
-
   async getDrafts(): Promise<Draft[]> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ drafts: Draft[] }>(`${this.API_URL}/private/drafts`)
+        this.http.get<{ stories: Draft[] }>(`${this.API_URL}/private/drafts`)
       );
-      return response.drafts || [];
+      return response.stories || [];
     } catch (error) {
-      alert('Erreur lors du chargement des brouillons');
       throw error;
     }
   }
@@ -145,11 +121,10 @@ export class LoadService {
   async getPublished(): Promise<Published[]> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ published: Published[] }>(`${this.API_URL}/private/published`)
+        this.http.get<{ stories: Published[] }>(`${this.API_URL}/private/published`)
       );
-      return response.published || [];
+      return response.stories || [];
     } catch (error) {
-      alert('Erreur lors du chargement des histoires publiées');
       throw error;
     }
   }
@@ -161,7 +136,6 @@ export class LoadService {
       );
       return response.story;
     } catch (error) {
-      alert('Erreur lors du chargement du brouillon');
       throw error;
     }
   }
@@ -173,7 +147,6 @@ export class LoadService {
       );
       return response.story;
     } catch (error) {
-      alert('Erreur lors du chargement de l\'histoire publiée');
       throw error;
     }
   }

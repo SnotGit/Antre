@@ -11,24 +11,24 @@ const {
   getPublished,
   getDraftStory,
   getPublishedStory
-} = require('../controllers/chroniques/loadController');
+} = require('../../controllers/chroniques/loadController');
 
 const {
   createDraft,
   saveDraft,
   publishStory,
   updateStory
-} = require('../controllers/chroniques/saveController');
+} = require('../../controllers/chroniques/saveController');
 
 const {
   deleteStory
-} = require('../controllers/chroniques/deleteController');
+} = require('../../controllers/chroniques/deleteController');
 
 const {
   toggleLike
-} = require('../controllers/chroniques/likeController');
+} = require('../../controllers/user/likeController');
 
-const { authenticateToken } = require('../controllers/authController');
+const { authenticateToken } = require('../../controllers/auth/authController');
 
 const router = express.Router();
 

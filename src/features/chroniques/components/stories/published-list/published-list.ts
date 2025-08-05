@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
 import { LoadService, Published } from '@features/chroniques/services/load.service';
 import { DeleteService } from '@features/chroniques/services/delete.service';
+import { LikeService } from '@features/chroniques/services/like.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 
 @Component({
@@ -20,6 +21,7 @@ export class PublishedList implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly loadService = inject(LoadService);
   private readonly deleteService = inject(DeleteService);
+  private readonly likeService = inject(LikeService);
   private readonly typingService = inject(TypingEffectService);
 
   //============ TYPING EFFECT ============
