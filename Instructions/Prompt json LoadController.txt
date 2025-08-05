@@ -12,7 +12,7 @@
   "controller_specs": {
     "filename": "loadController.js",
     "purpose": "Controller centralisé pour TOUT le chargement de données",
-    "base_route": "/api/load"
+    "base_route": "/api/get"
   },
   "dependencies": [
     "PrismaClient",
@@ -36,24 +36,6 @@
       "path": "/stories/:userId", 
       "auth": false,
       "purpose": "Liste histoires d'un utilisateur pour navigation"
-    },
-    "resolveUsername": {
-      "method": "GET",
-      "path": "/resolve/username/:username",
-      "auth": false,
-      "purpose": "Résoudre username vers userId"
-    },
-    "resolveTitle": {
-      "method": "GET",
-      "path": "/resolve/title/:title",
-      "auth": false, 
-      "purpose": "Résoudre title vers storyId"
-    },
-    "resolveStory": {
-      "method": "GET",
-      "path": "/resolve/story/:username/:title",
-      "auth": false,
-      "purpose": "Résoudre username/title vers storyId et userId"
     },
     "getStats": {
       "method": "GET",
@@ -85,12 +67,7 @@
       "auth": true,
       "purpose": "Histoire publiée pour édition"
     },
-    "toggleLike": {
-      "method": "POST",
-      "path": "/like/:id",
-      "auth": true,
-      "purpose": "Liker/unliker une histoire"
-    }
+
   },
   "database_operations": {
     "prisma_queries": "SELECT avec relations user, likes selon besoins",

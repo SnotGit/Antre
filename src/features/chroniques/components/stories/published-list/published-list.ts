@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, computed, resource, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
 import { LoadService, Published } from '@features/chroniques/services/load.service';
+import { DeleteService } from '@features/chroniques/services/delete.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 
 @Component({
@@ -18,6 +19,7 @@ export class PublishedList implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly loadService = inject(LoadService);
+  private readonly deleteService = inject(DeleteService);
   private readonly typingService = inject(TypingEffectService);
 
   //============ TYPING EFFECT ============
@@ -27,6 +29,10 @@ export class PublishedList implements OnInit, OnDestroy {
   headerTitle = this.typingService.headerTitle;
   showCursor = this.typingService.showCursor;
   typing = this.typingService.typingComplete;
+
+  //============ SELECTION STATE ============
+
+  selectedStories = signal<Set<number>>(new Set());
 
   //============ DATA LOADING ============
 
@@ -39,6 +45,10 @@ export class PublishedList implements OnInit, OnDestroy {
   publishedCards = computed((): Published[] => {
     return this.publishedResource.value() || [];
   });
+
+  //============ COMPUTED ============
+
+  hasSelection = computed(() => this.selectedStories().size > 0);
 
   //============ LIFECYCLE ============
 
@@ -55,10 +65,44 @@ export class PublishedList implements OnInit, OnDestroy {
     this.typingService.destroy();
   }
 
-  //============ ACTIONS ============
+  //============ SELECTION METHODS ============
+
+  toggleSelection(id: number): void {
+    const newSelection = this.deleteService.toggle(id, this.selectedStories());
+    this.selectedStories.set(newSelection);
+  }
+
+  isSelected(id: number): boolean {
+    return this.selectedStories().has(id);
+  }
+
+  //============ DELETE METHODS ============
+
+  async deleteSelected(): Promise<void> {
+    const selectedIds = Array.from(this.selectedStories());
+    if (selectedIds.length === 0) return;
+
+    try {
+      for (const id of selectedIds) {
+        await this.deleteService.delete(id);
+      }
+      
+      this.selectedStories.set(new Set());
+      this.publishedResource.reload();
+      
+    } catch (error) {
+      alert('Erreur lors de la suppression');
+    }
+  }
+
+  //============ NAVIGATION ============
 
   onPublishedCardClick(story: Published): void {
     this.router.navigate(['/chroniques/mes-histoires/publiée/edition', story.title]);
+  }
+
+  goBack(): void {
+    this.router.navigate(['/chroniques/mes-histoires']);
   }
 
   //============ UTILS ============
