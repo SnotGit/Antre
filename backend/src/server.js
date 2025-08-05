@@ -27,12 +27,12 @@ app.use('/uploads', cors(), express.static(path.join(__dirname, '../uploads')));
 
 //============ ROUTES AUTHENTIFICATION ============
 
-const authRoutes = require('./routes/auth.routes');
+const authRoutes = require('./routes/auth/auth.routes');
 app.use('/api/auth', authRoutes);
 
 //============ ROUTES UTILISATEUR ============
 
-const userRoutes = require('./routes/user.routes');
+const userRoutes = require('./routes/user/user.routes');
 app.use('/api/user', userRoutes);
 
 //============ ROUTES CHRONIQUES ============
@@ -64,8 +64,9 @@ app.listen(PORT, () => {
   console.log(`     - GET  /api/user/profile`);
   console.log(`     - PUT  /api/user/profile`);
   console.log(`     - PUT  /api/user/email`);
-  console.log(`     - POST /api/user/upload-avatar`);
-  console.log(`     - PUT  /api/user/change-password`);
+  console.log(`     - PUT  /api/user/password`);
+  console.log(`     - POST /api/user/avatar`);
+  console.log(`     - GET  /api/user/stats`);
   console.log(`   📚 CHRONIQUES PUBLIQUES:`);
   console.log(`     - GET  /api/chroniques/public/stories`);
   console.log(`     - GET  /api/chroniques/public/story/:id`);
