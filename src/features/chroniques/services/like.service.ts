@@ -11,15 +11,17 @@ export class LikeService {
   //======= INJECTIONS =======
 
   private readonly http = inject(HttpClient);
-  private readonly API_URL = `${environment.apiUrl}/like`;
+  private readonly API_URL = `${environment.apiUrl}/chroniques`;
 
   //======= TOGGLE LIKE =======
 
-  async toggle(storyId: number): Promise<void> {
+  async toggle(storyId: number): Promise<{ liked: boolean, likesCount: number }> {
     try {
-      await firstValueFrom(
-        this.http.post(`${this.API_URL}/${storyId}`, {})
+      const response = await firstValueFrom(
+        this.http.post<{ liked: boolean, likesCount: number }>
+        (`${this.API_URL}/public/story/${storyId}/like`, {})
       );
+      return response;
     } catch (error) {
       alert('Erreur lors du like');
       throw error;

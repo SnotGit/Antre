@@ -1,0 +1,28 @@
+Après analyse, j'identifie plusieurs incohérences entre les composants user account et le backend :
+
+
+❌ PROBLÈMES IDENTIFIÉS :
+
+1. user-profile.html - Champs inexistants
+html<!-- CES CHAMPS N'EXISTENT PAS EN BDD ! -->
+<input type="text" name="playerId" [(ngModel)]="playerId" class="form-input">
+<input type="number" name="playerDays" [(ngModel)]="playerDays" class="form-input">
+BDD Schema ne contient que :
+
+username, email, description, avatar, role, createdAt
+
+2. user-stats.ts - Service inexistant
+typescript// CE SERVICE N'EXISTE PLUS !
+private readonly privateStoriesService = inject(PrivateStoriesService);
+Devrait utiliser : UserService.getStats()
+
+3. UserService endpoints - à vérifier
+
+
+🔧 CORRECTIONS NÉCESSAIRES :
+1. Supprimer playerId/playerDays du user-profile
+2. Corriger user-stats pour utiliser LoadService
+3. Vérifier l'interface User dans auth.service
+
+
+Commençons par corriger les champs inexistants. Il faut ajouter tables dans prisma ? Comment faire ?  

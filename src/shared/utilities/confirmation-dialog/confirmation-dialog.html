@@ -2,28 +2,30 @@
   <div class="confirmation-overlay" (click)="confirmationService.onCancel()">
     <div class="confirmation-dialog" (click)="$event.stopPropagation()">
       
-      <div class="dialog-header">
-        <h3 class="dialog-title">{{ confirmationService.config()?.title }}</h3>
-      </div>
+      @if (confirmationService.config(); as config) {
+        <div class="dialog-header">
+          <h3 class="dialog-title">{{ config.title }}</h3>
+        </div>
 
-      <div class="dialog-content">
-        <p class="dialog-message">{{ confirmationService.config()?.message }}</p>
-      </div>
+        <div class="dialog-content">
+          <p class="dialog-message">{{ config.message }}</p>
+        </div>
 
-      <div class="dialog-actions">
-        <button 
-          class="dialog-btn cancel-btn" 
-          (click)="confirmationService.onCancel()">
-          {{ confirmationService.config()?.cancelText }}
-        </button>
-        
-        <button 
-          class="dialog-btn confirm-btn"
-          [class.danger]="confirmationService.config()?.isDanger"
-          (click)="confirmationService.onConfirm()">
-          {{ confirmationService.config()?.confirmText }}
-        </button>
-      </div>
+        <div class="dialog-actions">
+          <button 
+            class="dialog-btn cancel-btn" 
+            (click)="confirmationService.onCancel()">
+            {{ config.cancelText }}
+          </button>
+          
+          <button 
+            class="dialog-btn confirm-btn"
+            [class.danger]="config.isDanger"
+            (click)="confirmationService.onConfirm()">
+            {{ config.confirmText }}
+          </button>
+        </div>
+      }
 
     </div>
   </div>

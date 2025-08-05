@@ -1,5 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
-const { authenticateToken } = require('./authController');
+const { authenticateToken } = require('../authController');
 
 const prisma = new PrismaClient();
 

@@ -30,7 +30,6 @@ export interface StoryCard {
   };
 }
 
-
 //======= EDIT =======
 
 export interface EditStory {
@@ -69,7 +68,6 @@ export interface UserStories {
   title: string;
 }
 
-
 @Injectable({
   providedIn: 'root'
 })
@@ -78,14 +76,14 @@ export class LoadService {
   //======= INJECTIONS =======
 
   private readonly http = inject(HttpClient);
-  private readonly API_URL = `${environment.apiUrl}/get`;
+  private readonly API_URL = `${environment.apiUrl}/chroniques`;
 
   //======= PUBLIC STORIES =======
 
   async getLatest(): Promise<StoryCard[]> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ stories: StoryCard[] }>(`${this.API_URL}/latest`)
+        this.http.get<{ stories: StoryCard[] }>(`${this.API_URL}/public/stories`)
       );
       return response.stories || [];
     } catch (error) {
@@ -97,7 +95,7 @@ export class LoadService {
   async getStory(id: number): Promise<StoryReader> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ story: StoryReader }>(`${this.API_URL}/story/${id}`)
+        this.http.get<{ story: StoryReader }>(`${this.API_URL}/public/story/${id}`)
       );
       return response.story;
     } catch (error) {
@@ -109,7 +107,7 @@ export class LoadService {
   async getStories(userId: number): Promise<UserStories[]> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ stories: UserStories[] }>(`${this.API_URL}/stories/${userId}`)
+        this.http.get<{ stories: UserStories[] }>(`${this.API_URL}/public/user/${userId}/stories`)
       );
       return response.stories || [];
     } catch (error) {
@@ -118,14 +116,12 @@ export class LoadService {
     }
   }
 
-
-
   //======= PRIVATE STORIES =======
 
   async getStats(): Promise<UserStats> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ stats: UserStats }>(`${this.API_URL}/stats`)
+        this.http.get<{ stats: UserStats }>(`${this.API_URL}/private/stats`)
       );
       return response.stats || { drafts: 0, published: 0, totalLikes: 0 };
     } catch (error) {
@@ -137,7 +133,7 @@ export class LoadService {
   async getDrafts(): Promise<Draft[]> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ drafts: Draft[] }>(`${this.API_URL}/drafts`)
+        this.http.get<{ drafts: Draft[] }>(`${this.API_URL}/private/drafts`)
       );
       return response.drafts || [];
     } catch (error) {
@@ -149,7 +145,7 @@ export class LoadService {
   async getPublished(): Promise<Published[]> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ published: Published[] }>(`${this.API_URL}/published`)
+        this.http.get<{ published: Published[] }>(`${this.API_URL}/private/published`)
       );
       return response.published || [];
     } catch (error) {
@@ -161,7 +157,7 @@ export class LoadService {
   async getDraftStory(id: number): Promise<EditStory> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ story: EditStory }>(`${this.API_URL}/draft-story/${id}`)
+        this.http.get<{ story: EditStory }>(`${this.API_URL}/private/draft/${id}`)
       );
       return response.story;
     } catch (error) {
@@ -173,7 +169,7 @@ export class LoadService {
   async getPublishedStory(id: number): Promise<EditStory> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ story: EditStory }>(`${this.API_URL}/published-story/${id}`)
+        this.http.get<{ story: EditStory }>(`${this.API_URL}/private/published/${id}`)
       );
       return response.story;
     } catch (error) {
@@ -181,6 +177,4 @@ export class LoadService {
       throw error;
     }
   }
-
-
 }

@@ -19,7 +19,7 @@ export class ConfirmationDialogService {
   isVisible = this.visible.asReadonly();
   config = this.dialogConfig.asReadonly();
 
-  //============ PROMISES ROBUSTES ============
+  //============ DELETE STORY ============
 
   confirmDeleteStory(isNewStory: boolean): Promise<boolean> {
     const config: ConfirmationConfig = {
@@ -35,6 +35,22 @@ export class ConfirmationDialogService {
     return this.showDialog(config);
   }
 
+  //============ DELETE MULTIPLE ============
+
+  confirmDeleteMultiple(count: number): Promise<boolean> {
+    const config: ConfirmationConfig = {
+      title: 'Suppression multiple',
+      message: `Êtes-vous sûr de vouloir supprimer ${count} histoire${count > 1 ? 's' : ''} ?`,
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      isDanger: true
+    };
+
+    return this.showDialog(config);
+  }
+
+  //============ PUBLISH STORY ============
+
   confirmPublishStory(): Promise<boolean> {
     const config: ConfirmationConfig = {
       title: 'Publier l\'histoire',
@@ -47,10 +63,9 @@ export class ConfirmationDialogService {
     return this.showDialog(config);
   }
 
-  //============ CORE DIALOG LOGIC ============
+  //============ DIALOG CORE ============
 
   private showDialog(config: ConfirmationConfig): Promise<boolean> {
-    // Cleanup any previous dialog
     this.forceCloseDialog();
 
     return new Promise<boolean>((resolve) => {
@@ -70,21 +85,18 @@ export class ConfirmationDialogService {
     this.closeDialog(false);
   }
 
-  //============ CLEANUP LOGIC ============
+  //============ CLEANUP ============
 
   private closeDialog(result: boolean): void {
-    // Always resolve the Promise first
     if (this.resolvePromise) {
       this.resolvePromise(result);
       this.resolvePromise = null;
     }
 
-    // Then cleanup the UI
     this.cleanup();
   }
 
   private forceCloseDialog(): void {
-    // Resolve any pending Promise with false
     if (this.resolvePromise) {
       this.resolvePromise(false);
       this.resolvePromise = null;
