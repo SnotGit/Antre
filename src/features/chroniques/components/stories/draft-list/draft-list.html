@@ -4,6 +4,20 @@
     <h1 class="header-title" [class.typing]="typing()">
       {{ headerTitle() }}
     </h1>
+
+    <div class="back-button">
+      <button class="btn" (click)="goBack()">
+        <span>← Retour</span>
+      </button>
+    </div>
+
+    @if (hasSelection()) {
+      <div class="delete-button">
+        <button class="btn" (click)="deleteSelected()">
+          <span>Supprimer ({{ selectedStories().size }})</span>
+        </button>
+      </div>
+    }
   </div>
 
   <div class="separator">
@@ -14,9 +28,14 @@
     <div class="content-grid">
       @for (draft of draftCards(); track draft.id) {
         <div class="story-card-btn" (click)="onDraftCardClick(draft)">
-          <div class="btn">
+          <div class="btn" [class.selected]="isSelected(draft.id)">
             <div class="story-title">{{ draft.title }}</div>
             <div class="story-date">{{ formatDate(draft.lastModified) }}</div>
+            
+            <input type="checkbox" 
+                   class="delete-checkbox"
+                   [checked]="isSelected(draft.id)"
+                   (click)="$event.stopPropagation(); toggleSelection(draft.id)">
           </div>
         </div>
       }
