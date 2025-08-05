@@ -11,18 +11,19 @@ BDD Schema ne contient que :
 
 username, email, description, avatar, role, createdAt
 
-2. user-stats.ts - Service inexistant
-typescript// CE SERVICE N'EXISTE PLUS !
+2. user-stats.ts 
+privateStoriesService = CE SERVICE N'EXISTE PLUS !
 private readonly privateStoriesService = inject(PrivateStoriesService);
 Devrait utiliser : UserService.getStats()
+Nouveau user-service. 
 
 3. UserService endpoints - à vérifier
 
 
 🔧 CORRECTIONS NÉCESSAIRES :
 1. Supprimer playerId/playerDays du user-profile
-2. Corriger user-stats pour utiliser LoadService
+2. Corriger user-stats pour utiliser UserService
 3. Vérifier l'interface User dans auth.service
 
 
-Commençons par corriger les champs inexistants. Il faut ajouter tables dans prisma ? Comment faire ?  
+Commençons par corriger les champs inexistants. Il faut ajouter ces tables dans prisma ? Comment faire ?  
