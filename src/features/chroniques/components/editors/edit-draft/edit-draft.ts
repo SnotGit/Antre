@@ -137,7 +137,7 @@ export class DraftEditor implements OnInit, OnDestroy {
 
   async deleteStory(): Promise<void> {
     try {
-      await this.deleteService.delete(this.storyId());
+      await this.deleteService.deleteStory(this.storyId());
       this.router.navigate(['/chroniques/mes-histoires']);
     } catch (error) {
       alert('Erreur lors de la suppression');

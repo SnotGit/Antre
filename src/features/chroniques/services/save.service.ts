@@ -26,7 +26,7 @@ export class SaveService {
   //======= INJECTIONS =======
 
   private readonly http = inject(HttpClient);
-  private readonly API_URL = `${environment.apiUrl}/private-stories`;
+  private readonly API_URL = `${environment.apiUrl}/chroniques`;
 
   //======= DEBOUNCE =======
 
@@ -38,7 +38,7 @@ export class SaveService {
   async createStory(): Promise<number> {
     try {
       const response = await firstValueFrom(
-        this.http.post<StoryResponse>(`${this.API_URL}/draft`, {
+        this.http.post<StoryResponse>(`${this.API_URL}/private/draft`, {
           title: '',
           content: ''
         })
@@ -55,7 +55,7 @@ export class SaveService {
   async createDraftFromPublished(originalId: number, data: StoryFormData): Promise<number> {
     try {
       const response = await firstValueFrom(
-        this.http.post<StoryResponse>(`${this.API_URL}/draft`, {
+        this.http.post<StoryResponse>(`${this.API_URL}/private/draft`, {
           title: data.title,
           content: data.content,
           originalStoryId: originalId
@@ -68,7 +68,7 @@ export class SaveService {
     }
   }
 
-  //======= SAVE BDD =======
+  //======= SAVE DATABASE=======
 
   save(id: number, data: StoryFormData): void {
     if (this.saveTimeout) {
@@ -78,7 +78,7 @@ export class SaveService {
     this.saveTimeout = window.setTimeout(async () => {
       try {
         await firstValueFrom(
-          this.http.put(`${this.API_URL}/draft/${id}`, data)
+          this.http.put(`${this.API_URL}/private/draft/${id}`, data)
         );
       } catch (error) {
         alert('Erreur lors de la sauvegarde');
@@ -124,7 +124,7 @@ export class SaveService {
   async publish(id: number): Promise<void> {
     try {
       await firstValueFrom(
-        this.http.post(`${this.API_URL}/publish/${id}`, {})
+        this.http.post(`${this.API_URL}/private/publish/${id}`, {})
       );
     } catch (error) {
       alert('Erreur lors de la publication');
@@ -137,7 +137,7 @@ export class SaveService {
   async update(id: number, data: StoryFormData): Promise<void> {
     try {
       await firstValueFrom(
-        this.http.put(`${this.API_URL}/story/${id}`, data)
+        this.http.put(`${this.API_URL}/private/story/${id}`, data)
       );
     } catch (error) {
       alert('Erreur lors de la mise à jour');

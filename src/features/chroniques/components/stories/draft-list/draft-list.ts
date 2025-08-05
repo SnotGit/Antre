@@ -80,19 +80,10 @@ export class DraftList implements OnInit, OnDestroy {
 
   async deleteSelected(): Promise<void> {
     const selectedIds = Array.from(this.selectedStories());
-    if (selectedIds.length === 0) return;
 
-    try {
-      for (const id of selectedIds) {
-        await this.deleteService.delete(id);
-      }
-      
-      this.selectedStories.set(new Set());
-      this.draftsResource.reload();
-      
-    } catch (error) {
-      alert('Erreur lors de la suppression');
-    }
+    await this.deleteService.deleteSelected(selectedIds);
+    this.selectedStories.set(new Set());
+    this.draftsResource.reload();
   }
 
   //============ NAVIGATION ============

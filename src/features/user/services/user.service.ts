@@ -53,7 +53,7 @@ export class UserService {
 
     try {
       const response = await firstValueFrom(
-        this.http.get<{ message: string; user: User }>(`${this.API_URL}/profile`)
+        this.http.get<{ message: string; user: User }>(`${this.API_URL}/user/profile`)
       );
       
       this.updateUserInStorage(response.user);
@@ -73,7 +73,7 @@ export class UserService {
 
     try {
       const response = await firstValueFrom(
-        this.http.put<{ message: string; user: User }>(`${this.API_URL}/profile`, {
+        this.http.put<{ message: string; user: User }>(`${this.API_URL}/user/profile`, {
           username: username.trim(),
           description: description.trim()
         })

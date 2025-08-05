@@ -1,7 +1,7 @@
 import { Component, inject, computed } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../auth/services/auth.service';
-import { PrivateStoriesService } from '../../../chroniques/services/private-stories.service';
+import { AuthService } from '@features/auth/services/auth.service';
+import { UserService } from '@features/user/services/user.service';
 
 @Component({
   selector: 'app-user-stats',
@@ -15,17 +15,17 @@ export class UserStats {
 
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
-  private readonly privateStoriesService = inject(PrivateStoriesService);
+  private readonly UserService = inject(LUserService);
 
   //============ SIGNALS ============
 
   currentUser = this.authService.currentUser;
-  stats = this.privateStoriesService.stats;
+  stats = this.userService.getStats();
 
   //============ COMPUTED ============
 
-  getUserStats = computed(() => {
-    const stats = this.stats();
+  UserStats = computed(() => {
+    const stats = this.getStats();
     return {
       totalStories: stats.drafts + stats.published,
       publishedStories: stats.published,

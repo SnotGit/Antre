@@ -35,15 +35,10 @@ app.use('/api/auth', authRoutes);
 const userRoutes = require('./routes/user.routes');
 app.use('/api/user', userRoutes);
 
-//============ ROUTES STORIES PRIVÉES ============
+//============ ROUTES CHRONIQUES ============
 
-const privateStoriesRoutes = require('./routes/privateStories.routes');
-app.use('/api/private-stories', privateStoriesRoutes);
-
-//============ ROUTES STORIES PUBLIQUES ============
-
-const publicStoriesRoutes = require('./routes/publicStories.routes');
-app.use('/api/public-stories', publicStoriesRoutes);
+const chroniquesRoutes = require('./routes/chroniques.routes');
+app.use('/api/chroniques', chroniquesRoutes);
 
 //============ ROUTE DE TEST ============
 
@@ -71,23 +66,20 @@ app.listen(PORT, () => {
   console.log(`     - PUT  /api/user/email`);
   console.log(`     - POST /api/user/upload-avatar`);
   console.log(`     - PUT  /api/user/change-password`);
-  console.log(`   🔒 STORIES PRIVÉES:`);
-  console.log(`     - GET  /api/private-stories/stats`);
-  console.log(`     - GET  /api/private-stories/drafts`);
-  console.log(`     - GET  /api/private-stories/published`);
-  console.log(`     - GET  /api/private-stories/resolve/:title`);
-  console.log(`     - GET  /api/private-stories/edit/:id`);
-  console.log(`     - POST /api/private-stories/draft`);
-  console.log(`     - PUT  /api/private-stories/draft/:id`);
-  console.log(`     - POST /api/private-stories/publish/:id`);
-  console.log(`     - POST /api/private-stories/update/:id`);
-  console.log(`     - DELETE /api/private-stories/story/:id`);
-  console.log(`     - POST /api/private-stories/story/:id/like`);
-  console.log(`   🌍 STORIES PUBLIQUES:`);
-  console.log(`     - GET  /api/public-stories/stories`);
-  console.log(`     - GET  /api/public-stories/story/:id`);
-  console.log(`     - GET  /api/public-stories/user/:id/stories`);
-  console.log(`     - GET  /api/public-stories/user/:id/profile`);
-  console.log(`     - GET  /api/public-stories/resolve/:username`);
-  console.log(`     - GET  /api/public-stories/resolve/:username/:title`);
+  console.log(`   📚 CHRONIQUES PUBLIQUES:`);
+  console.log(`     - GET  /api/chroniques/public/stories`);
+  console.log(`     - GET  /api/chroniques/public/story/:id`);
+  console.log(`     - GET  /api/chroniques/public/user/:userId/stories`);
+  console.log(`     - POST /api/chroniques/public/story/:id/like`);
+  console.log(`   🔒 CHRONIQUES PRIVÉES:`);
+  console.log(`     - GET  /api/chroniques/private/stats`);
+  console.log(`     - GET  /api/chroniques/private/drafts`);
+  console.log(`     - GET  /api/chroniques/private/published`);
+  console.log(`     - GET  /api/chroniques/private/draft/:id`);
+  console.log(`     - GET  /api/chroniques/private/published/:id`);
+  console.log(`     - POST /api/chroniques/private/draft`);
+  console.log(`     - PUT  /api/chroniques/private/draft/:id`);
+  console.log(`     - POST /api/chroniques/private/publish/:id`);
+  console.log(`     - PUT  /api/chroniques/private/story/:id`);
+  console.log(`     - DELETE /api/chroniques/private/story/:id`);
 });
