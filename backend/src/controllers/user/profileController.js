@@ -5,6 +5,20 @@ const fs = require('fs');
 
 const prisma = new PrismaClient();
 
+//======= CONSTANTS =======
+
+const USER_SELECT = {
+  id: true,
+  username: true,
+  email: true,
+  description: true,
+  avatar: true,
+  role: true,
+  createdAt: true,
+  playerId: true,
+  playerDays: true
+};
+
 //======= MULTER CONFIG =======
 
 const storage = multer.diskStorage({
@@ -34,45 +48,125 @@ const upload = multer({
   }
 });
 
-//======= GET PROFILE =======
+//======= HELPERS =======
 
-const getProfile = async (req, res) => {
-  try {
-    const userId = req.user.userId;
+const handleError = (res, error) => {
+  console.error(error);
+  res.status(500).json({ error: 'Erreur serveur' });
+};
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        description: true,
-        avatar: true,
-        role: true,
-        createdAt: true
-      }
-    });
+const getUserField = async (userId, field) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { [field]: true }
+  });
+  
+  if (!user) {
+    throw new Error('Utilisateur non trouvé');
+  }
+  
+  return { [field]: user[field] };
+};
 
-    if (!user) {
-      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+const updateUserField = async (userId, field, value, message) => {
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: { [field]: value },
+    select: USER_SELECT
+  });
+
+  return {
+    message,
+    user: updatedUser
+  };
+};
+
+const cleanupAvatar = async (userId) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { avatar: true }
+  });
+
+  if (user?.avatar) {
+    const oldAvatarPath = path.join('uploads', user.avatar);
+    if (fs.existsSync(oldAvatarPath)) {
+      fs.unlinkSync(oldAvatarPath);
     }
-
-    res.json({ 
-      message: 'Profil récupéré',
-      user 
-    });
-
-  } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
   }
 };
 
-//======= UPDATE PROFILE =======
+//======= AVATAR ENDPOINTS =======
 
-const updateProfile = async (req, res) => {
+const uploadAvatar = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const { username, description, playerId, playerDays } = req.body;
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'Aucun fichier fourni' });
+    }
+
+    await cleanupAvatar(userId);
+    
+    const avatarUrl = `/avatars/${req.file.filename}`;
+    const result = await updateUserField(userId, 'avatar', avatarUrl, 'Avatar mis à jour avec succès');
+    
+    res.json({ ...result, avatarUrl });
+
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
+const getAvatar = async (req, res) => {
+  try {
+    const result = await getUserField(req.user.userId, 'avatar');
+    res.json(result);
+  } catch (error) {
+    if (error.message === 'Utilisateur non trouvé') {
+      return res.status(404).json({ error: error.message });
+    }
+    handleError(res, error);
+  }
+};
+
+const updateAvatar = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'Aucun fichier fourni' });
+    }
+
+    await cleanupAvatar(userId);
+    
+    const avatarUrl = `/avatars/${req.file.filename}`;
+    const result = await updateUserField(userId, 'avatar', avatarUrl, 'Avatar mis à jour avec succès');
+    
+    res.json({ ...result, avatarUrl });
+
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
+//======= USERNAME ENDPOINTS =======
+
+const getUsername = async (req, res) => {
+  try {
+    const result = await getUserField(req.user.userId, 'username');
+    res.json(result);
+  } catch (error) {
+    if (error.message === 'Utilisateur non trouvé') {
+      return res.status(404).json({ error: error.message });
+    }
+    handleError(res, error);
+  }
+};
+
+const updateUsername = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { username } = req.body;
 
     if (!username || username.trim().length < 3) {
       return res.status(400).json({ error: 'Nom d\'utilisateur requis (minimum 3 caractères)' });
@@ -89,96 +183,107 @@ const updateProfile = async (req, res) => {
       return res.status(400).json({ error: 'Ce nom d\'utilisateur est déjà pris' });
     }
 
-    const updateData = {
-      username: username.trim(),
-      description: description ? description.trim() : null
-    };
-
-    if (playerId !== undefined) {
-      updateData.playerId = playerId ? playerId.trim() : null;
-    }
-    if (playerDays !== undefined) {
-      updateData.playerDays = playerDays ? parseInt(playerDays) : null;
-    }
-
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: updateData,
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        description: true,
-        avatar: true,
-        role: true,
-        createdAt: true,
-        playerId: true,
-        playerDays: true
-      }
-    });
-
-    res.json({
-      message: 'Profil mis à jour avec succès',
-      user: updatedUser
-    });
+    const result = await updateUserField(userId, 'username', username.trim(), 'Nom d\'utilisateur mis à jour avec succès');
+    res.json(result);
 
   } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    handleError(res, error);
   }
 };
 
-//======= UPLOAD AVATAR =======
+//======= DESCRIPTION ENDPOINTS =======
 
-const uploadAvatar = async (req, res) => {
+const getDescription = async (req, res) => {
   try {
-    const userId = req.user.userId;
-
-    if (!req.file) {
-      return res.status(400).json({ error: 'Aucun fichier fourni' });
+    const result = await getUserField(req.user.userId, 'description');
+    res.json(result);
+  } catch (error) {
+    if (error.message === 'Utilisateur non trouvé') {
+      return res.status(404).json({ error: error.message });
     }
+    handleError(res, error);
+  }
+};
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId }
-    });
-
-    if (user.avatar) {
-      const oldAvatarPath = path.join('uploads', user.avatar);
-      if (fs.existsSync(oldAvatarPath)) {
-        fs.unlinkSync(oldAvatarPath);
-      }
-    }
-
-    const avatarUrl = `/avatars/${req.file.filename}`;
-
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { avatar: avatarUrl },
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        description: true,
-        avatar: true,
-        role: true,
-        createdAt: true
-      }
-    });
-
-    res.json({
-      message: 'Avatar mis à jour avec succès',
-      user: updatedUser,
-      avatarUrl: avatarUrl
-    });
+const updateDescription = async (req, res) => {
+  try {
+    const { description } = req.body;
+    const value = description ? description.trim() : null;
+    
+    const result = await updateUserField(req.user.userId, 'description', value, 'Description mise à jour avec succès');
+    res.json(result);
 
   } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    handleError(res, error);
+  }
+};
+
+//======= PLAYER ID ENDPOINTS =======
+
+const getPlayerId = async (req, res) => {
+  try {
+    const result = await getUserField(req.user.userId, 'playerId');
+    res.json(result);
+  } catch (error) {
+    if (error.message === 'Utilisateur non trouvé') {
+      return res.status(404).json({ error: error.message });
+    }
+    handleError(res, error);
+  }
+};
+
+const updatePlayerId = async (req, res) => {
+  try {
+    const { playerId } = req.body;
+    const value = playerId ? playerId.trim() : null;
+    
+    const result = await updateUserField(req.user.userId, 'playerId', value, 'ID Joueur mis à jour avec succès');
+    res.json(result);
+
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
+//======= PLAYER DAYS ENDPOINTS =======
+
+const getPlayerDays = async (req, res) => {
+  try {
+    const result = await getUserField(req.user.userId, 'playerDays');
+    res.json(result);
+  } catch (error) {
+    if (error.message === 'Utilisateur non trouvé') {
+      return res.status(404).json({ error: error.message });
+    }
+    handleError(res, error);
+  }
+};
+
+const updatePlayerDays = async (req, res) => {
+  try {
+    const { playerDays } = req.body;
+    const value = playerDays ? parseInt(playerDays) : null;
+    
+    const result = await updateUserField(req.user.userId, 'playerDays', value, 'Jours sur Mars mis à jour avec succès');
+    res.json(result);
+
+  } catch (error) {
+    handleError(res, error);
   }
 };
 
 //======= EXPORTS =======
 
 module.exports = {
-  getProfile,
-  updateProfile,
-  uploadAvatar: [upload.single('avatar'), uploadAvatar]
+  uploadAvatar: [upload.single('avatar'), uploadAvatar],
+  getAvatar,
+  updateAvatar: [upload.single('avatar'), updateAvatar],
+  getUsername,
+  updateUsername,
+  getDescription,
+  updateDescription,
+  getPlayerId,
+  updatePlayerId,
+  getPlayerDays,
+  updatePlayerDays
 };
