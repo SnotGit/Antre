@@ -14,7 +14,7 @@ interface StoryData {
   templateUrl: './story-card.html',
   styleUrl: './story-card.scss'
 })
-export class StoryCard {
+export class StoryCardComponent {
   
   story = input.required<StoryData>();
   cardClick = output<StoryData>();

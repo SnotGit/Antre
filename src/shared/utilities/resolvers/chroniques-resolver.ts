@@ -27,7 +27,7 @@ type ResolvedData = PrivateStoryResolve | PublicStoryResolve | UserResolve | nul
 export const chroniquesResolver: ResolveFn<ResolvedData> = async (route) => {
   const http = inject(HttpClient);
   const loadService = inject(LoadService);
-  const API_URL = `${environment.apiUrl}/resolve`;
+  const API_URL = `${environment.apiUrl}/chroniques`;
   
   const segments = route.url.map(segment => segment.path);
   const fullPath = segments.join('/');
@@ -67,7 +67,7 @@ export const chroniquesResolver: ResolveFn<ResolvedData> = async (route) => {
     
     try {
       const response = await firstValueFrom(
-        http.get<{ storyId: number }>(`${API_URL}/title/${title}`)
+        http.get<{ storyId: number }>(`${API_URL}/private/resolve/title/${title}`)
       );
       
       const isDraft = segments.includes('brouillon');
@@ -94,7 +94,7 @@ export const chroniquesResolver: ResolveFn<ResolvedData> = async (route) => {
   if (username && !title) {
     try {
       const response = await firstValueFrom(
-        http.get<{ userId: number }>(`${API_URL}/username/${username}`)
+        http.get<{ userId: number }>(`${API_URL}/resolve/username/${username}`)
       );
       
       return { userId: response.userId } as UserResolve;
@@ -107,8 +107,8 @@ export const chroniquesResolver: ResolveFn<ResolvedData> = async (route) => {
   if (username && title) {
     try {
       const [userResponse, storyResponse] = await Promise.all([
-        firstValueFrom(http.get<{ userId: number }>(`${API_URL}/username/${username}`)),
-        firstValueFrom(http.get<{ storyId: number }>(`${API_URL}/story/${username}/${title}`))
+        firstValueFrom(http.get<{ userId: number }>(`${API_URL}/resolve/username/${username}`)),
+        firstValueFrom(http.get<{ storyId: number }>(`${API_URL}/resolve/story/${username}/${title}`))
       ]);
       
       return {

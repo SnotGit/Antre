@@ -3,11 +3,10 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { LoadService, StoryCard } from '@features/chroniques/services/load.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
-import { StoryCard as StoryCardComponent } from './story-card/story-card';
 
 @Component({
   selector: 'app-chroniques',
-  imports: [CommonModule, StoryCardComponent],
+  imports: [CommonModule],
   templateUrl: './chroniques.html',
   styleUrl: './chroniques.scss'
 })

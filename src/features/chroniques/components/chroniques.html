@@ -13,7 +13,7 @@
   <div class="content">
     @if (storyCards().length > 0) {
       <div class="chroniques-grid">
-        @for (storyCard of storyCards(); track storyCard.storyId) {
+        @for (storyCard of storyCards(); track storyCard.id) {
           <app-story-card 
             [story]="storyCard"
             (cardClick)="onStoryCardClick(storyCard)">
