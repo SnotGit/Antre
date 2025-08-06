@@ -3,7 +3,7 @@ const prisma = new PrismaClient();
 
 //======= GET LATEST =======
 
-const getLatest = async (req, res) => {
+const getLatest = async (_req, res) => {
   try {
     const stories = await prisma.story.findMany({
       where: { status: 'PUBLISHED' },

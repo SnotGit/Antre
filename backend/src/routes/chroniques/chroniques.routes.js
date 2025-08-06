@@ -1,17 +1,20 @@
 const express = require('express');
+const router = express.Router();
 
 //======= CONTROLLERS =======
-
 const { 
   getLatest,
   getStory,
   getStories,
-  getStats,
   getDrafts,
   getPublished,
   getDraftStory,
   getPublishedStory
 } = require('../../controllers/chroniques/loadController');
+
+const {
+  getStats
+} = require('../../controllers/user/statsController');
 
 const {
   createDraft,
@@ -27,34 +30,28 @@ const {
 const {
   getUserByUsername,
   getStoryByTitle,
-  getStoryByUsernameAndTitle
+  getStoryByUsernameAndTitle,
 } = require('../../controllers/chroniques/resolverController');
 
 const {
-  toggleLike
+  toggleLike,
+  getTotalLikes,
+  getLikes
 } = require('../../controllers/user/likeController');
 
 const { authenticateToken } = require('../../controllers/auth/authController');
 
-const router = express.Router();
-
-//======= PUBLIC ROUTES =======
-
+//======= ROUTES PUBLIQUES =======
 router.get('/public/stories', getLatest);
 router.get('/public/story/:id', getStory);
 router.get('/public/user/:userId/stories', getStories);
+router.get('/public/story/:id/likes', getLikes);
 
-//======= RESOLVER ROUTES =======
-
+//======= RESOLVER ROUTES PUBLIQUES =======
 router.get('/resolve/username/:username', getUserByUsername);
 router.get('/resolve/story/:username/:title', getStoryByUsernameAndTitle);
 
-//======= PUBLIC ROUTES WITH AUTH =======
-
-router.post('/public/story/:id/like', authenticateToken, toggleLike);
-
-//======= PRIVATE ROUTES =======
-
+//======= ROUTES PRIVÉES =======
 const privateRouter = express.Router();
 privateRouter.use(authenticateToken);
 
@@ -63,16 +60,15 @@ privateRouter.get('/drafts', getDrafts);
 privateRouter.get('/published', getPublished);
 privateRouter.get('/draft/:id', getDraftStory);
 privateRouter.get('/published/:id', getPublishedStory);
-
 privateRouter.post('/draft', createDraft);
 privateRouter.put('/draft/:id', saveDraft);
-privateRouter.post('/publish/:id', publishStory);  
+privateRouter.post('/publish/:id', publishStory); 
 privateRouter.put('/story/:id', updateStory);
-
 privateRouter.delete('/story/:id', deleteStory);
+privateRouter.put('/story/:id/like', toggleLike);
+privateRouter.get('/user/:userId/totalLikes', getTotalLikes);
 
-//======= PRIVATE RESOLVER ROUTES =======
-
+//======= RESOLVER ROUTES PRIVÉES =======
 privateRouter.get('/resolve/title/:title', getStoryByTitle);
 
 router.use('/private', privateRouter);

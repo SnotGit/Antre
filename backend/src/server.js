@@ -46,7 +46,7 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     message: 'L\'Antre API fonctionne !', 
     timestamp: new Date().toISOString(),
-    version: '3.0'
+    version: '4.0 - Architecture Refactorisée'
   });
 });
 
@@ -55,18 +55,33 @@ app.get('/api/health', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 L'Antre API démarrée sur http://localhost:${PORT}`);
   console.log(`📋 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`📖 Architecture API Corrigée:`);
+  console.log(`📖 Architecture API Refactorisée (1 route = 1 responsabilité):`);
   console.log(`   🔐 AUTHENTIFICATION:`);
   console.log(`     - POST /api/auth/register`);
   console.log(`     - POST /api/auth/login`);
   console.log(`     - GET  /api/auth/validate`);
-  console.log(`   👤 UTILISATEUR:`);
-  console.log(`     - GET  /api/user/profile`);
-  console.log(`     - PUT  /api/user/profile`);
-  console.log(`     - PUT  /api/user/email`);
-  console.log(`     - PUT  /api/user/password`);
-  console.log(`     - POST /api/user/avatar`);
+  console.log(`   👤 PROFIL UTILISATEUR:`);
+  console.log(`     - POST /api/user/profile/avatar`);
+  console.log(`     - GET  /api/user/profile/avatar`);
+  console.log(`     - PUT  /api/user/profile/avatar`);
+  console.log(`     - GET  /api/user/profile/username`);
+  console.log(`     - PUT  /api/user/profile/username`);
+  console.log(`     - GET  /api/user/profile/description`);
+  console.log(`     - PUT  /api/user/profile/description`);
+  console.log(`     - GET  /api/user/profile/playerId`);
+  console.log(`     - PUT  /api/user/profile/playerId`);
+  console.log(`     - GET  /api/user/profile/playerDays`);
+  console.log(`     - PUT  /api/user/profile/playerDays`);
+  console.log(`   🔑 IDENTIFIANTS UTILISATEUR:`);
+  console.log(`     - PUT  /api/user/credentials/email`);
+  console.log(`     - PUT  /api/user/credentials/password`);
+  console.log(`   📊 STATISTIQUES UTILISATEUR:`);
   console.log(`     - GET  /api/user/stats`);
+  console.log(`   ❤️  LIKES UTILISATEUR:`);
+  console.log(`     - GET  /api/user/likes/story/:id/count`);
+  console.log(`     - GET  /api/user/likes/user/:userId/total`);
+  console.log(`     - GET  /api/user/likes/story/:id/status`);
+  console.log(`     - POST /api/user/likes/story/:id/toggle`);
   console.log(`   📚 CHRONIQUES PUBLIQUES:`);
   console.log(`     - GET  /api/chroniques/public/stories`);
   console.log(`     - GET  /api/chroniques/public/story/:id`);
