@@ -1,7 +1,7 @@
 import { Component, inject, computed, resource } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { AuthService } from '../../../auth/services/auth.service';
+import { AuthService } from '../../../user/services/auth.service';
 import { LoadService } from '@features/chroniques/services/load.service';
 import { LikeService } from '@features/chroniques/services/like.service';
 

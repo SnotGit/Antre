@@ -78,8 +78,9 @@
     align-items: center;
     gap: 15px;
     padding: 40px 60px;
-    min-width: 200px;
-    min-height: 150px;
+    min-width: 280px;
+    min-height: 160px;
+    border-radius: 16px;
     
     .number {
       font-size: 48px;
@@ -102,7 +103,7 @@
       }
       
       .title {
-        color: #5d889e;
+        color: #d0d0d0;
       }
     }
   }

@@ -1,10 +1,7 @@
 <div class="user-profile-content">
   <div class="title">
     <div class="title-box1">
-      <h2 class="section-title">Profil utilisateur</h2>
-    </div>
-    <div class="title-box2">
-      <!-- VIDE -->
+      <h2 class="title-section">Profil utilisateur</h2>
     </div>
   </div>
 
@@ -14,11 +11,9 @@
     </div>
     <div class="card1-box2">
       <form class="profile-form" (ngSubmit)="saveProfile()" #profileForm="ngForm">
-        <!-- Upload d'avatar -->
         <div class="avatar-section">
           <div class="avatar-container">
-            <div class="avatar-circle"
-              [style.background-image]="getAvatarUrl() ? 'url(' + getAvatarUrl() + ')' : ''">
+            <div class="avatar-circle" [style.background-image]="AvatarUrl() ? 'url(' + AvatarUrl() + ')' : ''">
             </div>
             <button type="button" class="avatar-upload-btn" (click)="triggerFileInput()">
               Changer
@@ -26,37 +21,32 @@
           </div>
         </div>
 
-        <!-- Nom d'utilisateur -->
         <div class="form-field">
           <label class="field-label">Nom d'utilisateur</label>
-          <input type="text" name="username" [(ngModel)]="username" class="form-input" required
-            minlength="3" maxlength="50" [disabled]="loading()">
+          <input type="text" name="username" [(ngModel)]="username" class="form-input" required minlength="3"
+            maxlength="50" [disabled]="loading()">
         </div>
 
-        <!-- Description -->
         <div class="form-field">
           <label class="field-label">Description</label>
-          <textarea name="description" [(ngModel)]="description" class="form-textarea"
-            placeholder="Parlez-nous de vous..." maxlength="500" rows="4" [disabled]="loading()">
+          <textarea name="description" [(ngModel)]="description" class="form-textarea" placeholder="Qui êtes vous ?"
+            maxlength="500" rows="4" [disabled]="loading()">
             </textarea>
         </div>
 
-        <!-- ID Joueur et Jours sur Mars en ligne -->
         <div class="form-row">
           <div class="form-field">
             <label class="field-label">ID Joueur</label>
-            <input type="text" name="playerId" [(ngModel)]="playerId" class="form-input"
-              maxlength="20" [disabled]="loading()">
-          </div>
-          
-          <div class="form-field">
-            <label class="field-label">Jours sur Mars</label>
-            <input type="number" name="playerDays" [(ngModel)]="playerDays" class="form-input"
+            <input type="text" name="playerId" [(ngModel)]="playerId" class="form-input" maxlength="20"
               [disabled]="loading()">
           </div>
-        </div>        
 
-        <!-- Actions profil -->
+          <div class="form-field">
+            <label class="field-label">Jours sur Mars</label>
+            <input type="number" name="playerDays" [(ngModel)]="playerDays" class="form-input" [disabled]="loading()">
+          </div>
+        </div>
+
         <div class="form-actions">
           <button type="submit" class="save-btn" [disabled]="loading() || !isProfileValid()">
             @if (loading()) {
@@ -69,10 +59,18 @@
         </div>
       </form>
     </div>
-    <div class="card1-box3">
-      <!-- VIDE -->
-    </div>
+
   </div>
 
+
   <input type="file" #fileInput accept="image/*" (change)="onAvatarSelected($event)" style="display: none;">
+
+
+
+  <div class="delete-section">
+    <h2 class="delete-btn" (click)="deleteAccount()">
+      Supprimer mon compte
+    </h2>
+  </div>
+
 </div>

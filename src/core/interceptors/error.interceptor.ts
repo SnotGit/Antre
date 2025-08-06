@@ -11,9 +11,8 @@ export const errorInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, n
       
       // Gestion des erreurs d'authentification
       if (error.status === 401) {
-        // Token invalide ou expiré
-        localStorage.removeItem('antre_auth_token');
-        localStorage.removeItem('antre_user');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         router.navigate(['/auth/login']);
         return throwError(() => new Error('Session expirée, veuillez vous reconnecter'));
       }

@@ -12,15 +12,19 @@
 
   <div class="content">
     <div class="content-grid">
-      <button class="button" (click)="goToDrafts()">
-        <div class="number">{{ stats().drafts }}</div>
-        <div class="title">Brouillons</div>
-      </button>
+      <div class="button" (click)="goToDrafts()">
+        <button class="btn">
+          <div class="number">{{ stats().drafts }}</div>
+          <div class="title">Brouillons</div>
+        </button>
+      </div>
 
-      <button class="button" (click)="goToPublished()">
-        <div class="number">{{ stats().published }}</div>
-        <div class="title">Publiées</div>
-      </button>
+      <div class="button" (click)="goToPublished()">
+        <button class="btn">
+          <div class="number">{{ stats().published }}</div>
+          <div class="title">Publiées</div>
+        </button>
+      </div>
     </div>
   </div>
 

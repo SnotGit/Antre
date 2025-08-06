@@ -106,6 +106,7 @@
     height: 180px;
     position: relative;
     transition: all 0.3s ease;
+    border-radius: 16px;
 
     &:hover:not(.selected) {
       transform: translateY(-2px);
