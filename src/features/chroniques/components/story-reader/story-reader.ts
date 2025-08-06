@@ -1,17 +1,14 @@
 import { Component, inject, computed, resource } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../auth/services/auth.service';
 import { LoadService } from '@features/chroniques/services/load.service';
 import { LikeService } from '@features/chroniques/services/like.service';
-
 
 interface PublicStoryData {
   storyId: number;
   userId: number;
 }
-
 
 @Component({
   selector: 'app-story-reader',
@@ -29,16 +26,20 @@ export class Story {
 
   //============ RESOLVER DATA ============
 
-  private routeData = toSignal(this.route.data);
-  private resolvedData = computed(() => this.routeData()?.['data'] as PublicStoryData);
+  private resolvedData = computed(() => {
+    return this.route.snapshot.data['data'] as PublicStoryData;
+  });
 
   //============ STORY DATA ============
 
   storyData = resource({
-    params: () => ({ 
-      storyId: this.resolvedData()?.storyId, 
-      userId: this.resolvedData()?.userId 
-    }),
+    params: () => {
+      const data = this.resolvedData();
+      return { 
+        storyId: data?.storyId, 
+        userId: data?.userId 
+      };
+    },
     loader: async ({ params }) => {
       if (!params.storyId || !params.userId) return null;
 

@@ -1,0 +1,102 @@
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
+//======= GET USER ID BY USERNAME =======
+
+const getUserByUsername = async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    if (!username || username.trim().length === 0) {
+      return res.status(400).json({ error: 'Username requis' });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { username: username.trim() },
+      select: { id: true }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    }
+
+    res.json({ userId: user.id });
+
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
+//======= GET STORY ID BY TITLE (AUTH REQUIRED) =======
+
+const getStoryByTitle = async (req, res) => {
+  try {
+    const { title } = req.params;
+    const userId = req.user?.userId;
+
+    if (!title || title.trim().length === 0) {
+      return res.status(400).json({ error: 'Titre requis' });
+    }
+
+    const story = await prisma.story.findFirst({
+      where: {
+        title: title.trim(),
+        userId: userId
+      },
+      select: { id: true }
+    });
+
+    if (!story) {
+      return res.status(404).json({ error: 'Histoire non trouvée' });
+    }
+
+    res.json({ storyId: story.id });
+
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
+//======= GET STORY ID BY USERNAME AND TITLE =======
+
+const getStoryByUsernameAndTitle = async (req, res) => {
+  try {
+    const { username, title } = req.params;
+
+    if (!username || username.trim().length === 0) {
+      return res.status(400).json({ error: 'Username requis' });
+    }
+
+    if (!title || title.trim().length === 0) {
+      return res.status(400).json({ error: 'Titre requis' });
+    }
+
+    const story = await prisma.story.findFirst({
+      where: {
+        title: title.trim(),
+        status: 'PUBLISHED',
+        user: {
+          username: username.trim()
+        }
+      },
+      select: { id: true }
+    });
+
+    if (!story) {
+      return res.status(404).json({ error: 'Histoire publiée non trouvée' });
+    }
+
+    res.json({ storyId: story.id });
+
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
+//======= EXPORT =======
+
+module.exports = {
+  getUserByUsername,
+  getStoryByTitle,
+  getStoryByUsernameAndTitle
+};

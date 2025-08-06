@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy, inject, signal, computed, effect } from '
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { SaveService, StoryFormData } from '@features/chroniques/services/save.service';
 import { LoadService } from '@features/chroniques/services/load.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
@@ -34,8 +33,9 @@ export class PublishedEditor implements OnInit, OnDestroy {
 
   //========= RESOLVER DATA =========
 
-  private routeData = toSignal(this.route.data);
-  private resolvedData = computed(() => this.routeData()?.['data'] as PrivateStoryResolve);
+  private resolvedData = computed(() => {
+    return this.route.snapshot.data['data'] as PrivateStoryResolve;
+  });
 
   //========= SIGNALS =========
 

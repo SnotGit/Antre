@@ -25,6 +25,12 @@ const {
 } = require('../../controllers/chroniques/deleteController');
 
 const {
+  getUserByUsername,
+  getStoryByTitle,
+  getStoryByUsernameAndTitle
+} = require('../../controllers/chroniques/resolverController');
+
+const {
   toggleLike
 } = require('../../controllers/user/likeController');
 
@@ -37,6 +43,11 @@ const router = express.Router();
 router.get('/public/stories', getLatest);
 router.get('/public/story/:id', getStory);
 router.get('/public/user/:userId/stories', getStories);
+
+//======= RESOLVER ROUTES =======
+
+router.get('/resolve/username/:username', getUserByUsername);
+router.get('/resolve/story/:username/:title', getStoryByUsernameAndTitle);
 
 //======= PUBLIC ROUTES WITH AUTH =======
 
@@ -59,6 +70,10 @@ privateRouter.post('/publish/:id', publishStory);
 privateRouter.put('/story/:id', updateStory);
 
 privateRouter.delete('/story/:id', deleteStory);
+
+//======= PRIVATE RESOLVER ROUTES =======
+
+privateRouter.get('/resolve/title/:title', getStoryByTitle);
 
 router.use('/private', privateRouter);
 

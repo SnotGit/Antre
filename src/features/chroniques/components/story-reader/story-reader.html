@@ -3,10 +3,10 @@
   <div class="story-card">
     <div class="header">
       <div class="header-content">
-        <div class="avatar" [style.background-image]="data.story.user?.avatar ? 'url(http://localhost:3000' + data.story.user?.avatar + ')' : ''"></div>
+        <div class="avatar" [style.background-image]="data.story.user.avatar ? 'url(http://localhost:3000' + data.story.user.avatar + ')' : ''"></div>
         <div class="info">
-          <div class="username">{{ data.story.user?.username }}</div>
-          <div class="user-description">{{ data.story.user?.description }}</div>
+          <div class="username">{{ data.story.user.username }}</div>
+          <div class="user-description">{{ data.story.user.description }}</div>
         </div>
       </div>
       <div class="like-section">
