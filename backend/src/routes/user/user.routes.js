@@ -14,7 +14,7 @@ const {
   updatePlayerId,
   getPlayerDays,
   updatePlayerDays
-} = require('../../controllers/user/userProfileController');
+} = require('../../controllers/user/profileController');
 
 const {
   getStats
