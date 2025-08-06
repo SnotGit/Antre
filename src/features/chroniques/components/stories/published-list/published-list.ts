@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, computed, resource, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService } from '@features/auth/services/auth.service';
+import { AuthService } from '@features/user/services/auth.service';
 import { LoadService, Published } from '@features/chroniques/services/load.service';
 import { DeleteService } from '@features/chroniques/services/delete.service';
 import { LikeService } from '@features/chroniques/services/like.service';

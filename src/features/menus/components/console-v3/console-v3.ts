@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../auth/services/auth.service';
+import { AuthService } from '../../../user/services/auth.service';
 import { MobileMenuService } from '../../services/mobile-menu.service';
 @Component({
   selector: 'app-console-v3',
@@ -34,15 +34,15 @@ export class ConsoleV3 {
     return this.isAdmin() && !this.router.url.includes('/chroniques');
   }
 
-  getCurrentStatus(): string {
+  CurrentStatus(): string {
     return this.currentUser() ? 'CONNECTÉ' : 'DÉCONNECTÉ';
   }
 
-  getCurrentUserName(): string {
+  CurrentUserName(): string {
     return this.currentUser()?.username || 'INCONNU';
   }
 
-  getCurrentUserLevel(): string {
+  CurrentUserLevel(): string {
     return this.currentUser()?.role?.toUpperCase() || 'VISITEUR';
   }
 

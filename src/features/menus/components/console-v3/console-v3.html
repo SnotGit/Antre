@@ -28,17 +28,17 @@
     
     <div class="console-status">
       <div class="status-line">
-        <span>> STATUS:
-          <span [class]="`status-${getCurrentStatus() === 'CONNECTÉ' ? 'online' : 'offline'}`">
-            {{ getCurrentStatus() }}
+        <span>> STATUT:
+          <span [class]="`status-${CurrentStatus() === 'CONNECTÉ' ? 'online' : 'offline'}`">
+            {{ CurrentStatus() }}
           </span>
         </span>
       </div>
       <div class="user-line">
-        <span>> UTILISATEUR: {{ getCurrentUserName() }}</span>
+        <span>> UTILISATEUR: {{ CurrentUserName() }}</span>
       </div>
       <div class="access-line">
-        <span>> ACCESS-LVL: {{ getCurrentUserLevel() }}</span>
+        <span>> ACCESS-LVL: {{ CurrentUserLevel() }}</span>
       </div>
     </div>
 

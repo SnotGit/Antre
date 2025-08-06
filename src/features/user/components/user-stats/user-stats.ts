@@ -1,6 +1,6 @@
 import { Component, inject, computed, resource } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '@features/auth/services/auth.service';
+import { AuthService } from '@features/user/services/auth.service';
 import { UserService } from '@features/user/services/user.service';
 
 @Component({
@@ -21,16 +21,32 @@ export class UserStats {
 
   currentUser = this.authService.currentUser;
 
-  //============ DATA LOADING ============
+  //============ DATA LOADING AVEC GESTION D'ERREUR ============
 
   private statsResource = resource({
     loader: async () => {
-      return await this.userService.getStats();
+      try {
+        return await this.userService.getStats();
+      } catch (error) {
+        console.warn('Erreur lors du chargement des stats:', error);
+        return { drafts: 0, published: 0, totalLikes: 0 };
+      }
     }
   });
 
   stats = computed(() => {
-    return this.statsResource.value() || { drafts: 0, published: 0, totalLikes: 0 };
+    const resourceValue = this.statsResource.value();
+    
+    if (this.statsResource.isLoading()) {
+      return { drafts: 0, published: 0, totalLikes: 0 };
+    }
+    
+    if (this.statsResource.error()) {
+      console.warn('Resource en erreur:', this.statsResource.error());
+      return { drafts: 0, published: 0, totalLikes: 0 };
+    }
+    
+    return resourceValue || { drafts: 0, published: 0, totalLikes: 0 };
   });
 
   //============ COMPUTED ============

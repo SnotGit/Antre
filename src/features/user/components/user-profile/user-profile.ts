@@ -1,7 +1,8 @@
-import { Component, inject, computed, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, computed, signal, resource, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../../auth/services/auth.service';
-import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
+import { ProfileService } from '../../services/profile.service';
+import { environment } from '@environments/environment';
 
 @Component({
   selector: 'app-user-profile',
@@ -15,42 +16,50 @@ export class UserProfile {
   //============ INJECTIONS ============
 
   private readonly authService = inject(AuthService);
-  private readonly userService = inject(UserService);
+  private readonly profileService = inject(ProfileService);
+  private readonly API_URL = environment.apiUrl;
 
-  //============ SIGNALS ============
+  //============ RESOURCE USER DATA ============
 
-  currentUser = this.authService.currentUser;
-  loading = this.userService.loading;
-
-  //============ FORMS ============
-
-  username = '';
-  playerId = '';
-  playerDays = '';
-  description = '';
-
-  private avatarState = { 
-    selectedFile: null as File | null, 
-    preview: null as string | null 
-  };
-
-  //============ CONSTRUCTOR ============
-
-  constructor() {
-    const user = this.currentUser();
-    if (user) {
-      this.username = user.username;
-      this.description = user.description || '';
+  private userResource = resource({
+    loader: async () => {
+      return this.authService.currentUser();
     }
-  }
+  });
+
+  //============ SIGNALS FORM ============
+
+  username = signal('');
+  description = signal('');
+  playerId = signal('');
+  playerDays = signal('');
+  selectedFile = signal<File | null>(null);
+  avatar = signal<string | null>(null);
+
+  //============ SIGNALS SERVICE ============
+
+  loading = this.profileService.loading;
+  error = this.profileService.error;
+  successMessage = this.profileService.successMessage;
 
   //============ COMPUTED ============
 
   isProfileValid = computed(() => {
-    return this.username.trim().length >= 3;
+    return this.username().trim().length >= 3;
   });
 
-  //============ AVATAR MANAGEMENT ============
+  AvatarUrl(): string {
+    const preview = this.avatar();
+    if (preview) return preview;
+    
+    const user = this.userResource.value();
+    if (user?.avatar) {
+      return `${this.API_URL.replace('/api', '')}${user.avatar}`;
+    }
+    return '';
+  }
+
+  //============ AVATAR ACTIONS ============
 
   triggerFileInput(): void {
     this.fileInput.nativeElement.click();
@@ -58,40 +67,38 @@ export class UserProfile {
 
   onAvatarSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) return;
+    if (!file || !file.type.startsWith('image/')) return;
 
-    if (!file.type.startsWith('image/') || file.size > 200 * 200) {
-      return;
-    }
-
-    this.avatarState.selectedFile = file;
+    this.selectedFile.set(file);
+    
     const reader = new FileReader();
     reader.onload = (e) => {
-      this.avatarState.preview = e.target?.result as string;
+      this.avatar.set(e.target?.result as string);
     };
     reader.readAsDataURL(file);
   }
 
-  getAvatarUrl(): string {
-    if (this.avatarState.preview) return this.avatarState.preview;
-
-    const user = this.currentUser();
-    return user?.avatar ? `http://localhost:3000${user.avatar}` : '';
-  }
-
-  //============ ACTIONS ============
+  //============ FORM ACTIONS ============
 
   async saveProfile(): Promise<void> {
-    const username = this.username.trim();
-    if (!username || username.length < 3) return;
+    if (!this.isProfileValid()) return;
 
-    if (this.avatarState.selectedFile) {
-      await this.userService.uploadAvatar(this.avatarState.selectedFile);
-    }
+    const profileData = {
+      username: this.username().trim(),
+      description: this.description().trim(),
+      playerId: this.playerId().trim(),
+      playerDays: parseInt(this.playerDays()) || 0
+    };
 
-    await this.userService.updateProfile(username, this.description.trim());
+    const file = this.selectedFile();
+    
+    await this.profileService.updateProfile(profileData, file);
+    
+    this.selectedFile.set(null);
+    this.avatar.set(null);
+  }
 
-    this.avatarState.selectedFile = null;
-    this.avatarState.preview = null;
+  async deleteAccount(): Promise<void> {
+    await this.profileService.deleteAccount();
   }
 }

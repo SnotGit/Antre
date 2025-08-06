@@ -7,7 +7,7 @@
   },
 
   "RESEARCH_REQUIREMENTS": {
-    "documentation_first": "OBLIGATOIRE : Lire TOUTE la documentation Angular 20 avant de commencer",
+    "documentation_first": "OBLIGATOIRE : Lire la documentation Angular 20 + nodejs avant de commencer",
     "search_patterns": [
       "Angular 20 signals documentation",
       "Angular 20 resources API",
@@ -35,7 +35,7 @@
     "no_logs": true,
     "no_comments": "Pas de commentaires parasites",
     "no_icons": "pas d'icones dans le code",
-    "delivery": "1 fichier par message, 100% correct" + validation pour continuer,
+    "delivery": "1 fichier COMPLET par message, 100% correct" + validation pour continuer,
     "auto_verify": "Vérifier livrable avant livraison"
   },
 

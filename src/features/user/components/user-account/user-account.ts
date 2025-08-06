@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject, signal, effect } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '@features/auth/services/auth.service';
+import { AuthService } from '@features/user/services/auth.service';
 import { UserService } from '@features/user/services/user.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 import { UserStats } from '../user-stats/user-stats';
