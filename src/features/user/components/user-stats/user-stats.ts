@@ -40,7 +40,7 @@ export class UserStats {
     return {
       totalStories: statsData.drafts + statsData.published,
       publishedStories: statsData.published,
-      drafts: statsData.drafts,
+      draftsStories: statsData.drafts,
       totalLikes: statsData.totalLikes
     };
   });
