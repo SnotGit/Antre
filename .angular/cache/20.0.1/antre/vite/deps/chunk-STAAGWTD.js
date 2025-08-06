@@ -3,13 +3,18 @@ import {
   Attribute,
   ChangeDetectorRef,
   DEFAULT_CURRENCY_CODE,
+  DOCUMENT,
+  DestroyRef,
   Directive,
   ElementRef,
   Host,
   IMAGE_CONFIG,
   IMAGE_CONFIG_DEFAULTS,
+  INTERNAL_APPLICATION_ERROR_HANDLER,
   Inject,
   Injectable,
+  InjectionToken,
+  Injector,
   Input,
   IterableDiffers,
   KeyValueDiffers,
@@ -22,44 +27,37 @@ import {
   Pipe,
   Renderer2,
   RendererStyleFlags2,
+  RuntimeError,
   TemplateRef,
   Version,
   ViewContainerRef,
   booleanAttribute,
   createNgModule,
   findLocaleData,
+  formatRuntimeError,
   getLocaleCurrencyCode,
   getLocalePluralCase,
+  inject,
   isPromise,
   isSubscribable,
   numberAttribute,
   performanceMarkFeature,
   registerLocaleData,
   setClassMetadata,
+  stringify,
+  untracked,
   unwrapSafeValue,
   ɵɵNgOnChangesFeature,
   ɵɵdefineDirective,
+  ɵɵdefineInjectable,
+  ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵdefinePipe,
   ɵɵdirectiveInject,
+  ɵɵinject,
   ɵɵinjectAttribute,
   ɵɵstyleProp
-} from "./chunk-C2BSNY2Z.js";
-import {
-  DOCUMENT,
-  DestroyRef,
-  INTERNAL_APPLICATION_ERROR_HANDLER,
-  InjectionToken,
-  Injector,
-  RuntimeError,
-  formatRuntimeError,
-  inject,
-  stringify,
-  untracked,
-  ɵɵdefineInjectable,
-  ɵɵdefineInjector,
-  ɵɵinject
-} from "./chunk-AKCMG45L.js";
+} from "./chunk-PC6A37F2.js";
 import {
   Subject,
   __spreadProps,
@@ -5149,4 +5147,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-NJ4MMCGX.js.map
+//# sourceMappingURL=chunk-STAAGWTD.js.map
