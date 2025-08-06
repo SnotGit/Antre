@@ -96,8 +96,10 @@ export class AuthService {
   }
 
   async validateToken(): Promise<boolean> {
-    const token = localStorage.getItem('token');
-    if (!token) return false;
+    const token = this.getToken();
+    if (!token) {
+      return false;
+    }
 
     try {
       const response = await firstValueFrom(
@@ -105,6 +107,7 @@ export class AuthService {
       );
 
       this._currentUser.set(response.user);
+      this.storeUser(response.user);
       return true;
 
     } catch (error) {
@@ -130,19 +133,20 @@ export class AuthService {
 
   updateCurrentUser(user: User): void {
     this._currentUser.set(user);
-    localStorage.setItem('user', JSON.stringify(user));
+    this.storeUser(user);
   }
 
   //============ PRIVATE METHODS ============
 
-  private initializeFromStorage(): void {
-    const token = localStorage.getItem('token');
+  private async initializeFromStorage(): Promise<void> {
+    const token = this.getToken();
     const userStr = localStorage.getItem('user');
 
     if (token && userStr) {
       try {
         const user = JSON.parse(userStr);
         this._currentUser.set(user);
+        await this.validateToken();
       } catch {
         this.logout();
       }
@@ -154,11 +158,21 @@ export class AuthService {
     localStorage.setItem('user', JSON.stringify(user));
   }
 
+  private storeUser(user: User): void {
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+
   private handleError(error: unknown): void {
     if (error instanceof HttpErrorResponse) {
       this._error.set(error.error?.message || 'Une erreur est survenue');
     } else {
       this._error.set('Une erreur inattendue est survenue');
     }
+  }
+
+  //============ PUBLIC METHODS ============
+
+  getToken(): string | null {
+    return localStorage.getItem('token');
   }
 }
