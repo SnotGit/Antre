@@ -1,0 +1,82 @@
+{
+  "refactoringDirectives": {
+    "objective": "Refactoriser les controllers user backend selon le principe 1 component = 1 controller",
+    
+    "workingMethod": {
+      "approach": "Réorganiser le code existant en 3 controllers spécialisés",
+      "principle": "1 chose = 1 route = 1 responsabilité",
+      "noCodeInvention": "Utiliser uniquement le code front end existant, les méthodes de services, ne rien inventer, ne rien supposer",
+      "atomicDelivery": "Livrer un controller complet à la fois pour validation"
+    },
+    
+    "codeStandards": {
+      "noComments": "Pas de commentaires dans le code code, pas d'icones",
+      "consistentNaming": "Noms de fonctions cohérents avec les endpoints",
+      "errorHandling": "try/catch standardisé avec res.status().json()",
+      "validation": "Validation des inputs en début de fonction",
+      "prismaSelect": "Utiliser select explicite pour les retours DB"
+    },
+    
+    "deliverables": [
+      {
+        "order": 1,
+        "file": "userProfileController.js",
+        "description": "Controller complet avec 11 fonctions pour /api/user/profile/*",
+        "includes": ["multer config", "avatar upload logic", "file cleanup", "profile getters/setters"],
+        "validation": "Tester chaque endpoint individuellement"
+      },
+      {
+        "order": 2,
+        "file": "credentialsController.js", 
+        "description": "Controller complet avec 3 fonctions pour /api/user/credentials/*",
+        "includes": ["email validation", "password hashing", "bcrypt logic"],
+        "validation": "Tester email update et password change"
+      },
+      {
+        "order": 3,
+        "file": "statsController.js",
+        "description": "Controller complet avec 1 fonction pour /api/user/stats/*",
+        "includes": ["likes count", "stories count", "aggregated stats"],
+        "validation": "Tester retour des stats complètes"
+      }
+    ],
+    
+    "targetStructure": {
+      "userProfileController.js": {
+        "endpoints": [
+          {"method": "POST", "path": "/api/user/profile/avatar", "function": "uploadAvatar"},
+          {"method": "GET", "path": "/api/user/profile/avatar", "function": "getAvatar"},
+          {"method": "PUT", "path": "/api/user/profile/avatar", "function": "updateAvatar"},
+          {"method": "GET", "path": "/api/user/profile/username", "function": "getUsername"},
+          {"method": "PUT", "path": "/api/user/profile/username", "function": "updateUsername"},
+          {"method": "GET", "path": "/api/user/profile/description", "function": "getDescription"},
+          {"method": "PUT", "path": "/api/user/profile/description", "function": "updateDescription"},
+          {"method": "GET", "path": "/api/user/profile/playerId", "function": "getPlayerId"},
+          {"method": "PUT", "path": "/api/user/profile/playerId", "function": "updatePlayerId"},
+          {"method": "GET", "path": "/api/user/profile/playerDays", "function": "getPlayerDays"},
+          {"method": "PUT", "path": "/api/user/profile/playerDays", "function": "updatePlayerDays"}
+        ]
+      },
+      "credentialsController.js": {
+        "endpoints": [
+          {"method": "GET", "path": "/api/user/credentials/email", "function": "getEmail"},
+          {"method": "PUT", "path": "/api/user/credentials/email", "function": "updateEmail"},
+          {"method": "PUT", "path": "/api/user/credentials/password", "function": "changePassword"}
+        ]
+      },
+      "statsController.js": {
+        "endpoints": [
+          {"method": "GET", "path": "/api/user/stats", "function": "getStats"}
+        ]
+      }
+    },
+    
+    "executionRules": {
+      "sequence": "Créer les controllers dans l'ordre des deliverables",
+      "testing": "Chaque controller doit être testé avant le suivant",
+      "migration": "Récupérer la logique des controllers existants sans duplication",
+      "cleanup": "Supprimer les anciens controllers après validation",
+      "routes": "Mettre à jour user.routes.js en dernier"
+    }
+  }
+}

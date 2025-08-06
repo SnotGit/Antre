@@ -1,6 +1,6 @@
 import {
   getDOM
-} from "./chunk-NJ4MMCGX.js";
+} from "./chunk-STAAGWTD.js";
 import "./chunk-W7ENOTKE.js";
 import {
   ChangeDetectorRef,
@@ -10,41 +10,39 @@ import {
   Host,
   Inject,
   Injectable,
+  InjectionToken,
+  Injector,
   Input,
   NgModule,
   Optional,
   Output,
   Renderer2,
+  RuntimeError,
   Self,
   SkipSelf,
   Version,
   booleanAttribute,
+  computed,
+  forwardRef,
+  inject,
   isPromise,
   isSubscribable,
   setClassMetadata,
+  signal,
+  untracked,
   ɵɵInheritDefinitionFeature,
   ɵɵNgOnChangesFeature,
   ɵɵProvidersFeature,
   ɵɵattribute,
   ɵɵclassProp,
   ɵɵdefineDirective,
+  ɵɵdefineInjectable,
+  ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵdirectiveInject,
   ɵɵgetInheritedFactory,
   ɵɵlistener
-} from "./chunk-C2BSNY2Z.js";
-import {
-  InjectionToken,
-  Injector,
-  RuntimeError,
-  computed,
-  forwardRef,
-  inject,
-  signal,
-  untracked,
-  ɵɵdefineInjectable,
-  ɵɵdefineInjector
-} from "./chunk-AKCMG45L.js";
+} from "./chunk-PC6A37F2.js";
 import {
   Subject,
   __spreadProps,

@@ -1,12 +1,7 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface StoryData {
-  username: string;
-  avatar: string;
-  storyTitle: string;
-  storyDate: string;
-}
+import { LoadService, StoryCard } from '@features/chroniques/services/load.service';
+import { environment } from '@environments/environment';
 
 @Component({
   selector: 'app-story-card',
@@ -16,17 +11,28 @@ interface StoryData {
 })
 export class StoryCardComponent {
   
-  story = input.required<StoryData>();
-  cardClick = output<StoryData>();
+  //============ INJECTIONS ============
 
-  username = () => this.story().username;
-  storyTitle = () => this.story().storyTitle;
-  storyDate = () => this.story().storyDate;
+  private readonly loadService = inject(LoadService);
+  private readonly API_URL = environment.apiUrl;
+
+  //============ INPUTS & OUTPUTS ============
   
-  avatarUrl = () => {
-    const avatar = this.story().avatar;
-    return avatar ? `url(http://localhost:3000${avatar})` : '';
-  };
+  story = input.required<StoryCard>();
+  cardClick = output<StoryCard>();
+
+  //============ COMPUTED ============
+
+  username = computed(() => this.story().user.username);
+  storyTitle = computed(() => this.story().title);
+  storyDate = computed(() => this.story().publishDate);
+  
+  avatarUrl = computed(() => {
+    const avatar = this.story().user.avatar;
+    return avatar ? `url(${this.API_URL.replace('/api', '')}${avatar})` : '';
+  });
+
+  //============ ACTIONS ============
 
   onCardClick(): void {
     this.cardClick.emit(this.story());
