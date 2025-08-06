@@ -1,24 +1,36 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-//======= GET LATEST =======
+//======= UTILITIES =======
+
+const handleError = (res, error) => {
+  console.error(error);
+  res.status(500).json({ error: 'Erreur serveur' });
+};
+
+const parseId = (id) => {
+  const parsed = parseInt(id);
+  if (isNaN(parsed)) throw new Error('ID invalide');
+  return parsed;
+};
+
+const notFound = (res, message) => res.status(404).json({ error: message });
+const badRequest = (res, message) => res.status(400).json({ error: message });
+
+//======= PUBLIC QUERIES =======
 
 const getLatest = async (_req, res) => {
   try {
     const stories = await prisma.story.findMany({
       where: { status: 'PUBLISHED' },
       orderBy: { publishedAt: 'desc' },
-      take: 20,
+      distinct: ['userId'],
+      take: 6,
       select: {
         id: true,
         title: true,
         publishedAt: true,
-        user: {
-          select: {
-            username: true,
-            avatar: true
-          }
-        }
+        user: { select: { username: true, avatar: true } }
       }
     });
 
@@ -26,124 +38,84 @@ const getLatest = async (_req, res) => {
       id: story.id,
       title: story.title,
       publishDate: story.publishedAt.toISOString(),
-      user: {
-        username: story.user.username,
-        avatar: story.user.avatar
-      }
+      user: story.user
     }));
 
     res.json({ stories: storyCards });
-
   } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    handleError(res, error);
   }
 };
 
-//======= GET STORY =======
-
 const getStory = async (req, res) => {
   try {
-    const { id } = req.params;
-    const storyId = parseInt(id);
-
-    if (isNaN(storyId)) {
-      return res.status(400).json({ error: 'ID invalide' });
-    }
+    const id = parseId(req.params.id);
 
     const story = await prisma.story.findFirst({
-      where: { 
-        id: storyId,
-        status: 'PUBLISHED' 
-      },
+      where: { id, status: 'PUBLISHED' },
       select: {
         id: true,
         title: true,
         content: true,
         publishedAt: true,
         user: {
-          select: {
-            id: true,
-            username: true,
-            avatar: true,
-            description: true
-          }
+          select: { id: true, username: true, avatar: true, description: true }
         }
       }
     });
 
-    if (!story) {
-      return res.status(404).json({ error: 'Histoire non trouvée' });
-    }
+    if (!story) return notFound(res, 'Histoire non trouvée');
 
-    const storyReader = {
-      id: story.id,
-      title: story.title,
-      content: story.content,
-      publishDate: story.publishedAt.toISOString(),
-      user: {
-        id: story.user.id,
-        username: story.user.username,
-        avatar: story.user.avatar,
-        description: story.user.description
+    res.json({
+      story: {
+        ...story,
+        publishDate: story.publishedAt.toISOString()
       }
-    };
-
-    res.json({ story: storyReader });
-
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    if (error.message === 'ID invalide') return badRequest(res, error.message);
+    handleError(res, error);
   }
 };
-
-//======= GET STORIES =======
 
 const getStories = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const userIdInt = parseInt(userId);
-
-    if (isNaN(userIdInt)) {
-      return res.status(400).json({ error: 'ID utilisateur invalide' });
-    }
+    const userId = parseId(req.params.userId);
 
     const stories = await prisma.story.findMany({
-      where: { 
-        userId: userIdInt,
-        status: 'PUBLISHED' 
-      },
+      where: { userId, status: 'PUBLISHED' },
       orderBy: { publishedAt: 'desc' },
-      select: {
-        id: true,
-        title: true
-      }
+      select: { id: true, title: true }
     });
 
     res.json({ stories });
-
   } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    if (error.message === 'ID invalide') return badRequest(res, 'ID utilisateur invalide');
+    handleError(res, error);
   }
 };
 
-//======= GET DRAFTS =======
+//======= PRIVATE QUERIES =======
+
+const getUserStories = async (userId, status, orderBy = 'updatedAt') => {
+  return await prisma.story.findMany({
+    where: { userId, status },
+    orderBy: { [orderBy]: 'desc' },
+    select: { id: true, title: true, updatedAt: true }
+  });
+};
+
+const getUserStory = async (id, userId, status) => {
+  return await prisma.story.findFirst({
+    where: { id, userId, status },
+    select: { id: true, title: true, content: true }
+  });
+};
 
 const getDrafts = async (req, res) => {
   try {
-    const userId = req.user.userId;
-
-    const drafts = await prisma.story.findMany({
-      where: { 
-        userId: userId,
-        status: 'DRAFT' 
-      },
-      orderBy: { updatedAt: 'desc' },
-      select: {
-        id: true,
-        title: true,
-        updatedAt: true
-      }
-    });
-
+    const drafts = await getUserStories(req.user.userId, 'DRAFT');
+    
     const draftsList = drafts.map(draft => ({
       id: draft.id,
       title: draft.title,
@@ -151,31 +123,15 @@ const getDrafts = async (req, res) => {
     }));
 
     res.json({ stories: draftsList });
-
   } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    handleError(res, error);
   }
 };
 
-//======= GET PUBLISHED =======
-
 const getPublished = async (req, res) => {
   try {
-    const userId = req.user.userId;
-
-    const published = await prisma.story.findMany({
-      where: { 
-        userId: userId,
-        status: 'PUBLISHED' 
-      },
-      orderBy: { publishedAt: 'desc' },
-      select: {
-        id: true,
-        title: true,
-        updatedAt: true
-      }
-    });
-
+    const published = await getUserStories(req.user.userId, 'PUBLISHED', 'publishedAt');
+    
     const publishedList = published.map(story => ({
       id: story.id,
       title: story.title,
@@ -183,81 +139,36 @@ const getPublished = async (req, res) => {
     }));
 
     res.json({ stories: publishedList });
-
   } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    handleError(res, error);
   }
 };
-
-//======= GET DRAFT STORY =======
 
 const getDraftStory = async (req, res) => {
   try {
-    const { id } = req.params;
-    const storyId = parseInt(id);
-    const userId = req.user.userId;
-
-    if (isNaN(storyId)) {
-      return res.status(400).json({ error: 'ID invalide' });
-    }
-
-    const story = await prisma.story.findFirst({
-      where: { 
-        id: storyId,
-        userId: userId,
-        status: 'DRAFT' 
-      },
-      select: {
-        id: true,
-        title: true,
-        content: true
-      }
-    });
-
-    if (!story) {
-      return res.status(404).json({ error: 'Brouillon non trouvé' });
-    }
-
+    const id = parseId(req.params.id);
+    const story = await getUserStory(id, req.user.userId, 'DRAFT');
+    
+    if (!story) return notFound(res, 'Brouillon non trouvé');
+    
     res.json({ story });
-
   } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    if (error.message === 'ID invalide') return badRequest(res, error.message);
+    handleError(res, error);
   }
 };
 
-//======= GET PUBLISHED STORY =======
-
 const getPublishedStory = async (req, res) => {
   try {
-    const { id } = req.params;
-    const storyId = parseInt(id);
-    const userId = req.user.userId;
-
-    if (isNaN(storyId)) {
-      return res.status(400).json({ error: 'ID invalide' });
-    }
-
-    const story = await prisma.story.findFirst({
-      where: { 
-        id: storyId,
-        userId: userId,
-        status: 'PUBLISHED' 
-      },
-      select: {
-        id: true,
-        title: true,
-        content: true
-      }
-    });
-
-    if (!story) {
-      return res.status(404).json({ error: 'Histoire publiée non trouvée' });
-    }
-
+    const id = parseId(req.params.id);
+    const story = await getUserStory(id, req.user.userId, 'PUBLISHED');
+    
+    if (!story) return notFound(res, 'Histoire publiée non trouvée');
+    
     res.json({ story });
-
   } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    if (error.message === 'ID invalide') return badRequest(res, error.message);
+    handleError(res, error);
   }
 };
 
