@@ -24,6 +24,7 @@ export class EmailForm {
   successMessage = this.credentialsService.successMessage;
 
   email = signal(this.currentUser()?.email || '');
+  newEmail = signal('');
   confirmEmail = signal('');
 
   //============ COMPUTED ============
