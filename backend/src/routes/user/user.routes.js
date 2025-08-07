@@ -3,17 +3,8 @@ const express = require('express');
 //======= CONTROLLERS =======
 
 const {
-  uploadAvatar,
-  getAvatar,
-  updateAvatar,
-  getUsername,
-  updateUsername,
-  getDescription,
-  updateDescription,
-  getPlayerId,
-  updatePlayerId,
-  getPlayerDays,
-  updatePlayerDays
+  getProfile,
+  updateProfile
 } = require('../../controllers/user/profileController');
 
 const {
@@ -38,21 +29,8 @@ const router = express.Router();
 
 //======= USER PROFILE ROUTES =======
 
-router.post('/profile/avatar', authenticateToken, uploadAvatar);
-router.get('/profile/avatar', authenticateToken, getAvatar);
-router.put('/profile/avatar', authenticateToken, updateAvatar);
-
-router.get('/profile/username', authenticateToken, getUsername);
-router.put('/profile/username', authenticateToken, updateUsername);
-
-router.get('/profile/description', authenticateToken, getDescription);
-router.put('/profile/description', authenticateToken, updateDescription);
-
-router.get('/profile/playerId', authenticateToken, getPlayerId);
-router.put('/profile/playerId', authenticateToken, updatePlayerId);
-
-router.get('/profile/playerDays', authenticateToken, getPlayerDays);
-router.put('/profile/playerDays', authenticateToken, updatePlayerDays);
+router.get('/profile', authenticateToken, getProfile);
+router.put('/profile', authenticateToken, updateProfile);
 
 //======= USER CREDENTIALS ROUTES =======
 
