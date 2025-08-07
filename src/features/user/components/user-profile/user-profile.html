@@ -8,7 +8,7 @@
   <div class="form-section">
 
     <div class="left-section"></div>
-    
+
     <div class="profile-section">
       <form class="profile-form" (ngSubmit)="saveProfile()" #profileForm="ngForm">
         <div class="avatar-section">
@@ -29,8 +29,8 @@
 
         <div class="form-field">
           <label class="field-label">Description</label>
-          <textarea name="description" [(ngModel)]="description" class="form-textarea" placeholder="Qui êtes vous ?"
-            maxlength="500" rows="4" [disabled]="loading()">
+          <textarea name="description" [(ngModel)]="description" class="form-textarea" 
+            maxlength="500" [disabled]="loading()">
             </textarea>
         </div>
 
@@ -42,7 +42,7 @@
           </div>
 
           <div class="form-field">
-            <label class="field-label">Jours sur Mars</label>
+            <label class="field-label">Nombre de jours</label>
             <input type="number" name="playerDays" [(ngModel)]="playerDays" class="form-input" [disabled]="loading()">
           </div>
         </div>

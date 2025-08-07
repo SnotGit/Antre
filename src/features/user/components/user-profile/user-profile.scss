@@ -103,10 +103,6 @@
             transition: all 0.3s ease;
             box-sizing: border-box;
 
-            &::placeholder {
-              color: rgba(93, 136, 158, 0.6);
-            }
-
             &:focus {
               outline: none;
               border-color: #5d889e;

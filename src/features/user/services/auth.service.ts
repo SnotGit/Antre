@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -21,11 +21,6 @@ export interface RegisterRequest {
   description?: string;
 }
 
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -34,25 +29,43 @@ export class AuthService {
   private readonly router = inject(Router);
   private readonly API_URL = `${environment.apiUrl}/auth`;
 
-  //============ SIGNALS ÉTAT ============
+  //======= SIGNALS STATE =======
 
-  private _currentUser = signal<User | null>(null);
-  private _loading = signal<boolean>(false);
-  private _error = signal<string | null>(null);
+  private readonly _currentUser = signal<User | null>(this.getUserFromStorage());
+  private readonly _initializing = signal<boolean>(true);
+  private readonly _loading = signal<boolean>(false);
+  private readonly _error = signal<string | null>(null);
 
-  //============ COMPUTED PUBLICS ============
+  //======= COMPUTED PUBLICS =======
 
-  currentUser = this._currentUser.asReadonly();
-  isLoggedIn = computed(() => this._currentUser() !== null);
-  isAdmin = computed(() => this._currentUser()?.role === 'admin');
-  loading = this._loading.asReadonly();
-  error = this._error.asReadonly();
+  readonly currentUser = this._currentUser.asReadonly();
+  readonly isLoggedIn = computed(() => this._currentUser() !== null);
+  readonly isAdmin = computed(() => this._currentUser()?.role === 'admin');
+  readonly initializing = this._initializing.asReadonly();
+  readonly loading = this._loading.asReadonly();
+  readonly error = this._error.asReadonly();
 
-  constructor() {
-    this.initializeFromStorage();
-  }
+  //======= EFFECTS REACTIVE =======
 
-  //============ AUTHENTIFICATION ============
+  private readonly syncUserToStorage = effect(() => {
+    const user = this._currentUser();
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('user');
+    }
+  });
+
+  private readonly initializeAuth = effect(() => {
+    const user = this._currentUser();
+    const token = this.getToken();
+    
+    if (this._initializing() && user && token) {
+      this.validateTokenSilently();
+    }
+  });
+
+  //======= AUTHENTICATION =======
 
   async login(email: string, password: string): Promise<void> {
     this._loading.set(true);
@@ -66,7 +79,7 @@ export class AuthService {
         })
       );
 
-      this.storeAuthData(response.token, response.user);
+      localStorage.setItem('token', response.token);
       this._currentUser.set(response.user);
 
     } catch (error) {
@@ -85,7 +98,7 @@ export class AuthService {
         this.http.post<{ message: string; token: string; user: User }>(`${this.API_URL}/register`, userData)
       );
 
-      this.storeAuthData(response.token, response.user);
+      localStorage.setItem('token', response.token);
       this._currentUser.set(response.user);
 
     } catch (error) {
@@ -95,10 +108,13 @@ export class AuthService {
     }
   }
 
-  async validateToken(): Promise<boolean> {
+  //======= TOKEN VALIDATION =======
+
+  private async validateTokenSilently(): Promise<void> {
     const token = this.getToken();
     if (!token) {
-      return false;
+      this._initializing.set(false);
+      return;
     }
 
     try {
@@ -107,59 +123,42 @@ export class AuthService {
       );
 
       this._currentUser.set(response.user);
-      this.storeUser(response.user);
-      return true;
 
     } catch (error) {
-      this.logout();
-      return false;
+      this.handleValidationError(error);
+    } finally {
+      this._initializing.set(false);
     }
   }
 
-  logout(): void {
+  logout(reason?: string): void {
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
     this._currentUser.set(null);
+    
+    if (reason) {
+      this._error.set(reason);
+    }
+    
     this.router.navigate(['/auth/login']);
   }
 
-  //============ GESTION ERREURS ============
+  //======= ERROR HANDLING =======
 
-  clearError(): void {
-    this._error.set(null);
-  }
-
-  //============ UPDATE USER ============
-
-  updateCurrentUser(user: User): void {
-    this._currentUser.set(user);
-    this.storeUser(user);
-  }
-
-  //============ PRIVATE METHODS ============
-
-  private async initializeFromStorage(): Promise<void> {
-    const token = this.getToken();
-    const userStr = localStorage.getItem('user');
-
-    if (token && userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        this._currentUser.set(user);
-        await this.validateToken();
-      } catch {
-        this.logout();
+  private handleValidationError(error: unknown): void {
+    if (error instanceof HttpErrorResponse) {
+      switch (error.status) {
+        case 401:
+          this.logout('Session expirée, veuillez vous reconnecter');
+          break;
+        case 500:
+        case 0:
+          break;
+        default:
+          this.logout('Erreur de connexion');
       }
+    } else {
+      this.logout('Erreur inattendue');
     }
-  }
-
-  private storeAuthData(token: string, user: User): void {
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
-  }
-
-  private storeUser(user: User): void {
-    localStorage.setItem('user', JSON.stringify(user));
   }
 
   private handleError(error: unknown): void {
@@ -170,9 +169,31 @@ export class AuthService {
     }
   }
 
-  //============ PUBLIC METHODS ============
+  //======= UTILITIES =======
+
+  clearError(): void {
+    this._error.set(null);
+  }
+
+  updateCurrentUser(user: User): void {
+    this._currentUser.set(user);
+  }
 
   getToken(): string | null {
     return localStorage.getItem('token');
+  }
+
+  //======= PRIVATE HELPERS =======
+
+  private getUserFromStorage(): User | null {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return null;
+    
+    try {
+      return JSON.parse(userStr);
+    } catch {
+      localStorage.removeItem('user');
+      return null;
+    }
   }
 }

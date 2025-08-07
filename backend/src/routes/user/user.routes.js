@@ -36,38 +36,38 @@ const { authenticateToken } = require('../../controllers/auth/authController');
 
 const router = express.Router();
 
-//======= USER PROFILE ROUTES (PRIVATE) =======
+//======= USER PROFILE ROUTES =======
 
-router.post('/user/profile/avatar', authenticateToken, uploadAvatar);
-router.get('/user/profile/avatar', authenticateToken, getAvatar);
-router.put('/user/profile/avatar', authenticateToken, updateAvatar);
+router.post('/profile/avatar', authenticateToken, uploadAvatar);
+router.get('/profile/avatar', authenticateToken, getAvatar);
+router.put('/profile/avatar', authenticateToken, updateAvatar);
 
-router.get('/user/profile/username', authenticateToken, getUsername);
-router.put('/user/profile/username', authenticateToken, updateUsername);
+router.get('/profile/username', authenticateToken, getUsername);
+router.put('/profile/username', authenticateToken, updateUsername);
 
-router.get('/user/profile/description', authenticateToken, getDescription);
-router.put('/user/profile/description', authenticateToken, updateDescription);
+router.get('/profile/description', authenticateToken, getDescription);
+router.put('/profile/description', authenticateToken, updateDescription);
 
-router.get('/user/profile/playerId', authenticateToken, getPlayerId);
-router.put('/user/profile/playerId', authenticateToken, updatePlayerId);
+router.get('/profile/playerId', authenticateToken, getPlayerId);
+router.put('/profile/playerId', authenticateToken, updatePlayerId);
 
-router.get('/user/profile/playerDays', authenticateToken, getPlayerDays);
-router.put('/user/profile/playerDays', authenticateToken, updatePlayerDays);
+router.get('/profile/playerDays', authenticateToken, getPlayerDays);
+router.put('/profile/playerDays', authenticateToken, updatePlayerDays);
 
-//======= USER CREDENTIALS ROUTES (PRIVATE) =======
+//======= USER CREDENTIALS ROUTES =======
 
-router.put('/user/credentials/email', authenticateToken, updateEmail);
-router.put('/user/credentials/password', authenticateToken, changePassword);
+router.put('/credentials/email', authenticateToken, updateEmail);
+router.put('/credentials/password', authenticateToken, changePassword);
 
-//======= USER STATS ROUTES (PRIVATE) =======
+//======= USER STATS ROUTES =======
 
-router.get('/user/stats', authenticateToken, getStats);
+router.get('/stats', authenticateToken, getStats);
 
 //======= USER LIKES ROUTES =======
 
-router.get('/user/likes/story/:id/count', getLikes);
-router.get('/user/likes/user/:userId/total', getTotalLikes);
-router.get('/user/likes/story/:id/status', getStoryLikeStatus);
-router.post('/user/likes/story/:id/toggle', authenticateToken, toggleLike);
+router.get('/likes/story/:id/count', getLikes);
+router.get('/likes/user/:userId/total', getTotalLikes);
+router.get('/likes/story/:id/status', getStoryLikeStatus);
+router.post('/likes/story/:id/toggle', authenticateToken, toggleLike);
 
 module.exports = router;
