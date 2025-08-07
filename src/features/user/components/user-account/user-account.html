@@ -2,13 +2,13 @@
 
   <!-- ============ HEADER : 50% | 50% ============ -->
   <div class="header">
-    <div class="header-box1">
-      <h2 class="header-title" [class.typing]="typing()">
+    <div class="header-title">
+      <h2 class="title" [class.typing]="typing()">
         {{ headerTitle() }}
       </h2>
     </div>
 
-    <div class="header-box2">
+    <div class="header-messages">
       @if (error()) {
       <div class="message error-message">
         {{ error() }}
@@ -25,10 +25,12 @@
 
   <!-- ============ TABS CONTAINER : 30% | 40% | 30% ============ -->
   <div class="tabs-container">
-    <div class="tabs-box1">
+
+    <div class="left-section">
       <!-- VIDE -->
     </div>
-    <div class="tabs-box2">
+
+    <div class="tabs-box">
       <div class="tabs-nav">
         <button class="tab-btn" [class.active]="activeTab() === 'stats'" (click)="setActiveTab('stats')">
           Stats
@@ -41,9 +43,11 @@
         </button>
       </div>
     </div>
-    <div class="tabs-box3">
+
+    <div class="right-section">
       <!-- VIDE -->
     </div>
+    
   </div>
 
   <!-- ============ CONTENU PRINCIPAL ============ -->

@@ -1,16 +1,16 @@
 .user-profile-content {
 
   // ============ TITLES : 50% | 50% ============
-  .title {
+  .header {
     display: grid;
     grid-template-columns: 50% 50%;
     margin-top: 50px;
     margin-bottom: 10px;
 
-    .title-box1 {
+    .header-title {
       text-align: center;
 
-      .title-section {
+      .title {
         color: #5d889e;
         font-size: 20px;
         margin: 0;
@@ -19,12 +19,12 @@
   }
 
   // ============ CARD 1 : 30% | 40% | 30% ============
-  .card1 {
+  .form-section {
     display: grid;
     grid-template-columns: 30% 40% 30%;
     margin-bottom: 10px;
 
-    .card1-box2 {
+    .profile-section {
 
       // ============ AVATAR ============
       .avatar-section {
@@ -182,25 +182,6 @@
             }
           }
         }
-      }
-    }
-  }
-
-  .delete-section {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
-    margin-right: 50px;
-
-    .delete-btn {
-      color: #5d889e;
-      font-size: 18px;
-      cursor: pointer;
-      text-decoration:overline;
-
-      &:hover {
-        color: #b55a44;
-
       }
     }
   }

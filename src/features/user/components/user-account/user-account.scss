@@ -29,10 +29,10 @@
     flex-shrink: 0;
     padding: 30px 30px 0 30px;
 
-    .header-box1 {
+    .header-title {
       text-align: start;
 
-      .header-title {
+      .title {
         font-size: 32px;
         font-weight: 700;
         color: #5d889e;
@@ -45,7 +45,7 @@
       }
     }
 
-    .header-box2 {
+    .header-messages {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -83,7 +83,7 @@
     width: 100%;
 
 
-    .tabs-box2 {
+    .tabs-box {
       display: flex;
       justify-content: center;
 

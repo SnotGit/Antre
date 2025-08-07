@@ -1,15 +1,15 @@
 <div class="user-profile-content">
-  <div class="title">
-    <div class="title-box1">
-      <h2 class="title-section">Profil utilisateur</h2>
+  <div class="header">
+    <div class="header-title">
+      <h2 class="title">Profil utilisateur</h2>
     </div>
   </div>
 
-  <div class="card1">
-    <div class="card1-box1">
-      <!-- VIDE -->
-    </div>
-    <div class="card1-box2">
+  <div class="form-section">
+
+    <div class="left-section"></div>
+    
+    <div class="profile-section">
       <form class="profile-form" (ngSubmit)="saveProfile()" #profileForm="ngForm">
         <div class="avatar-section">
           <div class="avatar-container">
@@ -62,15 +62,6 @@
 
   </div>
 
-
   <input type="file" #fileInput accept="image/*" (change)="onAvatarSelected($event)" style="display: none;">
-
-
-
-  <div class="delete-section">
-    <h2 class="delete-btn" (click)="deleteAccount()">
-      Supprimer mon compte
-    </h2>
-  </div>
 
 </div>
