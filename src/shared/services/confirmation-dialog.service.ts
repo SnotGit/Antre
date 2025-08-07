@@ -63,6 +63,20 @@ export class ConfirmationDialogService {
     return this.showDialog(config);
   }
 
+  //============ DELETE ACCOUNT ============
+
+  confirmDeleteAccount(): Promise<boolean> {
+    const config: ConfirmationConfig = {
+      title: 'Supprimer le compte',
+      message: 'Êtes-vous sûr de vouloir supprimer votre compte ?\n\nCette action est irréversible et supprimera toutes vos données.',
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      isDanger: true
+    };
+
+    return this.showDialog(config);
+  }
+
   //============ DIALOG CORE ============
 
   private showDialog(config: ConfirmationConfig): Promise<boolean> {

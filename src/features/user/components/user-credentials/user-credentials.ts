@@ -1,58 +1,52 @@
-import { Component, inject, computed, signal, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
 import { AuthService } from '@features/user/services/auth.service';
-import { CredentialsService, EmailData } from '@features/user/services/credentials.service';
+import { CredentialsService } from '@features/user/services/credentials.service';
+import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
+import { EmailForm } from './email-form/email-form';
 import { PasswordForms } from './password-forms/password-forms';
 
 @Component({
   selector: 'app-user-credentials',
-  imports: [FormsModule, PasswordForms],
+  imports: [EmailForm, PasswordForms],
   templateUrl: './user-credentials.html',
   styleUrl: './user-credentials.scss'
 })
-export class UserCredentials implements OnInit {
+export class UserCredentials {
 
   //============ INJECTIONS ============
 
   private readonly authService = inject(AuthService);
   private readonly credentialsService = inject(CredentialsService);
+  private readonly confirmationService = inject(ConfirmationDialogService);
 
   //============ SIGNALS ============
 
-  currentUser = this.authService.currentUser;
-  passwordForms = signal(false);
-  emailForms = signal(true);
+  showEmail = signal(false);
+  showPassword = signal(false);
 
-  //============ FORMS ============
+  //============ NAVIGATION METHODS ============
 
-  emailData: EmailData = {
-    email: ''
-  };
-
-  //============ LIFECYCLE ============
-
-  ngOnInit(): void {
-    this.emailData.email = this.currentUser()?.email || '';
+  showEmailForm(): void {
+    this.showEmail.set(true);
+    this.showPassword.set(false);
   }
-
-  //============ COMPUTED ============
-
-  isEmailValid = computed(() => {
-    const email = this.emailData.email.trim();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  });
-
-  //============ ACTIONS ============
 
   showPasswordForm(): void {
-    this.passwordForms.set(this.passwordForms());
+    this.showPassword.set(true);
+    this.showEmail.set(false);
   }
 
-  async saveEmail(): Promise<void> {
-    const email = this.emailData.email.trim();
-    if (!email || !this.isEmailValid()) return;
+  goBack(): void {
+    this.showEmail.set(false);
+    this.showPassword.set(false);
+  }
 
-    await this.credentialsService.updateEmail(email);
+  //============ DELETE ACCOUNT ============
+
+  async deleteAccount(): Promise<void> {
+    const confirmed = await this.confirmationService.confirmDeleteAccount();
+    if (confirmed) {
+      this.authService.logout();
+    }
   }
 }
