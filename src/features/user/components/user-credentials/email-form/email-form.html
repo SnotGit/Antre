@@ -1,0 +1,63 @@
+<div class="email-form-content">
+
+  <div class="header">
+    <button class="back-btn" (click)="goBack()">← Retour</button>
+    <h2 class="form-title">Modifier Email</h2>
+  </div>
+
+  @if (error()) {
+    <div class="error-message">{{ error() }}</div>
+  }
+
+  @if (successMessage()) {
+    <div class="success-message">{{ successMessage() }}</div>
+  }
+
+  <div class="form-section">
+    <form (ngSubmit)="saveEmail()">
+      
+      <div class="field">
+        <label class="label">Email Actuel</label>
+        <input 
+          type="email" 
+          [value]="currentUser()?.email || ''"
+          class="input" 
+          disabled
+          readonly>
+      </div>
+
+      <div class="field">
+        <label class="label">Nouvel Email</label>
+        <input 
+          type="email" 
+          [(ngModel)]="email" 
+          name="email"
+          class="input" 
+          placeholder="votre@nouvel-email.com"
+          required>
+      </div>
+
+      <div class="field">
+        <label class="label">Confirmer Nouvel Email</label>
+        <input 
+          type="email" 
+          [(ngModel)]="confirmEmail" 
+          name="confirmEmail"
+          class="input" 
+          placeholder="votre@nouvel-email.com"
+          required>
+      </div>
+
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn color"
+          [disabled]="!isEmailValid()">
+          Sauvegarder Email
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>

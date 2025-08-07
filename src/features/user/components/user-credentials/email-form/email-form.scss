@@ -1,14 +1,14 @@
 @use 'content/artefacts/buttons/button' as *;
 @use 'content/artefacts/buttons/credentials-button' as *;
-@use 'content/artefacts/form-field/form-field' as *;
+@use 'content/artefacts/forms/form-field' as *;
 
-.password-forms-content {
+.email-form-content {
   
   //============ HEADER ============
   
   .header {
     display: grid;
-    grid-template-columns: 50% 50%;
+    grid-template-columns: 30% 40% 30%;
     margin-bottom: 30px;
     margin-top: 20px;
     align-items: center;
