@@ -17,45 +17,29 @@ type TabType = 'stats' | 'profile' | 'identifiants';
 })
 export class UserAccount implements OnInit, OnDestroy {
 
-  //============ INJECTIONS ============
+  //======= INJECTIONS =======
 
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly typingService = inject(TypingEffectService);
 
-  //============ SIGNALS ============
+  //======= SIGNALS =======
 
   isLoggedIn = this.authService.isLoggedIn;
   error = this.userService.error;
   successMessage = this.userService.successMessage;
   activeTab = signal<TabType>('stats');
 
-  //============ TYPING EFFECT ============
+  //======= TYPING EFFECT =======
 
   private readonly title = 'Mon Compte';
   headerTitle = this.typingService.headerTitle;
   typing = this.typingService.typingComplete;
 
-  //============ LOCALSTORAGE PERSISTENCE ============
 
-  private readonly storageKey = 'user-account-tab';
 
-  private readonly tabPersistenceEffect = effect(() => {
-    const tab = this.activeTab();
-    localStorage.setItem(this.storageKey, tab);
-  });
-
-  //============ CONSTRUCTOR ============
-
-  constructor() {
-    const savedTab = localStorage.getItem(this.storageKey);
-    if (savedTab && ['stats', 'profile', 'identifiants'].includes(savedTab)) {
-      this.activeTab.set(savedTab as TabType);
-    }
-  }
-
-  //============ LIFECYCLE ============
+  //======= LIFECYCLE =======
 
   ngOnInit(): void {
     if (!this.isLoggedIn()) {
@@ -64,14 +48,13 @@ export class UserAccount implements OnInit, OnDestroy {
     }
 
     this.typingService.title(this.title);
-      }
+  }
 
   ngOnDestroy(): void {
     this.typingService.destroy();
-    this.tabPersistenceEffect.destroy();
   }
 
-  //============ NAVIGATION ============
+  //======= NAVIGATION =======
 
   setActiveTab(tab: TabType): void {
     this.activeTab.set(tab);

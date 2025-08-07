@@ -9,30 +9,31 @@ export const errorInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, n
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       
-      // Gestion des erreurs d'authentification
+      //======= AUTH ERRORS =======
+      
       if (error.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        router.navigate(['/auth/login']);
-        return throwError(() => new Error('Session expirée, veuillez vous reconnecter'));
+        if (!req.url.includes('/api/auth/')) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          router.navigate(['/auth/login']);
+          return throwError(() => new Error('Session expirée, veuillez vous reconnecter'));
+        }
       }
       
-      // Gestion des erreurs 403 (forbidden)
+      //======= OTHER ERRORS =======
+      
       if (error.status === 403) {
         return throwError(() => new Error('Accès non autorisé'));
       }
       
-      // Gestion des erreurs 404
       if (error.status === 404) {
         return throwError(() => new Error('Ressource non trouvée'));
       }
       
-      // Gestion des erreurs 500
       if (error.status >= 500) {
         return throwError(() => new Error('Erreur serveur, veuillez réessayer plus tard'));
       }
       
-      // Autres erreurs
       const errorMessage = error.error?.error || error.message || 'Erreur inconnue';
       return throwError(() => new Error(errorMessage));
     })
