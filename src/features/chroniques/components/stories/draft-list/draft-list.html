@@ -27,8 +27,8 @@
   <div class="content">
     <div class="content-grid">
       @for (draft of draftCards(); track draft.id) {
-        <div class="story-card-btn" (click)="onDraftCardClick(draft)">
-          <div class="btn" [class.selected]="isSelected(draft.id)">
+        <div class="draft-card" (click)="onDraftCardClick(draft)">
+          <div class="card" [class.selected]="isSelected(draft.id)">
             <div class="story-title">{{ draft.title }}</div>
             <div class="story-date">{{ formatDate(draft.lastModified) }}</div>
             
