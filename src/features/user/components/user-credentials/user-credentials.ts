@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { AuthService } from '@features/user/services/auth.service';
 import { CredentialsService } from '@features/user/services/credentials.service';
 import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
@@ -23,6 +23,10 @@ export class UserCredentials {
 
   showEmail = signal(false);
   showPassword = signal(false);
+
+  //============ COMPUTED ============
+
+  showContent = computed(() => this.showEmail() || this.showPassword());
 
   //============ NAVIGATION METHODS ============
 

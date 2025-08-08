@@ -1,7 +1,7 @@
 import { Component, inject, computed, resource } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/user/services/auth.service';
-import { UserService } from '@features/user/services/user.service';
+import { StatsService } from '@features/user/services/stats.service';
 
 @Component({
   selector: 'app-user-stats',
@@ -15,7 +15,7 @@ export class UserStats {
 
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
-  private readonly userService = inject(UserService);
+  private readonly statsService = inject(StatsService);
 
   //============ SIGNALS ============
 
@@ -26,7 +26,7 @@ export class UserStats {
   private statsResource = resource({
     loader: async () => {
       try {
-        return await this.userService.getStats();
+        return await this.statsService.getStats();
       } catch (error) {
         console.warn('Erreur lors du chargement des stats:', error);
         return { drafts: 0, published: 0, totalLikes: 0 };

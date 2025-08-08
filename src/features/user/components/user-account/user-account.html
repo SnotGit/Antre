@@ -13,12 +13,12 @@
       <div class="message error-message">
         {{ error() }}
       </div>
-      }
-
-      @if (successMessage()) {
+      } @else if (success()) {
       <div class="message success-message">
-        {{ successMessage() }}
+        {{ success() }}
       </div>
+      } @else if (showBackButton()) {
+      <button class="back-btn" (click)="goBack()">← Retour</button>
       }
     </div>
   </div>
