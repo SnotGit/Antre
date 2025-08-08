@@ -32,14 +32,14 @@
             <div class="story-title">{{ story.title }}</div>
             <div class="story-date">{{ formatDate(story.lastModified) }}</div>
             <div class="story-likes">
-              <span class="heart-icon">♥</span>
+              <span class="heart-icon">♡</span>
               <span class="likes-count">{{ story.likes }}</span>
             </div>
             
             <input type="checkbox" 
                    class="delete-checkbox"
                    [checked]="isSelected(story.id)"
-                   (click)="$event.stopPropagation(); toggleSelection(story.id)">
+                   (click)="toggle(story.id)">
           </div>
         </div>
       }

@@ -92,14 +92,14 @@
 
 //============ STORY CARDS ============
 
-.publisged-card {
-  
+.published-card {
+
   .card {
     background-color: #1a1d20;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;    
+    align-items: center;
     width: 280px;
     height: 160px;
     position: relative;
@@ -110,7 +110,8 @@
 
 
     &:hover:not(.selected) {
-      transform: translateY(-2px);
+      border-color: #d0d0d0;
+
     }
 
     &.selected {
@@ -123,6 +124,13 @@
 
       .story-date {
         color: crimson;
+      }
+
+      .story-likes {
+        .heart-icon, 
+        .likes-count {
+          color: crimson;
+        }
       }
     }
 
@@ -145,9 +153,8 @@
       margin-top: 10px;
 
       .heart-icon {
-        color: #b55a44;
-        font-size: 16px;
-        font-weight: bold;
+        font-size: 30px;
+        color: #5d889e;
       }
 
       .likes-count {

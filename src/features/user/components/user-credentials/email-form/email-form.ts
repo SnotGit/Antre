@@ -21,7 +21,7 @@ export class EmailForm {
   currentUser = this.authService.currentUser;
   loading = this.credentialsService.loading;
   error = this.credentialsService.error;
-  successMessage = this.credentialsService.successMessage;
+  successMessage = this.credentialsService.success;
 
   email = signal(this.currentUser()?.email || '');
   newEmail = signal('');
