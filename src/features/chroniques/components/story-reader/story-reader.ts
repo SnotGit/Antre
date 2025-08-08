@@ -50,7 +50,7 @@ export class Story {
 
       if (!story) return null;
 
-      const currentIndex = userStories.findIndex(s => s.id === params.storyId);
+      const currentStory = userStories.findIndex(s => s.id === params.storyId);
 
       return {
         story: { 
@@ -58,11 +58,11 @@ export class Story {
           isliked: typeof story.isliked === 'boolean' ? story.isliked : false 
         },
         userStories,
-        currentIndex,
-        hasNext: currentIndex > 0,
-        hasPrevious: currentIndex < userStories.length - 1,
-        nextStory: currentIndex > 0 ? userStories[currentIndex - 1] : null,
-        previousStory: currentIndex < userStories.length - 1 ? userStories[currentIndex + 1] : null
+        currentStory,
+        hasNext: currentStory > 0,
+        hasPrevious: currentStory < userStories.length - 1,
+        nextStory: currentStory > 0 ? userStories[currentStory - 1] : null,
+        previousStory: currentStory < userStories.length - 1 ? userStories[currentStory + 1] : null
       };
     }
   });

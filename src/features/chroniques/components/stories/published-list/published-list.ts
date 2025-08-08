@@ -69,7 +69,7 @@ export class PublishedList implements OnInit, OnDestroy {
 
   //============ SELECTION METHODS ============
 
-  toggleSelection(id: number): void {
+  toggle(id: number): void {
     const newSelection = this.deleteService.toggle(id, this.selectedStories());
     this.selectedStories.set(newSelection);
   }
