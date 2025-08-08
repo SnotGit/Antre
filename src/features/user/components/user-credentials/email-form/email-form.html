@@ -1,17 +1,8 @@
 <div class="email-form-content">
 
-  <div class="header">
-    <button class="back-btn" (click)="goBack()">← Retour</button>
-    <h2 class="form-title">Modifier Email</h2>
+  <div class="content-title">
+    <h2 class="title">Modifier Email</h2>
   </div>
-
-  @if (error()) {
-    <div class="error-message">{{ error() }}</div>
-  }
-
-  @if (successMessage()) {
-    <div class="success-message">{{ successMessage() }}</div>
-  }
 
   <div class="form-section">
     <form (ngSubmit)="saveEmail()">

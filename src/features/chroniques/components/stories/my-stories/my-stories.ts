@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angul
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/user/services/auth.service';
-import { UserService } from '@features/user/services/user.service';
+import { StatsService } from '@features/user/services/stats.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 
 @Component({
@@ -17,7 +17,7 @@ export class MyStories implements OnInit, OnDestroy {
 
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
-  private readonly userService = inject(UserService);
+  private readonly statsService = inject(StatsService);
   private readonly typingService = inject(TypingEffectService);
 
   //============ TYPING EFFECT ============
@@ -33,10 +33,10 @@ export class MyStories implements OnInit, OnDestroy {
   private statsResource = resource({
     loader: async () => {
       try {
-        return await this.userService.getStats();
+        return await this.statsService.getStats();
       } catch (error) {
         console.warn('Erreur lors du chargement des stats:', error);
-        return { drafts: 0, published: 0, totalLikes: 0 };
+        return { drafts: 0, published: 0 };
       }
     }
   });
@@ -45,15 +45,15 @@ export class MyStories implements OnInit, OnDestroy {
     const resourceValue = this.statsResource.value();
     
     if (this.statsResource.isLoading()) {
-      return { drafts: 0, published: 0, totalLikes: 0 };
+      return { drafts: 0, published: 0 };
     }
     
     if (this.statsResource.error()) {
       console.warn('Resource en erreur:', this.statsResource.error());
-      return { drafts: 0, published: 0, totalLikes: 0 };
+      return { drafts: 0, published: 0 };
     }
     
-    return resourceValue || { drafts: 0, published: 0, totalLikes: 0 };
+    return resourceValue || { drafts: 0, published: 0 };
   });
 
   //============ LIFECYCLE ============

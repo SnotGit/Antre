@@ -17,7 +17,7 @@ export class PasswordForms {
   //============ SIGNALS ============
 
   error = this.credentialsService.error;
-  successMessage = this.credentialsService.successMessage;
+  success = this.credentialsService.success;
 
   currentPassword = signal('');
   newPassword = signal('');
@@ -48,9 +48,5 @@ export class PasswordForms {
     this.currentPassword.set('');
     this.newPassword.set('');
     this.confirmPassword.set('');
-  }
-
-  goBack(): void {
-    this.credentialsService.clearMessages();
   }
 }

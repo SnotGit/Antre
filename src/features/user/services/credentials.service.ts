@@ -29,18 +29,18 @@ export class CredentialsService {
 
   private _loading = signal(false);
   private _error = signal<string | null>(null);
-  private _successMessage = signal<string | null>(null);
+  private _success = signal<string | null>(null);
 
   loading = this._loading.asReadonly();
   error = this._error.asReadonly();
-  successMessage = this._successMessage.asReadonly();
+  success = this._success.asReadonly();
 
   //============ EMAIL METHODS ============
 
   async updateEmail(email: string): Promise<void> {
     this._loading.set(true);
     this._error.set(null);
-    this._successMessage.set(null);
+    this._success.set(null);
 
     try {
       const response = await firstValueFrom(
@@ -50,7 +50,7 @@ export class CredentialsService {
       );
 
       this.authService.updateCurrentUser(response.user);
-      this._successMessage.set('Email mis à jour avec succès');
+      this._success.set('Email mis à jour avec succès');
 
     } catch (error: any) {
       this._error.set(error?.error?.message || 'Erreur lors de la mise à jour de l\'email');
@@ -64,7 +64,7 @@ export class CredentialsService {
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
     this._loading.set(true);
     this._error.set(null);
-    this._successMessage.set(null);
+    this._success.set(null);
 
     try {
       await firstValueFrom(
@@ -74,7 +74,7 @@ export class CredentialsService {
         })
       );
 
-      this._successMessage.set('Mot de passe modifié avec succès');
+      this._success.set('Mot de passe modifié avec succès');
 
     } catch (error: any) {
       this._error.set(error?.error?.message || 'Erreur lors du changement de mot de passe');
@@ -87,6 +87,6 @@ export class CredentialsService {
 
   clearMessages(): void {
     this._error.set(null);
-    this._successMessage.set(null);
+    this._success.set(null);
   }
 }
