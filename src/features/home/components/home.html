@@ -1,16 +1,16 @@
 <div class="container">
 
   <div class="header">
-    @if (showTitle1) {
+    @if (showTitle1()) {
       <h2 
         class="header-title" 
         [class.typing]="typing()"
-        [class.fade-out]="fadeOutTitle1">
+        [class.fade-out]="fadeOutTitle1()">
         {{ headerTitle() }}
       </h2>
     }
     
-    @if (showTitle2) {
+    @if (showTitle2()) {
       <h2 
         class="header-title" 
         [class.typing]="typing()">
