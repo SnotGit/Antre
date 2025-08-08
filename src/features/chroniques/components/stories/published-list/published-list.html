@@ -27,8 +27,8 @@
   <div class="content">
     <div class="content-grid">
       @for (story of publishedCards(); track story.id) {
-        <div class="story-card-btn" (click)="onPublishedCardClick(story)">
-          <div class="btn" [class.selected]="isSelected(story.id)">
+        <div class="published-card" (click)="onPublishedCardClick(story)">
+          <div class="card" [class.selected]="isSelected(story.id)">
             <div class="story-title">{{ story.title }}</div>
             <div class="story-date">{{ formatDate(story.lastModified) }}</div>
             <div class="story-likes">
