@@ -5,13 +5,15 @@
       {{ headerTitle() }}
     </h1>
 
-    <div class="back-button">
-      <button class="btn" (click)="goBack()">
-        <span>← Retour</span>
-      </button>
-    </div>
+    @if (!Selection()) {
+      <div class="back-button">
+        <button class="btn" (click)="goBack()">
+          <span>← Retour</span>
+        </button>
+      </div>
+    }
 
-    @if (hasSelection()) {
+    @if (Selection()) {
       <div class="delete-button">
         <button class="btn" (click)="deleteSelected()">
           <span>Supprimer ({{ selectedStories().size }})</span>
@@ -26,11 +28,11 @@
 
   <div class="content">
     <div class="content-grid">
-      @for (story of publishedCards(); track story.id) {
-        <div class="published-card" (click)="onPublishedCardClick(story)">
+      @for (story of Stories(); track story.id) {
+        <div class="published-card" (click)="onCardClick(story)">
           <div class="card" [class.selected]="isSelected(story.id)">
             <div class="story-title">{{ story.title }}</div>
-            <div class="story-date">{{ formatDate(story.lastModified) }}</div>
+            <div class="story-date">{{ story.lastModified }}</div>
             <div class="story-likes">
               <span class="heart-icon">♡</span>
               <span class="likes-count">{{ story.likes }}</span>

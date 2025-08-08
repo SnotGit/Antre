@@ -3,8 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
 
-//======= CHRONIQUES INTERFACES =======
-
 export interface StoryReader {
   id: number;
   title: string;
@@ -30,15 +28,11 @@ export interface StoryCard {
   };
 }
 
-//======= EDIT =======
-
 export interface EditStory {
   id: number;
   title: string;
   content: string;
 }
-
-//======= LISTS =======
 
 export interface Draft {
   id: number;
@@ -53,8 +47,6 @@ export interface Published {
   likes: number;
 }
 
-//======= USER STORIES =======
-
 export interface UserStories {
   id: number;
   title: string;
@@ -65,19 +57,29 @@ export interface UserStories {
 })
 export class LoadService {
 
-  //======= INJECTIONS =======
-
   private readonly http = inject(HttpClient);
   private readonly API_URL = `${environment.apiUrl}/chroniques`;
 
-  //======= PUBLIC STORIES =======
+  private formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  }
 
   async getLatest(): Promise<StoryCard[]> {
     try {
       const response = await firstValueFrom(
         this.http.get<{ stories: StoryCard[] }>(`${this.API_URL}/public/stories`)
       );
-      return response.stories || [];
+      
+      const stories = response.stories || [];
+      
+      return stories.map(story => ({
+        ...story,
+        publishDate: this.formatDate(story.publishDate)
+      }));
     } catch (error) {
       throw error;
     }
@@ -88,7 +90,11 @@ export class LoadService {
       const response = await firstValueFrom(
         this.http.get<{ story: StoryReader }>(`${this.API_URL}/public/story/${id}`)
       );
-      return response.story;
+      
+      return {
+        ...response.story,
+        publishDate: this.formatDate(response.story.publishDate)
+      };
     } catch (error) {
       throw error;
     }
@@ -105,14 +111,18 @@ export class LoadService {
     }
   }
 
-  //======= PRIVATE STORIES =======
-
   async getDrafts(): Promise<Draft[]> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ stories: Draft[] }>(`${this.API_URL}/private/drafts`)
+        this.http.get<{ drafts: Draft[] }>(`${this.API_URL}/private/drafts`)
       );
-      return response.stories || [];
+      
+      const drafts = response.drafts || [];
+      
+      return drafts.map(draft => ({
+        ...draft,
+        lastModified: this.formatDate(draft.lastModified)
+      }));
     } catch (error) {
       throw error;
     }
@@ -121,29 +131,24 @@ export class LoadService {
   async getPublished(): Promise<Published[]> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ stories: Published[] }>(`${this.API_URL}/private/published`)
+        this.http.get<{ published: Published[] }>(`${this.API_URL}/private/published`)
       );
-      return response.stories || [];
+      
+      const published = response.published || [];
+      
+      return published.map(story => ({
+        ...story,
+        lastModified: this.formatDate(story.lastModified)
+      }));
     } catch (error) {
       throw error;
     }
   }
 
-  async getDraftStory(id: number): Promise<EditStory> {
+  async getStoryForEdit(id: number): Promise<EditStory> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ story: EditStory }>(`${this.API_URL}/private/draft/${id}`)
-      );
-      return response.story;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async getPublishedStory(id: number): Promise<EditStory> {
-    try {
-      const response = await firstValueFrom(
-        this.http.get<{ story: EditStory }>(`${this.API_URL}/private/published/${id}`)
+        this.http.get<{ story: EditStory }>(`${this.API_URL}/private/story/${id}`)
       );
       return response.story;
     } catch (error) {

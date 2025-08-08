@@ -32,25 +32,25 @@ export class PublishedList implements OnInit, OnDestroy {
   showCursor = this.typingService.showCursor;
   typing = this.typingService.typingComplete;
 
-  //============ SELECTION STATE ============
+  //============ SIGNAL ============
 
   selectedStories = signal<Set<number>>(new Set());
 
   //============ DATA LOADING ============
 
-  private readonly publishedResource = resource({
+  private readonly Resource = resource({
     loader: async () => {
       return await this.loadService.getPublished();
     }
   });
 
-  publishedCards = computed((): Published[] => {
-    return this.publishedResource.value() || [];
+  Stories = computed((): Published[] => {
+    return this.Resource.value() || [];
   });
 
   //============ COMPUTED ============
 
-  hasSelection = computed(() => this.selectedStories().size > 0);
+  Selection = computed(() => this.selectedStories().size > 0);
 
   //============ LIFECYCLE ============
 
@@ -85,26 +85,16 @@ export class PublishedList implements OnInit, OnDestroy {
 
     await this.deleteService.deleteSelected(selectedIds);
     this.selectedStories.set(new Set());
-    this.publishedResource.reload();
+    this.Resource.reload();
   }
 
   //============ NAVIGATION ============
 
-  onPublishedCardClick(story: Published): void {
+  onCardClick(story: Published): void {
     this.router.navigate(['/chroniques/mes-histoires/publiée/edition', story.title]);
   }
 
   goBack(): void {
     this.router.navigate(['/chroniques/mes-histoires']);
-  }
-
-  //============ UTILS ============
-
-  formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
   }
 }

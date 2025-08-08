@@ -55,7 +55,7 @@ export const routes: Routes = [
   
   {
     path: ':username/:title',
-    loadComponent: () => import('../components/story-reader/story-reader').then(m => m.Story),
+    loadComponent: () => import('../components/story-reader/story-reader').then(m => m.StoryReader),
     resolve: { data: chroniquesResolver }
   },
 

@@ -16,7 +16,7 @@ export class StoryCardComponent {
   private readonly loadService = inject(LoadService);
   private readonly API_URL = environment.apiUrl;
 
-  //============ INPUTS & OUTPUTS ============
+  //============ SIGNALS ============
   
   story = input.required<StoryCard>();
   cardClick = output<StoryCard>();
@@ -24,7 +24,9 @@ export class StoryCardComponent {
   //============ COMPUTED ============
 
   username = computed(() => this.story().user.username);
+  
   storyTitle = computed(() => this.story().title);
+  
   storyDate = computed(() => this.story().publishDate);
   
   avatarUrl = computed(() => {

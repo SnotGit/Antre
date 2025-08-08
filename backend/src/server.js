@@ -53,5 +53,6 @@ app.get('/api/health', (req, res) => {
 //============ DÉMARRAGE SERVEUR ============
 
 app.listen(PORT, () => {
-  console.log(`🚀 L'Antre API démarrée sur http://localhost:${PORT}`);
+  console.log(`L'Antre API démarrée sur http://localhost:${PORT}`);
+  console.log('Système opérationnel');
 });
