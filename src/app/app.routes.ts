@@ -13,12 +13,12 @@ import {
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/home',
+    redirectTo: '/accueil',
     pathMatch: 'full'
   },
 
   {
-    path: 'home',
+    path: "accueil",
     loadComponent: () => import('../features/home/components/home').then(m => m.Home)
   },
 

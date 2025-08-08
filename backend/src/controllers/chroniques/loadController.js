@@ -132,11 +132,20 @@ const getPublished = async (req, res) => {
   try {
     const published = await getUserStories(req.user.userId, 'PUBLISHED', 'publishedAt');
     
-    const publishedList = published.map(story => ({
-      id: story.id,
-      title: story.title,
-      lastModified: story.updatedAt.toISOString()
-    }));
+    const publishedList = await Promise.all(
+      published.map(async (story) => {
+        const likesCount = await prisma.like.count({
+          where: { storyId: story.id }
+        });
+        
+        return {
+          id: story.id,
+          title: story.title,
+          lastModified: story.updatedAt.toISOString(),
+          likes: likesCount
+        };
+      })
+    );
 
     res.json({ stories: publishedList });
   } catch (error) {
