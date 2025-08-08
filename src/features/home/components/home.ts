@@ -32,9 +32,9 @@ export class Home implements OnInit, OnDestroy {
 
   //============ STATE MANAGEMENT ============
 
-  showTitle1 = true;
-  showTitle2 = false;
-  fadeOutTitle1 = false;
+  showTitle1 = signal(true);     
+  showTitle2 = signal(false);     
+  fadeOutTitle1 = signal(false); 
 
   //============ LIFECYCLE ============
 
@@ -42,11 +42,11 @@ export class Home implements OnInit, OnDestroy {
     this.currentTitle.set(this.title1);
     
     setTimeout(() => {
-      this.fadeOutTitle1 = true;
+      this.fadeOutTitle1.set(true);
       
       setTimeout(() => {
-        this.showTitle1 = false;
-        this.showTitle2 = true;
+        this.showTitle1.set(false); 
+        this.showTitle2.set(true);   
         this.currentTitle.set(this.title2);
       }, 600);
     }, 5000);
