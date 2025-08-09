@@ -26,18 +26,21 @@ export class EditNew implements OnInit, OnDestroy {
   private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
 
+  //======= TYPING EFFECT =======
+
+  private readonly title = 'Nouvelle Histoire';
+
+  headerTitle = this.typingService.headerTitle;
+  showCursor = this.typingService.showCursor;
+  typing = this.typingService.typingComplete;
+
   //======= SIGNALS =======
 
   storyTitle = signal('');
   storyContent = signal('');
   storyId = signal<number>(0);
-  hasStartedTyping = signal(false);
 
   //======= COMPUTED =======
-
-  headerTitle = this.typingService.headerTitle;
-  showCursor = this.typingService.showCursor;
-  typing = this.typingService.typingComplete;
 
   storyData = computed((): StoryFormData => ({
     title: this.storyTitle(),
@@ -59,8 +62,7 @@ export class EditNew implements OnInit, OnDestroy {
   //======= EFFECTS =======
 
   private firstCharacterEffect = effect(async () => {
-    if (this.hasContent() && !this.hasStartedTyping() && !this.isDraftCreated()) {
-      this.hasStartedTyping.set(true);
+    if (this.hasContent() && !this.isDraftCreated()) {
       await this.createInitialDraft();
     }
   });
@@ -79,7 +81,7 @@ export class EditNew implements OnInit, OnDestroy {
       return;
     }
 
-    this.typingService.title('Nouvelle Histoire');
+    this.typingService.title(this.title);
   }
 
   ngOnDestroy(): void {
