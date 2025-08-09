@@ -38,7 +38,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
 
   //======= ROUTER INPUT =======
 
-  titleParam = input.required<string>();
+  titleUrl = input.required<string>();
 
   //======= SIGNALS =======
 
@@ -83,7 +83,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
     this.typingService.title(this.title);
 
     try {
-      const resolved = await this.chroniquesResolver.resolveStoryByTitle(this.titleParam());
+      const resolved = await this.chroniquesResolver.resolveStoryByTitle(this.titleUrl());
       const story = await this.loadService.getStoryForEdit(resolved.storyId);
       
       this.storyId.set(story.id);

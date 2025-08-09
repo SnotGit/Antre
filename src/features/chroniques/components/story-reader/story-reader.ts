@@ -25,14 +25,14 @@ export class StoryReader {
   //======= ROUTER INPUTS =======
   
   username = input.required<string>();
-  title = input.required<string>();
+  titleUrl = input.required<string>();
 
   //======= STORY DATA RESOURCE =======
 
   storyData = resource({
     params: () => ({
       username: this.username(),
-      title: this.title()
+      title: this.titleUrl()
     }),
     loader: async ({ params }) => {
       if (!params.username || !params.title) return null;
