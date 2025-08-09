@@ -12,9 +12,9 @@ interface ResolverData {
   content?: string;
 }
 
-//======= RESOLVER PRINCIPAL =======
+//======= RESOLVER DE ROUTE =======
 
-export const chroniquesResolver: ResolveFn<ResolverData | RedirectCommand> = async (route) => {
+export const ChroniquesResolver: ResolveFn<ResolverData | RedirectCommand> = async (route) => {
   const http = inject(HttpClient);
   const loadService = inject(LoadService);
   const router = inject(Router);
