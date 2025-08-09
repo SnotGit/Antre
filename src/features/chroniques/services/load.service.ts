@@ -111,6 +111,8 @@ export class LoadService {
     }
   }
 
+// ======== LISTS ========
+
   async getDrafts(): Promise<Draft[]> {
     try {
       const response = await firstValueFrom(
@@ -144,6 +146,30 @@ export class LoadService {
       throw error;
     }
   }
+
+  async getDraftStory(id: number): Promise<EditStory> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<{ story: EditStory }>(`${this.API_URL}/private/draft/${id}`)
+      );
+      return response.story;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getPublishedStory(id: number): Promise<EditStory> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<{ story: EditStory }>(`${this.API_URL}/private/published/${id}`)
+      );
+      return response.story;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // ======= EDIT =======
 
   async getStoryForEdit(id: number): Promise<EditStory> {
     try {
