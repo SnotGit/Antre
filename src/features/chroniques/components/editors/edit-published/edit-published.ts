@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, effect, input } from '@angular/core';
+import { Component, inject, signal, computed, resource, input, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
@@ -59,40 +59,62 @@ export class PublishedEditor {
     return data.title.length >= 3 && data.content.length >= 100;
   });
 
-  //======= EFFECTS =======
+  //======= RESOURCE =======
 
-  private loadStoryEffect = effect(async () => {
-    const titleParam = this.title();
-    if (!titleParam) return;
-
-    if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/auth/login']);
-      return;
-    }
-
-    try {
-      const resolved = await this.chroniquesResolver.resolveStoryByTitle(titleParam);
-      const story = await this.loadService.getStoryForEdit(resolved.storyId);
+  private readonly storyResource = resource({
+    params: () => ({
+      titleParam: this.title(),
+      isLoggedIn: this.authService.isLoggedIn()
+    }),
+    loader: async ({ params }) => {
+      if (!params.titleParam) return null;
       
-      this.storyId.set(story.id);
-      this.storyTitle.set(story.title);
-      this.storyContent.set(story.content);
-      
-      this.typingService.title(`Édition: ${story.title}`);
-      this.restoreModifications();
-    } catch (error) {
-      this.router.navigate(['/chroniques/mes-histoires']);
+      if (!params.isLoggedIn) {
+        this.router.navigate(['/auth/login']);
+        return null;
+      }
+
+      try {
+        const resolved = await this.chroniquesResolver.resolveStoryByTitle(params.titleParam);
+        const story = await this.loadService.getStoryForEdit(resolved.storyId);
+        
+        this.storyId.set(story.id);
+        this.storyTitle.set(story.title);
+        this.storyContent.set(story.content);
+        this.typingService.title(`Édition: ${story.title}`);
+        this.restoreModifications();
+        
+        return story;
+      } catch (error) {
+        this.router.navigate(['/chroniques/mes-histoires']);
+        return null;
+      }
     }
   });
 
+  //======= EFFECTS =======
+
   private autoSaveEffect = effect(() => {
-    if (this.storyId() > 0 && this.publishedStory()) {
+    if (this.storyResource.value() && this.storyId() > 0 && this.publishedStory()) {
       const key = `published-${this.storyId()}-modifications`;
       this.saveService.saveLocal(key, this.storyData());
     }
   });
 
   //======= ACTIONS =======
+
+  async cancel(): Promise<void> {
+    const key = `published-${this.storyId()}-modifications`;
+    const hasModifications = this.saveService.restoreLocal(key) !== null;
+
+    if (hasModifications) {
+      const confirmed = await this.confirmationService.confirmDeleteStory(false);
+      if (!confirmed) return;
+    }
+
+    this.saveService.clearLocal(key);
+    this.router.navigate(['/chroniques/mes-histoires']);
+  }
 
   async saveToDraft(): Promise<void> {
     if (!this.publishedStory()) return;
@@ -123,19 +145,6 @@ export class PublishedEditor {
     } catch (error) {
       alert('Erreur lors de la republication');
     }
-  }
-
-  async cancel(): Promise<void> {
-    const key = `published-${this.storyId()}-modifications`;
-    const hasModifications = this.saveService.restoreLocal(key) !== null;
-
-    if (hasModifications) {
-      const confirmed = await this.confirmationService.confirmDeleteStory(false);
-      if (!confirmed) return;
-    }
-
-    this.saveService.clearLocal(key);
-    this.router.navigate(['/chroniques/mes-histoires']);
   }
 
   //======= NAVIGATION =======

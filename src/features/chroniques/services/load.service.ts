@@ -34,13 +34,13 @@ export interface EditStory {
   content: string;
 }
 
-export interface Draft {
+export interface DraftStory {
   id: number;
   title: string;
   lastModified: string;
 }
 
-export interface Published {
+export interface PublishedStory {
   id: number;
   title: string;
   lastModified: string;
@@ -67,6 +67,8 @@ export class LoadService {
       year: 'numeric'
     });
   }
+
+  //======= PUBLIC STORIES =======
 
   async getLatest(): Promise<StoryCard[]> {
     try {
@@ -111,34 +113,17 @@ export class LoadService {
     }
   }
 
-// ======== LISTS ========
+  //======= DRAFT STORIES =======
 
-  async getDrafts(): Promise<Draft[]> {
+  async getDraftStories(): Promise<DraftStory[]> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ drafts: Draft[] }>(`${this.API_URL}/private/drafts`)
+        this.http.get<{ stories: DraftStory[] }>(`${this.API_URL}/private/drafts`)
       );
       
-      const drafts = response.drafts || [];
+      const stories = response.stories || [];
       
-      return drafts.map(draft => ({
-        ...draft,
-        lastModified: this.formatDate(draft.lastModified)
-      }));
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async getPublished(): Promise<Published[]> {
-    try {
-      const response = await firstValueFrom(
-        this.http.get<{ published: Published[] }>(`${this.API_URL}/private/published`)
-      );
-      
-      const published = response.published || [];
-      
-      return published.map(story => ({
+      return stories.map(story => ({
         ...story,
         lastModified: this.formatDate(story.lastModified)
       }));
@@ -158,6 +143,25 @@ export class LoadService {
     }
   }
 
+  //======= PUBLISHED STORIES =======
+
+  async getPublishedStories(): Promise<PublishedStory[]> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<{ stories: PublishedStory[] }>(`${this.API_URL}/private/published`)
+      );
+      
+      const stories = response.stories || [];
+      
+      return stories.map(story => ({
+        ...story,
+        lastModified: this.formatDate(story.lastModified)
+      }));
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getPublishedStory(id: number): Promise<EditStory> {
     try {
       const response = await firstValueFrom(
@@ -169,7 +173,15 @@ export class LoadService {
     }
   }
 
-  // ======= EDIT =======
+  //======= URL HELPERS =======
+
+  encodeTitle(title: string): string {
+    return title.replace(/ /g, '-');
+  }
+
+  decodeTitle(encodedTitle: string): string {
+    return encodedTitle.replace(/-/g, ' ');
+  }
 
   async getStoryForEdit(id: number): Promise<EditStory> {
     try {
