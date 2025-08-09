@@ -38,9 +38,11 @@ const getStoryByTitle = async (req, res) => {
       return res.status(400).json({ error: 'Titre requis' });
     }
 
+    const decodedTitle = decodeURIComponent(title).trim();
+
     const story = await prisma.story.findFirst({
       where: {
-        title: title.trim(),
+        title: decodedTitle,
         userId: userId
       },
       select: { id: true }
@@ -71,9 +73,11 @@ const getStoryByUsernameAndTitle = async (req, res) => {
       return res.status(400).json({ error: 'Titre requis' });
     }
 
+    const decodedTitle = decodeURIComponent(title).trim();
+
     const story = await prisma.story.findFirst({
       where: {
-        title: title.trim(),
+        title: decodedTitle,
         status: 'PUBLISHED',
         user: {
           username: username.trim()
