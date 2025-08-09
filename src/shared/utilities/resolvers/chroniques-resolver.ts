@@ -1,70 +1,96 @@
-import { inject } from '@angular/core';
-import { ResolveFn, RedirectCommand, Router } from '@angular/router';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
-import { LoadService } from '@features/chroniques/services/load.service';
 
-interface ResolverData {
+export interface ResolvedStoryData {
   storyId: number;
-  userId?: number;
-  title?: string;
-  content?: string;
+  userId: number;
+  username: string;
+  title: string;
 }
 
-//======= RESOLVER DE ROUTE =======
+//======= SERVICE CHRONIQUES RESOLVER =======
 
-export const ChroniquesResolver: ResolveFn<ResolverData | RedirectCommand> = async (route) => {
-  const http = inject(HttpClient);
-  const loadService = inject(LoadService);
-  const router = inject(Router);
-  const API_URL = `${environment.apiUrl}/chroniques`;
-  
-  const username = route.paramMap.get('username');
-  const encodedTitle = route.paramMap.get('title');
-  
-  //======= DÉCODAGE URL =======
-  
-  const title = encodedTitle ? decodeURIComponent(encodedTitle) : null;
-  
-  try {
-    
-    //======= ROUTE PRIVÉE ÉDITION =======
-    
-    if (title && !username) {
-      const response = await firstValueFrom(
-        http.get<{ storyId: number }>(`${API_URL}/private/resolve/title/${encodeURIComponent(title)}`)
-      );
-      
-      const story = await loadService.getStoryForEdit(response.storyId);
-      
-      return {
-        storyId: story.id,
-        title: story.title,
-        content: story.content
-      };
-    }
-    
-    //======= ROUTE PUBLIQUE LECTURE =======
-    
-    if (username && title) {
+@Injectable({
+  providedIn: 'root'
+})
+export class ChroniquesResolver {
+
+  private readonly http = inject(HttpClient);
+  private readonly API_URL = `${environment.apiUrl}/chroniques`;
+
+  //======= URL ENCODING/DECODING =======
+
+  encodeTitle(title: string): string {
+    return encodeURIComponent(title);
+  }
+
+  decodeTitle(encodedTitle: string): string {
+    return decodeURIComponent(encodedTitle);
+  }
+
+  //======= STORY RESOLUTION =======
+
+  async resolveStoryByUsernameAndTitle(username: string, encodedTitle: string): Promise<ResolvedStoryData> {
+    try {
+      const title = this.decodeTitle(encodedTitle);
+
       const [userResponse, storyResponse] = await Promise.all([
-        firstValueFrom(http.get<{ userId: number }>(`${API_URL}/resolve/username/${username}`)),
-        firstValueFrom(http.get<{ storyId: number }>(`${API_URL}/resolve/story/${username}/${encodeURIComponent(title)}`))
+        firstValueFrom(this.http.get<{ userId: number }>(`${this.API_URL}/resolve/username/${username}`)),
+        firstValueFrom(this.http.get<{ storyId: number }>(`${this.API_URL}/resolve/story/${username}/${this.encodeTitle(title)}`))
       ]);
-      
+
       return {
         storyId: storyResponse.storyId,
-        userId: userResponse.userId
+        userId: userResponse.userId,
+        username,
+        title
       };
+    } catch (error) {
+      throw new Error(`Impossible de résoudre l'histoire pour ${username}/${encodedTitle}`);
     }
-    
-    //======= REDIRECTION SI AUCUNE RÉSOLUTION =======
-    
-    return new RedirectCommand(router.parseUrl('/chroniques'));
-    
-  } catch (error) {
-    console.error('Resolver error:', error);
-    return new RedirectCommand(router.parseUrl('/chroniques'));
   }
-};
+
+  async resolveStoryByTitle(encodedTitle: string): Promise<{ storyId: number; title: string }> {
+    try {
+      const title = this.decodeTitle(encodedTitle);
+      
+      const response = await firstValueFrom(
+        this.http.get<{ storyId: number }>(`${this.API_URL}/private/resolve/title/${this.encodeTitle(title)}`)
+      );
+      
+      return {
+        storyId: response.storyId,
+        title
+      };
+    } catch (error) {
+      throw new Error(`Impossible de résoudre l'histoire privée pour ${encodedTitle}`);
+    }
+  }
+
+  async resolveUserByUsername(username: string): Promise<{ userId: number }> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<{ userId: number }>(`${this.API_URL}/resolve/username/${username}`)
+      );
+      return response;
+    } catch (error) {
+      throw new Error(`Impossible de résoudre l'utilisateur ${username}`);
+    }
+  }
+
+  //======= URL BUILDING =======
+
+  storyUrl(username: string, title: string): string {
+    return `/chroniques/${username}/${title}`;
+  }
+
+  editDraftUrl(title: string): string {
+    return `/chroniques/mes-histoires/brouillon/edition/${title}`;
+  }
+
+  editPublishedUrl(title: string): string {
+    return `/chroniques/mes-histoires/publiée/edition/${title}`;
+  }
+}

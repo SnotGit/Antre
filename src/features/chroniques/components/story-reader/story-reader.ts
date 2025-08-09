@@ -107,8 +107,7 @@ export class StoryReader {
     if (!data?.hasPrevious || !data.previousStory) return;
     
     const story = data.story;
-    const url = this.chroniquesResolver.storyUrl(story.user?.username!, data.previousStory.title);
-    this.router.navigateByUrl(url);
+    this.router.navigate(['/chroniques', story.user?.username, data.previousStory.title]);
   }
 
   goToNextStory(): void {
@@ -116,7 +115,6 @@ export class StoryReader {
     if (!data?.hasNext || !data.nextStory) return;
     
     const story = data.story;
-    const url = this.chroniquesResolver.storyUrl(story.user?.username!, data.nextStory.title);
-    this.router.navigateByUrl(url);
+    this.router.navigate(['/chroniques', story.user?.username, data.nextStory.title]);
   }
 }

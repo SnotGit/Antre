@@ -1,17 +1,14 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
+import { Component, inject, signal, computed, effect, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { SaveService, StoryFormData } from '@features/chroniques/services/save.service';
 import { DeleteService } from '@features/chroniques/services/delete.service';
+import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
+import { LoadService } from '@features/chroniques/services/load.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
-
-interface PrivateStoryResolve {
-  storyId: number;
-  title: string;
-  content: string;
-}
+import { AuthService } from '@features/user/services/auth.service';
 
 @Component({
   selector: 'app-edit-draft',
@@ -19,105 +16,97 @@ interface PrivateStoryResolve {
   templateUrl: './edit-draft.html',
   styleUrl: './edit-draft.scss'
 })
-export class DraftEditor implements OnInit, OnDestroy {
+export class DraftEditor {
 
-  //========= INJECTIONS =========
+  //======= INJECTIONS =======
 
   private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
   private readonly saveService = inject(SaveService);
   private readonly deleteService = inject(DeleteService);
+  private readonly chroniquesResolver = inject(ChroniquesResolver);
+  private readonly loadService = inject(LoadService);
   private readonly confirmationService = inject(ConfirmationDialogService);
   private readonly typingService = inject(TypingEffectService);
+  private readonly authService = inject(AuthService);
 
-  //========= RESOLVER DATA =========
+  //======= ROUTER INPUT =======
 
-  private resolvedData = computed(() => {
-    return this.route.snapshot.data['data'] as PrivateStoryResolve;
-  });
+  title = input.required<string>();
 
-  //========= SIGNALS =========
+  //======= SIGNALS =======
 
   storyTitle = signal('');
   storyContent = signal('');
   storyId = signal<number>(0);
+  isLoading = signal(true);
 
-  //========= COMPUTED =========
+  //======= COMPUTED =======
+
+  headerTitle = this.typingService.headerTitle;
+  showCursor = this.typingService.showCursor;
+  typing = this.typingService.typingComplete;
 
   storyData = computed((): StoryFormData => ({
     title: this.storyTitle(),
     content: this.storyContent()
   }));
 
-  draftStory = computed(() =>
-    this.storyTitle().trim().length > 0 || this.storyContent().trim().length > 0
-  );
-
-  canPublish = computed(() =>
-    this.storyTitle().trim().length > 0 &&
-    this.storyContent().trim().length > 0
-  );
-
-  //========= TYPING-EFFECT =========
-
-  private readonly title = 'Modifier Brouillon';
-
-  headerTitle = this.typingService.headerTitle;
-  showCursor = this.typingService.showCursor;
-  typing = this.typingService.typingComplete;
-
-  //========= EFFECT =========
-
-  private readonly autoSaveEffect = effect(() => {
+  draftStory = computed(() => {
     const data = this.storyData();
-    if (this.draftStory() && this.storyId() > 0) {
-      this.saveService.save(this.storyId(), data);
-    }
+    return data.title.length >= 3 && data.content.length >= 10;
   });
 
-  //========= LIFECYCLE =========
+  canPublish = computed(() => {
+    const data = this.storyData();
+    return data.title.length >= 3 && data.content.length >= 100;
+  });
 
-  ngOnInit(): void {
-    this.typingService.title(this.title);
-    this.loadResolvedStory();
-  }
+  //======= EFFECTS =======
 
-  ngOnDestroy(): void {
-    this.typingService.destroy();
-    this.autoSaveEffect.destroy();
-  }
- 
-  //========= LOAD FROM RESOLVER =========
+  private loadStoryEffect = effect(async () => {
+    const titleParam = this.title();
+    if (!titleParam) return;
 
-  private loadResolvedStory(): void {
-    const resolved = this.resolvedData();
-    if (!resolved) {
-      this.router.navigate(['/chroniques/mes-histoires']);
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/auth/login']);
       return;
     }
 
-    this.storyId.set(resolved.storyId);
-    this.storyTitle.set(resolved.title);
-    this.storyContent.set(resolved.content);
-  }
+    try {
+      const resolved = await this.chroniquesResolver.resolveStoryByTitle(titleParam);
+      const story = await this.loadService.getStoryForEdit(resolved.storyId);
+      
+      this.storyId.set(story.id);
+      this.storyTitle.set(story.title);
+      this.storyContent.set(story.content);
+      this.isLoading.set(false);
+      
+      this.typingService.title(`Édition: ${story.title}`);
+    } catch (error) {
+      this.router.navigate(['/chroniques/mes-histoires']);
+    }
+  });
 
-  //========= SAVE =========
+  private autoSaveEffect = effect(() => {
+    if (this.storyId() > 0 && this.draftStory() && !this.isLoading()) {
+      this.saveService.save(this.storyId(), this.storyData());
+    }
+  });
+
+  //======= ACTIONS =======
 
   async save(): Promise<void> {
     if (!this.draftStory()) return;
 
     try {
       if (this.storyId() > 0) {
-        const data = this.storyData();
-        this.saveService.save(this.storyId(), data);
+        await this.saveService.save(this.storyId(), this.storyData());
       }
     } catch (error) {
       alert('Erreur lors de la sauvegarde');
     }
   }
-
-  //========= PUBLISH =========
 
   async publishStory(): Promise<void> {
     if (!this.canPublish()) return;
@@ -133,8 +122,6 @@ export class DraftEditor implements OnInit, OnDestroy {
     }
   }
 
-  //========= DELETE =========
-
   async deleteStory(): Promise<void> {
     try {
       await this.deleteService.deleteStory(this.storyId());
@@ -144,7 +131,7 @@ export class DraftEditor implements OnInit, OnDestroy {
     }
   }
 
-  //========= NAVIGATION =========
+  //======= NAVIGATION =======
 
   goBack(): void {
     this.location.back();
