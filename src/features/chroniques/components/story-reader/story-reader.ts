@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angular/core';
+import { Component, inject, computed, resource, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../user/services/auth.service';
 import { LoadService } from '@features/chroniques/services/load.service';
 import { LikeService } from '@features/chroniques/services/like.service';
+import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
 import { environment } from '@environments/environment';
 
 @Component({
@@ -12,39 +13,44 @@ import { environment } from '@environments/environment';
   templateUrl: './story-reader.html',
   styleUrl: './story-reader.scss'
 })
-export class StoryReader implements OnInit, OnDestroy {
+export class StoryReader {
   
   private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
   private readonly loadService = inject(LoadService);
   private readonly likeService = inject(LikeService);
+  private readonly chroniquesResolver = inject(ChroniquesResolver);
   private readonly API_URL = environment.apiUrl;
 
-  private resolvedData = computed(() => {
-    return this.route.snapshot.data['data'] as { storyId: number; userId: number };
-  });
+  //======= ROUTER INPUTS =======
+  
+  username = input.required<string>();
+  title = input.required<string>();
+
+  //======= STORY DATA RESOURCE =======
 
   storyData = resource({
-    params: () => {
-      const data = this.resolvedData();
-      return { 
-        storyId: data?.storyId, 
-        userId: data?.userId 
-      };
-    },
+    params: () => ({
+      username: this.username(),
+      title: this.title()
+    }),
     loader: async ({ params }) => {
-      if (!params.storyId || !params.userId) return null;
+      if (!params.username || !params.title) return null;
 
       try {
+        const resolved = await this.chroniquesResolver.resolveStoryByUsernameAndTitle(
+          params.username, 
+          params.title
+        );
+
         const [story, userStories] = await Promise.all([
-          this.loadService.getStory(params.storyId),
-          this.loadService.getStories(params.userId)
+          this.loadService.getStory(resolved.storyId),
+          this.loadService.getStories(resolved.userId)
         ]);
 
         if (!story) return null;
 
-        const currentStory = userStories.findIndex(s => s.id === params.storyId);
+        const currentStory = userStories.findIndex(s => s.id === resolved.storyId);
 
         return {
           story: { 
@@ -64,6 +70,8 @@ export class StoryReader implements OnInit, OnDestroy {
     }
   });
 
+  //======= COMPUTED PROPERTIES =======
+
   canLike = computed(() => {
     const user = this.authService.currentUser();
     const data = this.storyData.value();
@@ -79,11 +87,7 @@ export class StoryReader implements OnInit, OnDestroy {
     return avatar ? `url(${this.API_URL.replace('/api', '')}${avatar})` : '';
   });
 
-  ngOnInit(): void {
-  }
-
-  ngOnDestroy(): void {
-  }
+  //======= ACTIONS =======
 
   async toggleLike(): Promise<void> {
     const data = this.storyData.value();
@@ -96,12 +100,15 @@ export class StoryReader implements OnInit, OnDestroy {
     }
   }
 
+  //======= NAVIGATION =======
+
   goToPreviousStory(): void {
     const data = this.storyData.value();
     if (!data?.hasPrevious || !data.previousStory) return;
     
     const story = data.story;
-    this.router.navigate(['/chroniques', story.user?.username, data.previousStory.title]);
+    const url = this.chroniquesResolver.storyUrl(story.user?.username!, data.previousStory.title);
+    this.router.navigateByUrl(url);
   }
 
   goToNextStory(): void {
@@ -109,6 +116,7 @@ export class StoryReader implements OnInit, OnDestroy {
     if (!data?.hasNext || !data.nextStory) return;
     
     const story = data.story;
-    this.router.navigate(['/chroniques', story.user?.username, data.nextStory.title]);
+    const url = this.chroniquesResolver.storyUrl(story.user?.username!, data.nextStory.title);
+    this.router.navigateByUrl(url);
   }
 }
