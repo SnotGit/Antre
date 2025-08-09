@@ -5,6 +5,7 @@ import { AuthService } from '@features/user/services/auth.service';
 import { LoadService, DraftStory } from '@features/chroniques/services/load.service';
 import { DeleteService } from '@features/chroniques/services/delete.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
+import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
 
 @Component({
   selector: 'app-draft-list',
@@ -21,6 +22,7 @@ export class DraftList implements OnInit, OnDestroy {
   private readonly loadService = inject(LoadService);
   private readonly deleteService = inject(DeleteService);
   private readonly typingService = inject(TypingEffectService);
+  private readonly chroniquesResolver = inject(ChroniquesResolver);
 
   //======= TYPING EFFECT =======
 
@@ -92,7 +94,8 @@ export class DraftList implements OnInit, OnDestroy {
   //======= NAVIGATION =======
 
   onCardClick(draftStory: DraftStory): void {
-    this.router.navigate(['/chroniques/mes-histoires/brouillon/edition', draftStory.title]);
+    const resolvedTitle = this.chroniquesResolver.encodeTitle(draftStory.title);
+    this.router.navigate(['/chroniques/mes-histoires/brouillon/edition', resolvedTitle]);
   }
 
   goBack(): void {

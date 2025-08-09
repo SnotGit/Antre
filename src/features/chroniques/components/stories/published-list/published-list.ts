@@ -6,6 +6,7 @@ import { LoadService, PublishedStory } from '@features/chroniques/services/load.
 import { DeleteService } from '@features/chroniques/services/delete.service';
 import { LikeService } from '@features/chroniques/services/like.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
+import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
 
 @Component({
   selector: 'app-published-list',
@@ -23,6 +24,7 @@ export class PublishedList implements OnInit, OnDestroy {
   private readonly deleteService = inject(DeleteService);
   private readonly likeService = inject(LikeService);
   private readonly typingService = inject(TypingEffectService);
+  private readonly chroniquesResolver = inject(ChroniquesResolver);
 
   //======= TYPING EFFECT =======
 
@@ -94,7 +96,8 @@ export class PublishedList implements OnInit, OnDestroy {
   //======= NAVIGATION =======
 
   onCardClick(publishedStory: PublishedStory): void {
-    this.router.navigate(['/chroniques/mes-histoires/publiée/edition', publishedStory.title]);
+    const resolvedTitle = this.chroniquesResolver.encodeTitle(publishedStory.title);
+    this.router.navigate(['/chroniques/mes-histoires/publiée/edition', resolvedTitle]);
   }
 
   goBack(): void {
