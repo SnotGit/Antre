@@ -1,13 +1,15 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
 
 @Component({
   selector: 'app-confirmation-dialog',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './confirmation-dialog.html',
   styleUrl: './confirmation-dialog.scss'
 })
 export class ConfirmationDialog {
+
+  //======= INJECTIONS =======
+  
   protected confirmationService = inject(ConfirmationDialogService);
 }

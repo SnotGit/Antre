@@ -4,7 +4,11 @@
       
       @if (confirmationService.config(); as config) {
         <div class="dialog-header">
-          <h3 class="dialog-title">{{ config.title }}</h3>
+          <h3 class="dialog-title" 
+              [class.success]="config.isMessage && !config.isDanger"
+              [class.error]="config.isMessage && config.isDanger">
+            {{ config.title }}
+          </h3>
         </div>
 
         <div class="dialog-content">
@@ -12,18 +16,30 @@
         </div>
 
         <div class="dialog-actions">
-          <button 
-            class="dialog-btn cancel-btn" 
-            (click)="confirmationService.onCancel()">
-            {{ config.cancelText }}
-          </button>
+          @if (config.isMessage) {
+            <button 
+              class="dialog-btn confirm-btn"
+              [class.success]="!config.isDanger"
+              [class.danger]="config.isDanger"
+              (click)="confirmationService.onConfirm()">
+              {{ config.confirmText }}
+            </button>
+          }
           
-          <button 
-            class="dialog-btn confirm-btn"
-            [class.danger]="config.isDanger"
-            (click)="confirmationService.onConfirm()">
-            {{ config.confirmText }}
-          </button>
+          @if (!config.isMessage) {
+            <button 
+              class="dialog-btn cancel-btn" 
+              (click)="confirmationService.onCancel()">
+              {{ config.cancelText }}
+            </button>
+            
+            <button 
+              class="dialog-btn confirm-btn"
+              [class.danger]="config.isDanger"
+              (click)="confirmationService.onConfirm()">
+              {{ config.confirmText }}
+            </button>
+          }
         </div>
       }
 
