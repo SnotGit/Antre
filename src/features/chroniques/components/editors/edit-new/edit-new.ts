@@ -4,8 +4,8 @@ import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { SaveService, StoryFormData } from '@features/chroniques/services/save.service';
 import { DeleteService } from '@features/chroniques/services/delete.service';
-import { TypingEffectService } from '@shared/services/typing-effect.service';
 import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
+import { TypingEffectService } from '@shared/services/typing-effect.service';
 import { AuthService } from '@features/user/services/auth.service';
 
 @Component({
@@ -51,12 +51,10 @@ export class EditNew implements OnInit, OnDestroy {
 
   canPublish = computed(() => {
     const data = this.storyData();
-    return data.title.trim().length >= 3 && data.content.trim().length >= 100;
+    return data.title.trim().length >= 3 && data.content.trim().length >= 3;
   });
 
   isDraftCreated = computed(() => this.storyId() > 0);
-
-  showDeleteButton = computed(() => this.isDraftCreated());
 
   //======= EFFECTS =======
 

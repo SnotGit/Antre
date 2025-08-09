@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { LoadService, StoryCard } from '@features/chroniques/services/load.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
+import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
 import { StoryCardComponent } from './story-card/story-card';
 
 @Component({
@@ -18,6 +19,7 @@ export class Chroniques implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly loadService = inject(LoadService);
   private readonly typingService = inject(TypingEffectService);
+  private readonly chroniquesResolver = inject(ChroniquesResolver);
 
   //============ TYPING EFFECT ============
 
@@ -52,6 +54,7 @@ export class Chroniques implements OnInit, OnDestroy {
   //============ ACTIONS ============
 
   onStoryCardClick(storyCard: StoryCard): void {
-    this.router.navigate(['/chroniques', storyCard.user.username, storyCard.title]);
+    const resolvedTitle = this.chroniquesResolver.encodeTitle(storyCard.title);
+    this.router.navigate(['/chroniques', storyCard.user.username, resolvedTitle]);
   }
 }

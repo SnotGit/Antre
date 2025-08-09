@@ -9,7 +9,8 @@ const {
   getDrafts,
   getPublished,
   getDraftStory,
-  getPublishedStory
+  getPublishedStory,
+  getStoryForEdit
 } = require('../../controllers/chroniques/loadController');
 
 const {
@@ -60,6 +61,7 @@ privateRouter.get('/drafts', getDrafts);
 privateRouter.get('/published', getPublished);
 privateRouter.get('/draft/:id', getDraftStory);
 privateRouter.get('/published/:id', getPublishedStory);
+privateRouter.get('/story/:id', getStoryForEdit);
 privateRouter.post('/draft', createDraft);
 privateRouter.put('/draft/:id', saveDraft);
 privateRouter.post('/publish/:id', publishStory); 

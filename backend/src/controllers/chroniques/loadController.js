@@ -181,6 +181,25 @@ const getPublishedStory = async (req, res) => {
   }
 };
 
+const getStoryForEdit = async (req, res) => {
+  try {
+    const id = parseId(req.params.id);
+    const userId = req.user.userId;
+
+    const story = await prisma.story.findFirst({
+      where: { id, userId },
+      select: { id: true, title: true, content: true }
+    });
+
+    if (!story) return notFound(res, 'Histoire non trouvée');
+
+    res.json({ story });
+  } catch (error) {
+    if (error.message === 'ID invalide') return badRequest(res, error.message);
+    handleError(res, error);
+  }
+};
+
 //======= EXPORTS =======
 
 module.exports = {
@@ -190,5 +209,6 @@ module.exports = {
   getDrafts,
   getPublished,
   getDraftStory,
-  getPublishedStory
+  getPublishedStory,
+  getStoryForEdit
 };
