@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, computed, resource, signal } from
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/user/services/auth.service';
-import { LoadService, Draft } from '@features/chroniques/services/load.service';
+import { LoadService, DraftStory } from '@features/chroniques/services/load.service';
 import { DeleteService } from '@features/chroniques/services/delete.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 
@@ -14,7 +14,7 @@ import { TypingEffectService } from '@shared/services/typing-effect.service';
 })
 export class DraftList implements OnInit, OnDestroy {
 
-  //============ INJECTIONS ============
+  //======= INJECTIONS =======
 
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
@@ -22,7 +22,7 @@ export class DraftList implements OnInit, OnDestroy {
   private readonly deleteService = inject(DeleteService);
   private readonly typingService = inject(TypingEffectService);
 
-  //============ TYPING EFFECT ============
+  //======= TYPING EFFECT =======
 
   private readonly title = 'Brouillons';
 
@@ -30,34 +30,37 @@ export class DraftList implements OnInit, OnDestroy {
   showCursor = this.typingService.showCursor;
   typing = this.typingService.typingComplete;
 
-  //============ SELECTION STATE ============
+  //======= SELECTION STATE =======
 
   selectedStories = signal<Set<number>>(new Set());
 
-  //============ DATA LOADING ============
+  //======= DATA LOADING =======
 
-  private readonly draftsResource = resource({
-    loader: async () => {
-      return await this.loadService.getDrafts();
+  private readonly draftStoriesResource = resource({
+    params: () => ({
+      isLoggedIn: this.authService.isLoggedIn()
+    }),
+    loader: async ({ params }) => {
+      if (!params.isLoggedIn) {
+        this.router.navigate(['/auth/login']);
+        return [];
+      }
+      
+      return await this.loadService.getDraftStories();
     }
   });
 
-  draftCards = computed((): Draft[] => {
-    return this.draftsResource.value() || [];
+  draftStories = computed((): DraftStory[] => {
+    return this.draftStoriesResource.value() || [];
   });
 
-  //============ COMPUTED ============
+  //======= COMPUTED =======
 
-  hasSelection = computed(() => this.selectedStories().size > 0);
+  selection = computed(() => this.selectedStories().size > 0);
 
-  //============ LIFECYCLE ============
+  //======= LIFECYCLE =======
 
   ngOnInit(): void {
-    if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/auth/login']);
-      return;
-    }
-
     this.typingService.title(this.title);
   }
 
@@ -65,7 +68,7 @@ export class DraftList implements OnInit, OnDestroy {
     this.typingService.destroy();
   }
 
-  //============ SELECTION METHODS ============
+  //======= SELECTION METHODS =======
 
   toggleSelection(id: number): void {
     const newSelection = this.deleteService.toggle(id, this.selectedStories());
@@ -76,33 +79,23 @@ export class DraftList implements OnInit, OnDestroy {
     return this.selectedStories().has(id);
   }
 
-  //============ DELETE METHODS ============
+  //======= DELETE METHODS =======
 
   async deleteSelected(): Promise<void> {
     const selectedIds = Array.from(this.selectedStories());
 
     await this.deleteService.deleteSelected(selectedIds);
     this.selectedStories.set(new Set());
-    this.draftsResource.reload();
+    this.draftStoriesResource.reload();
   }
 
-  //============ NAVIGATION ============
+  //======= NAVIGATION =======
 
-  onDraftCardClick(draft: Draft): void {
-    this.router.navigate(['/chroniques/mes-histoires/brouillon/edition', draft.title]);
+  onCardClick(draftStory: DraftStory): void {
+    this.router.navigate(['/chroniques/mes-histoires/brouillon/edition', draftStory.title]);
   }
 
   goBack(): void {
     this.router.navigate(['/chroniques/mes-histoires']);
-  }
-
-  //============ UTILS ============
-
-  formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
   }
 }

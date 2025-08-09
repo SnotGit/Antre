@@ -93,6 +93,19 @@
 //============ STORY CARDS ============
 
 .published-card {
+  cursor: pointer;
+
+  &.selection-mode {
+    cursor: default;
+    
+    .card {
+      pointer-events: none;
+      
+      .delete-checkbox {
+        pointer-events: auto;
+      }
+    }
+  }
 
   .card {
     background-color: #1a1d20;
@@ -108,10 +121,8 @@
     border: 2px solid #5d889e;
     gap: 15px;
 
-
     &:hover:not(.selected) {
       border-color: #d0d0d0;
-
     }
 
     &.selected {

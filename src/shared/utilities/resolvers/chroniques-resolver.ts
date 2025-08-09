@@ -10,8 +10,6 @@ export interface ResolvedStoryData {
   title: string;
 }
 
-//======= SERVICE CHRONIQUES RESOLVER =======
-
 @Injectable({
   providedIn: 'root'
 })
@@ -23,22 +21,22 @@ export class ChroniquesResolver {
   //======= URL ENCODING/DECODING =======
 
   encodeTitle(title: string): string {
-    return encodeURIComponent(title);
+    return title.replace(/ /g, '-');
   }
 
   decodeTitle(encodedTitle: string): string {
-    return decodeURIComponent(encodedTitle);
+    return encodedTitle.replace(/-/g, ' ');
   }
 
   //======= STORY RESOLUTION =======
 
-  async resolveStoryByUsernameAndTitle(username: string, encodedTitle: string): Promise<ResolvedStoryData> {
+  async resolveStoryByUsernameAndTitle(username: string, titleWithDashes: string): Promise<ResolvedStoryData> {
     try {
-      const title = this.decodeTitle(encodedTitle);
+      const title = this.decodeTitle(titleWithDashes);
 
       const [userResponse, storyResponse] = await Promise.all([
         firstValueFrom(this.http.get<{ userId: number }>(`${this.API_URL}/resolve/username/${username}`)),
-        firstValueFrom(this.http.get<{ storyId: number }>(`${this.API_URL}/resolve/story/${username}/${this.encodeTitle(title)}`))
+        firstValueFrom(this.http.get<{ storyId: number }>(`${this.API_URL}/resolve/story/${username}/${encodeURIComponent(title)}`))
       ]);
 
       return {
@@ -48,16 +46,16 @@ export class ChroniquesResolver {
         title
       };
     } catch (error) {
-      throw new Error(`Impossible de résoudre l'histoire pour ${username}/${encodedTitle}`);
+      throw new Error(`Impossible de résoudre l'histoire pour ${username}/${titleWithDashes}`);
     }
   }
 
-  async resolveStoryByTitle(encodedTitle: string): Promise<{ storyId: number; title: string }> {
+  async resolveStoryByTitle(titleWithDashes: string): Promise<{ storyId: number; title: string }> {
     try {
-      const title = this.decodeTitle(encodedTitle);
+      const title = this.decodeTitle(titleWithDashes);
       
       const response = await firstValueFrom(
-        this.http.get<{ storyId: number }>(`${this.API_URL}/private/resolve/title/${this.encodeTitle(title)}`)
+        this.http.get<{ storyId: number }>(`${this.API_URL}/private/resolve/title/${encodeURIComponent(title)}`)
       );
       
       return {
@@ -65,7 +63,7 @@ export class ChroniquesResolver {
         title
       };
     } catch (error) {
-      throw new Error(`Impossible de résoudre l'histoire privée pour ${encodedTitle}`);
+      throw new Error(`Impossible de résoudre l'histoire privée pour ${titleWithDashes}`);
     }
   }
 
@@ -83,14 +81,17 @@ export class ChroniquesResolver {
   //======= URL BUILDING =======
 
   storyUrl(username: string, title: string): string {
-    return `/chroniques/${username}/${title}`;
+    const titleWithDashes = this.encodeTitle(title);
+    return `/chroniques/${username}/${titleWithDashes}`;
   }
 
   editDraftUrl(title: string): string {
-    return `/chroniques/mes-histoires/brouillon/edition/${title}`;
+    const titleWithDashes = this.encodeTitle(title);
+    return `/chroniques/mes-histoires/brouillon/edition/${titleWithDashes}`;
   }
 
   editPublishedUrl(title: string): string {
-    return `/chroniques/mes-histoires/publiée/edition/${title}`;
+    const titleWithDashes = this.encodeTitle(title);
+    return `/chroniques/mes-histoires/publiée/edition/${titleWithDashes}`;
   }
 }

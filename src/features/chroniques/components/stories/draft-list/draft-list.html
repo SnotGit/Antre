@@ -5,13 +5,15 @@
       {{ headerTitle() }}
     </h1>
 
-    <div class="back-button">
-      <button class="btn" (click)="goBack()">
-        <span>← Retour</span>
-      </button>
-    </div>
+    @if (!selection()) {
+      <div class="back-button">
+        <button class="btn" (click)="goBack()">
+          <span>← Retour</span>
+        </button>
+      </div>
+    }
 
-    @if (hasSelection()) {
+    @if (selection()) {
       <div class="delete-button">
         <button class="btn" (click)="deleteSelected()">
           <span>Supprimer ({{ selectedStories().size }})</span>
@@ -26,16 +28,16 @@
 
   <div class="content">
     <div class="content-grid">
-      @for (draft of draftCards(); track draft.id) {
-        <div class="draft-card" (click)="onDraftCardClick(draft)">
-          <div class="card" [class.selected]="isSelected(draft.id)">
-            <div class="story-title">{{ draft.title }}</div>
-            <div class="story-date">{{ formatDate(draft.lastModified) }}</div>
+      @for (story of draftStories(); track story.id) {
+        <div class="draft-card" (click)="onCardClick(story)">
+          <div class="card" [class.selected]="isSelected(story.id)">
+            <div class="story-title">{{ story.title }}</div>
+            <div class="story-date">{{ story.lastModified }}</div>
             
             <input type="checkbox" 
                    class="delete-checkbox"
-                   [checked]="isSelected(draft.id)"
-                   (click)="$event.stopPropagation(); toggleSelection(draft.id)">
+                   [checked]="isSelected(story.id)"
+                   (click)="$event.stopPropagation(); toggleSelection(story.id)">
           </div>
         </div>
       }

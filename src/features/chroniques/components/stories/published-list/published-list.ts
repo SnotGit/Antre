@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, computed, resource, signal } from
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/user/services/auth.service';
-import { LoadService, Published } from '@features/chroniques/services/load.service';
+import { LoadService, PublishedStory } from '@features/chroniques/services/load.service';
 import { DeleteService } from '@features/chroniques/services/delete.service';
 import { LikeService } from '@features/chroniques/services/like.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
@@ -15,7 +15,7 @@ import { TypingEffectService } from '@shared/services/typing-effect.service';
 })
 export class PublishedList implements OnInit, OnDestroy {
 
-  //============ INJECTIONS ============
+  //======= INJECTIONS =======
 
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
@@ -24,7 +24,7 @@ export class PublishedList implements OnInit, OnDestroy {
   private readonly likeService = inject(LikeService);
   private readonly typingService = inject(TypingEffectService);
 
-  //============ TYPING EFFECT ============
+  //======= TYPING EFFECT =======
 
   private readonly title = 'Histoires Publiées';
 
@@ -32,34 +32,37 @@ export class PublishedList implements OnInit, OnDestroy {
   showCursor = this.typingService.showCursor;
   typing = this.typingService.typingComplete;
 
-  //============ SIGNAL ============
+  //======= SELECTION STATE =======
 
   selectedStories = signal<Set<number>>(new Set());
 
-  //============ DATA LOADING ============
+  //======= DATA LOADING =======
 
-  private readonly Resource = resource({
-    loader: async () => {
-      return await this.loadService.getPublished();
+  private readonly publishedStoriesResource = resource({
+    params: () => ({
+      isLoggedIn: this.authService.isLoggedIn()
+    }),
+    loader: async ({ params }) => {
+      if (!params.isLoggedIn) {
+        this.router.navigate(['/auth/login']);
+        return [];
+      }
+      
+      return await this.loadService.getPublishedStories();
     }
   });
 
-  Stories = computed((): Published[] => {
-    return this.Resource.value() || [];
+  publishedStories = computed((): PublishedStory[] => {
+    return this.publishedStoriesResource.value() || [];
   });
 
-  //============ COMPUTED ============
+  //======= COMPUTED =======
 
-  Selection = computed(() => this.selectedStories().size > 0);
+  selection = computed(() => this.selectedStories().size > 0);
 
-  //============ LIFECYCLE ============
+  //======= LIFECYCLE =======
 
   ngOnInit(): void {
-    if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/auth/login']);
-      return;
-    }
-
     this.typingService.title(this.title);
   }
 
@@ -67,9 +70,9 @@ export class PublishedList implements OnInit, OnDestroy {
     this.typingService.destroy();
   }
 
-  //============ SELECTION METHODS ============
+  //======= SELECTION METHODS =======
 
-  toggle(id: number): void {
+  toggleSelection(id: number): void {
     const newSelection = this.deleteService.toggle(id, this.selectedStories());
     this.selectedStories.set(newSelection);
   }
@@ -78,20 +81,20 @@ export class PublishedList implements OnInit, OnDestroy {
     return this.selectedStories().has(id);
   }
 
-  //============ DELETE METHODS ============
+  //======= DELETE METHODS =======
 
   async deleteSelected(): Promise<void> {
     const selectedIds = Array.from(this.selectedStories());
 
     await this.deleteService.deleteSelected(selectedIds);
     this.selectedStories.set(new Set());
-    this.Resource.reload();
+    this.publishedStoriesResource.reload();
   }
 
-  //============ NAVIGATION ============
+  //======= NAVIGATION =======
 
-  onCardClick(story: Published): void {
-    this.router.navigate(['/chroniques/mes-histoires/publiée/edition', story.title]);
+  onCardClick(publishedStory: PublishedStory): void {
+    this.router.navigate(['/chroniques/mes-histoires/publiée/edition', publishedStory.title]);
   }
 
   goBack(): void {
