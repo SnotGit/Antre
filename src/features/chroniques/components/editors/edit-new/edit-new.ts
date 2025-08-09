@@ -69,7 +69,7 @@ export class EditNew implements OnInit, OnDestroy {
 
   private autoSaveEffect = effect(() => {
     if (this.isDraftCreated() && this.hasContent()) {
-      this.saveService.save(this.storyId(), this.storyData());
+      this.saveService.saveLocal('new-story', this.storyData());
     }
   });
 
@@ -82,15 +82,28 @@ export class EditNew implements OnInit, OnDestroy {
     }
 
     this.typingService.title(this.title);
+    this.saveService.saveLocal('new-story', this.storyData());
   }
 
   ngOnDestroy(): void {
     this.typingService.destroy();
   }
 
+  //======= DELETE =======
+
+  private async createInitialDraft(): Promise<void> {
+    try {
+      const id = await this.saveService.createStory();
+      this.storyId.set(id);
+    } catch (error) {
+      this.confirmationService.showErrorMessage();
+    }
+  }
+
   //======= ACTIONS =======
 
   async cancel(): Promise<void> {
+    this.saveService.clearLocal('new-story');
     if (this.isDraftCreated()) {
       const confirmed = await this.confirmationService.confirmDeleteStory(true);
       if (!confirmed) return;
@@ -98,7 +111,7 @@ export class EditNew implements OnInit, OnDestroy {
       try {
         await this.deleteService.deleteStory(this.storyId());
       } catch (error) {
-        alert('Erreur lors de la suppression');
+        this.confirmationService.showErrorMessage();
       }
     }
 
@@ -113,31 +126,23 @@ export class EditNew implements OnInit, OnDestroy {
       if (!this.isDraftCreated()) return;
     }
 
-    const confirmed = await this.confirmationService.confirmPublishStory();
-    if (!confirmed) return;
-
     try {
       await this.saveService.publish(this.storyId());
+      this.saveService.clearLocal('new-story');
+      this.confirmationService.showSuccessMessage();
       this.router.navigate(['/chroniques/mes-histoires']);
     } catch (error) {
-      alert('Erreur lors de la publication');
+      this.confirmationService.showErrorMessage();
     }
   }
 
   //======= NAVIGATION =======
 
   goBack(): void {
-    this.location.back();
-  }
-
-  //======= PRIVATE METHODS =======
-
-  private async createInitialDraft(): Promise<void> {
-    try {
-      const id = await this.saveService.createStory();
-      this.storyId.set(id);
-    } catch (error) {
-      alert('Erreur lors de la création de l\'histoire');
+    if (this.isDraftCreated()) {
+      this.saveService.save(this.storyId(), this.storyData());
     }
+    this.saveService.clearLocal('new-story');
+    this.location.back();
   }
 }

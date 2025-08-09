@@ -6,6 +6,7 @@ interface ConfirmationConfig {
   confirmText: string;
   cancelText: string;
   isDanger: boolean;
+  isMessage?: boolean;
 }
 
 @Injectable({
@@ -19,7 +20,7 @@ export class ConfirmationDialogService {
   isVisible = this.visible.asReadonly();
   config = this.dialogConfig.asReadonly();
 
-  //============ DELETE STORY ============
+  //======= DELETE STORY =======
 
   confirmDeleteStory(isNewStory: boolean): Promise<boolean> {
     const config: ConfirmationConfig = {
@@ -35,7 +36,7 @@ export class ConfirmationDialogService {
     return this.showDialog(config);
   }
 
-  //============ DELETE MULTIPLE ============
+  //======= DELETE MULTIPLE =======
 
   confirmDeleteMultiple(count: number): Promise<boolean> {
     const config: ConfirmationConfig = {
@@ -49,21 +50,7 @@ export class ConfirmationDialogService {
     return this.showDialog(config);
   }
 
-  //============ PUBLISH STORY ============
-
-  confirmPublishStory(): Promise<boolean> {
-    const config: ConfirmationConfig = {
-      title: 'Publier l\'histoire',
-      message: 'Êtes-vous sûr de vouloir publier cette histoire ?',
-      confirmText: 'Publier',
-      cancelText: 'Annuler',
-      isDanger: false
-    };
-
-    return this.showDialog(config);
-  }
-
-  //============ DELETE ACCOUNT ============
+  //======= DELETE ACCOUNT =======
 
   confirmDeleteAccount(): Promise<boolean> {
     const config: ConfirmationConfig = {
@@ -77,7 +64,37 @@ export class ConfirmationDialogService {
     return this.showDialog(config);
   }
 
-  //============ DIALOG CORE ============
+  //======= SUCCESS MESSAGES =======
+
+  showSuccessMessage(): void {
+    const config: ConfirmationConfig = {
+      title: 'Opération Réussie',
+      message: 'Votre histoire a été publiée !',
+      confirmText: 'OK',
+      cancelText: '',
+      isDanger: false,
+      isMessage: true
+    };
+
+    this.showMessage(config);
+  }
+
+  //======= ERROR MESSAGES =======
+
+  showErrorMessage(): void {
+    const config: ConfirmationConfig = {
+      title: 'Opération Corrompue',
+      message: 'Une erreur est survenue',
+      confirmText: 'OK',
+      cancelText: '',
+      isDanger: true,
+      isMessage: true
+    };
+
+    this.showMessage(config);
+  }
+
+  //======= DIALOG CORE =======
 
   private showDialog(config: ConfirmationConfig): Promise<boolean> {
     this.forceCloseDialog();
@@ -89,17 +106,38 @@ export class ConfirmationDialogService {
     });
   }
 
-  //============ USER ACTIONS ============
+  private showMessage(config: ConfirmationConfig): void {
+    this.forceCloseDialog();
+    
+    this.dialogConfig.set(config);
+    this.visible.set(true);
+    
+    setTimeout(() => {
+      this.cleanup();
+    }, 3000);
+  }
+
+  //======= USER ACTIONS =======
 
   onConfirm(): void {
-    this.closeDialog(true);
+    const config = this.dialogConfig();
+    if (config?.isMessage) {
+      this.cleanup();
+    } else {
+      this.closeDialog(true);
+    }
   }
 
   onCancel(): void {
-    this.closeDialog(false);
+    const config = this.dialogConfig();
+    if (config?.isMessage) {
+      this.cleanup();
+    } else {
+      this.closeDialog(false);
+    }
   }
 
-  //============ CLEANUP ============
+  //======= CLEANUP =======
 
   private closeDialog(result: boolean): void {
     if (this.resolvePromise) {
