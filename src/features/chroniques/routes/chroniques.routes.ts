@@ -18,13 +18,13 @@ export const routes: Routes = [
   },
   
   {
-    path: 'mes-histoires/brouillon/edition/:title',
+    path: 'mes-histoires/brouillon/edition/:titleUrl',
     loadComponent: () => import('../components/editors/edit-draft/edit-draft').then(m => m.DraftEditor),
     canActivate: [authGuard]
   },
   
   {
-    path: 'mes-histoires/publiée/edition/:title',
+    path: 'mes-histoires/publiée/edition/:titleUrl',
     loadComponent: () => import('../components/editors/edit-published/edit-published').then(m => m.PublishedEditor),
     canActivate: [authGuard]
   },
@@ -50,7 +50,7 @@ export const routes: Routes = [
   //======= PUBLIC ROUTES =======
   
   {
-    path: ':username/:title',
+    path: ':username/:titleUrl',
     loadComponent: () => import('../components/story-reader/story-reader').then(m => m.StoryReader)
   }
 

@@ -12,28 +12,31 @@
     </div>
   </div>
 
-  <div class="field-title">
-    <label>Titre de l'histoire</label>
-    <input type="text" [(ngModel)]="storyTitle">
-  </div>
+  <div class="editor">
 
-  <div class="field-content">
-    <label>Contenu</label>
-    <textarea [(ngModel)]="storyContent">
-    </textarea>
-  </div>
-
-  <div class="footer">
-    <div class="delete-button">
-      <button class="btn" (click)="deleteStory()">
-        <span>Supprimer</span>
-      </button>
+    <div class="field-title">
+      <label>Titre de l'histoire</label>
+      <input type="text" [(ngModel)]="storyTitle">
     </div>
 
-    <div class="publish-button">
-      <button class="btn" (click)="publishStory()">
-        <span>Publier</span>
-      </button>
+    <div class="field-content">
+      <label>Contenu</label>
+      <textarea [(ngModel)]="storyContent">
+    </textarea>
+    </div>
+
+    <div class="footer">
+      <div class="cancel-button">
+        <button class="btn" (click)="cancel()">
+          <span>Annuler</span>
+        </button>
+      </div>
+
+      <div class="publish-button">
+        <button class="btn" (click)="publishStory()">
+          <span>Publier</span>
+        </button>
+      </div>
     </div>
   </div>
 
