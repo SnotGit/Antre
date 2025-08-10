@@ -44,6 +44,7 @@ router.get('/stories/drafts', authenticateToken, getDrafts);
 router.get('/stories/drafts/:id', authenticateToken, getDraftStory);
 router.get('/stories/published', authenticateToken, getPublished);
 router.get('/stories/published/:id', authenticateToken, getPublishedStory);
+router.get('/stories/edit/:id', authenticateToken, getStoryForEdit);
 
 //======= STORIES CRUD (GESTION HISTOIRES) =======
 
@@ -70,6 +71,6 @@ router.get('/user/:userId/stories', getStories);
 
 router.get('/resolve/username/:username', getUserByUsername);
 router.get('/resolve/:username/:title', getStoryByUsernameAndTitle);
-router.get('/resolve/title/:title', authenticateToken, getStoryByTitle);
+router.get('/resolve/title/:title', getStoryByTitle);
 
 module.exports = router;

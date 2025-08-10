@@ -68,7 +68,7 @@ export class LoadService {
     });
   }
 
-  //======= LATEST  STORIES =======
+  //======= STORIES LATEST (PUBLIC) =======
 
   async getLatest(): Promise<StoryCard[]> {
     try {
@@ -87,7 +87,7 @@ export class LoadService {
     }
   }
 
-  //======= DRAFTS STORIES =======
+  //======= STORIES DRAFTS (PRIVATE) =======
 
   async getDraftStories(): Promise<DraftStory[]> {
     try {
@@ -117,7 +117,7 @@ export class LoadService {
     }
   }
 
-  //======= PUBLISHED STORIES =======
+  //======= STORIES PUBLISHED (PRIVATE) =======
 
   async getPublishedStories(): Promise<PublishedStory[]> {
     try {
@@ -147,7 +147,7 @@ export class LoadService {
     }
   }
 
-  //======= EDIT =======
+  //======= STORY FOR EDIT =======
 
   async getStoryForEdit(id: number): Promise<EditStory> {
     try {
@@ -160,7 +160,7 @@ export class LoadService {
     }
   }
 
-  //======= READER  =======
+  //======= READER (PUBLIC) =======
 
   async getStory(id: number): Promise<StoryReader> {
     try {
@@ -177,7 +177,7 @@ export class LoadService {
     }
   }
 
-  //======= USER STORIES =======
+  //======= USER STORIES (PUBLIC) =======
 
   async getStories(userId: number): Promise<UserStories[]> {
     try {

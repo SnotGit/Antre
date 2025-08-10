@@ -37,7 +37,7 @@ export class SaveService {
   async createStory(): Promise<number> {
     try {
       const response = await firstValueFrom(
-        this.http.post<StoryResponse>(`${this.API_URL}/private/drafts`, {
+        this.http.post<StoryResponse>(`${this.API_URL}/stories/drafts`, {
           title: '',
           content: ''
         })
@@ -53,7 +53,7 @@ export class SaveService {
   async createDraftFromPublished(originalId: number, data: StoryFormData): Promise<number> {
     try {
       const response = await firstValueFrom(
-        this.http.post<StoryResponse>(`${this.API_URL}/private/drafts`, {
+        this.http.post<StoryResponse>(`${this.API_URL}/stories/drafts`, {
           title: data.title,
           content: data.content,
           originalStoryId: originalId
@@ -70,7 +70,7 @@ export class SaveService {
   async save(id: number, data: StoryFormData): Promise<void> {
     try {
       await firstValueFrom(
-        this.http.put(`${this.API_URL}/private/drafts/${id}`, data)
+        this.http.put(`${this.API_URL}/stories/drafts/${id}`, data)
       );
     } catch (error) {
       throw error;
@@ -116,7 +116,7 @@ export class SaveService {
   async publish(id: number): Promise<void> {
     try {
       await firstValueFrom(
-        this.http.post(`${this.API_URL}/private/stories/${id}/publish`, {})
+        this.http.post(`${this.API_URL}/stories/drafts/${id}/publish`, {})
       );
     } catch (error) {
       throw error;
@@ -128,7 +128,7 @@ export class SaveService {
   async update(id: number, data: StoryFormData): Promise<void> {
     try {
       await firstValueFrom(
-        this.http.put(`${this.API_URL}/private/stories/${id}`, data)
+        this.http.put(`${this.API_URL}/stories/published/${id}`, data)
       );
     } catch (error) {
       throw error;
