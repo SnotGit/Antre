@@ -82,6 +82,10 @@ export class PublishedEditor implements OnInit, OnDestroy {
       return;
     }
 
+    while (this.authService.initializing()) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+
     this.typingService.title(this.title);
 
     try {
