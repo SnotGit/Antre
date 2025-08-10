@@ -44,9 +44,9 @@ const { authenticateToken } = require('../../controllers/auth/authController');
 
 //======= ROUTES PUBLIQUES =======
 router.get('/public/stories', getLatest);
-router.get('/public/story/:id', getStory);
-router.get('/public/user/:userId/stories', getStories);
-router.get('/public/story/:id/likes', getLikes);
+router.get('/public/stories/:id', getStory);
+router.get('/public/users/:userId/stories', getStories);
+router.get('/public/stories/:id/likes', getLikes);
 
 //======= RESOLVER ROUTES PUBLIQUES =======
 router.get('/resolve/username/:username', getUserByUsername);
@@ -58,20 +58,18 @@ privateRouter.use(authenticateToken);
 
 privateRouter.get('/stats', getStats);
 privateRouter.get('/drafts', getDrafts);
-privateRouter.get('/published', getPublished);
-privateRouter.get('/draft/:id', getDraftStory);
-privateRouter.get('/published/:id', getPublishedStory);
-privateRouter.get('/story/:id', getStoryForEdit);
-privateRouter.post('/draft', createDraft);
-privateRouter.put('/draft/:id', saveDraft);
-privateRouter.post('/publish/:id', publishStory); 
-privateRouter.put('/story/:id', updateStory);
-privateRouter.delete('/story/:id', deleteStory);
-privateRouter.put('/story/:id/like', toggleLike);
-privateRouter.get('/user/:userId/totalLikes', getTotalLikes);
+privateRouter.get('/drafts/:id', getDraftStory);
+privateRouter.get('/stories', getPublished);
+privateRouter.get('/stories/:id', getStoryForEdit);
+privateRouter.post('/drafts', createDraft);
+privateRouter.put('/drafts/:id', saveDraft);
+privateRouter.post('/stories/:id/publish', publishStory);
+privateRouter.put('/stories/:id', updateStory);
+privateRouter.delete('/stories/:id', deleteStory);
+privateRouter.put('/stories/:id/like', toggleLike);
 
 //======= RESOLVER ROUTES PRIVÉES =======
-privateRouter.get('/resolve/title/:title', getStoryByTitle);
+privateRouter.get('/resolve/title/:titleUrl', getStoryByTitle);
 
 router.use('/private', privateRouter);
 

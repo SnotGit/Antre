@@ -45,6 +45,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
   storyTitle = signal('');
   storyContent = signal('');
   storyId = signal<number>(0);
+  originalData = signal<StoryFormData>({ title: '', content: '' });
 
   //======= COMPUTED =======
 
@@ -53,20 +54,21 @@ export class PublishedEditor implements OnInit, OnDestroy {
     content: this.storyContent()
   }));
 
-  hasModifications = computed(() => {
-    const data = this.storyData();
-    return data.title.length > 0 || data.content.length > 0;
+  isEdited = computed(() => {
+    const current = this.storyData();
+    const original = this.originalData();
+    return current.title !== original.title || current.content !== original.content;
   });
 
   canUpdate = computed(() => {
     const data = this.storyData();
-    return data.title.length >= 3 && data.content.length >= 100;
+    return this.isEdited() && data.title.length >= 3 && data.content.length >= 100;
   });
 
   //======= EFFECTS =======
 
   private autoSaveEffect = effect(() => {
-    if (this.storyId() > 0 && this.hasModifications()) {
+    if (this.storyId() > 0 && this.isEdited()) {
       const key = `published-${this.storyId()}-modifications`;
       this.saveService.saveLocal(key, this.storyData());
     }
@@ -89,7 +91,8 @@ export class PublishedEditor implements OnInit, OnDestroy {
       this.storyId.set(story.id);
       this.storyTitle.set(story.title);
       this.storyContent.set(story.content);
-      this.restoreModifications();
+      this.originalData.set({ title: story.title, content: story.content });
+      this.restoreLocalModifications();
       
     } catch (error) {
       this.router.navigate(['/chroniques/mes-histoires']);
@@ -102,7 +105,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
 
   //======= SAVE =======
 
-  private restoreModifications(): void {
+  private restoreLocalModifications(): void {
     const key = `published-${this.storyId()}-modifications`;
     const saved = this.saveService.restoreLocal(key);
     
@@ -112,8 +115,18 @@ export class PublishedEditor implements OnInit, OnDestroy {
     }
   }
 
+  private clearLocalStorage(): void {
+    const key = `published-${this.storyId()}-modifications`;
+    this.saveService.clearLocal(key);
+  }
+
+  //======= ACTIONS =======
+
   async saveToDraft(): Promise<void> {
-    if (!this.hasModifications()) return;
+    if (!this.isEdited()) {
+      const confirmed = await this.confirmationService.confirmCancelStory();
+      if (!confirmed) return;
+    }
 
     try {
       const draftId = await this.saveService.createDraftFromPublished(
@@ -121,7 +134,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
         this.storyData()
       );
       
-      this.saveService.clearLocal(`published-${this.storyId()}-modifications`);
+      this.clearLocalStorage();
       this.confirmationService.showSuccessMessage();
     } catch (error) {
       this.confirmationService.showErrorMessage();
@@ -131,9 +144,12 @@ export class PublishedEditor implements OnInit, OnDestroy {
   async update(): Promise<void> {
     if (!this.canUpdate()) return;
 
+    const confirmed = await this.confirmationService.confirmCancelStory();
+    if (!confirmed) return;
+
     try {
       await this.saveService.update(this.storyId(), this.storyData());
-      this.saveService.clearLocal(`published-${this.storyId()}-modifications`);
+      this.clearLocalStorage();
       this.confirmationService.showSuccessMessage();
       this.router.navigate(['/chroniques/mes-histoires']);
     } catch (error) {
@@ -141,24 +157,36 @@ export class PublishedEditor implements OnInit, OnDestroy {
     }
   }
 
-  //======= ACTIONS =======
-
-  async cancel(): Promise<void> {
-    const key = `published-${this.storyId()}-modifications`;
-    const hasModifications = this.saveService.restoreLocal(key) !== null;
-
-    if (hasModifications) {
-      const confirmed = await this.confirmationService.confirmDeleteStory(false);
-      if (!confirmed) return;
-    }
-
-    this.saveService.clearLocal(key);
-    this.router.navigate(['/chroniques/mes-histoires']);
-  }
-
   //======= NAVIGATION =======
 
-  goBack(): void {
+  async goBack(): Promise<void> {
+    if (!this.isEdited()) {
+      this.clearLocalStorage();
+      this.navigateBack();
+      return;
+    }
+
+    const saveOrQuit = await this.confirmationService.confirmSaveOrQuit();
+    
+    if (saveOrQuit) {
+      try {
+        await this.saveService.createDraftFromPublished(
+          this.storyId(), 
+          this.storyData()
+        );
+        this.clearLocalStorage();
+      } catch (error) {
+        this.confirmationService.showErrorMessage();
+        return;
+      }
+    } else {
+      this.clearLocalStorage();
+    }
+
+    this.navigateBack();
+  }
+
+  private navigateBack(): void {
     this.location.back();
   }
 }

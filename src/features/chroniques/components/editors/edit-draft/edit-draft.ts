@@ -56,7 +56,7 @@ export class DraftEditor implements OnInit, OnDestroy {
     content: this.storyContent()
   }));
 
-  hasModifications = computed(() => {
+  isEdited = computed(() => {
     const current = this.storyData();
     const original = this.originalData();
     return current.title !== original.title || current.content !== original.content;
@@ -70,7 +70,7 @@ export class DraftEditor implements OnInit, OnDestroy {
   //======= EFFECTS =======
 
   private autoSaveEffect = effect(() => {
-    if (this.storyId() > 0 && this.hasModifications()) {
+    if (this.storyId() > 0 && this.isEdited()) {
       const key = `draft-${this.storyId()}-modifications`;
       this.saveService.saveLocal(key, this.storyData());
     }
@@ -137,17 +137,27 @@ export class DraftEditor implements OnInit, OnDestroy {
   //======= ACTIONS =======
 
   async cancel(): Promise<void> {
+    if (!this.isEdited()) {
+      const key = `draft-${this.storyId()}-modifications`;
+      this.saveService.clearLocal(key);
+      this.navigateBack();
+      return;
+    }
+
+    const confirmed = await this.confirmationService.confirmCancelStory();
+    if (!confirmed) return;
+
     const key = `draft-${this.storyId()}-modifications`;
     this.saveService.clearLocal(key);
-    this.router.navigate(['/chroniques/mes-histoires']);
+    this.navigateBack();
   }
 
   async publishStory(): Promise<void> {
     if (!this.canPublish()) return;
 
     try {
-      if (this.hasModifications()) {
-        this.saveService.save(this.storyId(), this.storyData());
+      if (this.isEdited()) {
+        await this.saveService.save(this.storyId(), this.storyData());
       }
       
       await this.saveService.publish(this.storyId());
@@ -163,11 +173,21 @@ export class DraftEditor implements OnInit, OnDestroy {
   //======= NAVIGATION =======
 
   async goBack(): Promise<void> {
-    if (this.hasModifications()) {
-      this.saveService.save(this.storyId(), this.storyData());
+    if (this.isEdited()) {
+      try {
+        await this.saveService.save(this.storyId(), this.storyData());
+      } catch (error) {
+        this.confirmationService.showErrorMessage();
+        return;
+      }
     }
+    
     const key = `draft-${this.storyId()}-modifications`;
     this.saveService.clearLocal(key);
+    this.navigateBack();
+  }
+
+  private navigateBack(): void {
     this.location.back();
   }
 }

@@ -47,7 +47,7 @@ export class EditNew implements OnInit, OnDestroy {
     content: this.storyContent()
   }));
 
-  hasContent = computed(() => {
+  isEdited = computed(() => {
     const data = this.storyData();
     return data.title.trim().length > 0 || data.content.trim().length > 0;
   });
@@ -62,13 +62,13 @@ export class EditNew implements OnInit, OnDestroy {
   //======= EFFECTS =======
 
   private firstCharacterEffect = effect(async () => {
-    if (this.hasContent() && !this.isDraftCreated()) {
+    if (this.isEdited() && !this.isDraftCreated()) {
       await this.createInitialDraft();
     }
   });
 
   private autoSaveEffect = effect(() => {
-    if (this.isDraftCreated() && this.hasContent()) {
+    if (this.isDraftCreated() && this.isEdited()) {
       this.saveService.saveLocal('new-story', this.storyData());
     }
   });
@@ -89,7 +89,7 @@ export class EditNew implements OnInit, OnDestroy {
     this.typingService.destroy();
   }
 
-  //======= DELETE =======
+  //======= CREATE DRAFT =======
 
   private async createInitialDraft(): Promise<void> {
     try {
@@ -103,11 +103,18 @@ export class EditNew implements OnInit, OnDestroy {
   //======= ACTIONS =======
 
   async cancel(): Promise<void> {
-    this.saveService.clearLocal('new-story');
-    if (this.isDraftCreated()) {
-      const confirmed = await this.confirmationService.confirmDeleteStory(true);
-      if (!confirmed) return;
+    if (!this.isEdited()) {
+      this.saveService.clearLocal('new-story');
+      this.navigateBack();
+      return;
+    }
 
+    const confirmed = await this.confirmationService.confirmCancelStory();
+    if (!confirmed) return;
+
+    this.saveService.clearLocal('new-story');
+    
+    if (this.isDraftCreated()) {
       try {
         await this.deleteService.deleteStory(this.storyId());
       } catch (error) {
@@ -115,7 +122,7 @@ export class EditNew implements OnInit, OnDestroy {
       }
     }
 
-    this.goBack();
+    this.navigateBack();
   }
 
   async publishStory(): Promise<void> {
@@ -138,11 +145,21 @@ export class EditNew implements OnInit, OnDestroy {
 
   //======= NAVIGATION =======
 
-  goBack(): void {
-    if (this.isDraftCreated()) {
-      this.saveService.save(this.storyId(), this.storyData());
+  async goBack(): Promise<void> {
+    if (this.isDraftCreated() && this.isEdited()) {
+      try {
+        await this.saveService.save(this.storyId(), this.storyData());
+      } catch (error) {
+        this.confirmationService.showErrorMessage();
+        return;
+      }
     }
+    
     this.saveService.clearLocal('new-story');
+    this.navigateBack();
+  }
+
+  private navigateBack(): void {
     this.location.back();
   }
 }
