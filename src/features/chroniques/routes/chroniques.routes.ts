@@ -1,15 +1,11 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '../../../core/guards/auth-guard';
 
-//======= CHRONIQUES ROUTES =======
-
 export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('../components/chroniques').then(m => m.Chroniques)
   },
-  
-  //======= PRIVATE ROUTES =======
   
   {
     path: 'mes-histoires/brouillon/edition/nouvelle-histoire',
@@ -18,13 +14,13 @@ export const routes: Routes = [
   },
   
   {
-    path: 'mes-histoires/brouillon/edition/:titleUrl',
+    path: 'mes-histoires/brouillon/edition/:id',
     loadComponent: () => import('../components/editors/edit-draft/edit-draft').then(m => m.DraftEditor),
     canActivate: [authGuard]
   },
   
   {
-    path: 'mes-histoires/publiée/edition/:titleUrl',
+    path: 'mes-histoires/publiée/edition/:id',
     loadComponent: () => import('../components/editors/edit-published/edit-published').then(m => m.PublishedEditor),
     canActivate: [authGuard]
   },
@@ -47,11 +43,8 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
-  //======= PUBLIC ROUTES =======
-  
   {
     path: ':username/:titleUrl',
     loadComponent: () => import('../components/story-reader/story-reader').then(m => m.StoryReader)
   }
-
 ];

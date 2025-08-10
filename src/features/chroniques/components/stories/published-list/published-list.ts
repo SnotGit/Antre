@@ -4,9 +4,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '@features/user/services/auth.service';
 import { LoadService, PublishedStory } from '@features/chroniques/services/load.service';
 import { DeleteService } from '@features/chroniques/services/delete.service';
-import { LikeService } from '@features/chroniques/services/like.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
-import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
 
 @Component({
   selector: 'app-published-list',
@@ -16,17 +14,11 @@ import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resol
 })
 export class PublishedList implements OnInit, OnDestroy {
 
-  //======= INJECTIONS =======
-
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly loadService = inject(LoadService);
   private readonly deleteService = inject(DeleteService);
-  private readonly likeService = inject(LikeService);
   private readonly typingService = inject(TypingEffectService);
-  private readonly chroniquesResolver = inject(ChroniquesResolver);
-
-  //======= TYPING EFFECT =======
 
   private readonly title = 'Histoires Publiées';
 
@@ -34,11 +26,7 @@ export class PublishedList implements OnInit, OnDestroy {
   showCursor = this.typingService.showCursor;
   typing = this.typingService.typingComplete;
 
-  //======= SELECTION STATE =======
-
   selectedStories = signal<Set<number>>(new Set());
-
-  //======= DATA LOADING =======
 
   private readonly publishedStoriesResource = resource({
     params: () => ({
@@ -58,11 +46,7 @@ export class PublishedList implements OnInit, OnDestroy {
     return this.publishedStoriesResource.value() || [];
   });
 
-  //======= COMPUTED =======
-
   selection = computed(() => this.selectedStories().size > 0);
-
-  //======= LIFECYCLE =======
 
   ngOnInit(): void {
     this.typingService.title(this.title);
@@ -71,8 +55,6 @@ export class PublishedList implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.typingService.destroy();
   }
-
-  //======= SELECTION METHODS =======
 
   toggleSelection(id: number): void {
     const newSelection = this.deleteService.toggle(id, this.selectedStories());
@@ -83,8 +65,6 @@ export class PublishedList implements OnInit, OnDestroy {
     return this.selectedStories().has(id);
   }
 
-  //======= DELETE METHODS =======
-
   async deleteSelected(): Promise<void> {
     const selectedIds = Array.from(this.selectedStories());
 
@@ -93,11 +73,8 @@ export class PublishedList implements OnInit, OnDestroy {
     this.publishedStoriesResource.reload();
   }
 
-  //======= NAVIGATION =======
-
   onCardClick(publishedStory: PublishedStory): void {
-    const resolvedTitle = this.chroniquesResolver.encodeTitle(publishedStory.title);
-    this.router.navigate(['/chroniques/mes-histoires/publiée/edition', resolvedTitle]);
+    this.router.navigate(['/chroniques/mes-histoires/publiée/edition', publishedStory.id]);
   }
 
   goBack(): void {
