@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 //======= CONTROLLERS =======
+
 const { 
   getLatest,
   getStory,
@@ -12,10 +13,6 @@ const {
   getPublishedStory,
   getStoryForEdit
 } = require('../../controllers/chroniques/loadController');
-
-const {
-  getStats
-} = require('../../controllers/user/statsController');
 
 const {
   createDraft,
@@ -35,42 +32,44 @@ const {
 } = require('../../controllers/chroniques/resolverController');
 
 const {
-  toggleLike,
-  getTotalLikes,
-  getLikes
+  toggleLike
 } = require('../../controllers/user/likeController');
 
 const { authenticateToken } = require('../../controllers/auth/authController');
 
-//======= ROUTES PUBLIQUES =======
-router.get('/public/stories', getLatest);
-router.get('/public/stories/:id', getStory);
-router.get('/public/users/:userId/stories', getStories);
-router.get('/public/stories/:id/likes', getLikes);
+//======= STORIES ROUTES (GESTION HISTOIRES) =======
 
-//======= RESOLVER ROUTES PUBLIQUES =======
+router.get('/stories/latest', getLatest);
+router.get('/stories/drafts', authenticateToken, getDrafts);
+router.get('/stories/drafts/:id', authenticateToken, getDraftStory);
+router.get('/stories/published', authenticateToken, getPublished);
+router.get('/stories/published/:id', authenticateToken, getPublishedStory);
+
+//======= STORIES CRUD (GESTION HISTOIRES) =======
+
+router.post('/stories/drafts', authenticateToken, createDraft);
+router.put('/stories/drafts/:id', authenticateToken, saveDraft);
+router.put('/stories/published/:id', authenticateToken, updateStory);
+router.delete('/stories/drafts/:id', authenticateToken, deleteStory);
+router.delete('/stories/published/:id', authenticateToken, deleteStory);
+
+//======= STORIES ACTIONS (GESTION HISTOIRES) =======
+
+router.post('/stories/drafts/:id/publish', authenticateToken, publishStory);
+
+//======= READER ROUTES (LECTURE HISTOIRES) =======
+
+router.get('/reader/:id', getStory);
+router.put('/reader/:id/like', authenticateToken, toggleLike);
+
+//======= USER ROUTES (PROFILS AUTEURS) =======
+
+router.get('/user/:userId/stories', getStories);
+
+//======= RESOLVER ROUTES =======
+
 router.get('/resolve/username/:username', getUserByUsername);
-router.get('/resolve/story/:username/:title', getStoryByUsernameAndTitle);
-
-//======= ROUTES PRIVÉES =======
-const privateRouter = express.Router();
-privateRouter.use(authenticateToken);
-
-privateRouter.get('/stats', getStats);
-privateRouter.get('/drafts', getDrafts);
-privateRouter.get('/drafts/:id', getDraftStory);
-privateRouter.get('/stories', getPublished);
-privateRouter.get('/stories/:id', getStoryForEdit);
-privateRouter.post('/drafts', createDraft);
-privateRouter.put('/drafts/:id', saveDraft);
-privateRouter.post('/stories/:id/publish', publishStory);
-privateRouter.put('/stories/:id', updateStory);
-privateRouter.delete('/stories/:id', deleteStory);
-privateRouter.put('/stories/:id/like', toggleLike);
-
-//======= RESOLVER ROUTES PRIVÉES =======
-privateRouter.get('/resolve/title/:titleUrl', getStoryByTitle);
-
-router.use('/private', privateRouter);
+router.get('/resolve/:username/:title', getStoryByUsernameAndTitle);
+router.get('/resolve/title/:title', authenticateToken, getStoryByTitle);
 
 module.exports = router;

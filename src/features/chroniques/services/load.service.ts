@@ -68,12 +68,12 @@ export class LoadService {
     });
   }
 
-  //======= PUBLIC STORIES =======
+  //======= LATEST  STORIES =======
 
   async getLatest(): Promise<StoryCard[]> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ stories: StoryCard[] }>(`${this.API_URL}/public/stories`)
+        this.http.get<{ stories: StoryCard[] }>(`${this.API_URL}/stories/latest`)
       );
       
       const stories = response.stories || [];
@@ -87,38 +87,12 @@ export class LoadService {
     }
   }
 
-  async getStory(id: number): Promise<StoryReader> {
-    try {
-      const response = await firstValueFrom(
-        this.http.get<{ story: StoryReader }>(`${this.API_URL}/public/story/${id}`)
-      );
-      
-      return {
-        ...response.story,
-        publishDate: this.formatDate(response.story.publishDate)
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async getStories(userId: number): Promise<UserStories[]> {
-    try {
-      const response = await firstValueFrom(
-        this.http.get<{ stories: UserStories[] }>(`${this.API_URL}/public/user/${userId}/stories`)
-      );
-      return response.stories || [];
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  //======= DRAFT STORIES =======
+  //======= DRAFTS STORIES =======
 
   async getDraftStories(): Promise<DraftStory[]> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ stories: DraftStory[] }>(`${this.API_URL}/private/drafts`)
+        this.http.get<{ stories: DraftStory[] }>(`${this.API_URL}/stories/drafts`)
       );
       
       const stories = response.stories || [];
@@ -135,7 +109,7 @@ export class LoadService {
   async getDraftStory(id: number): Promise<EditStory> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ story: EditStory }>(`${this.API_URL}/private/draft/${id}`)
+        this.http.get<{ story: EditStory }>(`${this.API_URL}/stories/drafts/${id}`)
       );
       return response.story;
     } catch (error) {
@@ -148,7 +122,7 @@ export class LoadService {
   async getPublishedStories(): Promise<PublishedStory[]> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ stories: PublishedStory[] }>(`${this.API_URL}/private/published`)
+        this.http.get<{ stories: PublishedStory[] }>(`${this.API_URL}/stories/published`)
       );
       
       const stories = response.stories || [];
@@ -165,9 +139,52 @@ export class LoadService {
   async getPublishedStory(id: number): Promise<EditStory> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ story: EditStory }>(`${this.API_URL}/private/published/${id}`)
+        this.http.get<{ story: EditStory }>(`${this.API_URL}/stories/published/${id}`)
       );
       return response.story;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  //======= EDIT =======
+
+  async getStoryForEdit(id: number): Promise<EditStory> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<{ story: EditStory }>(`${this.API_URL}/stories/published/${id}`)
+      );
+      return response.story;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  //======= READER  =======
+
+  async getStory(id: number): Promise<StoryReader> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<{ story: StoryReader }>(`${this.API_URL}/reader/${id}`)
+      );
+      
+      return {
+        ...response.story,
+        publishDate: this.formatDate(response.story.publishDate)
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  //======= USER STORIES =======
+
+  async getStories(userId: number): Promise<UserStories[]> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<{ stories: UserStories[] }>(`${this.API_URL}/user/${userId}/stories`)
+      );
+      return response.stories || [];
     } catch (error) {
       throw error;
     }
@@ -181,16 +198,5 @@ export class LoadService {
 
   decodeTitle(encodedTitle: string): string {
     return encodedTitle.replace(/-/g, ' ');
-  }
-
-  async getStoryForEdit(id: number): Promise<EditStory> {
-    try {
-      const response = await firstValueFrom(
-        this.http.get<{ story: EditStory }>(`${this.API_URL}/private/story/${id}`)
-      );
-      return response.story;
-    } catch (error) {
-      throw error;
-    }
   }
 }

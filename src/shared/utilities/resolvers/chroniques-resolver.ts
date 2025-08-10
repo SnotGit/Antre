@@ -36,7 +36,7 @@ export class ChroniquesResolver {
 
       const [userResponse, storyResponse] = await Promise.all([
         firstValueFrom(this.http.get<{ userId: number }>(`${this.API_URL}/resolve/username/${username}`)),
-        firstValueFrom(this.http.get<{ storyId: number }>(`${this.API_URL}/resolve/story/${username}/${encodeURIComponent(title)}`))
+        firstValueFrom(this.http.get<{ storyId: number }>(`${this.API_URL}/resolve/${username}/${encodeURIComponent(title)}`))
       ]);
 
       return {
@@ -55,7 +55,7 @@ export class ChroniquesResolver {
       const title = this.decodeTitle(titleWithDashes);
       
       const response = await firstValueFrom(
-        this.http.get<{ storyId: number }>(`${this.API_URL}/private/resolve/title/${encodeURIComponent(title)}`)
+        this.http.get<{ storyId: number }>(`${this.API_URL}/resolve/title/${encodeURIComponent(title)}`)
       );
       
       return {
