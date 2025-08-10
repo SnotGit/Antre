@@ -23,10 +23,10 @@ export class DeleteService {
       if (!confirmed) return;
 
       await firstValueFrom(
-        this.http.delete(`${this.API_URL}/private/story/${id}`)
+        this.http.delete(`${this.API_URL}/stories/drafts/${id}`)
       );
     } catch (error) {
-      alert('Erreur lors de la suppression');
+      throw error;
     }
   }
 
@@ -41,11 +41,11 @@ export class DeleteService {
 
       await Promise.all(
         selectedIds.map(id =>
-          firstValueFrom(this.http.delete(`${this.API_URL}/private/story/${id}`))
+          firstValueFrom(this.http.delete(`${this.API_URL}/stories/drafts/${id}`))
         )
       );
     } catch (error) {
-      alert('Erreur lors de la suppression');
+      throw error;
     }
   }
 
