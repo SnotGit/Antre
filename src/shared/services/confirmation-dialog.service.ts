@@ -20,6 +20,34 @@ export class ConfirmationDialogService {
   isVisible = this.visible.asReadonly();
   config = this.dialogConfig.asReadonly();
 
+  //======= SAVE OR QUIT =======
+
+  confirmSaveOrQuit(): Promise<boolean> {
+    const config: ConfirmationConfig = {
+      title: 'Quitter sans sauvegarder ?',
+      message: 'Sauvegarder en brouillon ?',
+      confirmText: 'Sauvegarder',
+      cancelText: 'Quitter',
+      isDanger: true
+    };
+
+    return this.showDialog(config);
+  }
+
+  //======= CANCEL STORY =======
+
+  confirmCancelStory(): Promise<boolean> {
+    const config: ConfirmationConfig = {
+      title: 'Annuler la création',
+      message: 'Êtes-vous sûr de vouloir annuler la création de cette histoire ?\n\nToutes les modifications seront perdues.',
+      confirmText: 'Annuler',
+      cancelText: 'Continuer',
+      isDanger: true
+    };
+
+    return this.showDialog(config);
+  }
+
   //======= DELETE STORY =======
 
   confirmDeleteStory(isNewStory: boolean): Promise<boolean> {

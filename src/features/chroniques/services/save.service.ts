@@ -30,7 +30,6 @@ export class SaveService {
 
   //======= DEBOUNCE =======
 
-  private saveTimeout: number | undefined;
   private saveLocalTimeout: number | undefined;
 
   //======= CREATE =======
@@ -38,14 +37,13 @@ export class SaveService {
   async createStory(): Promise<number> {
     try {
       const response = await firstValueFrom(
-        this.http.post<StoryResponse>(`${this.API_URL}/private/draft`, {
+        this.http.post<StoryResponse>(`${this.API_URL}/private/drafts`, {
           title: '',
           content: ''
         })
       );
       return response.story.id;
     } catch (error) {
-      alert('Erreur lors de la création de l\'histoire');
       throw error;
     }
   }
@@ -55,7 +53,7 @@ export class SaveService {
   async createDraftFromPublished(originalId: number, data: StoryFormData): Promise<number> {
     try {
       const response = await firstValueFrom(
-        this.http.post<StoryResponse>(`${this.API_URL}/private/draft`, {
+        this.http.post<StoryResponse>(`${this.API_URL}/private/drafts`, {
           title: data.title,
           content: data.content,
           originalStoryId: originalId
@@ -63,27 +61,20 @@ export class SaveService {
       );
       return response.story.id;
     } catch (error) {
-      alert('Erreur lors de la création du brouillon');
       throw error;
     }
   }
 
-  //======= SAVE DATABASE=======
+  //======= SAVE DATABASE =======
 
-  save(id: number, data: StoryFormData): void {
-    if (this.saveTimeout) {
-      clearTimeout(this.saveTimeout);
+  async save(id: number, data: StoryFormData): Promise<void> {
+    try {
+      await firstValueFrom(
+        this.http.put(`${this.API_URL}/private/drafts/${id}`, data)
+      );
+    } catch (error) {
+      throw error;
     }
-
-    this.saveTimeout = window.setTimeout(async () => {
-      try {
-        await firstValueFrom(
-          this.http.put(`${this.API_URL}/private/draft/${id}`, data)
-        );
-      } catch (error) {
-        alert('Erreur lors de la sauvegarde');
-      }
-    }, 2000);
   }
 
   //======= SAVE LOCAL =======
@@ -97,9 +88,9 @@ export class SaveService {
       try {
         localStorage.setItem(key, JSON.stringify(data));
       } catch (error) {
-        alert('Erreur lors de la sauvegarde locale');
+        console.error('Erreur lors de la sauvegarde locale:', error);
       }
-    }, 2000);
+    }, 500);
   }
 
   //======= RESTORE LOCAL =======
@@ -109,6 +100,7 @@ export class SaveService {
       const stored = localStorage.getItem(key);
       return stored ? JSON.parse(stored) : null;
     } catch (error) {
+      console.error('Erreur lors de la restauration locale:', error);
       return null;
     }
   }
@@ -124,10 +116,9 @@ export class SaveService {
   async publish(id: number): Promise<void> {
     try {
       await firstValueFrom(
-        this.http.post(`${this.API_URL}/private/publish/${id}`, {})
+        this.http.post(`${this.API_URL}/private/stories/${id}/publish`, {})
       );
     } catch (error) {
-      alert('Erreur lors de la publication');
       throw error;
     }
   }
@@ -137,10 +128,9 @@ export class SaveService {
   async update(id: number, data: StoryFormData): Promise<void> {
     try {
       await firstValueFrom(
-        this.http.put(`${this.API_URL}/private/story/${id}`, data)
+        this.http.put(`${this.API_URL}/private/stories/${id}`, data)
       );
     } catch (error) {
-      alert('Erreur lors de la mise à jour');
       throw error;
     }
   }
