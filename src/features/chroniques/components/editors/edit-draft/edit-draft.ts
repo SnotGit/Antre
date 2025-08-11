@@ -5,6 +5,7 @@ import { Location } from '@angular/common';
 import { SaveService, StoryFormData } from '@features/chroniques/services/save.service';
 import { DeleteService } from '@features/chroniques/services/delete.service';
 import { LoadService } from '@features/chroniques/services/load.service';
+import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
 import { AuthService } from '@features/user/services/auth.service';
@@ -25,6 +26,7 @@ export class DraftEditor implements OnInit, OnDestroy {
   private readonly deleteService = inject(DeleteService);
   private readonly loadService = inject(LoadService);
   private readonly confirmationService = inject(ConfirmationDialogService);
+  private readonly chroniquesResolver = inject(ChroniquesResolver);
   private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
 
@@ -38,9 +40,11 @@ export class DraftEditor implements OnInit, OnDestroy {
 
   //======= ROUTER INPUT =======
 
-  storyId = input.required<number>();
+  titleUrl = input.required<string>();
 
   //======= SIGNALS =======
+
+  storyId = signal<number>(0);
 
   storyTitle = signal('');
   storyContent = signal('');
@@ -84,7 +88,10 @@ export class DraftEditor implements OnInit, OnDestroy {
     this.typingService.title(this.title);
 
     try {
-      const story = await this.loadService.getStoryForEdit(this.storyId());
+      const resolved = await this.chroniquesResolver.resolveStoryByTitle(this.titleUrl());
+      this.storyId.set(resolved.storyId);
+      
+      const story = await this.loadService.getDraftStory(resolved.storyId);
       
       this.storyTitle.set(story.title);
       this.storyContent.set(story.content);
@@ -112,29 +119,16 @@ export class DraftEditor implements OnInit, OnDestroy {
     }
   }
 
-  //======= DELETE =======
-
-  async deleteStory(): Promise<void> {
-    const confirmed = await this.confirmationService.confirmDeleteStory(true);
-    if (!confirmed) return;
-
-    try {
-      await this.deleteService.deleteStory(this.storyId());
-      const key = `draft-${this.storyId()}-modifications`;
-      this.saveService.clearLocal(key);
-      this.confirmationService.showSuccessMessage();
-      this.router.navigate(['/chroniques/mes-histoires']);
-    } catch (error) {
-      this.confirmationService.showErrorMessage();
-    }
+  private clearLocalStorage(): void {
+    const key = `draft-${this.storyId()}-modifications`;
+    this.saveService.clearLocal(key);
   }
 
   //======= ACTIONS =======
 
   async cancel(): Promise<void> {
     if (!this.isEdited()) {
-      const key = `draft-${this.storyId()}-modifications`;
-      this.saveService.clearLocal(key);
+      this.clearLocalStorage();
       this.navigateBack();
       return;
     }
@@ -142,8 +136,7 @@ export class DraftEditor implements OnInit, OnDestroy {
     const confirmed = await this.confirmationService.confirmCancelStory();
     if (!confirmed) return;
 
-    const key = `draft-${this.storyId()}-modifications`;
-    this.saveService.clearLocal(key);
+    this.clearLocalStorage();
     this.navigateBack();
   }
 
@@ -156,8 +149,7 @@ export class DraftEditor implements OnInit, OnDestroy {
       }
       
       await this.saveService.publish(this.storyId());
-      const key = `draft-${this.storyId()}-modifications`;
-      this.saveService.clearLocal(key);
+      this.clearLocalStorage();
       this.confirmationService.showSuccessMessage();
       this.router.navigate(['/chroniques/mes-histoires']);
     } catch (error) {
@@ -177,8 +169,7 @@ export class DraftEditor implements OnInit, OnDestroy {
       }
     }
     
-    const key = `draft-${this.storyId()}-modifications`;
-    this.saveService.clearLocal(key);
+    this.clearLocalStorage();
     this.navigateBack();
   }
 

@@ -14,13 +14,13 @@ export const routes: Routes = [
   },
   
   {
-    path: 'mes-histoires/brouillon/edition/:id',
+    path: 'mes-histoires/brouillon/edition/:titleUrl',
     loadComponent: () => import('../components/editors/edit-draft/edit-draft').then(m => m.DraftEditor),
     canActivate: [authGuard]
   },
   
   {
-    path: 'mes-histoires/publiée/edition/:id',
+    path: 'mes-histoires/publiée/edition/:titleUrl',
     loadComponent: () => import('../components/editors/edit-published/edit-published').then(m => m.PublishedEditor),
     canActivate: [authGuard]
   },

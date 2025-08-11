@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, effect, input } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, effect, input, resource } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { SaveService, StoryFormData } from '@features/chroniques/services/save.service';
 import { LoadService } from '@features/chroniques/services/load.service';
+import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
 import { AuthService } from '@features/user/services/auth.service';
@@ -22,6 +23,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
   private readonly location = inject(Location);
   private readonly saveService = inject(SaveService);
   private readonly loadService = inject(LoadService);
+  private readonly chroniquesResolver = inject(ChroniquesResolver);
   private readonly confirmationService = inject(ConfirmationDialogService);
   private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
@@ -36,7 +38,34 @@ export class PublishedEditor implements OnInit, OnDestroy {
 
   //======= ROUTER INPUT =======
 
-  storyId = input.required<number>();
+  titleUrl = input.required<string>();
+
+  //======= STORY DATA RESOURCE =======
+
+  private readonly publishedStoryResource = resource({
+    params: () => ({
+      titleUrl: this.titleUrl()
+    }),
+    loader: async ({ params }) => {
+      if (!params.titleUrl) return null;
+
+      try {
+        const resolved = await this.chroniquesResolver.resolveStoryByTitle(params.titleUrl);
+        const story = await this.loadService.getStoryForEdit(resolved.storyId);
+        
+        return {
+          story,
+          storyId: resolved.storyId
+        };
+      } catch (error) {
+        return null;
+      }
+    }
+  });
+
+  //======= COMPUTED FROM RESOURCE =======
+
+  storyId = computed(() => this.publishedStoryResource.value()?.storyId || 0);
 
   //======= SIGNALS =======
 
@@ -73,39 +102,29 @@ export class PublishedEditor implements OnInit, OnDestroy {
 
   //======= LIFECYCLE =======
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/auth/login']);
       return;
     }
 
-    if (typeof this.storyId() === 'string') {
-      const numericId = parseInt(this.storyId() as any, 10);
-      if (isNaN(numericId)) {
+    this.typingService.title(this.title);
+
+    effect(() => {
+      const resourceData = this.publishedStoryResource.value();
+      
+      if (resourceData === null) {
         this.router.navigate(['/chroniques/mes-histoires']);
         return;
       }
-    }
 
-    // Délai pour l'effet de typing
-    if (this.typingService.typingComplete()) {
-      await new Promise(resolve => setTimeout(resolve, 50));
-    }
-
-    this.typingService.title(this.title);
-
-    try {
-      const story = await this.loadService.getStoryForEdit(this.storyId());
-      
-      this.storyTitle.set(story.title);
-      this.storyContent.set(story.content);
-      this.originalData.set({ title: story.title, content: story.content });
-      this.restoreLocalModifications();
-      
-    } catch (error) {
-      console.error('Erreur chargement histoire publiée:', error);
-      this.router.navigate(['/chroniques/mes-histoires']);
-    }
+      if (resourceData?.story) {
+        this.storyTitle.set(resourceData.story.title);
+        this.storyContent.set(resourceData.story.content);
+        this.originalData.set({ title: resourceData.story.title, content: resourceData.story.content });
+        this.restoreLocalModifications();
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -132,16 +151,10 @@ export class PublishedEditor implements OnInit, OnDestroy {
   //======= ACTIONS =======
 
   async saveToDraft(): Promise<void> {
-    if (!this.isEdited()) {
-      const confirmed = await this.confirmationService.confirmCancelStory();
-      if (!confirmed) return;
-    }
+    if (!this.storyId()) return;
 
     try {
-      const draftId = await this.saveService.createDraftFromPublished(
-        this.storyId(), 
-        this.storyData()
-      );
+      await this.saveService.createDraftFromPublished(this.storyId(), this.storyData());
       
       this.clearLocalStorage();
       this.confirmationService.showSuccessMessage();
@@ -152,10 +165,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
   }
 
   async update(): Promise<void> {
-    if (!this.canUpdate()) return;
-
-    const confirmed = await this.confirmationService.confirmCancelStory();
-    if (!confirmed) return;
+    if (!this.canUpdate() || !this.storyId()) return;
 
     try {
       await this.saveService.update(this.storyId(), this.storyData());
@@ -179,11 +189,10 @@ export class PublishedEditor implements OnInit, OnDestroy {
     const saveOrQuit = await this.confirmationService.confirmSaveOrQuit();
     
     if (saveOrQuit) {
+      if (!this.storyId()) return;
+      
       try {
-        await this.saveService.createDraftFromPublished(
-          this.storyId(), 
-          this.storyData()
-        );
+        await this.saveService.createDraftFromPublished(this.storyId(), this.storyData());
         this.clearLocalStorage();
       } catch (error) {
         this.confirmationService.showErrorMessage();
