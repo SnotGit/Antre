@@ -3,7 +3,6 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { SaveService, StoryFormData } from '@features/chroniques/services/save.service';
-import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
 import { LoadService } from '@features/chroniques/services/load.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
@@ -22,7 +21,6 @@ export class PublishedEditor implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly saveService = inject(SaveService);
-  private readonly chroniquesResolver = inject(ChroniquesResolver);
   private readonly loadService = inject(LoadService);
   private readonly confirmationService = inject(ConfirmationDialogService);
   private readonly typingService = inject(TypingEffectService);
@@ -38,14 +36,22 @@ export class PublishedEditor implements OnInit, OnDestroy {
 
   //======= ROUTER INPUT =======
 
-  titleUrl = input.required<string>();
+  storyId = input.required<number>();
 
   //======= SIGNALS =======
 
   storyTitle = signal('');
   storyContent = signal('');
-  storyId = signal<number>(0);
   originalData = signal<StoryFormData>({ title: '', content: '' });
+
+  //======= AUTO-SAVE EFFECT =======
+
+  private autoSaveEffect = effect(() => {
+    if (this.storyId() && this.isEdited()) {
+      const key = `published-${this.storyId()}-modifications`;
+      this.saveService.saveLocal(key, this.storyData());
+    }
+  });
 
   //======= COMPUTED =======
 
@@ -62,16 +68,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
 
   canUpdate = computed(() => {
     const data = this.storyData();
-    return this.isEdited() && data.title.length >= 3 && data.content.length >= 100;
-  });
-
-  //======= EFFECTS =======
-
-  private autoSaveEffect = effect(() => {
-    if (this.storyId() > 0 && this.isEdited()) {
-      const key = `published-${this.storyId()}-modifications`;
-      this.saveService.saveLocal(key, this.storyData());
-    }
+    return data.title.trim().length > 0 && data.content.trim().length > 0 && this.isEdited();
   });
 
   //======= LIFECYCLE =======
@@ -82,23 +79,31 @@ export class PublishedEditor implements OnInit, OnDestroy {
       return;
     }
 
-    while (this.authService.initializing()) {
+    if (typeof this.storyId() === 'string') {
+      const numericId = parseInt(this.storyId() as any, 10);
+      if (isNaN(numericId)) {
+        this.router.navigate(['/chroniques/mes-histoires']);
+        return;
+      }
+    }
+
+    // Délai pour l'effet de typing
+    if (this.typingService.typingComplete()) {
       await new Promise(resolve => setTimeout(resolve, 50));
     }
 
     this.typingService.title(this.title);
 
     try {
-      const resolved = await this.chroniquesResolver.resolveStoryByTitle(this.titleUrl());
-      const story = await this.loadService.getStoryForEdit(resolved.storyId);
+      const story = await this.loadService.getStoryForEdit(this.storyId());
       
-      this.storyId.set(story.id);
       this.storyTitle.set(story.title);
       this.storyContent.set(story.content);
       this.originalData.set({ title: story.title, content: story.content });
       this.restoreLocalModifications();
       
     } catch (error) {
+      console.error('Erreur chargement histoire publiée:', error);
       this.router.navigate(['/chroniques/mes-histoires']);
     }
   }
@@ -107,7 +112,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
     this.typingService.destroy();
   }
 
-  //======= SAVE =======
+  //======= LOCAL STORAGE =======
 
   private restoreLocalModifications(): void {
     const key = `published-${this.storyId()}-modifications`;
@@ -140,6 +145,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
       
       this.clearLocalStorage();
       this.confirmationService.showSuccessMessage();
+      this.router.navigate(['/chroniques/mes-histoires']);
     } catch (error) {
       this.confirmationService.showErrorMessage();
     }
