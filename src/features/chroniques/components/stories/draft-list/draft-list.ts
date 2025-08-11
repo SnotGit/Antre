@@ -54,8 +54,6 @@ export class DraftList implements OnInit, OnDestroy {
     return this.draftStoriesResource.value() || [];
   });
 
-  //======= COMPUTED =======
-
   selection = computed(() => this.selectedStories().size > 0);
 
   //======= LIFECYCLE =======
@@ -92,10 +90,17 @@ export class DraftList implements OnInit, OnDestroy {
   //======= NAVIGATION =======
 
   onCardClick(draftStory: DraftStory): void {
-    this.router.navigate(['/chroniques/mes-histoires/brouillon/edition', draftStory.id]);
+    const titleUrl = this.encodeTitle(draftStory.title);
+    this.router.navigate(['/chroniques/mes-histoires/brouillon/edition', titleUrl]);
   }
 
   goBack(): void {
     this.router.navigate(['/chroniques/mes-histoires']);
+  }
+
+  //======= HELPER =======
+
+  private encodeTitle(title: string): string {
+    return title.replace(/ /g, '-');
   }
 }

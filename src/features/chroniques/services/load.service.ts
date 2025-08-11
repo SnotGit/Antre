@@ -60,6 +60,8 @@ export class LoadService {
   private readonly http = inject(HttpClient);
   private readonly API_URL = `${environment.apiUrl}/chroniques`;
 
+  //======= DATE FORMATTING =======
+
   private formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: '2-digit',
@@ -75,7 +77,7 @@ export class LoadService {
       const response = await firstValueFrom(
         this.http.get<{ stories: StoryCard[] }>(`${this.API_URL}/stories/latest`)
       );
-      
+   
       const stories = response.stories || [];
       
       return stories.map(story => ({
@@ -152,7 +154,7 @@ export class LoadService {
   async getStoryForEdit(id: number): Promise<EditStory> {
     try {
       const response = await firstValueFrom(
-        this.http.get<{ story: EditStory }>(`${this.API_URL}/stories/published/${id}`)
+        this.http.get<{ story: EditStory }>(`${this.API_URL}/stories/edit/${id}`)
       );
       return response.story;
     } catch (error) {

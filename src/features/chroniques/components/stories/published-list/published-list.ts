@@ -14,11 +14,15 @@ import { TypingEffectService } from '@shared/services/typing-effect.service';
 })
 export class PublishedList implements OnInit, OnDestroy {
 
+  //======= INJECTIONS =======
+
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly loadService = inject(LoadService);
   private readonly deleteService = inject(DeleteService);
   private readonly typingService = inject(TypingEffectService);
+
+  //======= TYPING EFFECT =======
 
   private readonly title = 'Histoires Publiées';
 
@@ -26,7 +30,11 @@ export class PublishedList implements OnInit, OnDestroy {
   showCursor = this.typingService.showCursor;
   typing = this.typingService.typingComplete;
 
+  //======= SELECTION STATE =======
+
   selectedStories = signal<Set<number>>(new Set());
+
+  //======= DATA LOADING =======
 
   private readonly publishedStoriesResource = resource({
     params: () => ({
@@ -48,6 +56,8 @@ export class PublishedList implements OnInit, OnDestroy {
 
   selection = computed(() => this.selectedStories().size > 0);
 
+  //======= LIFECYCLE =======
+
   ngOnInit(): void {
     this.typingService.title(this.title);
   }
@@ -55,6 +65,8 @@ export class PublishedList implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.typingService.destroy();
   }
+
+  //======= SELECTION METHODS =======
 
   toggleSelection(id: number): void {
     const newSelection = this.deleteService.toggle(id, this.selectedStories());
@@ -65,6 +77,8 @@ export class PublishedList implements OnInit, OnDestroy {
     return this.selectedStories().has(id);
   }
 
+  //======= DELETE METHODS =======
+
   async deleteSelected(): Promise<void> {
     const selectedIds = Array.from(this.selectedStories());
 
@@ -73,11 +87,20 @@ export class PublishedList implements OnInit, OnDestroy {
     this.publishedStoriesResource.reload();
   }
 
+  //======= NAVIGATION =======
+
   onCardClick(publishedStory: PublishedStory): void {
-    this.router.navigate(['/chroniques/mes-histoires/publiée/edition', publishedStory.id]);
+    const titleUrl = this.encodeTitle(publishedStory.title);
+    this.router.navigate(['/chroniques/mes-histoires/publiée/edition', titleUrl]);
   }
 
   goBack(): void {
     this.router.navigate(['/chroniques/mes-histoires']);
+  }
+
+  //======= HELPER =======
+
+  private encodeTitle(title: string): string {
+    return title.replace(/ /g, '-');
   }
 }
