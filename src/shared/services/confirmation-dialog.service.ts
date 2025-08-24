@@ -68,7 +68,7 @@ export class ConfirmationDialogService {
 
   confirmDeleteMultiple(count: number): Promise<boolean> {
     const config: ConfirmationConfig = {
-      title: 'Suppression multiple',
+      title: 'Suppression',
       message: `Êtes-vous sûr de vouloir supprimer ${count} histoire${count > 1 ? 's' : ''} ?`,
       confirmText: 'Supprimer',
       cancelText: 'Annuler',

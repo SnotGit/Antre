@@ -32,6 +32,12 @@ export const routes: Routes = [
   },
   
   {
+    path: ':username/edition/publiee/:titleUrl',
+    loadComponent: () => import('../components/editors/edit-published/edit-published').then(m => m.PublishedEditor),
+    canActivate: [authGuard]
+  },
+  
+  {
     path: ':username/edition/:titleUrl',
     loadComponent: () => import('../components/editors/edit-draft/edit-draft').then(m => m.DraftEditor),
     canActivate: [authGuard]

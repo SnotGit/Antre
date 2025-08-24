@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../user/services/auth.service';
 import { MobileMenuService } from '../../services/mobile-menu.service';
+
 @Component({
   selector: 'app-console-v3',
   imports: [CommonModule],
@@ -11,20 +12,20 @@ import { MobileMenuService } from '../../services/mobile-menu.service';
 })
 export class ConsoleV3 {
 
-  //============ INJECTIONS ============
+  //======= INJECTIONS =======
   
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly mobileMenuService = inject(MobileMenuService);
 
-  //============ SIGNALS ============
+  //======= SIGNALS =======
 
   currentUser = this.authService.currentUser;
   isLoggedIn = this.authService.isLoggedIn;
   isAdmin = this.authService.isAdmin;
   openMenu = this.mobileMenuService.isConsoleOpen;
 
-  //============ COMPUTED ============
+  //======= COMPUTED =======
 
   showUserActions(): boolean {
     return this.isLoggedIn() && this.router.url.includes('/chroniques');
@@ -46,7 +47,7 @@ export class ConsoleV3 {
     return this.currentUser()?.role?.toUpperCase() || 'VISITEUR';
   }
 
-  //============ CONSOLE ACTIONS ============
+  //======= CONSOLE ACTIONS =======
 
   toggleMenu(): void {
     this.mobileMenuService.toggleConsole();
@@ -56,7 +57,7 @@ export class ConsoleV3 {
     this.mobileMenuService.closeAll();
   }
 
-  //============ AUTH ACTIONS ============
+  //======= AUTH ACTIONS =======
 
   openLogin(): void {
     this.router.navigate(['/auth/login']);
@@ -73,15 +74,17 @@ export class ConsoleV3 {
     this.onClick();
   }
 
-  //============ USER ACTIONS ============
+  //======= USER ACTIONS =======
 
   newStory(): void {
-    this.router.navigate(['/chroniques/mes-histoires/brouillon/edition/nouvelle-histoire']);
+    const username = this.authService.currentUser()?.username;
+    this.router.navigate(['/chroniques', username, 'edition', 'nouvelle-histoire']);
     this.onClick();
   }
 
   myStories(): void {
-    this.router.navigate(['/chroniques/mes-histoires']);
+    const username = this.authService.currentUser()?.username;
+    this.router.navigate(['/chroniques', username, 'mes-histoires']);
     this.onClick();
   }
 
@@ -90,7 +93,7 @@ export class ConsoleV3 {
     this.onClick();
   }
 
-  //============ ADMIN ACTIONS ============
+  //======= ADMIN ACTIONS =======
 
   addCategory(): void {
     // TODO: Implémenter + onClick()

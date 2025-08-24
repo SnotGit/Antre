@@ -39,11 +39,6 @@ export class PublishedEditor implements OnInit, OnDestroy {
   username = input.required<string>();
   titleUrl = input.required<string>();
 
-  //======= ROUTER STATE =======
-
-  private readonly routerState = history.state;
-  private readonly routerStateStoryId = this.routerState?.storyId || 0;
-
   //======= SIGNALS =======
 
   storyTitle = signal('');
@@ -52,9 +47,11 @@ export class PublishedEditor implements OnInit, OnDestroy {
 
   //======= RESOURCES =======
 
-  private readonly publishedStoryResource = resource({
+  publishedStoryResource = resource({
     params: () => ({
-      storyId: this.routerStateStoryId,
+      storyId: history.state?.storyId || 0,
+      username: this.username(),
+      titleUrl: this.titleUrl(),
       isAuthenticated: this.authService.isLoggedIn()
     }),
     loader: async ({ params }) => {

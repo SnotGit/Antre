@@ -16,22 +16,10 @@
   background: #1a1d20;
   border: 2px solid #5d889e;
   border-radius: 12px;
-  min-width: 400px;
-  max-width: 500px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
-  animation: slideIn 0.2s ease-out;
+  height: 240px;
+  width: 550px;
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
 
 .dialog-header {
   padding: 20px 25px 15px 25px;
@@ -39,8 +27,8 @@
 }
 
 .dialog-title {
-  color: #5d889e;
-  font-size: 18px;
+  color: darkorange;
+  font-size: 20px;
   font-weight: bold;
   margin: 0;
 
@@ -54,19 +42,19 @@
 }
 
 .dialog-content {
-  padding: 20px 25px;
+  padding: 30px;
 }
 
 .dialog-message {
   color: #d0d0d0;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.6;
   margin: 0;
   white-space: pre-line;
 }
 
 .dialog-actions {
-  padding: 15px 25px 20px 25px;
+  padding: 20px 30px;
   display: flex;
   gap: 20px;
   justify-content: flex-end;
@@ -87,7 +75,6 @@
 
   &:hover {
     background-color: rgba(93, 136, 158, 0.1);
-    transform: translateY(-1px);
   }
 
   &.cancel-btn {
@@ -115,28 +102,13 @@
 
     &.danger {
       background: transparent;
-      border-color: crimson;
-      color: crimson;
+      border-color: darkorange;
+      color: darkorange;
 
       &:hover {
-        color: red;
-        border-color: red;
+        color: crimson;
+        border-color: crimson;
       }
-    }
-  }
-}
-
-@media (max-width: 500px) {
-  .confirmation-dialog {
-    min-width: 90vw;
-    margin: 0 20px;
-  }
-
-  .dialog-actions {
-    flex-direction: column;
-    
-    .dialog-btn {
-      width: 100%;
     }
   }
 }

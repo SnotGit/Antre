@@ -11,24 +11,23 @@ import { StatsService } from '@features/user/services/stats.service';
 })
 export class UserStats {
 
-  //============ INJECTIONS ============
+  //======= INJECTIONS =======
 
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly statsService = inject(StatsService);
 
-  //============ SIGNALS ============
+  //======= SIGNALS =======
 
   currentUser = this.authService.currentUser;
 
-  //============ DATA LOADING AVEC GESTION D'ERREUR ============
+  //======= DATA LOADING =======
 
   private statsResource = resource({
     loader: async () => {
       try {
         return await this.statsService.getStats();
       } catch (error) {
-        console.warn('Erreur lors du chargement des stats:', error);
         return { drafts: 0, published: 0, totalLikes: 0 };
       }
     }
@@ -42,14 +41,13 @@ export class UserStats {
     }
     
     if (this.statsResource.error()) {
-      console.warn('Resource en erreur:', this.statsResource.error());
       return { drafts: 0, published: 0, totalLikes: 0 };
     }
     
     return resourceValue || { drafts: 0, published: 0, totalLikes: 0 };
   });
 
-  //============ COMPUTED ============
+  //======= COMPUTED =======
 
   userStats = computed(() => {
     const statsData = this.stats();
@@ -70,17 +68,20 @@ export class UserStats {
     return this.currentUser()?.role?.toUpperCase() || 'USER';
   });
 
-  //============ NAVIGATION ============
+  //======= NAVIGATION =======
 
   showMyStories(): void {
-    this.router.navigate(['/chroniques/mes-histoires']);
+    const username = this.authService.currentUser()?.username;
+    this.router.navigate(['/chroniques', username, 'mes-histoires']);
   }
 
   showMyPublishedStories(): void {
-    this.router.navigate(['/chroniques/mes-histoires/publiées']);
+    const username = this.authService.currentUser()?.username;
+    this.router.navigate(['/chroniques', username, 'mes-histoires', 'publiees']);
   }
 
   showMyDrafts(): void {
-    this.router.navigate(['/chroniques/mes-histoires/brouillons']);
+    const username = this.authService.currentUser()?.username;
+    this.router.navigate(['/chroniques', username, 'mes-histoires', 'brouillons']);
   }
 }
