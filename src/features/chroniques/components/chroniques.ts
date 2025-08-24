@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { LoadService, StoryCard } from '@features/chroniques/services/load.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
@@ -8,20 +7,20 @@ import { StoryCardComponent } from './story-card/story-card';
 
 @Component({
   selector: 'app-chroniques',
-  imports: [CommonModule, StoryCardComponent],
+  imports: [StoryCardComponent],
   templateUrl: './chroniques.html',
   styleUrl: './chroniques.scss'
 })
 export class Chroniques implements OnInit, OnDestroy {
 
-  //============ INJECTIONS ============
+  //======= INJECTIONS =======
 
   private readonly router = inject(Router);
   private readonly loadService = inject(LoadService);
   private readonly typingService = inject(TypingEffectService);
   private readonly chroniquesResolver = inject(ChroniquesResolver);
 
-  //============ TYPING EFFECT ============
+  //======= TYPING EFFECT =======
 
   private readonly title = 'Les Chroniques de Mars';
 
@@ -29,7 +28,7 @@ export class Chroniques implements OnInit, OnDestroy {
   showCursor = this.typingService.showCursor;
   typing = this.typingService.typingComplete;
 
-  //============ DATA LOADING ============
+  //======= DATA LOADING =======
   
   private readonly storiesResource = resource({
     loader: async () => {
@@ -41,7 +40,7 @@ export class Chroniques implements OnInit, OnDestroy {
     return this.storiesResource.value() || [];
   });
 
-  //============ LIFECYCLE ============
+  //======= LIFECYCLE =======
 
   ngOnInit(): void {
     this.typingService.title(this.title);
@@ -51,10 +50,18 @@ export class Chroniques implements OnInit, OnDestroy {
     this.typingService.destroy();
   }
 
-  //============ ACTIONS ============
+  //======= ACTIONS =======
 
   onStoryCardClick(storyCard: StoryCard): void {
-    const resolvedTitle = this.chroniquesResolver.encodeTitle(storyCard.title);
-    this.router.navigate(['/chroniques', storyCard.user.username, resolvedTitle]);
+    const titleUrl = this.chroniquesResolver.encodeTitle(storyCard.title);
+    
+    this.router.navigate(['/chroniques', storyCard.user.username, titleUrl], {
+      state: { 
+        storyId: storyCard.id,
+        userId: storyCard.user.id,
+        username: storyCard.user.username,
+        title: storyCard.title
+      }
+    });
   }
 }

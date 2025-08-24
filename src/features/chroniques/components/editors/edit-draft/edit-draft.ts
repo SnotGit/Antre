@@ -54,7 +54,7 @@ export class DraftEditor implements OnInit, OnDestroy {
       }
 
       try {
-        const resolved = await this.chroniquesResolver.resolveStoryByTitle(params.titleUrl);
+        const resolved = await this.chroniquesResolver.encodeTitle(params.titleUrl);
         const story = await this.loadService.getDraftStory(resolved.storyId);
         
         return {

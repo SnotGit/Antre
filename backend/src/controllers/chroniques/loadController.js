@@ -30,7 +30,13 @@ const getLatest = async (_req, res) => {
         id: true,
         title: true,
         publishedAt: true,
-        user: { select: { username: true, avatar: true } }
+        user: { 
+          select: { 
+            id: true, 
+            username: true, 
+            avatar: true 
+          } 
+        }
       }
     });
 
