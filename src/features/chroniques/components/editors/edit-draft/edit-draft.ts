@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { SaveService, StoryFormData } from '@features/chroniques/services/save.service';
 import { LoadService } from '@features/chroniques/services/load.service';
-import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
 import { AuthService } from '@features/user/services/auth.service';
@@ -23,7 +22,6 @@ export class DraftEditor implements OnInit, OnDestroy {
   private readonly location = inject(Location);
   private readonly saveService = inject(SaveService);
   private readonly loadService = inject(LoadService);
-  private readonly chroniquesResolver = inject(ChroniquesResolver);
   private readonly typingService = inject(TypingEffectService);
   private readonly confirmationService = inject(ConfirmationDialogService);
   private readonly authService = inject(AuthService);
@@ -36,15 +34,26 @@ export class DraftEditor implements OnInit, OnDestroy {
   showCursor = this.typingService.showCursor;
   typing = this.typingService.typingComplete;
 
-  //======= ROUTER INPUT =======
+  //======= ROUTER INPUTS =======
 
+  username = input.required<string>();
   titleUrl = input.required<string>();
 
-  //======= DRAFT RESOURCE =======
+  //======= ROUTER STATE =======
+
+  private readonly routerState = history.state;
+  private readonly routerStateStoryId = this.routerState?.storyId || 0;
+
+  //======= SIGNALS =======
+
+  storyTitle = signal('');
+  storyContent = signal('');
+
+  //======= RESOURCES =======
 
   private readonly draftResource = resource({
     params: () => ({
-      titleUrl: this.titleUrl(),
+      storyId: this.routerStateStoryId,
       isAuthenticated: this.authService.isLoggedIn()
     }),
     loader: async ({ params }) => {
@@ -52,32 +61,27 @@ export class DraftEditor implements OnInit, OnDestroy {
         this.router.navigate(['/auth/login']);
         return null;
       }
+      
+      if (!params.storyId) {
+        const username = this.authService.currentUser()?.username;
+        this.router.navigate(['/chroniques', username, 'mes-histoires']);
+        return null;
+      }
 
       try {
-        const resolved = await this.chroniquesResolver.encodeTitle(params.titleUrl);
-        const story = await this.loadService.getDraftStory(resolved.storyId);
-        
-        return {
-          story,
-          storyId: resolved.storyId
-        };
+        const story = await this.loadService.getDraftStory(params.storyId);
+        return { story, storyId: params.storyId };
       } catch (error) {
-        this.router.navigate(['/chroniques/mes-histoires']);
+        const username = this.authService.currentUser()?.username;
+        this.router.navigate(['/chroniques', username, 'mes-histoires']);
         return null;
       }
     }
   });
 
-  //======= COMPUTED FROM RESOURCE =======
+  //======= COMPUTED =======
 
   storyId = computed(() => this.draftResource.value()?.storyId || 0);
-
-  //======= SIGNALS =======
-
-  storyTitle = signal('');
-  storyContent = signal('');
-
-  //======= COMPUTED =======
 
   storyData = computed((): StoryFormData => ({
     title: this.storyTitle(),
@@ -154,7 +158,9 @@ export class DraftEditor implements OnInit, OnDestroy {
       await this.saveService.publish(this.storyId());
       this.clearLocalStorage();
       this.confirmationService.showSuccessMessage();
-      this.router.navigate(['/chroniques/mes-histoires']);
+      
+      const username = this.authService.currentUser()?.username;
+      this.router.navigate(['/chroniques', username, 'mes-histoires']);
     } catch (error) {
       this.confirmationService.showErrorMessage();
     }
