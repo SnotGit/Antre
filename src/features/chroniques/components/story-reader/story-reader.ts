@@ -1,7 +1,6 @@
 import { Component, inject, computed, resource, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../user/services/auth.service';
+import { AuthService } from '@features/user/services/auth.service';
 import { LoadService } from '@features/chroniques/services/load.service';
 import { LikeService } from '@features/chroniques/services/like.service';
 import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
@@ -9,7 +8,7 @@ import { environment } from '@environments/environment';
 
 @Component({
   selector: 'app-story-reader',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './story-reader.html',
   styleUrl: './story-reader.scss'
 })
@@ -27,43 +26,49 @@ export class StoryReader {
   username = input.required<string>();
   titleUrl = input.required<string>();
 
+  //======= ROUTER STATE =======
+
+  private readonly routerState = history.state;
+  private readonly storyId = this.routerState?.storyId || 0;
+  private readonly userId = this.routerState?.userId || 0;
+
   //======= STORY DATA RESOURCE =======
 
   storyData = resource({
     params: () => ({
+      storyId: this.storyId,
+      userId: this.userId,
       username: this.username(),
-      title: this.titleUrl()
+      titleUrl: this.titleUrl()
     }),
     loader: async ({ params }) => {
-      if (!params.username || !params.title) return null;
-
       try {
-        const resolved = await this.chroniquesResolver.resolveStoryByUsernameAndTitle(
-          params.username, 
-          params.title
-        );
+        if (params.storyId && params.userId) {
+          const [story, userStories] = await Promise.all([
+            this.loadService.getStory(params.storyId),
+            this.loadService.getStories(params.userId)
+          ]);
 
-        const [story, userStories] = await Promise.all([
-          this.loadService.getStory(resolved.storyId),
-          this.loadService.getStories(resolved.userId)
-        ]);
+          if (!story) return null;
 
-        if (!story) return null;
+          const currentStory = userStories.findIndex(s => s.id === params.storyId);
 
-        const currentStory = userStories.findIndex(s => s.id === resolved.storyId);
-
-        return {
-          story: { 
-            ...story, 
-            isliked: typeof story.isliked === 'boolean' ? story.isliked : false 
-          },
-          userStories,
-          currentStory,
-          hasNext: currentStory > 0,
-          hasPrevious: currentStory < userStories.length - 1,
-          nextStory: currentStory > 0 ? userStories[currentStory - 1] : null,
-          previousStory: currentStory < userStories.length - 1 ? userStories[currentStory + 1] : null
-        };
+          return {
+            story: { 
+              ...story, 
+              isliked: typeof story.isliked === 'boolean' ? story.isliked : false 
+            },
+            userStories,
+            currentStory,
+            hasNext: currentStory > 0,
+            hasPrevious: currentStory < userStories.length - 1,
+            nextStory: currentStory > 0 ? userStories[currentStory - 1] : null,
+            previousStory: currentStory < userStories.length - 1 ? userStories[currentStory + 1] : null
+          };
+        } else {
+          this.router.navigate(['/chroniques']);
+          return null;
+        }
       } catch (error) {
         return null;
       }
@@ -106,17 +111,29 @@ export class StoryReader {
     const data = this.storyData.value();
     if (!data?.hasPrevious || !data.previousStory) return;
     
-    const story = data.story;
     const resolvedTitle = this.chroniquesResolver.encodeTitle(data.previousStory.title);
-    this.router.navigate(['/chroniques', story.user?.username, resolvedTitle]);
+    this.router.navigate(['/chroniques', data.story.user?.username, resolvedTitle], {
+      state: {
+        storyId: data.previousStory.id,
+        userId: data.story.user?.id,
+        username: data.story.user?.username,
+        title: data.previousStory.title
+      }
+    });
   }
 
   goToNextStory(): void {
     const data = this.storyData.value();
     if (!data?.hasNext || !data.nextStory) return;
     
-    const story = data.story;
     const resolvedTitle = this.chroniquesResolver.encodeTitle(data.nextStory.title);
-    this.router.navigate(['/chroniques', story.user?.username, resolvedTitle]);
+    this.router.navigate(['/chroniques', data.story.user?.username, resolvedTitle], {
+      state: {
+        storyId: data.nextStory.id,
+        userId: data.story.user?.id,
+        username: data.story.user?.username,
+        title: data.nextStory.title
+      }
+    });
   }
 }

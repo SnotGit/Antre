@@ -8,8 +8,7 @@ const {
   getDrafts,
   getPublished,
   getDraftStory,
-  getPublishedStory,
-  getStoryForEdit
+  getPublishedStory
 } = require('../../controllers/chroniques/loadController');
 
 const {
@@ -24,12 +23,6 @@ const {
 } = require('../../controllers/chroniques/deleteController');
 
 const {
-  getUserByUsername,
-  getStoryByTitle,
-  getStoryByUsernameAndTitle,
-} = require('../../controllers/chroniques/resolverController');
-
-const {
   toggleLike
 } = require('../../controllers/user/likeController');
 
@@ -42,7 +35,6 @@ router.get('/stories/drafts', authenticateToken, getDrafts);
 router.get('/stories/drafts/:id', authenticateToken, getDraftStory);
 router.get('/stories/published', authenticateToken, getPublished);
 router.get('/stories/published/:id', authenticateToken, getPublishedStory);
-router.get('/stories/edit/:id', authenticateToken, getStoryForEdit);
 
 //======= STORIES CRUD =======
 
@@ -64,11 +56,5 @@ router.put('/reader/:id/like', authenticateToken, toggleLike);
 //======= USER ROUTES =======
 
 router.get('/user/:userId/stories', getStories);
-
-//======= RESOLVER ROUTES =======
-
-router.get('/resolve/username/:username', getUserByUsername);
-router.get('/resolve/:username/:title', getStoryByUsernameAndTitle);
-router.get('/resolve/title/:title', authenticateToken, getStoryByTitle);
 
 module.exports = router;

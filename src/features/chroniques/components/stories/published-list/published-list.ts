@@ -1,14 +1,14 @@
 import { Component, OnInit, OnDestroy, inject, computed, resource, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/user/services/auth.service';
 import { LoadService, PublishedStory } from '@features/chroniques/services/load.service';
 import { DeleteService } from '@features/chroniques/services/delete.service';
+import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 
 @Component({
   selector: 'app-published-list',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './published-list.html',
   styleUrl: './published-list.scss'
 })
@@ -20,6 +20,7 @@ export class PublishedList implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly loadService = inject(LoadService);
   private readonly deleteService = inject(DeleteService);
+  private readonly chroniquesResolver = inject(ChroniquesResolver);
   private readonly typingService = inject(TypingEffectService);
 
   //======= TYPING EFFECT =======
@@ -90,17 +91,20 @@ export class PublishedList implements OnInit, OnDestroy {
   //======= NAVIGATION =======
 
   onCardClick(publishedStory: PublishedStory): void {
-    const titleUrl = this.encodeTitle(publishedStory.title);
-    this.router.navigate(['/chroniques/mes-histoires/publiée/edition', titleUrl]);
+    const username = this.authService.currentUser()?.username;
+    const titleUrl = this.chroniquesResolver.encodeTitle(publishedStory.title);
+    
+    this.router.navigate(['/chroniques', username, 'edition', titleUrl], {
+      state: { 
+        storyId: publishedStory.id,
+        title: publishedStory.title,
+        isDraft: false
+      }
+    });
   }
 
   goBack(): void {
-    this.router.navigate(['/chroniques/mes-histoires']);
-  }
-
-  //======= HELPER =======
-
-  private encodeTitle(title: string): string {
-    return title.replace(/ /g, '-');
+    const username = this.authService.currentUser()?.username;
+    this.router.navigate(['/chroniques', username, 'mes-histoires']);
   }
 }

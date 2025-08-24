@@ -23,6 +23,7 @@ export interface StoryCard {
   title: string;
   publishDate: string;
   user: {
+    id: number;       
     username: string;
     avatar: string;
   };
@@ -70,7 +71,7 @@ export class LoadService {
     });
   }
 
-  //======= STORIES LATEST (PUBLIC) =======
+  //======= CHRONIQUES =======
 
   async getLatest(): Promise<StoryCard[]> {
     try {
@@ -89,7 +90,7 @@ export class LoadService {
     }
   }
 
-  //======= STORIES DRAFTS (PRIVATE) =======
+  //======= DRAFT LIST =======
 
   async getDraftStories(): Promise<DraftStory[]> {
     try {
@@ -119,7 +120,7 @@ export class LoadService {
     }
   }
 
-  //======= STORIES PUBLISHED (PRIVATE) =======
+  //======= PUBLISHED LIST =======
 
   async getPublishedStories(): Promise<PublishedStory[]> {
     try {
@@ -149,7 +150,7 @@ export class LoadService {
     }
   }
 
-  //======= STORY FOR EDIT =======
+  //======= EDIT =======
 
   async getStoryForEdit(id: number): Promise<EditStory> {
     try {
@@ -162,7 +163,7 @@ export class LoadService {
     }
   }
 
-  //======= READER (PUBLIC) =======
+  //======= READER =======
 
   async getStory(id: number): Promise<StoryReader> {
     try {
@@ -179,8 +180,6 @@ export class LoadService {
     }
   }
 
-  //======= USER STORIES (PUBLIC) =======
-
   async getStories(userId: number): Promise<UserStories[]> {
     try {
       const response = await firstValueFrom(
@@ -190,15 +189,5 @@ export class LoadService {
     } catch (error) {
       throw error;
     }
-  }
-
-  //======= URL HELPERS =======
-
-  encodeTitle(title: string): string {
-    return title.replace(/ /g, '-');
-  }
-
-  decodeTitle(encodedTitle: string): string {
-    return encodedTitle.replace(/-/g, ' ');
   }
 }
