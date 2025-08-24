@@ -26,18 +26,12 @@ export class StoryReader {
   username = input.required<string>();
   titleUrl = input.required<string>();
 
-  //======= ROUTER STATE =======
-
-  private readonly routerState = history.state;
-  private readonly storyId = this.routerState?.storyId || 0;
-  private readonly userId = this.routerState?.userId || 0;
-
   //======= STORY DATA RESOURCE =======
 
   storyData = resource({
     params: () => ({
-      storyId: this.storyId,
-      userId: this.userId,
+      storyId: history.state?.storyId || 0,
+      userId: history.state?.userId || 0,
       username: this.username(),
       titleUrl: this.titleUrl()
     }),
