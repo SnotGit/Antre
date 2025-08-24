@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { SaveService, StoryFormData } from '@features/chroniques/services/save.service';
 import { LoadService } from '@features/chroniques/services/load.service';
-import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
 import { AuthService } from '@features/user/services/auth.service';
@@ -23,7 +22,6 @@ export class PublishedEditor implements OnInit, OnDestroy {
   private readonly location = inject(Location);
   private readonly saveService = inject(SaveService);
   private readonly loadService = inject(LoadService);
-  private readonly chroniquesResolver = inject(ChroniquesResolver);
   private readonly confirmationService = inject(ConfirmationDialogService);
   private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
@@ -36,36 +34,15 @@ export class PublishedEditor implements OnInit, OnDestroy {
   showCursor = this.typingService.showCursor;
   typing = this.typingService.typingComplete;
 
-  //======= ROUTER INPUT =======
+  //======= ROUTER INPUTS =======
 
+  username = input.required<string>();
   titleUrl = input.required<string>();
 
-  //======= STORY DATA RESOURCE =======
+  //======= ROUTER STATE =======
 
-  private readonly publishedStoryResource = resource({
-    params: () => ({
-      titleUrl: this.titleUrl()
-    }),
-    loader: async ({ params }) => {
-      if (!params.titleUrl) return null;
-
-      try {
-        const resolved = await this.chroniquesResolver.resolveStoryByTitle(params.titleUrl);
-        const story = await this.loadService.getStoryForEdit(resolved.storyId);
-        
-        return {
-          story,
-          storyId: resolved.storyId
-        };
-      } catch (error) {
-        return null;
-      }
-    }
-  });
-
-  //======= COMPUTED FROM RESOURCE =======
-
-  storyId = computed(() => this.publishedStoryResource.value()?.storyId || 0);
+  private readonly routerState = history.state;
+  private readonly routerStateStoryId = this.routerState?.storyId || 0;
 
   //======= SIGNALS =======
 
@@ -73,16 +50,39 @@ export class PublishedEditor implements OnInit, OnDestroy {
   storyContent = signal('');
   originalData = signal<StoryFormData>({ title: '', content: '' });
 
-  //======= AUTO-SAVE EFFECT =======
+  //======= RESOURCES =======
 
-  private autoSaveEffect = effect(() => {
-    if (this.storyId() && this.isEdited()) {
-      const key = `published-${this.storyId()}-modifications`;
-      this.saveService.saveLocal(key, this.storyData());
+  private readonly publishedStoryResource = resource({
+    params: () => ({
+      storyId: this.routerStateStoryId,
+      isAuthenticated: this.authService.isLoggedIn()
+    }),
+    loader: async ({ params }) => {
+      if (!params.isAuthenticated) {
+        this.router.navigate(['/auth/login']);
+        return null;
+      }
+
+      if (!params.storyId) {
+        const username = this.authService.currentUser()?.username;
+        this.router.navigate(['/chroniques', username, 'mes-histoires']);
+        return null;
+      }
+
+      try {
+        const story = await this.loadService.getPublishedStory(params.storyId);
+        return { story, storyId: params.storyId };
+      } catch (error) {
+        const username = this.authService.currentUser()?.username;
+        this.router.navigate(['/chroniques', username, 'mes-histoires']);
+        return null;
+      }
     }
   });
 
   //======= COMPUTED =======
+
+  storyId = computed(() => this.publishedStoryResource.value()?.storyId || 0);
 
   storyData = computed((): StoryFormData => ({
     title: this.storyTitle(),
@@ -100,6 +100,26 @@ export class PublishedEditor implements OnInit, OnDestroy {
     return data.title.trim().length > 0 && data.content.trim().length > 0 && this.isEdited();
   });
 
+  //======= EFFECTS =======
+
+  private readonly dataLoadEffect = effect(() => {
+    const resourceData = this.publishedStoryResource.value();
+    
+    if (resourceData?.story) {
+      this.storyTitle.set(resourceData.story.title);
+      this.storyContent.set(resourceData.story.content);
+      this.originalData.set({ title: resourceData.story.title, content: resourceData.story.content });
+      this.restoreLocalModifications();
+    }
+  });
+
+  private autoSaveEffect = effect(() => {
+    if (this.storyId() && this.isEdited()) {
+      const key = `published-${this.storyId()}-modifications`;
+      this.saveService.saveLocal(key, this.storyData());
+    }
+  });
+
   //======= LIFECYCLE =======
 
   ngOnInit(): void {
@@ -109,22 +129,6 @@ export class PublishedEditor implements OnInit, OnDestroy {
     }
 
     this.typingService.title(this.title);
-
-    effect(() => {
-      const resourceData = this.publishedStoryResource.value();
-      
-      if (resourceData === null) {
-        this.router.navigate(['/chroniques/mes-histoires']);
-        return;
-      }
-
-      if (resourceData?.story) {
-        this.storyTitle.set(resourceData.story.title);
-        this.storyContent.set(resourceData.story.content);
-        this.originalData.set({ title: resourceData.story.title, content: resourceData.story.content });
-        this.restoreLocalModifications();
-      }
-    });
   }
 
   ngOnDestroy(): void {
@@ -158,7 +162,9 @@ export class PublishedEditor implements OnInit, OnDestroy {
       
       this.clearLocalStorage();
       this.confirmationService.showSuccessMessage();
-      this.router.navigate(['/chroniques/mes-histoires']);
+      
+      const username = this.authService.currentUser()?.username;
+      this.router.navigate(['/chroniques', username, 'mes-histoires']);
     } catch (error) {
       this.confirmationService.showErrorMessage();
     }
@@ -171,7 +177,9 @@ export class PublishedEditor implements OnInit, OnDestroy {
       await this.saveService.update(this.storyId(), this.storyData());
       this.clearLocalStorage();
       this.confirmationService.showSuccessMessage();
-      this.router.navigate(['/chroniques/mes-histoires']);
+      
+      const username = this.authService.currentUser()?.username;
+      this.router.navigate(['/chroniques', username, 'mes-histoires']);
     } catch (error) {
       this.confirmationService.showErrorMessage();
     }
