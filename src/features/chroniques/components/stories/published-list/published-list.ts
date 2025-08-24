@@ -94,11 +94,10 @@ export class PublishedList implements OnInit, OnDestroy {
     const username = this.authService.currentUser()?.username;
     const titleUrl = this.chroniquesResolver.encodeTitle(publishedStory.title);
     
-    this.router.navigate(['/chroniques', username, 'edition', titleUrl], {
+    this.router.navigate(['/chroniques', username, 'edition', 'publiee', titleUrl], {
       state: { 
         storyId: publishedStory.id,
-        title: publishedStory.title,
-        isDraft: false
+        title: publishedStory.title
       }
     });
   }
