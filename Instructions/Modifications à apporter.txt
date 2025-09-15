@@ -1,0 +1,25 @@
+// Dans console-v3.ts
+// CHANGER :
+newStory(): void {
+  const username = this.authService.currentUser()?.username;
+  this.router.navigate(['/chroniques', username, 'edition', 'nouvelle-histoire']);
+  this.onClick();
+}
+
+// VERS :
+newStory(): void {
+  const username = this.authService.currentUser()?.username;
+  this.router.navigate(['/chroniques', username, 'nouvelle-histoire']);
+  this.onClick();
+}
+
+// Dans ChroniquesResolver
+// CORRIGER editPublishedUrl :
+editPublishedUrl(username: string, title: string): string {
+  return `/chroniques/${username}/edition/publiee/${this.encodeTitle(title)}`;
+}
+
+// AJOUTER helper pour nouvelle histoire :
+newStoryUrl(username: string): string {
+  return `/chroniques/${username}/nouvelle-histoire`;
+}

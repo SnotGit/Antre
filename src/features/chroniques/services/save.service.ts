@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
 
-//======= INTERFACE =======
+//======= INTERFACES =======
 
 export interface StoryFormData {
   title: string;
@@ -32,68 +32,99 @@ export class SaveService {
 
   private saveLocalTimeout: number | undefined;
 
-  //======= CREATE =======
+  //======= HELPERS FACTORISÉS =======
 
-  async createStory(): Promise<number> {
+  private async executeHttpRequest<T>(request: Promise<T>): Promise<T> {
     try {
-      const response = await firstValueFrom(
-        this.http.post<StoryResponse>(`${this.API_URL}/stories/drafts`, {
-          title: '',
-          content: ''
-        })
-      );
-      return response.story.id;
+      return await request;
     } catch (error) {
       throw error;
     }
+  }
+
+  private buildStoryUrl(endpoint: string, id?: number): string {
+    const baseUrl = `${this.API_URL}/stories`;
+    return id ? `${baseUrl}/${endpoint}/${id}` : `${baseUrl}/${endpoint}`;
+  }
+
+  private scheduleLocalSave(callback: () => void): void {
+    if (this.saveLocalTimeout) {
+      clearTimeout(this.saveLocalTimeout);
+    }
+
+    this.saveLocalTimeout = window.setTimeout(callback, 500);
+  }
+
+  //======= CREATE =======
+
+  async createStory(): Promise<number> {
+    const response = await this.executeHttpRequest(
+      firstValueFrom(
+        this.http.post<StoryResponse>(this.buildStoryUrl('drafts'), {
+          title: '',
+          content: ''
+        })
+      )
+    );
+    return response.story.id;
   }
 
   //======= CREATE DRAFT FROM PUBLISHED =======
 
   async createDraftFromPublished(originalId: number, data: StoryFormData): Promise<number> {
-    try {
-      const response = await firstValueFrom(
-        this.http.post<StoryResponse>(`${this.API_URL}/stories/drafts`, {
+    const response = await this.executeHttpRequest(
+      firstValueFrom(
+        this.http.post<StoryResponse>(this.buildStoryUrl('drafts'), {
           title: data.title,
           content: data.content,
           originalStoryId: originalId
         })
-      );
-      return response.story.id;
-    } catch (error) {
-      throw error;
-    }
+      )
+    );
+    return response.story.id;
   }
 
   //======= SAVE DATABASE =======
 
   async save(id: number, data: StoryFormData): Promise<void> {
-    try {
-      await firstValueFrom(
-        this.http.put(`${this.API_URL}/stories/drafts/${id}`, data)
-      );
-    } catch (error) {
-      throw error;
-    }
+    await this.executeHttpRequest(
+      firstValueFrom(
+        this.http.put(this.buildStoryUrl('drafts', id), data)
+      )
+    );
   }
 
-  //======= SAVE LOCAL =======
+  //======= PUBLISH =======
+
+  async publish(id: number): Promise<void> {
+    await this.executeHttpRequest(
+      firstValueFrom(
+        this.http.post(`${this.buildStoryUrl('drafts', id)}/publish`, {})
+      )
+    );
+  }
+
+  //======= UPDATE =======
+
+  async update(id: number, data: StoryFormData): Promise<void> {
+    await this.executeHttpRequest(
+      firstValueFrom(
+        this.http.put(this.buildStoryUrl('published', id), data)
+      )
+    );
+  }
+
+  //======= LOCAL STORAGE =======
 
   saveLocal(key: string, data: StoryFormData): void {
-    if (this.saveLocalTimeout) {
-      clearTimeout(this.saveLocalTimeout);
-    }
-
-    this.saveLocalTimeout = window.setTimeout(() => {
+    this.scheduleLocalSave(() => {
       try {
         localStorage.setItem(key, JSON.stringify(data));
       } catch (error) {
         console.error('Erreur lors de la sauvegarde locale:', error);
       }
-    }, 500);
+    });
   }
-
-  //======= RESTORE LOCAL =======
 
   restoreLocal(key: string): StoryFormData | null {
     try {
@@ -105,33 +136,7 @@ export class SaveService {
     }
   }
 
-  //======= CLEAR LOCAL =======
-
   clearLocal(key: string): void {
     localStorage.removeItem(key);
-  }
-
-  //======= PUBLISH =======
-
-  async publish(id: number): Promise<void> {
-    try {
-      await firstValueFrom(
-        this.http.post(`${this.API_URL}/stories/drafts/${id}/publish`, {})
-      );
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  //======= UPDATE =======
-
-  async update(id: number, data: StoryFormData): Promise<void> {
-    try {
-      await firstValueFrom(
-        this.http.put(`${this.API_URL}/stories/published/${id}`, data)
-      );
-    } catch (error) {
-      throw error;
-    }
   }
 }

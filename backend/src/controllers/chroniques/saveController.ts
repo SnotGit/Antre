@@ -1,19 +1,37 @@
-const { PrismaClient } = require('@prisma/client');
+import { Request, Response } from 'express';
+import { PrismaClient } from '@prisma/client';
+
 const prisma = new PrismaClient();
+
+//======= INTERFACES =======
+
+interface AuthenticatedRequest extends Request {
+  user: {
+    userId: number;
+  };
+}
+
+//======= HELPERS FACTORISÉS =======
+
+const parseStoryId = (id: string): number | null => {
+  const storyId = parseInt(id);
+  return isNaN(storyId) ? null : storyId;
+};
 
 //======= CREATE DRAFT =======
 
-const createDraft = async (req, res) => {
+export const createDraft = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user.userId;
-    const { title = '', content = '' } = req.body;
+    const { title = '', content = '', originalStoryId } = req.body;
 
     const story = await prisma.story.create({
       data: {
         title,
         content,
         userId,
-        status: 'DRAFT'
+        status: 'DRAFT',
+        ...(originalStoryId && { originalStoryId })
       },
       select: {
         id: true,
@@ -31,15 +49,16 @@ const createDraft = async (req, res) => {
 
 //======= SAVE DRAFT =======
 
-const saveDraft = async (req, res) => {
+export const saveDraft = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const storyId = parseInt(id);
+    const storyId = parseStoryId(id);
     const userId = req.user.userId;
     const { title, content } = req.body;
 
-    if (isNaN(storyId)) {
-      return res.status(400).json({ error: 'ID invalide' });
+    if (storyId === null) {
+      res.status(400).json({ error: 'ID invalide' });
+      return;
     }
 
     const story = await prisma.story.findFirst({
@@ -51,7 +70,8 @@ const saveDraft = async (req, res) => {
     });
 
     if (!story) {
-      return res.status(404).json({ error: 'Brouillon non trouvé' });
+      res.status(404).json({ error: 'Brouillon non trouvé' });
+      return;
     }
 
     await prisma.story.update({
@@ -68,14 +88,15 @@ const saveDraft = async (req, res) => {
 
 //======= PUBLISH STORY =======
 
-const publishStory = async (req, res) => {
+export const publishStory = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const storyId = parseInt(id);
+    const storyId = parseStoryId(id);
     const userId = req.user.userId;
 
-    if (isNaN(storyId)) {
-      return res.status(400).json({ error: 'ID invalide' });
+    if (storyId === null) {
+      res.status(400).json({ error: 'ID invalide' });
+      return;
     }
 
     const story = await prisma.story.findFirst({
@@ -87,7 +108,8 @@ const publishStory = async (req, res) => {
     });
 
     if (!story) {
-      return res.status(404).json({ error: 'Brouillon non trouvé' });
+      res.status(404).json({ error: 'Brouillon non trouvé' });
+      return;
     }
 
     await prisma.story.update({
@@ -107,15 +129,16 @@ const publishStory = async (req, res) => {
 
 //======= UPDATE STORY =======
 
-const updateStory = async (req, res) => {
+export const updateStory = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const storyId = parseInt(id);
+    const storyId = parseStoryId(id);
     const userId = req.user.userId;
     const { title, content } = req.body;
 
-    if (isNaN(storyId)) {
-      return res.status(400).json({ error: 'ID invalide' });
+    if (storyId === null) {
+      res.status(400).json({ error: 'ID invalide' });
+      return;
     }
 
     const story = await prisma.story.findFirst({
@@ -127,7 +150,8 @@ const updateStory = async (req, res) => {
     });
 
     if (!story) {
-      return res.status(404).json({ error: 'Histoire publiée non trouvée' });
+      res.status(404).json({ error: 'Histoire publiée non trouvée' });
+      return;
     }
 
     await prisma.story.update({
@@ -140,13 +164,4 @@ const updateStory = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Erreur serveur' });
   }
-};
-
-//======= EXPORTS =======
-
-module.exports = {
-  createDraft,
-  saveDraft,
-  publishStory,
-  updateStory
 };

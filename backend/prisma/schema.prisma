@@ -42,20 +42,22 @@ model User {
 //============ STORY MODEL ============
 
 model Story {
-  id          Int         @id @default(autoincrement())
-  title       String      @db.VarChar(200)
-  content     String      @db.Text
-  status      StoryStatus @default(DRAFT)
-  userId      Int         @map("user_id")
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
-  publishedAt DateTime?   @map("published_at")
+  id              Int         @id @default(autoincrement())
+  title           String      @db.VarChar(200)
+  content         String      @db.Text
+  status          StoryStatus @default(DRAFT)
+  userId          Int         @map("user_id")
+  originalStoryId Int?        @map("original_story_id")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  publishedAt     DateTime?   @map("published_at")
   
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  likes       Like[]
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes           Like[]
   
   @@index([userId, status])
   @@index([status, publishedAt])
+  @@index([originalStoryId])
   @@map("stories")
 }
 
