@@ -1,6 +1,6 @@
 import { Component, inject, computed, signal, resource, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../../auth/services/auth.service';
 import { ProfileService } from '../../services/profile.service';
 import { environment } from '@environments/environment';
 

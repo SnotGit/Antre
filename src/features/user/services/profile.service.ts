@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
-import { AuthService } from './auth.service';
+import { AuthService } from '../../auth/services/auth.service';
 
 export interface ProfileData {
   username: string;

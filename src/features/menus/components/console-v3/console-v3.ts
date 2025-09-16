@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../user/services/auth.service';
+import { AuthService } from '../../../auth/services/auth.service';
 import { MobileMenuService } from '../../services/mobile-menu.service';
 
 @Component({

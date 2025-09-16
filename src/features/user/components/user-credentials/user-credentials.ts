@@ -1,5 +1,5 @@
 import { Component, inject, signal, computed } from '@angular/core';
-import { AuthService } from '@features/user/services/auth.service';
+import { AuthService } from '@features/auth/services/auth.service';
 import { CredentialsService } from '@features/user/services/credentials.service';
 import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
 import { EmailForm } from './email-form/email-form';

@@ -2,11 +2,11 @@ import { Component, OnInit, OnDestroy, inject, signal, computed, effect, input, 
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { SaveService, StoryFormData } from '@features/chroniques/services/save.service';
-import { LoadService } from '@features/chroniques/services/load.service';
+import { SaveStoriesService, StoryFormData } from '@features/chroniques/services/save-stories.service';
+import { PublishedStoriesService } from '@features/chroniques/services/published-stories.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
-import { AuthService } from '@features/user/services/auth.service';
+import { AuthService } from '@features/auth/services/auth.service';
 
 @Component({
   selector: 'app-edit-published',
@@ -20,8 +20,8 @@ export class PublishedEditor implements OnInit, OnDestroy {
 
   private readonly router = inject(Router);
   private readonly location = inject(Location);
-  private readonly saveService = inject(SaveService);
-  private readonly loadService = inject(LoadService);
+  private readonly saveStoriesService = inject(SaveStoriesService);
+  private readonly publishedStoriesService = inject(PublishedStoriesService);
   private readonly confirmationService = inject(ConfirmationDialogService);
   private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
@@ -39,6 +39,11 @@ export class PublishedEditor implements OnInit, OnDestroy {
   username = input.required<string>();
   titleUrl = input.required<string>();
 
+  //======= ROUTER STATE =======
+
+  private readonly routerState = history.state;
+  private readonly routerStateStoryId = this.routerState?.storyId || 0;
+
   //======= SIGNALS =======
 
   storyTitle = signal('');
@@ -47,11 +52,9 @@ export class PublishedEditor implements OnInit, OnDestroy {
 
   //======= RESOURCES =======
 
-  publishedStoryResource = resource({
+  private readonly publishedStoryResource = resource({
     params: () => ({
-      storyId: history.state?.storyId || 0,
-      username: this.username(),
-      titleUrl: this.titleUrl(),
+      storyId: this.routerStateStoryId,
       isAuthenticated: this.authService.isLoggedIn()
     }),
     loader: async ({ params }) => {
@@ -59,7 +62,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
         this.router.navigate(['/auth/login']);
         return null;
       }
-
+      
       if (!params.storyId) {
         const username = this.authService.currentUser()?.username;
         this.router.navigate(['/chroniques', username, 'mes-histoires']);
@@ -67,7 +70,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
       }
 
       try {
-        const story = await this.loadService.getPublishedStory(params.storyId);
+        const story = await this.publishedStoriesService.getPublishedStory(params.storyId);
         return { story, storyId: params.storyId };
       } catch (error) {
         const username = this.authService.currentUser()?.username;
@@ -113,7 +116,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
   private autoSaveEffect = effect(() => {
     if (this.storyId() && this.isEdited()) {
       const key = `published-${this.storyId()}-modifications`;
-      this.saveService.saveLocal(key, this.storyData());
+      this.saveStoriesService.saveLocal(key, this.storyData());
     }
   });
 
@@ -136,7 +139,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
 
   private restoreLocalModifications(): void {
     const key = `published-${this.storyId()}-modifications`;
-    const saved = this.saveService.restoreLocal(key);
+    const saved = this.saveStoriesService.restoreLocal(key);
     
     if (saved) {
       this.storyTitle.set(saved.title);
@@ -146,7 +149,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
 
   private clearLocalStorage(): void {
     const key = `published-${this.storyId()}-modifications`;
-    this.saveService.clearLocal(key);
+    this.saveStoriesService.clearLocal(key);
   }
 
   //======= ACTIONS =======
@@ -155,7 +158,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
     if (!this.storyId()) return;
 
     try {
-      await this.saveService.createDraftFromPublished(this.storyId(), this.storyData());
+      await this.saveStoriesService.createDraftFromPublished(this.storyId(), this.storyData());
       
       this.clearLocalStorage();
       this.confirmationService.showSuccessMessage();
@@ -171,7 +174,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
     if (!this.canUpdate() || !this.storyId()) return;
 
     try {
-      await this.saveService.update(this.storyId(), this.storyData());
+      await this.saveStoriesService.updateStory(this.storyId(), this.storyData());
       this.clearLocalStorage();
       this.confirmationService.showSuccessMessage();
       
@@ -197,7 +200,7 @@ export class PublishedEditor implements OnInit, OnDestroy {
       if (!this.storyId()) return;
       
       try {
-        await this.saveService.createDraftFromPublished(this.storyId(), this.storyData());
+        await this.saveStoriesService.createDraftFromPublished(this.storyId(), this.storyData());
         this.clearLocalStorage();
       } catch (error) {
         this.confirmationService.showErrorMessage();
