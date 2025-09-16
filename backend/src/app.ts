@@ -10,7 +10,13 @@ const app = express();
 //======= SECURITY MIDDLEWARE =======
 
 app.use(helmet());
-app.use(cors());
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:4200',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 //======= PARSING MIDDLEWARE =======
 
