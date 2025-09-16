@@ -34,7 +34,7 @@ router.put('/credentials/password', changePassword);
 
 router.get('/likes/story/:id/status', getStatus);
 router.post('/likes/story/:id/toggle', toggleLike);
-router.get('/likes/my-stories', getPostedLikes);
+router.get('/likes/liked-stories', getPostedLikes);
 
 //======= USER STORIES ROUTES =======
 
