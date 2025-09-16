@@ -1,0 +1,159 @@
+# 🔧 REFACTORISATION SERVICES FRONTEND
+
+## 🎯 **OBJECTIF**
+Architecture 1:1 Backend Controllers ↔ Frontend Services  
+**DDD cohérent** + **Responsabilité unique** par service
+
+---
+
+## 📋 **PLAN COMPLET - 3 DOMAINES**
+
+### 🔐 **ÉTAPE 1 : AUTH DOMAIN**
+
+#### **SERVICES À CRÉER :**
+1. **`loginService.ts`**
+   - **Fonctions :** `login(email, password)`
+   - **Route Backend :** `POST /api/auth/login`
+   - **Migrer depuis :** `authService.login()`
+
+2. **`tokenService.ts`**  
+   - **Fonctions :** `validateToken()`, `getTokenInfo()`
+   - **Route Backend :** `GET /api/auth/validate`
+   - **Migrer depuis :** `authService.validateTokenSilently()`
+
+#### **MODIFICATIONS :**
+- **authService.ts** → **Garde** : `currentUser`, `isLoggedIn`, `logout`, state management
+- **Supprime** : `login()`, `register()`, `validateTokenSilently()`
+- **Components** → **Importer** : `loginService` + `tokenService`
+
+---
+
+### 👤 **ÉTAPE 2 : USER DOMAIN**
+
+#### **SERVICES À CRÉER :**
+
+1. **`registerService.ts`**
+   - **Fonctions :** `register(userData)`
+   - **Route Backend :** `POST /api/user/register`
+   - **Migrer depuis :** `authService.register()`
+
+2. **`profileService.ts`** ✅ **EXISTE DÉJÀ**
+   - **Vérifier routes :** `GET /api/user/profile`, `PUT /api/user/profile`
+   - **Possibles ajouts :** `updateAvatar()` si séparé
+
+3. **`statsService.ts`** ✅ **EXISTE DÉJÀ**
+   - **Vérifier route :** `GET /api/user/stats`  
+   - **Vérifier format response :** `{ stats: { drafts, published, totalStories, totalLikes } }`
+
+4. **`credentialsService.ts`**
+   - **Fonctions :** `updateEmail(newEmail)`, `changePassword(current, new)`
+   - **Routes Backend :** `PUT /api/user/credentials/email`, `PUT /api/user/credentials/password`
+   - **Nouveau service** (actuellement dans profileService ?)
+
+5. **`likeService.ts`** 🚨 **À REFACTORISER**
+   - **Fonctions :**
+     ```typescript
+     getCount(storyId)        // GET /api/user/likes/story/:id/count
+     getStatus(storyId)       // GET /api/user/likes/story/:id/status  
+     toggleLike(storyId)      // POST /api/user/likes/story/:id/toggle
+     getPostedLikes()         // GET /api/user/likes/my-stories
+     ```
+   - **PROBLÈME ACTUEL :** Routes incorrectes dans service existant
+
+#### **MODIFICATIONS :**
+- **authService.ts** → **Supprime** `register()`
+- **Components auth** → **Importer** `registerService`
+- **Components user** → **Importer** services spécialisés
+
+---
+
+### 📚 **ÉTAPE 3 : CHRONIQUES DOMAIN**
+
+#### **SERVICES ACTUELS À REFACTORISER :**
+
+1. **`loadService.ts`** → **SÉPARER EN 3 :**
+   
+   **A) `publicStoriesService.ts`**
+   - **Fonctions :** `getLatestStories()`, `getStory(id)`, `getStories(userId)`
+   - **Routes :** `GET /chroniques/stories/latest`, `GET /chroniques/stories/:id`, `GET /user/:userId/stories`
+   
+   **B) `draftsStoriesService.ts`**  
+   - **Fonctions :** `getDraftStories()`, `getDraftStory(id)`
+   - **Routes :** `GET /chroniques/stories/drafts`, `GET /chroniques/stories/drafts/:id`
+   
+   **C) `publishedStoriesService.ts`**
+   - **Fonctions :** `getPublishedStories()`, `getPublishedStory(id)`  
+   - **Routes :** `GET /chroniques/stories/published`, `GET /chroniques/stories/published/:id`
+
+2. **`saveService.ts`** → **`saveStoriesService.ts`**
+   - **Fonctions :** `createDraft()`, `saveDraft(id)`, `publishStory(id)`, `updateStory(id)`
+   - **Routes :** `POST /chroniques/stories/drafts`, `PUT /chroniques/stories/drafts/:id`, etc.
+   - **Renommer** seulement pour cohérence
+
+3. **`deleteService.ts`** → **`deleteStoriesService.ts`**
+   - **Fonctions :** `deleteStory(id)`, `deleteStories(ids[])`
+   - **Routes :** `DELETE /chroniques/stories/:id`, `POST /chroniques/stories/delete`
+   - **Renommer** seulement pour cohérence
+
+#### **MODIFICATIONS :**
+- **Components** → **Importer** services spécialisés au lieu de `loadService`
+- **Supprimer** `loadService.ts` après migration
+
+---
+
+## 📊 **BILAN TRAVAIL**
+
+### **🆕 SERVICES À CRÉER :** (7)
+1. `loginService.ts`
+2. `tokenService.ts` 
+3. `registerService.ts`
+4. `credentialsService.ts`
+5. `publicStoriesService.ts`
+6. `draftsStoriesService.ts` 
+7. `publishedStoriesService.ts`
+
+### **🔧 SERVICES À MODIFIER :** (5)
+1. `authService.ts` → State management pur
+2. `likeService.ts` → Nouvelles routes
+3. `statsService.ts` → Vérifier format response
+4. `saveService.ts` → Renommer `saveStoriesService.ts`
+5. `deleteService.ts` → Renommer `deleteStoriesService.ts`
+
+### **🗑️ SERVICES À SUPPRIMER :** (1)
+1. `loadService.ts` → Éclaté en 3 services
+
+### **📝 COMPOSANTS À MODIFIER :** (~15-20)
+- Tous les composants auth (imports services)
+- Tous les composants user (imports services)  
+- Tous les composants chroniques (imports services)
+
+---
+
+## 🚀 **ORDRE D'EXÉCUTION**
+
+### **PHASE 1 : AUTH** (2 services)
+- loginService.ts
+- tokenService.ts
+- Modifier authService.ts
+
+### **PHASE 2 : USER** (2 services + 1 fix)
+- registerService.ts  
+- credentialsService.ts
+- Fix likeService.ts
+
+### **PHASE 3 : CHRONIQUES** (3 services + 2 renames)
+- publicStoriesService.ts
+- draftsStoriesService.ts
+- publishedStoriesService.ts
+- Renommer save/delete services
+
+### **PHASE 4 : NETTOYAGE**
+- Supprimer loadService.ts
+- Modifier tous les composants
+- Tests fonctionnels
+
+---
+
+**🎯 RÉSULTAT FINAL :**
+**12 services spécialisés** correspondant exactement aux **12 controllers backend**  
+**Architecture DDD parfaite** Frontend ↔ Backend
