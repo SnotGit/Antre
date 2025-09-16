@@ -8,9 +8,10 @@ import { environment } from '@environments/environment';
 export interface StoryFormData {
   title: string;
   content: string;
+  originalStoryId?: number;
 }
 
-interface StoryResponse {
+export interface StoryResponse {
   story: {
     id: number;
     title: string;
@@ -18,10 +19,14 @@ interface StoryResponse {
   };
 }
 
+export interface SuccessResponse {
+  message: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
-export class SaveService {
+export class SaveStoriesService {
 
   //======= INJECTIONS =======
 
@@ -32,7 +37,7 @@ export class SaveService {
 
   private saveLocalTimeout: number | undefined;
 
-  //======= HELPERS FACTORISÉS =======
+  //======= HELPERS =======
 
   private async executeHttpRequest<T>(request: Promise<T>): Promise<T> {
     try {
@@ -47,15 +52,7 @@ export class SaveService {
     return id ? `${baseUrl}/${endpoint}/${id}` : `${baseUrl}/${endpoint}`;
   }
 
-  private scheduleLocalSave(callback: () => void): void {
-    if (this.saveLocalTimeout) {
-      clearTimeout(this.saveLocalTimeout);
-    }
-
-    this.saveLocalTimeout = window.setTimeout(callback, 500);
-  }
-
-  //======= CREATE =======
+  //======= CREATE STORY =======
 
   async createStory(): Promise<number> {
     const response = await this.executeHttpRequest(
@@ -84,9 +81,9 @@ export class SaveService {
     return response.story.id;
   }
 
-  //======= SAVE DATABASE =======
+  //======= SAVE STORY =======
 
-  async save(id: number, data: StoryFormData): Promise<void> {
+  async saveStory(id: number, data: StoryFormData): Promise<void> {
     await this.executeHttpRequest(
       firstValueFrom(
         this.http.put(this.buildStoryUrl('drafts', id), data)
@@ -94,9 +91,9 @@ export class SaveService {
     );
   }
 
-  //======= PUBLISH =======
+  //======= PUBLISH STORY =======
 
-  async publish(id: number): Promise<void> {
+  async publishStory(id: number): Promise<void> {
     await this.executeHttpRequest(
       firstValueFrom(
         this.http.post(`${this.buildStoryUrl('drafts', id)}/publish`, {})
@@ -104,9 +101,9 @@ export class SaveService {
     );
   }
 
-  //======= UPDATE =======
+  //======= UPDATE STORY =======
 
-  async update(id: number, data: StoryFormData): Promise<void> {
+  async updateStory(id: number, data: StoryFormData): Promise<void> {
     await this.executeHttpRequest(
       firstValueFrom(
         this.http.put(this.buildStoryUrl('published', id), data)
@@ -138,5 +135,14 @@ export class SaveService {
 
   clearLocal(key: string): void {
     localStorage.removeItem(key);
+  }
+
+  //======= PRIVATE HELPERS =======
+
+  private scheduleLocalSave(callback: () => void): void {
+    if (this.saveLocalTimeout) {
+      clearTimeout(this.saveLocalTimeout);
+    }
+    this.saveLocalTimeout = window.setTimeout(callback, 500);
   }
 }

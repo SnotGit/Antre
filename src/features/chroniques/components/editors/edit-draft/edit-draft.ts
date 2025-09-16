@@ -2,11 +2,11 @@ import { Component, OnInit, OnDestroy, inject, signal, computed, effect, input, 
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { SaveService, StoryFormData } from '@features/chroniques/services/save.service';
-import { LoadService } from '@features/chroniques/services/load.service';
+import { SaveStoriesService, StoryFormData } from '@features/chroniques/services/save-stories.service';
+import { DraftStoriesService } from '@features/chroniques/services/draft-stories.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
-import { AuthService } from '@features/user/services/auth.service';
+import { AuthService } from '@features/auth/services/auth.service';
 
 @Component({
   selector: 'app-edit-draft',
@@ -20,8 +20,8 @@ export class DraftEditor implements OnInit, OnDestroy {
 
   private readonly router = inject(Router);
   private readonly location = inject(Location);
-  private readonly saveService = inject(SaveService);
-  private readonly loadService = inject(LoadService);
+  private readonly saveStoriesService = inject(SaveStoriesService);
+  private readonly draftStoriesService = inject(DraftStoriesService);
   private readonly typingService = inject(TypingEffectService);
   private readonly confirmationService = inject(ConfirmationDialogService);
   private readonly authService = inject(AuthService);
@@ -69,7 +69,7 @@ export class DraftEditor implements OnInit, OnDestroy {
       }
 
       try {
-        const story = await this.loadService.getDraftStory(params.storyId);
+        const story = await this.draftStoriesService.getDraftStory(params.storyId);
         return { story, storyId: params.storyId };
       } catch (error) {
         const username = this.authService.currentUser()?.username;
@@ -108,7 +108,7 @@ export class DraftEditor implements OnInit, OnDestroy {
   private readonly autoSaveEffect = effect(() => {
     if (this.storyId() > 0 && (this.storyTitle() || this.storyContent())) {
       const key = `draft-${this.storyId()}-modifications`;
-      this.saveService.saveLocal(key, this.storyData());
+      this.saveStoriesService.saveLocal(key, this.storyData());
     }
   });
 
@@ -128,7 +128,7 @@ export class DraftEditor implements OnInit, OnDestroy {
     if (!this.storyId()) return;
     
     const key = `draft-${this.storyId()}-modifications`;
-    const saved = this.saveService.restoreLocal(key);
+    const saved = this.saveStoriesService.restoreLocal(key);
     
     if (saved) {
       this.storyTitle.set(saved.title);
@@ -140,7 +140,7 @@ export class DraftEditor implements OnInit, OnDestroy {
     if (!this.storyId()) return;
     
     const key = `draft-${this.storyId()}-modifications`;
-    this.saveService.clearLocal(key);
+    this.saveStoriesService.clearLocal(key);
   }
 
   //======= ACTIONS =======
@@ -154,8 +154,8 @@ export class DraftEditor implements OnInit, OnDestroy {
     if (!this.canPublish() || !this.storyId()) return;
 
     try {
-      await this.saveService.save(this.storyId(), this.storyData());
-      await this.saveService.publish(this.storyId());
+      await this.saveStoriesService.saveStory(this.storyId(), this.storyData());
+      await this.saveStoriesService.publishStory(this.storyId());
       this.clearLocalStorage();
       this.confirmationService.showSuccessMessage();
       
@@ -171,7 +171,7 @@ export class DraftEditor implements OnInit, OnDestroy {
   async goBack(): Promise<void> {
     if (this.storyId()) {
       try {
-        await this.saveService.save(this.storyId(), this.storyData());
+        await this.saveStoriesService.saveStory(this.storyId(), this.storyData());
       } catch (error) {
         this.confirmationService.showErrorMessage();
         return;

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoadService, StoryCard } from '@features/chroniques/services/load.service';
+import { PublicStoriesService, StoryCard } from '@features/chroniques/services/public-stories.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
 import { StoryCardComponent } from './story-card/story-card';
@@ -16,7 +16,7 @@ export class Chroniques implements OnInit, OnDestroy {
   //======= INJECTIONS =======
 
   private readonly router = inject(Router);
-  private readonly loadService = inject(LoadService);
+  private readonly publicStoriesService = inject(PublicStoriesService);
   private readonly typingService = inject(TypingEffectService);
   private readonly chroniquesResolver = inject(ChroniquesResolver);
 
@@ -32,7 +32,7 @@ export class Chroniques implements OnInit, OnDestroy {
   
   private readonly storiesResource = resource({
     loader: async () => {
-      return await this.loadService.getLatest();
+      return await this.publicStoriesService.getLatestStories();
     }
   });
 

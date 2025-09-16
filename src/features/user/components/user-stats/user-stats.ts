@@ -1,6 +1,6 @@
 import { Component, inject, computed, resource } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '@features/user/services/auth.service';
+import { AuthService } from '@features/auth/services/auth.service';
 import { StatsService } from '@features/user/services/stats.service';
 
 @Component({

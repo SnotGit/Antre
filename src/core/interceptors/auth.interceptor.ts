@@ -1,11 +1,21 @@
 import { HttpInterceptorFn, HttpRequest, HttpHandlerFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { AuthService } from '@features/user/services/auth.service';
+import { AuthService } from '@features/auth/services/auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
   const authService = inject(AuthService);
   
-  if (req.url.includes('/api/auth/login') || req.url.includes('/api/auth/register')) {
+  // Routes publiques qui n'ont pas besoin d'authentification
+  const publicRoutes = [
+    '/api/auth/login',
+    '/api/auth/register',
+    '/api/chroniques/stories/latest',
+    '/api/chroniques/stories/'
+  ];
+
+  const isPublicRoute = publicRoutes.some(route => req.url.includes(route));
+  
+  if (isPublicRoute) {
     return next(req);
   }
 

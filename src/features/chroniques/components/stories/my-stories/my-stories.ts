@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '@features/user/services/auth.service';
+import { AuthService } from '@features/auth/services/auth.service';
 import { StatsService } from '@features/user/services/stats.service';
 import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
 import { TypingEffectService } from '@shared/services/typing-effect.service';

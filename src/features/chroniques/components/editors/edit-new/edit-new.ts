@@ -2,11 +2,11 @@ import { Component, OnInit, OnDestroy, inject, signal, computed, effect } from '
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { SaveService, StoryFormData } from '@features/chroniques/services/save.service';
-import { DeleteService } from '@features/chroniques/services/delete.service';
+import { SaveStoriesService, StoryFormData } from '@features/chroniques/services/save-stories.service';
+import { DeleteStoriesService } from '@features/chroniques/services/delete-stories.service';
 import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
-import { AuthService } from '@features/user/services/auth.service';
+import { AuthService } from '@features/auth/services/auth.service';
 
 @Component({
   selector: 'app-edit-new',
@@ -20,8 +20,8 @@ export class EditNew implements OnInit, OnDestroy {
 
   private readonly router = inject(Router);
   private readonly location = inject(Location);
-  private readonly saveService = inject(SaveService);
-  private readonly deleteService = inject(DeleteService);
+  private readonly saveStoriesService = inject(SaveStoriesService);
+  private readonly deleteStoriesService = inject(DeleteStoriesService);
   private readonly confirmationService = inject(ConfirmationDialogService);
   private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
@@ -69,7 +69,7 @@ export class EditNew implements OnInit, OnDestroy {
 
   private autoSaveEffect = effect(() => {
     if (this.isDraftCreated() && this.isEdited()) {
-      this.saveService.saveLocal('new-story', this.storyData());
+      this.saveStoriesService.saveLocal('new-story', this.storyData());
     }
   });
 
@@ -82,7 +82,7 @@ export class EditNew implements OnInit, OnDestroy {
     }
 
     this.typingService.title(this.title);
-    this.saveService.saveLocal('new-story', this.storyData());
+    this.saveStoriesService.saveLocal('new-story', this.storyData());
   }
 
   ngOnDestroy(): void {
@@ -93,7 +93,7 @@ export class EditNew implements OnInit, OnDestroy {
 
   private async createInitialDraft(): Promise<void> {
     try {
-      const id = await this.saveService.createStory();
+      const id = await this.saveStoriesService.createStory();
       this.storyId.set(id);
     } catch (error) {
       this.confirmationService.showErrorMessage();
@@ -104,7 +104,7 @@ export class EditNew implements OnInit, OnDestroy {
 
   async cancel(): Promise<void> {
     if (!this.isEdited()) {
-      this.saveService.clearLocal('new-story');
+      this.saveStoriesService.clearLocal('new-story');
       this.navigateBack();
       return;
     }
@@ -112,11 +112,11 @@ export class EditNew implements OnInit, OnDestroy {
     const confirmed = await this.confirmationService.confirmCancelStory();
     if (!confirmed) return;
 
-    this.saveService.clearLocal('new-story');
+    this.saveStoriesService.clearLocal('new-story');
     
     if (this.isDraftCreated()) {
       try {
-        await this.deleteService.deleteStory(this.storyId());
+        await this.deleteStoriesService.deleteStory(this.storyId(), 'draft');
       } catch (error) {
         this.confirmationService.showErrorMessage();
       }
@@ -134,8 +134,8 @@ export class EditNew implements OnInit, OnDestroy {
     }
 
     try {
-      await this.saveService.publish(this.storyId());
-      this.saveService.clearLocal('new-story');
+      await this.saveStoriesService.publishStory(this.storyId());
+      this.saveStoriesService.clearLocal('new-story');
       this.confirmationService.showSuccessMessage();
       this.router.navigate(['/chroniques/mes-histoires']);
     } catch (error) {
@@ -148,14 +148,14 @@ export class EditNew implements OnInit, OnDestroy {
   async goBack(): Promise<void> {
     if (this.isDraftCreated() && this.isEdited()) {
       try {
-        await this.saveService.save(this.storyId(), this.storyData());
+        await this.saveStoriesService.saveStory(this.storyId(), this.storyData());
       } catch (error) {
         this.confirmationService.showErrorMessage();
         return;
       }
     }
     
-    this.saveService.clearLocal('new-story');
+    this.saveStoriesService.clearLocal('new-story');
     this.navigateBack();
   }
 

@@ -3,18 +3,16 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../services/auth.service';
+import { LoginService } from '../services/login.service';
+import { RegisterService, RegisterRequest } from '@features/auth/services/register.service';
+import { TokenService } from '../services/token.service';
+
+//======= TYPES =======
 
 interface LoginData {
   email: string;
   password: string;
-}
-
-interface RegisterData {
-  username: string;
-  email: string;
-  password: string;
-  description: string;
 }
 
 @Component({
@@ -25,31 +23,38 @@ interface RegisterData {
 })
 export class Auth implements OnInit, OnDestroy {
   
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private location = inject(Location);
-  private authService = inject(AuthService);
+  //======= INJECTIONS =======
 
-  //============ SIGNALS ÉTAT ============
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly location = inject(Location);
+  private readonly authService = inject(AuthService);
+  private readonly loginService = inject(LoginService);
+  private readonly registerService = inject(RegisterService);
+  private readonly tokenService = inject(TokenService);
+
+  //======= SIGNALS ÉTAT =======
 
   authMode = signal<'login' | 'register'>('login');
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
   successMessage = signal<string | null>(null);
 
-  //============ DONNÉES FORMULAIRES ============
+  //======= DONNÉES FORMULAIRES =======
 
   loginData: LoginData = {
     email: '',
     password: ''
   };
 
-  registerData: RegisterData = {
+  registerData: RegisterRequest = {
     username: '',
     email: '',
     password: '',
     description: ''
   };
+
+  //======= LIFECYCLE =======
 
   ngOnInit(): void {
     const url = this.router.url;
@@ -67,7 +72,7 @@ export class Auth implements OnInit, OnDestroy {
   ngOnDestroy(): void {
   }
 
-  //============ NAVIGATION ============
+  //======= NAVIGATION =======
 
   goBack(): void {
     this.location.back();
@@ -81,7 +86,7 @@ export class Auth implements OnInit, OnDestroy {
     this.location.replaceState(newUrl);
   }
 
-  //============ AUTHENTIFICATION ============
+  //======= AUTHENTIFICATION =======
 
   async onLogin(): Promise<void> {
     if (!this.loginData.email || !this.loginData.password) {
@@ -93,20 +98,17 @@ export class Auth implements OnInit, OnDestroy {
     this.clearMessages();
 
     try {
-      await this.authService.login(this.loginData.email, this.loginData.password);
+      const response = await this.loginService.login(this.loginData.email, this.loginData.password);
+      
+      // Stocker le token et mettre à jour l'état auth
+      this.tokenService.setToken(response.token);
+      this.authService.setCurrentUser(response.user);
       
       const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/chroniques';
       this.router.navigate([returnUrl]);
       
     } catch (error: any) {
-      let errorMessage = 'Erreur de connexion';
-      if (error.message === 'Email ou mot de passe incorrect') {
-        errorMessage = 'Email ou mot de passe incorrect';
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-      
-      this.error.set(errorMessage);
+      this.error.set(error.message || 'Erreur de connexion');
     } finally {
       this.loading.set(false);
     }
@@ -127,7 +129,11 @@ export class Auth implements OnInit, OnDestroy {
     this.clearMessages();
 
     try {
-      await this.authService.register(this.registerData);
+      const response = await this.registerService.register(this.registerData);
+      
+      // Stocker le token et mettre à jour l'état auth
+      this.tokenService.setToken(response.token);
+      this.authService.setCurrentUser(response.user);
       
       this.successMessage.set('Compte créé avec succès ! Vous pouvez maintenant vous connecter.');
       
@@ -143,18 +149,13 @@ export class Auth implements OnInit, OnDestroy {
       }, 2000);
       
     } catch (error: any) {
-      let errorMessage = 'Erreur lors de l\'inscription';
-      if (error.message) {
-        errorMessage = error.message;
-      }
-      
-      this.error.set(errorMessage);
+      this.error.set(error.message || 'Erreur lors de l\'inscription');
     } finally {
       this.loading.set(false);
     }
   }
 
-  //============ UTILITAIRES ============
+  //======= UTILITAIRES =======
 
   private clearMessages(): void {
     this.error.set(null);

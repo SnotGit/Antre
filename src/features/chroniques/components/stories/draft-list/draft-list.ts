@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy, inject, computed, resource, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '@features/user/services/auth.service';
-import { LoadService, DraftStory } from '@features/chroniques/services/load.service';
-import { DeleteService } from '@features/chroniques/services/delete.service';
+import { AuthService } from '@features/auth/services/auth.service';
+import { DraftStoriesService, DraftStory } from '@features/chroniques/services/draft-stories.service';
+import { DeleteStoriesService } from '@features/chroniques/services/delete-stories.service';
 import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 
@@ -18,8 +18,8 @@ export class DraftList implements OnInit, OnDestroy {
 
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
-  private readonly loadService = inject(LoadService);
-  private readonly deleteService = inject(DeleteService);
+  private readonly draftStoriesService = inject(DraftStoriesService);
+  private readonly deleteStoriesService = inject(DeleteStoriesService);
   private readonly chroniquesResolver = inject(ChroniquesResolver);
   private readonly typingService = inject(TypingEffectService);
 
@@ -47,7 +47,7 @@ export class DraftList implements OnInit, OnDestroy {
         return [];
       }
       
-      return await this.loadService.getDraftStories();
+      return await this.draftStoriesService.getDraftStories();
     }
   });
 
@@ -70,7 +70,7 @@ export class DraftList implements OnInit, OnDestroy {
   //======= SELECTION METHODS =======
 
   toggleSelection(id: number): void {
-    const newSelection = this.deleteService.toggle(id, this.selectedStories());
+    const newSelection = this.deleteStoriesService.toggleSelection(id, this.selectedStories());
     this.selectedStories.set(newSelection);
   }
 
@@ -83,7 +83,7 @@ export class DraftList implements OnInit, OnDestroy {
   async deleteSelected(): Promise<void> {
     const selectedIds = Array.from(this.selectedStories());
 
-    await this.deleteService.deleteSelected(selectedIds);
+    await this.deleteStoriesService.deleteSelection(selectedIds, 'draft');
     this.selectedStories.set(new Set());
     this.draftStoriesResource.reload();
   }

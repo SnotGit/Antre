@@ -1,5 +1,4 @@
-// src/app/auth/auth.routes.ts
-import { Routes } from '@angular/router';
+import { Routes } from '@angular/core';
 
 export const routes: Routes = [
   {
