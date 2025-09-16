@@ -80,12 +80,12 @@ export class LikeService {
     }
   }
 
-  //======= GET POSTED LIKES (PRIVATE) =======
+  //======= GET LIKED STORIES (PRIVATE) =======
 
   async getPostedLikes(): Promise<PostedLikesResponse> {
     try {
       return await firstValueFrom(
-        this.http.get<PostedLikesResponse>(`${this.API_URL}/my-stories`)
+        this.http.get<PostedLikesResponse>(`${this.API_URL}/liked-stories`)
       );
     } catch (error) {
       throw error;
