@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
-import { User } from '@features/auth/services/login.service';
+import { User } from '@features/auth';
+
+//======= TYPES =======
 
 export interface RegisterRequest {
   username: string;
@@ -25,17 +27,51 @@ export class RegisterService {
   //======= INJECTIONS =======
 
   private readonly http = inject(HttpClient);
-  private readonly API_URL = `${environment.apiUrl}/user`;
+  private readonly API_URL = `${environment.apiUrl}/auth`;
+
+  //======= HELPERS =======
+
+  private async executeHttpRequest<T>(request: Promise<T>): Promise<T> {
+    try {
+      return await request;
+    } catch (error) {
+      this.handleRegisterError(error);
+      throw error;
+    }
+  }
 
   //======= REGISTER =======
 
   async register(userData: RegisterRequest): Promise<RegisterResponse> {
-    try {
-      return await firstValueFrom(
+    return this.executeHttpRequest(
+      firstValueFrom(
         this.http.post<RegisterResponse>(`${this.API_URL}/register`, userData)
-      );
-    } catch (error) {
-      throw error;
+      )
+    );
+  }
+
+  //======= ERROR HANDLING =======
+
+  private handleRegisterError(error: unknown): void {
+    if (error instanceof HttpErrorResponse) {
+      switch (error.status) {
+        case 409:
+          throw new Error('Ce nom d\'utilisateur ou email est déjà utilisé');
+        case 422:
+          throw new Error('Données d\'inscription invalides');
+        case 400:
+          throw new Error('Mot de passe trop faible ou email invalide');
+        case 429:
+          throw new Error('Trop de tentatives d\'inscription. Réessayez plus tard');
+        case 500:
+          throw new Error('Erreur serveur temporaire');
+        case 0:
+          throw new Error('Pas de connexion internet');
+        default:
+          throw new Error(error.error?.message || 'Erreur lors de l\'inscription');
+      }
+    } else {
+      throw new Error('Erreur inattendue lors de l\'inscription');
     }
   }
 }
