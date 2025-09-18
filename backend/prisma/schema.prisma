@@ -64,12 +64,13 @@ model Story {
 //============ LIKE MODEL ============
 
 model Like {
-  id      Int @id @default(autoincrement())
-  userId  Int @map("user_id")
-  storyId Int @map("story_id")
+  id      Int      @id @default(autoincrement())
+  userId  Int      @map("user_id")
+  storyId Int      @map("story_id")
+  createdAt DateTime @default(now()) @map("liked_at")
   
-  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  story   Story @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  story   Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
   
   @@unique([userId, storyId])
   @@map("likes")

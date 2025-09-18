@@ -1,5 +1,5 @@
 import { Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from '@shared/index';
+import { AuthenticatedRequest } from '@shared/shared';
 import { parseStoryId, sendBadRequest } from '@utils/global/helpers';
 
 export const validateStoryId = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {

@@ -1,6 +1,7 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { AuthenticatedRequest } from '@shared/shared';
 import { handleError, sendError, sendSuccess } from '@utils/global/helpers';
 
 const prisma = new PrismaClient();
@@ -16,9 +17,9 @@ interface ChangePasswordRequest {
 
 //======= UPDATE EMAIL =======
 
-export const updateEmail = async (req: Request, res: Response): Promise<void> => {
+export const updateEmail = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user!.userId;
+    const userId = req.user.userId;
     const { newEmail }: UpdateEmailRequest = req.body;
 
     if (!newEmail) {
@@ -58,9 +59,9 @@ export const updateEmail = async (req: Request, res: Response): Promise<void> =>
 
 //======= CHANGE PASSWORD =======
 
-export const changePassword = async (req: Request, res: Response): Promise<void> => {
+export const changePassword = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user!.userId;
+    const userId = req.user.userId;
     const { currentPassword, newPassword }: ChangePasswordRequest = req.body;
 
     if (!currentPassword || !newPassword) {
