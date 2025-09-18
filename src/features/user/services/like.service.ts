@@ -19,10 +19,11 @@ export interface LikeToggleResponse {
   likesCount: number;
 }
 
-export interface StoryCard {
-  id: number;
+export interface LikedStory {
+  storyId: number;
   title: string;
   publishDate: string;
+  likedAt: string;
   user: {
     id: number;
     username: string;
@@ -30,8 +31,8 @@ export interface StoryCard {
   };
 }
 
-export interface PostedLikesResponse {
-  stories: StoryCard[];
+export interface LikedStoriesResponse {
+  likedStories: LikedStory[];
 }
 
 @Injectable({
@@ -82,10 +83,10 @@ export class LikeService {
 
   //======= GET LIKED STORIES (PRIVATE) =======
 
-  async getPostedLikes(): Promise<PostedLikesResponse> {
+  async getLikedStories(): Promise<LikedStoriesResponse> {
     try {
       return await firstValueFrom(
-        this.http.get<PostedLikesResponse>(`${this.API_URL}/liked-stories`)
+        this.http.get<LikedStoriesResponse>(`${this.API_URL}/liked-stories`)
       );
     } catch (error) {
       throw error;

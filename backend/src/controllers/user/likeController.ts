@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { AuthenticatedRequest } from '@shared/shared';
 import { handleError, sendError, sendNotFound, parseStoryId } from '@utils/global/helpers';
-import { StoryCard } from '@chroniques-types/index';
 
 const prisma = new PrismaClient();
 
@@ -32,7 +32,7 @@ export const getCount = async (req: Request, res: Response): Promise<void> => {
 
 //======= GET STATUS (PRIVATE) =======
 
-export const getStatus = async (req: Request, res: Response): Promise<void> => {
+export const getStatus = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const storyId = parseStoryId(req.params.id);
     if (storyId === null) return sendError(res, 'ID invalide', 400);
@@ -40,22 +40,21 @@ export const getStatus = async (req: Request, res: Response): Promise<void> => {
     const story = await getPublishedStory(storyId);
     if (!story) return sendNotFound(res, 'Histoire non trouvée');
 
-    const userId = req.user!.userId;
+    const userId = req.user.userId;
     const existingLike = await prisma.like.findFirst({ where: { storyId, userId } });
     
     res.json({ 
       storyId, 
-      isLiked: !!existingLike, 
-      canLike: story.userId !== userId 
+      isLiked: !!existingLike 
     });
   } catch (error) {
-    handleError(res, 'Erreur lors de la récupération du statut de like');
+    handleError(res, 'Erreur lors de la vérification du statut du like');
   }
 };
 
 //======= TOGGLE LIKE (PRIVATE) =======
 
-export const toggleLike = async (req: Request, res: Response): Promise<void> => {
+export const toggleLike = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const storyId = parseStoryId(req.params.id);
     if (storyId === null) return sendError(res, 'ID invalide', 400);
@@ -63,59 +62,73 @@ export const toggleLike = async (req: Request, res: Response): Promise<void> => 
     const story = await getPublishedStory(storyId);
     if (!story) return sendNotFound(res, 'Histoire non trouvée');
 
-    const userId = req.user!.userId;
-    if (story.userId === userId) return sendError(res, 'Impossible de liker ses propres histoires', 403);
-
+    const userId = req.user.userId;
     const existingLike = await prisma.like.findFirst({ where: { storyId, userId } });
     
     if (existingLike) {
       await prisma.like.delete({ where: { id: existingLike.id } });
+      res.json({ message: 'Like retiré', isLiked: false });
     } else {
       await prisma.like.create({ data: { storyId, userId } });
+      res.json({ message: 'Like ajouté', isLiked: true });
     }
-
-    const likesCount = await prisma.like.count({ where: { storyId } });
-    res.json({ liked: !existingLike, likesCount });
   } catch (error) {
-    handleError(res, 'Erreur lors du toggle like');
+    handleError(res, 'Erreur lors du toggle du like');
   }
 };
 
 //======= GET POSTED LIKES (PRIVATE) =======
 
-export const getPostedLikes = async (req: Request, res: Response): Promise<void> => {
+export const getPostedLikes = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user!.userId;
-    const userLikes = await prisma.like.findMany({
-      where: { 
-        userId,
-        story: { status: 'PUBLISHED' }
+    const userId = req.user.userId;
+    
+    const stories = await prisma.story.findMany({
+      where: {
+        likes: {
+          some: {
+            userId: userId
+          }
+        },
+        status: 'PUBLISHED'
       },
       include: {
-        story: {
+        user: {
           select: {
             id: true,
-            title: true,
-            publishedAt: true,
-            user: { select: { id: true, username: true, avatar: true } }
+            username: true,
+            avatar: true
+          }
+        },
+        likes: {
+          where: {
+            userId: userId
+          },
+          select: {
+            createdAt: true
+          },
+          orderBy: {
+            createdAt: 'desc'
           }
         }
-      },
-      orderBy: { id: 'desc' }
+      }
     });
 
-    const stories: StoryCard[] = userLikes.map(like => ({
-      id: like.story.id,
-      title: like.story.title,
-      publishDate: like.story.publishedAt!.toISOString(),
-      user: {
-        id: like.story.user.id,
-        username: like.story.user.username,
-        avatar: like.story.user.avatar || ''
-      }
-    }));
+    const likedStories = stories
+      .map(story => ({
+        storyId: story.id,
+        title: story.title,
+        publishDate: story.publishedAt!.toISOString(),
+        likedAt: story.likes[0].createdAt.toISOString(),
+        user: {
+          id: story.user.id,
+          username: story.user.username,
+          avatar: story.user.avatar || ''
+        }
+      }))
+      .sort((a, b) => new Date(b.likedAt).getTime() - new Date(a.likedAt).getTime());
 
-    res.json({ stories });
+    res.json({ likedStories });
   } catch (error) {
     handleError(res, 'Erreur lors de la récupération des histoires likées');
   }

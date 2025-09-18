@@ -1,5 +1,6 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { AuthenticatedRequest } from '@shared/shared';
 import { handleError, sendNotFound } from '@utils/global/helpers';
 import { userSelectFields } from '@utils/chroniques/helpers';
 
@@ -7,9 +8,9 @@ const prisma = new PrismaClient();
 
 //======= VALIDATE TOKEN =======
 
-export const validateToken = async (req: Request, res: Response): Promise<void> => {
+export const validateToken = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user!.userId;
+    const userId = req.user.userId;
 
     const user = await prisma.user.findUnique({
       where: { id: userId },

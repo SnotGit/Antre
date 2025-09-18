@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { AuthenticatedRequest } from '@shared/index';
-import { DraftStoriesResponse, DraftStory, EditStory } from '@chroniques-types/index';
+import { AuthenticatedRequest } from '@shared/shared';
+import { DraftStoriesResponse, DraftStory, EditStory } from '@shared/chroniques';
 import { handleError, sendNotFound } from '@utils/global/helpers';
 
 const prisma = new PrismaClient();

@@ -12,8 +12,8 @@
     "resolveJsonModule": true,
     "baseUrl": "./src",
     "paths": {
-      "@shared/*": ["types/shared/*"],
-      "@chroniques-types/*": ["types/chroniques/*"],
+      "@shared/*": ["types/*"],
+      "@chroniques/*": ["types/*"],
       "@utils/*": ["utils/*"],
       "@middlewares/*": ["middlewares/*"],
       "@controllers/*": ["controllers/*"],

@@ -1,0 +1,209 @@
+{
+  "project": "L'Antre Backend Refactoring",
+  "status": "BROUILLON - Refactorisation Critique Nécessaire",
+  "principles": ["DDD", "KISS", "DRY", "Factorisation Maximum"],
+  
+  "diagnostic": {
+    "problemes_critiques": {
+      "structure_incoherente": {
+        "description": "Multiples fichiers index.ts sans logique claire",
+        "impact": "Confusion, imports complexes, maintenance difficile",
+        "fichiers_problematiques": [
+          "backend/src/types/index.ts",
+          "backend/src/types/chroniques/index.ts", 
+          "backend/src/types/shared/"
+        ]
+      },
+      "duplications_massives": {
+        "description": "Code dupliqué partout",
+        "impact": "Violation DRY, bugs potentiels, maintenance cauchemar",
+        "exemples": [
+          "parseStoryId: utils/global/helpers.ts + controllers/chroniques/saveStoriesController.ts",
+          "AuthenticatedRequest: Redéfini dans chaque controller",
+          "Gestion d'erreurs: Manuelle vs centralisée"
+        ]
+      },
+      "controllers_inconsistants": {
+        "description": "Architecture component-driven BONNE mais implémentation brouillon",
+        "impact": "Code quality faible, maintenance difficile",
+        "details": "saveStoriesController n'utilise AUCUN helper centralisé"
+      },
+      "configuration_hybride": {
+        "description": "TypeScript partout mais configuration incohérente", 
+        "impact": "Erreurs de démarrage, développement frustrante",
+        "details": "Scripts pointaient vers .js au lieu de .ts"
+      }
+    }
+  },
+
+  "plan_refactorisation": {
+    "phase_1_nettoyage_structure": {
+      "priorite": "CRITIQUE",
+      "duree_estimee": "2-3 heures",
+      "taches": [
+        {
+          "id": "T1.1",
+          "titre": "Consolidation Types",
+          "description": "Fusionner tous les types dans UN SEUL fichier index.ts",
+          "actions": [
+            "Analyser backend/src/types/index.ts (responses génériques)",
+            "Analyser backend/src/types/chroniques/index.ts (types spécifiques)", 
+            "Analyser backend/src/types/shared/ (si existe)",
+            "Créer backend/src/types/index.ts UNIQUE et COMPLET",
+            "Supprimer les autres fichiers types",
+            "Mettre à jour tous les imports dans les controllers"
+          ],
+          "validation": "Un seul fichier types/index.ts avec tous les types exportés"
+        },
+        {
+          "id": "T1.2", 
+          "titre": "Nettoyage Path Mapping",
+          "description": "Uniformiser les imports avec path mapping cohérent",
+          "actions": [
+            "Vérifier tsconfig.json - paths configuration",
+            "Remplacer tous les imports relatifs par des absolus",
+            "Uniformiser @shared/, @utils/, @controllers/, @middlewares/",
+            "Tester compilation TypeScript"
+          ],
+          "validation": "Tous les imports utilisent des paths absolus cohérents"
+        }
+      ]
+    },
+
+    "phase_2_factorisation_dry": {
+      "priorite": "CRITIQUE", 
+      "duree_estimee": "3-4 heures",
+      "taches": [
+        {
+          "id": "T2.1",
+          "titre": "Élimination Duplications",
+          "description": "Supprimer TOUTES les duplications de code",
+          "actions": [
+            "Supprimer parseStoryId dupliqué dans saveStoriesController.ts",
+            "Utiliser UNIQUEMENT utils/global/helpers.ts parseStoryId", 
+            "Supprimer AuthenticatedRequest redéfini dans controllers",
+            "Créer interface AuthenticatedRequest dans types/index.ts",
+            "Importer AuthenticatedRequest partout où nécessaire"
+          ],
+          "validation": "ZERO duplication - Une seule définition par fonction/interface"
+        },
+        {
+          "id": "T2.2",
+          "titre": "Controllers Uniformes",
+          "description": "Tous les controllers utilisent les helpers centralisés",
+          "actions": [
+            "Refactoriser saveStoriesController.ts pour utiliser helpers",
+            "Remplacer gestion d'erreurs manuelle par handleError()",
+            "Utiliser sendError(), sendSuccess(), sendBadRequest(), sendNotFound()",
+            "Importer tous les helpers nécessaires",
+            "Uniformiser le style de tous les controllers"
+          ],
+          "validation": "Tous controllers utilisent helpers centralisés - ZERO code manuel"
+        },
+        {
+          "id": "T2.3",
+          "titre": "Middlewares Cohérents", 
+          "description": "Assurer cohérence entre middlewares",
+          "actions": [
+            "Vérifier validateStoryId utilise bien helpers centralisés",
+            "Vérifier validateOwnership utilise bien helpers centralisés", 
+            "Uniformiser style et imports",
+            "Factoriser code commun si nécessaire"
+          ],
+          "validation": "Middlewares cohérents utilisant helpers centralisés"
+        }
+      ]
+    },
+
+    "phase_3_configuration_finale": {
+      "priorite": "RECOMMANDÉE",
+      "duree_estimee": "1 heure", 
+      "taches": [
+        {
+          "id": "T3.1",
+          "titre": "Configuration TypeScript Optimale",
+          "description": "Optimiser configuration TypeScript complète",
+          "actions": [
+            "Vérifier tsconfig.json optimal",
+            "Optimiser package.json scripts", 
+            "Créer nodemon.json pour développement",
+            "Vérifier tous les paths mapping",
+            "Tests compilation et démarrage"
+          ],
+          "validation": "Configuration TypeScript 100% optimale et fonctionnelle"
+        }
+      ]
+    }
+  },
+
+  "structure_cible": {
+    "backend/src/": {
+      "types/": {
+        "index.ts": "UN SEUL fichier avec TOUS les types (interfaces, enums, responses)"
+      },
+      "utils/": {
+        "global/": {
+          "helpers.ts": "Helpers centralisés (parseStoryId, sendError, etc.)"
+        },
+        "chroniques/": {
+          "helpers.ts": "Helpers spécifiques chroniques si nécessaire"
+        }
+      },
+      "middlewares/": {
+        "auth/authenticateToken.ts": "Middleware auth",
+        "chroniques/validateStoryId.ts": "Validation ID (utilise helpers)",
+        "chroniques/validateOwnership.ts": "Validation ownership (utilise helpers)",
+        "chroniques/errorHandler.ts": "Error handler"
+      },
+      "controllers/": {
+        "chroniques/publicStoriesController.ts": "Controller public (utilise helpers)",
+        "chroniques/draftsStoriesController.ts": "Controller drafts (utilise helpers)", 
+        "chroniques/publishedStoriesController.ts": "Controller published (utilise helpers)",
+        "chroniques/saveStoriesController.ts": "Controller save (utilise helpers - REFACTORISÉ)",
+        "chroniques/deleteStoriesController.ts": "Controller delete (utilise helpers)"
+      },
+      "prisma/": {
+        "schema.prisma": "AUCUNE MODIFICATION - Tous les index sont nécessaires pour le système de versioning"
+      }
+    }
+  },
+
+  "validation_finale": {
+    "criteres_succes": [
+      "UN SEUL fichier types/index.ts avec tous les types",
+      "ZERO duplication de code dans tout le backend",
+      "Tous les controllers utilisent les helpers centralisés",
+      "Imports cohérents avec path mapping", 
+      "Configuration TypeScript 100% fonctionnelle",
+      "npm run dev fonctionne parfaitement",
+      "Code respecte DDD, KISS, DRY",
+      "Architecture component-driven préservée",
+      "Schema Prisma inchangé - système versioning préservé"
+    ],
+    "tests_validation": [
+      "npm run build → Compilation sans erreurs",
+      "npm run dev → Serveur démarre correctement", 
+      "Tous les endpoints fonctionnels",
+      "Aucun import cassé", 
+      "Aucune duplication détectable",
+      "Code review qualité senior"
+    ]
+  },
+
+  "ordre_execution": [
+    "Phase 1: Nettoyage Structure (T1.1 → T1.2)",
+    "Phase 2: Factorisation DRY (T2.1 → T2.2 → T2.3)", 
+    "Phase 3: Configuration Finale (T3.1)",
+    "Validation Finale"
+  ],
+
+  "notes_importantes": [
+    "Architecture component-driven des controllers = EXCELLENTE - À PRÉSERVER",
+    "Séparation publicStoriesController, draftsStoriesController, etc. = CORRECTE",
+    "Index Prisma [originalStoryId] = NÉCESSAIRE pour système versioning histoires publiées",
+    "Le problème n'est PAS l'architecture mais l'implémentation brouillon",
+    "Focus sur DRY, factorisation et cohérence des helpers",
+    "Aucune sur-ingénierie - Juste du nettoyage professionnel",
+    "AUCUNE modification du schema Prisma - système de versioning intelligent à préserver"
+  ]
+}

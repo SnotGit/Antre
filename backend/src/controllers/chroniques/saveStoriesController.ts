@@ -1,22 +1,10 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { AuthenticatedRequest } from '@shared/shared';
+import { StoryResponse } from '@shared/chroniques';
+import { parseStoryId, sendError, sendSuccess, sendNotFound, handleError } from '@utils/global/helpers';
 
 const prisma = new PrismaClient();
-
-//======= INTERFACES =======
-
-interface AuthenticatedRequest extends Request {
-  user: {
-    userId: number;
-  };
-}
-
-//======= HELPERS FACTORISÉS =======
-
-const parseStoryId = (id: string): number | null => {
-  const storyId = parseInt(id);
-  return isNaN(storyId) ? null : storyId;
-};
 
 //======= CREATE DRAFT =======
 
@@ -40,10 +28,11 @@ export const createDraft = async (req: AuthenticatedRequest, res: Response): Pro
       }
     });
 
-    res.json({ story });
+    const response: StoryResponse = { story };
+    res.json(response);
 
   } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    handleError(res, 'Erreur lors de la création du brouillon');
   }
 };
 
@@ -57,8 +46,7 @@ export const saveDraft = async (req: AuthenticatedRequest, res: Response): Promi
     const { title, content } = req.body;
 
     if (storyId === null) {
-      res.status(400).json({ error: 'ID invalide' });
-      return;
+      return sendError(res, 'ID invalide', 400);
     }
 
     const story = await prisma.story.findFirst({
@@ -70,8 +58,7 @@ export const saveDraft = async (req: AuthenticatedRequest, res: Response): Promi
     });
 
     if (!story) {
-      res.status(404).json({ error: 'Brouillon non trouvé' });
-      return;
+      return sendNotFound(res, 'Brouillon non trouvé');
     }
 
     await prisma.story.update({
@@ -79,10 +66,10 @@ export const saveDraft = async (req: AuthenticatedRequest, res: Response): Promi
       data: { title, content }
     });
 
-    res.status(200).json({ message: 'Brouillon sauvegardé' });
+    sendSuccess(res, 'Brouillon sauvegardé');
 
   } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    handleError(res, 'Erreur lors de la sauvegarde du brouillon');
   }
 };
 
@@ -95,8 +82,7 @@ export const publishStory = async (req: AuthenticatedRequest, res: Response): Pr
     const userId = req.user.userId;
 
     if (storyId === null) {
-      res.status(400).json({ error: 'ID invalide' });
-      return;
+      return sendError(res, 'ID invalide', 400);
     }
 
     const story = await prisma.story.findFirst({
@@ -108,8 +94,7 @@ export const publishStory = async (req: AuthenticatedRequest, res: Response): Pr
     });
 
     if (!story) {
-      res.status(404).json({ error: 'Brouillon non trouvé' });
-      return;
+      return sendNotFound(res, 'Brouillon non trouvé');
     }
 
     await prisma.story.update({
@@ -120,10 +105,10 @@ export const publishStory = async (req: AuthenticatedRequest, res: Response): Pr
       }
     });
 
-    res.status(200).json({ message: 'Histoire publiée' });
+    sendSuccess(res, 'Histoire publiée');
 
   } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    handleError(res, 'Erreur lors de la publication de l\'histoire');
   }
 };
 
@@ -137,8 +122,7 @@ export const updateStory = async (req: AuthenticatedRequest, res: Response): Pro
     const { title, content } = req.body;
 
     if (storyId === null) {
-      res.status(400).json({ error: 'ID invalide' });
-      return;
+      return sendError(res, 'ID invalide', 400);
     }
 
     const story = await prisma.story.findFirst({
@@ -150,8 +134,7 @@ export const updateStory = async (req: AuthenticatedRequest, res: Response): Pro
     });
 
     if (!story) {
-      res.status(404).json({ error: 'Histoire publiée non trouvée' });
-      return;
+      return sendNotFound(res, 'Histoire publiée non trouvée');
     }
 
     await prisma.story.update({
@@ -159,9 +142,9 @@ export const updateStory = async (req: AuthenticatedRequest, res: Response): Pro
       data: { title, content }
     });
 
-    res.status(200).json({ message: 'Histoire mise à jour' });
+    sendSuccess(res, 'Histoire mise à jour');
 
   } catch (error) {
-    res.status(500).json({ error: 'Erreur serveur' });
+    handleError(res, 'Erreur lors de la mise à jour de l\'histoire');
   }
 };
