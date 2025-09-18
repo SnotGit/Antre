@@ -1,6 +1,6 @@
-import { Component, input, output, inject, computed } from '@angular/core';
+import { Component, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LoadService, StoryCard } from '@features/chroniques/services/load.service';
+import { StoryCard } from '@features/chroniques/services/public-stories.service';
 import { environment } from '@environments/environment';
 
 @Component({
@@ -11,17 +11,16 @@ import { environment } from '@environments/environment';
 })
 export class StoryCardComponent {
   
-  //============ INJECTIONS ============
+  //======= INJECTIONS =======
 
-  private readonly loadService = inject(LoadService);
   private readonly API_URL = environment.apiUrl;
 
-  //============ SIGNALS ============
+  //======= SIGNALS =======
   
   story = input.required<StoryCard>();
   cardClick = output<StoryCard>();
 
-  //============ COMPUTED ============
+  //======= COMPUTED =======
 
   username = computed(() => this.story().user.username);
   
@@ -34,7 +33,7 @@ export class StoryCardComponent {
     return avatar ? `url(${this.API_URL.replace('/api', '')}${avatar})` : '';
   });
 
-  //============ ACTIONS ============
+  //======= ACTIONS =======
 
   onCardClick(): void {
     this.cardClick.emit(this.story());

@@ -53,25 +53,21 @@ export class PublishedEditor implements OnInit, OnDestroy {
   //======= RESOURCES =======
 
   private readonly publishedStoryResource = resource({
-    params: () => ({
-      storyId: this.routerStateStoryId,
-      isAuthenticated: this.authService.isLoggedIn()
-    }),
-    loader: async ({ params }) => {
-      if (!params.isAuthenticated) {
+    loader: async () => {
+      if (!this.authService.isLoggedIn()) {
         this.router.navigate(['/auth/login']);
         return null;
       }
       
-      if (!params.storyId) {
+      if (!this.routerStateStoryId) {
         const username = this.authService.currentUser()?.username;
         this.router.navigate(['/chroniques', username, 'mes-histoires']);
         return null;
       }
 
       try {
-        const story = await this.publishedStoriesService.getPublishedStory(params.storyId);
-        return { story, storyId: params.storyId };
+        const story = await this.publishedStoriesService.getPublishedStory(this.routerStateStoryId);
+        return { story, storyId: this.routerStateStoryId };
       } catch (error) {
         const username = this.authService.currentUser()?.username;
         this.router.navigate(['/chroniques', username, 'mes-histoires']);
@@ -95,25 +91,27 @@ export class PublishedEditor implements OnInit, OnDestroy {
     return current.title !== original.title || current.content !== original.content;
   });
 
+  canSaveToDraft = computed(() => {
+    return this.storyTitle().trim().length > 0 && this.storyContent().trim().length > 0;
+  });
+
   canUpdate = computed(() => {
-    const data = this.storyData();
-    return data.title.trim().length > 0 && data.content.trim().length > 0 && this.isEdited();
+    return this.canSaveToDraft() && this.isEdited();
   });
 
   //======= EFFECTS =======
 
-  private readonly dataLoadEffect = effect(() => {
+  private readonly initializeStoryDataEffect = effect(() => {
     const resourceData = this.publishedStoryResource.value();
     
     if (resourceData?.story) {
       this.storyTitle.set(resourceData.story.title);
       this.storyContent.set(resourceData.story.content);
       this.originalData.set({ title: resourceData.story.title, content: resourceData.story.content });
-      this.restoreLocalModifications();
     }
   });
 
-  private autoSaveEffect = effect(() => {
+  private readonly localSaveEffect = effect(() => {
     if (this.storyId() && this.isEdited()) {
       const key = `published-${this.storyId()}-modifications`;
       this.saveStoriesService.saveLocal(key, this.storyData());
@@ -123,12 +121,8 @@ export class PublishedEditor implements OnInit, OnDestroy {
   //======= LIFECYCLE =======
 
   ngOnInit(): void {
-    if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/auth/login']);
-      return;
-    }
-
     this.typingService.title(this.title);
+    this.restoreLocalModifications();
   }
 
   ngOnDestroy(): void {
@@ -138,6 +132,8 @@ export class PublishedEditor implements OnInit, OnDestroy {
   //======= LOCAL STORAGE =======
 
   private restoreLocalModifications(): void {
+    if (!this.storyId()) return;
+    
     const key = `published-${this.storyId()}-modifications`;
     const saved = this.saveStoriesService.restoreLocal(key);
     
@@ -148,6 +144,8 @@ export class PublishedEditor implements OnInit, OnDestroy {
   }
 
   private clearLocalStorage(): void {
+    if (!this.storyId()) return;
+    
     const key = `published-${this.storyId()}-modifications`;
     this.saveStoriesService.clearLocal(key);
   }

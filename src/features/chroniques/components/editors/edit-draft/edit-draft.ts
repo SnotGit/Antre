@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { SaveStoriesService, StoryFormData } from '@features/chroniques/services/save-stories.service';
-import { DraftStoriesService } from '@features/chroniques/services/draft-stories.service';
+import { DraftStoriesService, EditStory } from '@features/chroniques/services/draft-stories.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
 import { AuthService } from '@features/auth/services/auth.service';
@@ -48,29 +48,26 @@ export class DraftEditor implements OnInit, OnDestroy {
 
   storyTitle = signal('');
   storyContent = signal('');
+  originalData = signal<StoryFormData>({ title: '', content: '' });
 
   //======= RESOURCES =======
 
   private readonly draftResource = resource({
-    params: () => ({
-      storyId: this.routerStateStoryId,
-      isAuthenticated: this.authService.isLoggedIn()
-    }),
-    loader: async ({ params }) => {
-      if (!params.isAuthenticated) {
+    loader: async () => {
+      if (!this.authService.isLoggedIn()) {
         this.router.navigate(['/auth/login']);
         return null;
       }
       
-      if (!params.storyId) {
+      if (!this.routerStateStoryId) {
         const username = this.authService.currentUser()?.username;
         this.router.navigate(['/chroniques', username, 'mes-histoires']);
         return null;
       }
 
       try {
-        const story = await this.draftStoriesService.getDraftStory(params.storyId);
-        return { story, storyId: params.storyId };
+        const story = await this.draftStoriesService.getDraftStory(this.routerStateStoryId);
+        return { story, storyId: this.routerStateStoryId };
       } catch (error) {
         const username = this.authService.currentUser()?.username;
         this.router.navigate(['/chroniques', username, 'mes-histoires']);
@@ -88,25 +85,30 @@ export class DraftEditor implements OnInit, OnDestroy {
     content: this.storyContent()
   }));
 
+  isEdited = computed(() => {
+    const current = this.storyData();
+    const original = this.originalData();
+    return current.title !== original.title || current.content !== original.content;
+  });
+
   canPublish = computed(() => {
-    return this.storyTitle().trim().length > 0 && 
-           this.storyContent().trim().length > 0;
+    return this.storyTitle().trim().length > 0 && this.storyContent().trim().length > 0;
   });
 
   //======= EFFECTS =======
 
-  private readonly dataLoadEffect = effect(() => {
+  private readonly initializeStoryDataEffect = effect(() => {
     const resourceData = this.draftResource.value();
     
     if (resourceData?.story) {
       this.storyTitle.set(resourceData.story.title);
       this.storyContent.set(resourceData.story.content);
-      this.restoreLocalModifications();
+      this.originalData.set({ title: resourceData.story.title, content: resourceData.story.content });
     }
   });
 
-  private readonly autoSaveEffect = effect(() => {
-    if (this.storyId() > 0 && (this.storyTitle() || this.storyContent())) {
+  private readonly localSaveEffect = effect(() => {
+    if (this.storyId() && this.isEdited()) {
       const key = `draft-${this.storyId()}-modifications`;
       this.saveStoriesService.saveLocal(key, this.storyData());
     }
@@ -116,6 +118,7 @@ export class DraftEditor implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.typingService.title(this.title);
+    this.restoreLocalModifications();
   }
 
   ngOnDestroy(): void {

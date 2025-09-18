@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../auth/services/auth.service';
-import { MobileMenuService } from '../../services/mobile-menu.service';
+import { AuthService } from '@features/auth';
+import { MobileMenuService } from '@features/menus/services/mobile-menu.service';
 
 @Component({
   selector: 'app-console-v3',
