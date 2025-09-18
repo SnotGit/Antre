@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { AuthenticatedRequest } from '@shared/index';
+import { AuthenticatedRequest } from '@models/shared';
 import { handleError, sendNotFound } from '@utils/global/helpers';
 import { userSelectFields } from '@utils/chroniques/helpers';
 

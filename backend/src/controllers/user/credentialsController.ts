@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { AuthenticatedRequest } from '@shared/index';
+import { AuthenticatedRequest } from '@models/shared';
 import { handleError, sendError, sendSuccess } from '@utils/global/helpers';
 
 const prisma = new PrismaClient();

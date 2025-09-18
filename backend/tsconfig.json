@@ -12,17 +12,21 @@
     "resolveJsonModule": true,
     "baseUrl": "./src",
     "paths": {
-      "@shared/*": ["types/shared/*"],
-      "@chroniques/*": ["types/*"],
+      "@models/*": ["models/*"],
       "@utils/*": ["utils/*"],
       "@middlewares/*": ["middlewares/*"],
       "@controllers/*": ["controllers/*"],
       "@routes/*": ["routes/*"]
-    }
+    },
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*",
+    "src/types/express.d.ts"
+  ],
   "exclude": ["node_modules", "dist"],
   "ts-node": {
-    "require": ["tsconfig-paths/register"]
+    "require": ["tsconfig-paths/register"],
+    "files": true
   }
 }
