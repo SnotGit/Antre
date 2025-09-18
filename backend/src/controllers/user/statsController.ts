@@ -1,5 +1,6 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { AuthenticatedRequest } from '@shared/index';
 import { handleError } from '@utils/global/helpers';
 
 const prisma = new PrismaClient();
@@ -13,9 +14,9 @@ interface UserStats {
 
 //======= GET STATS =======
 
-export const getStats = async (req: Request, res: Response): Promise<void> => {
+export const getStats = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user!.userId;
+    const userId = req.user.userId;
 
     const [draftsCount, publishedCount, totalLikes] = await Promise.all([
       prisma.story.count({

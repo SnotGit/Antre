@@ -6,7 +6,11 @@ interface JwtPayload {
   userId: number;
 }
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction): void => {
+export const authenticateToken = (
+  req: Request, 
+  res: Response, 
+  next: NextFunction
+): void => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 

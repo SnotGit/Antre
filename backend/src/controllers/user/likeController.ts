@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { AuthenticatedRequest } from '@shared/shared';
+import { AuthenticatedRequest } from '@shared/index';
 import { handleError, sendError, sendNotFound, parseStoryId } from '@utils/global/helpers';
 
 const prisma = new PrismaClient();

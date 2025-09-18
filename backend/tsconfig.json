@@ -12,7 +12,7 @@
     "resolveJsonModule": true,
     "baseUrl": "./src",
     "paths": {
-      "@shared/*": ["types/*"],
+      "@shared/*": ["types/shared/*"],
       "@chroniques/*": ["types/*"],
       "@utils/*": ["utils/*"],
       "@middlewares/*": ["middlewares/*"],

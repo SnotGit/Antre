@@ -1,6 +1,7 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { handleError, sendNotFound, sendSuccess } from '@utils/global/helpers';
+import { AuthenticatedRequest } from '@shared/index';
+import { handleError, sendNotFound } from '@utils/global/helpers';
 import { userSelectFields } from '@utils/chroniques/helpers';
 
 const prisma = new PrismaClient();
@@ -15,9 +16,9 @@ interface UpdateProfileRequest {
 
 //======= GET PROFILE =======
 
-export const getProfile = async (req: Request, res: Response): Promise<void> => {
+export const getProfile = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user!.userId;
+    const userId = req.user.userId;
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -38,9 +39,9 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
 
 //======= UPDATE PROFILE =======
 
-export const updateProfile = async (req: Request, res: Response): Promise<void> => {
+export const updateProfile = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user!.userId;
+    const userId = req.user.userId;
     const { username, description, avatar, playerId, playerDays }: UpdateProfileRequest = req.body;
 
     if (username && username.length < 3) {

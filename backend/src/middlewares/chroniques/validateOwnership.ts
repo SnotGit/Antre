@@ -1,5 +1,5 @@
 import { Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from '@shared/shared';
+import { AuthenticatedRequest } from '@shared/index';
 import { getStoryWithOwnership } from '@utils/chroniques/helpers';
 import { sendNotFound } from '@utils/global/helpers';
 
