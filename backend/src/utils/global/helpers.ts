@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { ErrorResponse, SuccessResponse } from '@shared/index';
+import { ErrorResponse, SuccessResponse } from '@models/shared';
 
 //======= ID PARSING =======
 
