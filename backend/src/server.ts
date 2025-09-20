@@ -1,17 +1,32 @@
 import dotenv from 'dotenv';
-import app from './app';
 
 //======= ENVIRONMENT =======
 
 dotenv.config();
 
-//======= CONFIGURATION =======
+//======= DEBUG IMPORTS =======
 
-const PORT = process.env.PORT || 3000;
+console.log('Starting server...');
 
-//======= SERVER START =======
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/api/health`);
-});
+try {
+  console.log('Importing app...');
+  const app = require('./app').default;
+  
+  console.log('App imported successfully');
+  
+  //======= CONFIGURATION =======
+  
+  const PORT = process.env.PORT || 3000;
+  
+  //======= SERVER START =======
+  
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Health check: http://localhost:${PORT}/api/health`);
+    console.log('Routes mounted successfully');
+  });
+  
+} catch (error) {
+  console.error('ERROR STARTING SERVER:', error);
+  process.exit(1);
+}

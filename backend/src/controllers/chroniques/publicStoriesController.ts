@@ -49,7 +49,7 @@ export const getLatestStories = async (req: Request, res: Response): Promise<voi
 
 //======= GET SINGLE STORY =======
 
-export const getStory = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getUserStory = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const storyId = parseStoryId(req.params.id);
     
@@ -122,7 +122,7 @@ export const getStory = async (req: AuthenticatedRequest, res: Response): Promis
 
 //======= GET USER STORIES =======
 
-export const getStories = async (req: Request, res: Response): Promise<void> => {
+export const getUserStories = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = parseInt(req.params.userId, 10);
     

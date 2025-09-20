@@ -30,8 +30,29 @@ export class StoryCardComponent {
   
   avatarUrl = computed(() => {
     const avatar = this.story().user.avatar;
-    return avatar ? `url(${this.API_URL.replace('/api', '')}${avatar})` : '';
+    
+    if (!avatar) {
+      return '';
+    }
+    
+    let baseUrl = this.API_URL.replace('/api', '');
+    
+    if (baseUrl.endsWith('/') && avatar.startsWith('/')) {
+      baseUrl = baseUrl.slice(0, -1);
+    }
+    
+    const fullUrl = `${baseUrl}${avatar}`;
+    
+    return `url('${fullUrl}')`;
   });
+
+  //======= FALLBACK AVATAR =======
+
+  onAvatarError(event: Event): void {
+    const target = event.target as HTMLElement;
+    target.style.backgroundImage = '';
+    target.style.backgroundColor = '#5d889e';
+  }
 
   //======= ACTIONS =======
 

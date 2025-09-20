@@ -6,8 +6,8 @@ import { errorHandler } from '@middlewares/chroniques/errorHandler';
 
 import { 
   getLatestStories, 
-  getStory, 
-  getStories 
+  getUserStory, 
+  getUserStories 
 } from '@controllers/chroniques/publicStoriesController';
 
 import { 
@@ -37,7 +37,8 @@ const router = Router();
 //======= PUBLIC ROUTES =======
 
 router.get('/stories/latest', getLatestStories);
-router.get('/stories/:id', getStory);
+router.get('/stories/:id', getUserStory);
+router.get('/stories', getUserStories);
 
 //======= AUTHENTICATED ROUTES =======
 

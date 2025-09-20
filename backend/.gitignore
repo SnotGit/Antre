@@ -1,3 +1,4 @@
-node_modules
-# Keep environment variables out of version control
-.env
+# Backend
+backend/.env
+backend/node_modules/
+backend/dist/

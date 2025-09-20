@@ -183,12 +183,8 @@
       flex: 1;
       padding: 10px 30px;
       overflow-y: auto;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-
-      &::-webkit-scrollbar {
-        display: none;
-      }
+      scrollbar-width: 10px;
+      scrollbar-color: #1a1d20;
 
       .text {
         color: #d0d0d0;

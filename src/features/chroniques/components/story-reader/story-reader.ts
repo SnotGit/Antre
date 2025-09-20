@@ -39,8 +39,8 @@ export class StoryReader {
       try {
         if (params.storyId && params.userId) {
           const [story, userStories] = await Promise.all([
-            this.publicStoriesService.getStory(params.storyId),
-            this.publicStoriesService.getStories(params.userId)
+            this.publicStoriesService.getUserStory(params.storyId),
+            this.publicStoriesService.getUserStories(params.userId)
           ]);
 
           if (!story) return null;
