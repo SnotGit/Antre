@@ -78,7 +78,7 @@ export class PublicStoriesService {
 
   //======= GET SINGLE STORY =======
 
-  async getStory(storyId: number): Promise<StoryReader> {
+  async getUserStory(storyId: number): Promise<StoryReader> {
     try {
       const response = await firstValueFrom(
         this.http.get<StoryResponse>(`${this.CHRONIQUES_API}/stories/${storyId}`)
@@ -92,7 +92,7 @@ export class PublicStoriesService {
 
   //======= GET USER STORIES =======
 
-  async getStories(userId: number): Promise<UserStories[]> {
+  async getUserStories(userId: number): Promise<UserStories[]> {
     try {
       const response = await firstValueFrom(
         this.http.get<UserStoriesResponse>(`${this.USER_API}/${userId}/stories`)

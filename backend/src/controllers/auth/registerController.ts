@@ -14,6 +14,8 @@ interface RegisterRequest {
   description?: string;
 }
 
+import { getJwtSecret } from './jwtConfig';
+
 //======= REGISTER =======
 
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -76,7 +78,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     const token = jwt.sign(
       { userId: user.id },
-      process.env.JWT_SECRET!,
+      getJwtSecret(),
       { expiresIn: '24h' }
     );
 

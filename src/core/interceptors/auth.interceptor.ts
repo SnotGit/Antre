@@ -1,25 +1,44 @@
 import { HttpInterceptorFn, HttpRequest, HttpHandlerFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { AuthService } from '@features/auth/services/auth.service';
+import { TokenService } from '@features/auth/services/token.service';
 
 export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
-  const authService = inject(AuthService);
+  const tokenService = inject(TokenService);
   
-  // Routes publiques qui n'ont pas besoin d'authentification
+  //======= PUBLIC ROUTES =======
+  
   const publicRoutes = [
     '/api/auth/login',
     '/api/auth/register',
-    '/api/chroniques/stories/latest',
-    '/api/chroniques/stories/'
+    '/api/health',
+    '/api/chroniques/stories/latest'
   ];
 
-  const isPublicRoute = publicRoutes.some(route => req.url.includes(route));
+  //======= PUBLIC STORIES BY ID =======
+  
+  const isPublicStoryRead = req.url.includes('/api/chroniques/stories/') && 
+                           !req.url.includes('/drafts') && 
+                           !req.url.includes('/published') &&
+                           req.method === 'GET';
+
+  //======= PUBLIC LIKES COUNT =======
+  
+  const isPublicLikesCount = req.url.includes('/api/user/likes/story/') && 
+                            req.url.includes('/count');
+
+  //======= CHECK IF PUBLIC ROUTE =======
+  
+  const isPublicRoute = publicRoutes.some(route => req.url.includes(route)) ||
+                       isPublicStoryRead ||
+                       isPublicLikesCount;
   
   if (isPublicRoute) {
     return next(req);
   }
 
-  const token = authService.getToken();
+  //======= ADD TOKEN FOR PRIVATE ROUTES =======
+  
+  const token = tokenService.getToken();
   
   if (token) {
     const authReq = req.clone({
@@ -27,7 +46,6 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
         Authorization: `Bearer ${token}`
       }
     });
-    
     return next(authReq);
   }
   

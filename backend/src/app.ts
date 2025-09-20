@@ -7,15 +7,29 @@ import chroniquesRoutes from './routes/chroniques/chroniques.routes';
 
 const app = express();
 
-//======= SECURITY MIDDLEWARE =======
-
-app.use(helmet());
+//======= CORS MIDDLEWARE =======
 
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:4200',
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range']
+}));
+
+//======= SECURITY MIDDLEWARE =======
+
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "http:", "https:"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      connectSrc: ["'self'"]
+    }
+  }
 }));
 
 //======= PARSING MIDDLEWARE =======
@@ -25,7 +39,12 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 //======= STATIC FILES =======
 
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static('uploads', {
+  setHeaders: (res, path, stat) => {
+    res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.set('Access-Control-Allow-Origin', '*');
+  }
+}));
 
 //======= API ROUTES =======
 
@@ -43,6 +62,11 @@ app.get('/api/health', (req, res) => {
 
 app.use(/.*/, (req, res) => {
   res.status(404).json({ error: 'Route non trouvée' });
+});
+
+// TEST DE DEBUG 
+app.get('/api/chroniques/debug', (req, res) => {
+  res.json({ message: 'Route debug OK - pas de contrôleur requis' });
 });
 
 export default app;

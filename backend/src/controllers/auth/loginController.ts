@@ -11,6 +11,8 @@ interface LoginRequest {
   password: string;
 }
 
+import { getJwtSecret } from './jwtConfig';
+
 //======= LOGIN =======
 
 export const login = async (req: Request, res: Response): Promise<void> => {
@@ -51,7 +53,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     const token = jwt.sign(
       { userId: user.id },
-      process.env.JWT_SECRET!,
+      getJwtSecret(),
       { expiresIn: '24h' }
     );
 
