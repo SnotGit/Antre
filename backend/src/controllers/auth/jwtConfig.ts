@@ -1,10 +1,30 @@
-export const getJwtSecret = (): string => {
-  const secret = process.env.JWT_SECRET || 'lantre-dev-secret-2025';
-  
-  // Log d'avertissement en développement
-  if (!process.env.JWT_SECRET && process.env.NODE_ENV !== 'production') {
-    console.warn('⚠️  JWT_SECRET manquant - utilisation fallback développement');
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { join } from 'path';
+import { randomBytes } from 'crypto';
+
+//======= CONFIGURATION =======
+
+const SECRETS_DIR = join(__dirname, '..', '..', '..', 'secrets');
+const SECRET_FILE = join(SECRETS_DIR, 'jwt.json');
+
+//======= SECRET MANAGEMENT =======
+
+const ensureSecretFile = (): void => {
+  if (!existsSync(SECRETS_DIR)) {
+    mkdirSync(SECRETS_DIR, { recursive: true, mode: 0o700 });
   }
-  
-  return secret;
+
+  if (!existsSync(SECRET_FILE)) {
+    const secret = randomBytes(32).toString('hex');
+    const config = { secret };
+    writeFileSync(SECRET_FILE, JSON.stringify(config, null, 2), { mode: 0o600 });
+  }
+};
+
+//======= JWT CONFIGURATION =======
+
+export const getJwtSecret = (): string => {
+  ensureSecretFile();
+  const config = JSON.parse(readFileSync(SECRET_FILE, 'utf8'));
+  return config.secret;
 };
