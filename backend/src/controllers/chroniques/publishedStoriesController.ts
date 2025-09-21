@@ -4,7 +4,6 @@ import { AuthenticatedRequest } from '@models/shared';
 import { PublishedStoriesResponse, PublishedStory, EditStory } from '@models/chroniques';
 import { handleError, sendNotFound } from '@utils/global/helpers';
 
-
 const prisma = new PrismaClient();
 
 //======= GET PUBLISHED STORIES =======

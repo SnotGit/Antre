@@ -37,7 +37,6 @@ const router = Router();
 //======= PUBLIC ROUTES =======
 
 router.get('/stories/latest', getLatestStories);
-router.get('/stories/:id', getUserStory);
 router.get('/stories', getUserStories);
 
 //======= AUTHENTICATED ROUTES =======
@@ -62,6 +61,10 @@ router.put('/stories/published/:id', validateStoryId, updateStory);
 
 router.delete('/stories/:id', validateStoryId, validateOwnership, deleteStory);
 router.post('/stories/delete', deleteStories);
+
+//======= PUBLIC DYNAMIC ROUTE =======
+
+router.get('/stories/:id', getUserStory);
 
 //======= ERROR HANDLER =======
 
