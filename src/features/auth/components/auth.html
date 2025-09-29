@@ -1,16 +1,8 @@
 <!-- auth.component.html -->
 <div class="auth-container">
-  <!-- Retour à l'accueil -->
-  <div class="back-navigation">
-    <div class="button">
-      <button class="btn" (click)="goBack()">
-        <span>← Retour</span>
-      </button>
-    </div>
-  </div>
 
   <!-- Authentification -->
-  <div class="auth-card">
+  <div class="auth-section">
     <div class="auth-content">
       <!-- Header du terminal -->
       <div class="header">
@@ -78,27 +70,27 @@
             </div>
 
             <div class="form-field">
-              <label class="field-label">USERNAME:</label>
-              <input type="text" name="username" [(ngModel)]="registerData.username" class="terminal-input"
-                placeholder="nom_utilisateur" required minlength="3" maxlength="50" [disabled]="loading()">
+              <label class="field-label">PSEUDO:</label>
+              <input type="text" name="username" [(ngModel)]="registerData.username" class="terminal-input" required
+                minlength="3" maxlength="50" [disabled]="loading()">
             </div>
 
             <div class="form-field">
               <label class="field-label">EMAIL:</label>
-              <input type="email" name="email" [(ngModel)]="registerData.email" class="terminal-input"
-                placeholder="utilisateur@antre.com" required autocomplete="email" [disabled]="loading()">
+              <input type="email" name="email" [(ngModel)]="registerData.email" class="terminal-input" required
+                autocomplete="email" [disabled]="loading()">
             </div>
 
             <div class="form-field">
               <label class="field-label">MOT DE PASSE: 8 Caractères + 1 Maj minimum</label>
-              <input type="password" name="password" [(ngModel)]="registerData.password" class="terminal-input"
-                placeholder="••••••••••••" required minlength="6" autocomplete="new-password" [disabled]="loading()">
+              <input type="password" name="password" [(ngModel)]="registerData.password" class="terminal-input" required
+                minlength="6" autocomplete="new-password" [disabled]="loading()">
             </div>
 
             <div class="form-field">
               <label class="field-label">DESCRIPTION (optionnel):</label>
               <textarea name="description" [(ngModel)]="registerData.description" class="terminal-textarea"
-                placeholder="Votre description..." maxlength="500" rows="3" [disabled]="loading()">
+                maxlength="500" rows="3" [disabled]="loading()">
               </textarea>
             </div>
 
@@ -131,7 +123,7 @@
         <!-- Info bas de terminal -->
         <div class="terminal-footer">
           <div class="system-info">
-            <span class="info-line">Système: Devil Software</span>
+            <span class="info-line">Système: Evil Software</span>
             <span class="info-line">Sécurité: {{ getSystemStatus() }}</span>
           </div>
         </div>
