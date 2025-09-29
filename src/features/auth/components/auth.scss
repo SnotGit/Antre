@@ -2,8 +2,9 @@
 @use "content/auth/auth" as *;
 
 .auth-container {
-    padding: 30px;
-    gap: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color: #121416;
     color: #d0d0d0;
     height: 100%;
@@ -12,18 +13,8 @@
     overflow: hidden;
 
 
-    .back-navigation {
-        display: flex;
-        align-items: flex-start;
-        @include button;
-    }
-
-    .auth-card {
-        display: flex;
-        padding: 30px;
-        justify-content: center;
-        align-items: center;
-
+    .auth-section {
+    
         .auth-content {
             width: 400px;
             background-color: #1a1d20;
