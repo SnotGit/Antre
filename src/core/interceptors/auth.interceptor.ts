@@ -14,12 +14,17 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
     '/api/chroniques/stories/latest'
   ];
 
-  //======= PUBLIC STORIES BY ID =======
+  //======= PUBLIC STORIES READING =======
   
   const isPublicStoryRead = req.url.includes('/api/chroniques/stories/') && 
                            !req.url.includes('/drafts') && 
                            !req.url.includes('/published') &&
                            req.method === 'GET';
+
+  //======= PUBLIC USER STORIES =======
+  
+  const isPublicUserStories = req.url.match(/\/api\/user\/\d+\/stories/) && 
+                             req.method === 'GET';
 
   //======= PUBLIC LIKES COUNT =======
   
@@ -30,6 +35,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
   
   const isPublicRoute = publicRoutes.some(route => req.url.includes(route)) ||
                        isPublicStoryRead ||
+                       isPublicUserStories ||
                        isPublicLikesCount;
   
   if (isPublicRoute) {
