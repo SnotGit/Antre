@@ -1,20 +1,26 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
+
+export interface Category {
+  id: number;
+  title: string;
+}
 
 @Component({
   selector: 'app-marsball',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './marsball.html',
   styleUrl: './marsball.scss'
 })
 export class MarsballComponent implements OnInit, OnDestroy {
 
-  //============ INJECTIONS ============
+  //======= INJECTIONS =======
 
+  private readonly router = inject(Router);
   private readonly typingService = inject(TypingEffectService);
   
-  //============ TYPING EFFECT ============
+  //======= TYPING EFFECT =======
 
   private readonly title = 'Marsball';
 
@@ -22,7 +28,11 @@ export class MarsballComponent implements OnInit, OnDestroy {
   showCursor = this.typingService.showCursor;
   typing = this.typingService.typingComplete;
 
-  //============ LIFECYCLE ============
+  //======= DATA =======
+
+  categories = signal<Category[]>([]);
+
+  //======= LIFECYCLE =======
 
   ngOnInit(): void {
     this.typingService.title(this.title);
@@ -30,5 +40,16 @@ export class MarsballComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.typingService.destroy();
+  }
+
+  //======= NAVIGATION =======
+
+  onCategoryClick(category: Category): void {
+    this.router.navigate(['/marsball', category.id], {
+      state: { 
+        categoryId: category.id,
+        title: category.title
+      }
+    });
   }
 }
