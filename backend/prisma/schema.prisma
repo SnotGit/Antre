@@ -75,3 +75,42 @@ model Like {
   @@unique([userId, storyId])
   @@map("likes")
 }
+
+// ============ MODÈLES MARSBALL ============
+
+model MarsballCategory {
+  id        Int              @id @default(autoincrement())
+  title     String           @db.VarChar(100)
+  lists     MarsballList[]
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
+  
+  @@map("marsball_categories")
+}
+
+model MarsballList {
+  id         Int              @id @default(autoincrement())
+  title      String           @db.VarChar(100)
+  categoryId Int              @map("category_id")
+  category   MarsballCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  items      MarsballItem[]
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @updatedAt @map("updated_at")
+  
+  @@index([categoryId])
+  @@map("marsball_lists")
+}
+
+model MarsballItem {
+  id           Int          @id @default(autoincrement())
+  title        String       @db.VarChar(200)
+  imageUrl     String       @map("image_url") @db.VarChar(500)
+  thumbnailUrl String       @map("thumbnail_url") @db.VarChar(500)
+  listId       Int          @map("list_id")
+  list         MarsballList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+  
+  @@index([listId])
+  @@map("marsball_items")
+}
