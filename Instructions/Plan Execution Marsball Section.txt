@@ -1,0 +1,496 @@
+{
+  "project": {
+    "name": "Section Marsball",
+    "description": "Wiki d'items de jeu avec structure hiérarchique récursive",
+    "context": "L'Antre est une plateforme web sci-fi Mars. Marsball est une section parmi 5 sections principales.",
+    "priority": "Vitesse de référencement - 1 million d'items à ajouter manuellement",
+    "reference": "https://antre-de-sulfuro.forumforever.com/f26-Marsball-v3.htm"
+  },
+
+  "objectifs": {
+    "fonctionnalites": [
+      "Structure hiérarchique infinie pour catégorisation",
+      "Création dynamique de catégories par les administrateurs",
+      "Ajout d'items avec images complètes",
+      "Navigation fluide entre catégories",
+      "Interface d'administration contextuelle"
+    ],
+    "utilisateurs": {
+      "visiteurs": "Consultation et navigation uniquement",
+      "users_connectes": "Consultation et navigation uniquement",
+      "admins": "Création et gestion complète des catégories et items"
+    }
+  },
+
+  "architecture_donnees": {
+    "description": "Structure récursive permettant une profondeur infinie de catégories",
+    "models": {
+      "MarsballCategory": {
+        "description": "Catégorie pouvant contenir d'autres catégories et/ou des items",
+        "fields": {
+          "id": {
+            "type": "Int",
+            "attributes": "@id @default(autoincrement())"
+          },
+          "title": {
+            "type": "String",
+            "attributes": "@db.VarChar(200)"
+          },
+          "parentId": {
+            "type": "Int?",
+            "attributes": "@map(\"parent_id\")",
+            "description": "null pour catégories racines, sinon ID de la catégorie parente"
+          },
+          "createdAt": {
+            "type": "DateTime",
+            "attributes": "@default(now()) @map(\"created_at\")"
+          },
+          "updatedAt": {
+            "type": "DateTime",
+            "attributes": "@updatedAt @map(\"updated_at\")"
+          }
+        },
+        "relations": {
+          "parent": "MarsballCategory? @relation(\"CategoryHierarchy\", fields: [parentId], references: [id])",
+          "children": "MarsballCategory[] @relation(\"CategoryHierarchy\")",
+          "items": "MarsballItem[]"
+        },
+        "indexes": [
+          "@@index([parentId])"
+        ],
+        "table_name": "marsball_categories"
+      },
+      "MarsballItem": {
+        "description": "Item final avec image complète contenant toutes les informations visuelles",
+        "fields": {
+          "id": {
+            "type": "Int",
+            "attributes": "@id @default(autoincrement())"
+          },
+          "title": {
+            "type": "String",
+            "attributes": "@db.VarChar(200)",
+            "description": "Utilisé uniquement pour le référencement backend et recherche admin"
+          },
+          "imageUrl": {
+            "type": "String",
+            "attributes": "@map(\"image_url\") @db.VarChar(500)"
+          },
+          "categoryId": {
+            "type": "Int",
+            "attributes": "@map(\"category_id\")"
+          },
+          "createdAt": {
+            "type": "DateTime",
+            "attributes": "@default(now()) @map(\"created_at\")"
+          },
+          "updatedAt": {
+            "type": "DateTime",
+            "attributes": "@updatedAt @map(\"updated_at\")"
+          }
+        },
+        "relations": {
+          "category": "MarsballCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)"
+        },
+        "indexes": [
+          "@@index([categoryId])"
+        ],
+        "table_name": "marsball_items"
+      }
+    },
+    "exemple_hierarchie": [
+      "Marsball (hub racine)",
+      "└─ Objets Marsballeur (MarsballCategory, parentId=null)",
+      "   └─ Casques (MarsballCategory, parentId=objets_marsballeur)",
+      "      └─ Casques Rares (MarsballCategory, parentId=casques)",
+      "         └─ Items (MarsballItem, categoryId=casques_rares)"
+    ],
+    "notes_migration": [
+      "Les tables existantes marsball_categories, marsball_lists, marsball_items doivent être supprimées",
+      "Créer une nouvelle migration avec le schema récursif",
+      "Commande: npx prisma migrate dev --name restructure_marsball_recursive"
+    ]
+  },
+
+  "navigation": {
+    "routes_frontend": {
+      "/marsball": "Affiche toutes les catégories racines (parentId=null)",
+      "/marsball/:categoryId": "Affiche une catégorie avec ses sous-catégories et items"
+    },
+    "principe": "Une seule route dynamique gère tous les niveaux de profondeur"
+  },
+
+  "backend": {
+    "etapes": [
+      "1. Modifier schema.prisma avec les nouveaux modèles",
+      "2. Créer migration destructive",
+      "3. Générer client Prisma",
+      "4. Créer controller marsballController.ts",
+      "5. Créer routes marsball.routes.ts",
+      "6. Monter les routes dans app.ts"
+    ],
+    "fichiers": {
+      "schema": {
+        "path": "backend/prisma/schema.prisma",
+        "action": "Remplacer les modèles MarsballCategory, MarsballList, MarsballItem par les nouveaux modèles"
+      },
+      "migration": {
+        "path": "backend/prisma/migrations/",
+        "commandes": [
+          "npx prisma migrate dev --name restructure_marsball_recursive",
+          "npx prisma generate"
+        ]
+      },
+      "controller": {
+        "path": "backend/src/controllers/marsball/marsballController.ts",
+        "exports": [
+          "getRootCategories",
+          "getCategoryWithChildren",
+          "createCategory",
+          "updateCategory",
+          "deleteCategory",
+          "createItem",
+          "updateItem",
+          "deleteItem"
+        ]
+      },
+      "routes": {
+        "path": "backend/src/routes/marsball/marsball.routes.ts",
+        "endpoints": {
+          "GET /categories": {
+            "description": "Récupérer catégories racines (parentId=null)",
+            "auth": "public"
+          },
+          "GET /categories/:id": {
+            "description": "Récupérer catégorie avec enfants et items",
+            "auth": "public"
+          },
+          "POST /categories": {
+            "description": "Créer catégorie",
+            "auth": "admin",
+            "body": {
+              "title": "string",
+              "parentId": "number | null"
+            }
+          },
+          "PUT /categories/:id": {
+            "description": "Modifier catégorie",
+            "auth": "admin",
+            "body": {
+              "title": "string"
+            }
+          },
+          "DELETE /categories/:id": {
+            "description": "Supprimer catégorie",
+            "auth": "admin"
+          },
+          "POST /items": {
+            "description": "Créer item avec upload image",
+            "auth": "admin",
+            "body": {
+              "title": "string",
+              "categoryId": "number",
+              "image": "File"
+            }
+          },
+          "PUT /items/:id": {
+            "description": "Modifier item",
+            "auth": "admin",
+            "body": {
+              "title": "string"
+            }
+          },
+          "DELETE /items/:id": {
+            "description": "Supprimer item",
+            "auth": "admin"
+          }
+        }
+      },
+      "app_integration": {
+        "path": "backend/src/app.ts",
+        "code": "import marsballRoutes from './routes/marsball/marsball.routes';\napp.use('/api/marsball', marsballRoutes);"
+      }
+    },
+    "implementations_controller": {
+      "getRootCategories": {
+        "query": "prisma.marsballCategory.findMany({ where: { parentId: null } })",
+        "return": "MarsballCategory[]"
+      },
+      "getCategoryWithChildren": {
+        "query": "prisma.marsballCategory.findUnique({ where: { id }, include: { children: true, items: true } })",
+        "return": "{ category: MarsballCategory, children: MarsballCategory[], items: MarsballItem[] }"
+      },
+      "createCategory": {
+        "query": "prisma.marsballCategory.create({ data: { title, parentId } })",
+        "return": "MarsballCategory"
+      },
+      "updateCategory": {
+        "query": "prisma.marsballCategory.update({ where: { id }, data: { title } })",
+        "return": "MarsballCategory"
+      },
+      "deleteCategory": {
+        "query": "prisma.marsballCategory.delete({ where: { id } })",
+        "note": "Cascade supprime enfants et items automatiquement"
+      },
+      "createItem": {
+        "steps": [
+          "1. Sauvegarder image uploadée avec multer",
+          "2. Créer item avec imageUrl",
+          "3. Retourner item créé"
+        ],
+        "return": "MarsballItem"
+      },
+      "updateItem": {
+        "query": "prisma.marsballItem.update({ where: { id }, data: { title } })",
+        "return": "MarsballItem"
+      },
+      "deleteItem": {
+        "query": "prisma.marsballItem.delete({ where: { id } })"
+      }
+    }
+  },
+
+  "frontend": {
+    "etapes": [
+      "1. Créer interfaces TypeScript",
+      "2. Créer marsball.service.ts",
+      "3. Transformer MarsballComponent",
+      "4. Créer CategoryComponent",
+      "5. Adapter marsball.routes.ts",
+      "6. Intégrer boutons admin dans ConsoleV3"
+    ],
+    "fichiers": {
+      "interfaces": {
+        "path": "src/features/marsball/models/marsball.models.ts",
+        "exports": {
+          "MarsballCategory": {
+            "id": "number",
+            "title": "string",
+            "parentId": "number | null",
+            "createdAt": "string",
+            "updatedAt": "string"
+          },
+          "MarsballItem": {
+            "id": "number",
+            "title": "string",
+            "imageUrl": "string",
+            "categoryId": "number",
+            "createdAt": "string",
+            "updatedAt": "string"
+          },
+          "CategoryWithChildren": {
+            "category": "MarsballCategory",
+            "children": "MarsballCategory[]",
+            "items": "MarsballItem[]"
+          }
+        }
+      },
+      "service": {
+        "path": "src/features/marsball/services/marsball.service.ts",
+        "class": "MarsballService",
+        "base_url": "http://localhost:3000/api/marsball",
+        "methods": {
+          "getRootCategories": {
+            "endpoint": "GET /categories",
+            "return": "Observable<MarsballCategory[]>"
+          },
+          "getCategoryWithChildren": {
+            "endpoint": "GET /categories/:id",
+            "params": "categoryId: number",
+            "return": "Observable<CategoryWithChildren>"
+          },
+          "createCategory": {
+            "endpoint": "POST /categories",
+            "body": "{ title: string, parentId: number | null }",
+            "return": "Observable<MarsballCategory>"
+          },
+          "updateCategory": {
+            "endpoint": "PUT /categories/:id",
+            "params": "categoryId: number",
+            "body": "{ title: string }",
+            "return": "Observable<MarsballCategory>"
+          },
+          "deleteCategory": {
+            "endpoint": "DELETE /categories/:id",
+            "params": "categoryId: number",
+            "return": "Observable<void>"
+          },
+          "createItem": {
+            "endpoint": "POST /items",
+            "body": "FormData (title, categoryId, image)",
+            "return": "Observable<MarsballItem>"
+          },
+          "updateItem": {
+            "endpoint": "PUT /items/:id",
+            "params": "itemId: number",
+            "body": "{ title: string }",
+            "return": "Observable<MarsballItem>"
+          },
+          "deleteItem": {
+            "endpoint": "DELETE /items/:id",
+            "params": "itemId: number",
+            "return": "Observable<void>"
+          }
+        }
+      },
+      "marsball_component": {
+        "path": "src/features/marsball/components/marsball.ts",
+        "modifications": [
+          "Supprimer méthodes goToBestiaire() et goToRover()",
+          "Ajouter injection MarsballService",
+          "Utiliser rxResource pour charger catégories racines",
+          "Ajouter méthode onCategoryClick(categoryId: number)",
+          "Adapter template avec @for sur categories"
+        ],
+        "resource_implementation": "categories = rxResource({ loader: () => this.marsballService.getRootCategories() })"
+      },
+      "category_component": {
+        "path": "src/features/marsball/components/category/category.ts",
+        "structure": {
+          "selector": "app-marsball-category",
+          "injections": [
+            "Router",
+            "ActivatedRoute",
+            "MarsballService",
+            "TypingEffectService"
+          ],
+          "signals": [
+            "categoryId: Signal<number | null>",
+            "data: ResourceRef<CategoryWithChildren>"
+          ],
+          "methods": [
+            "onSubCategoryClick(categoryId: number): void",
+            "onItemClick(itemId: number): void"
+          ]
+        },
+        "resource_implementation": "data = rxResource({ request: this.categoryId, loader: (ctx) => this.marsballService.getCategoryWithChildren(ctx.request) })",
+        "template_sections": [
+          "Titre catégorie avec typing effect",
+          "Grid de cards pour sous-catégories si présentes",
+          "Liste verticale d'items si présents"
+        ]
+      },
+      "routes": {
+        "path": "src/features/marsball/routes/marsball.routes.ts",
+        "configuration": [
+          {
+            "path": "''",
+            "component": "MarsballComponent"
+          },
+          {
+            "path": "':categoryId'",
+            "component": "CategoryComponent"
+          }
+        ]
+      },
+      "styles": {
+        "marsball_scss": {
+          "path": "src/features/marsball/components/marsball.scss",
+          "note": "Styles existants conservés - grid de cards pour catégories"
+        },
+        "category_scss": {
+          "path": "src/features/marsball/components/category/category.scss",
+          "sections": {
+            "sub_categories_grid": "Grid responsive identique au hub principal",
+            "items_list": "flex-direction: column, gap: 20px",
+            "item_card": "Checkbox + Image, border 2px solid #5d889e, hover #d0d0d0"
+          }
+        }
+      },
+      "console_v3": {
+        "path": "src/features/menus/components/console-v3/console-v3.ts",
+        "boutons_contextuels": {
+          "route_marsball": {
+            "condition": "route === '/marsball'",
+            "bouton": {
+              "label": "AJOUTER CATEGORIE",
+              "action": "openCategoryDialog(null)"
+            }
+          },
+          "route_category": {
+            "condition": "route.startsWith('/marsball/') && categoryId exists",
+            "boutons": [
+              {
+                "label": "AJOUTER CATEGORIE",
+                "action": "openCategoryDialog(categoryId)"
+              },
+              {
+                "label": "AJOUTER ITEM",
+                "action": "openItemDialog(categoryId)"
+              }
+            ]
+          }
+        },
+        "dialogs": {
+          "CategoryDialog": {
+            "fields": ["title: string"],
+            "submit": "marsballService.createCategory({ title, parentId })"
+          },
+          "ItemDialog": {
+            "fields": ["title: string", "image: File"],
+            "submit": "marsballService.createItem(formData)"
+          }
+        }
+      }
+    }
+  },
+
+  "ordre_execution": {
+    "phase_1_backend": [
+      "Modifier schema.prisma",
+      "Créer migration",
+      "Générer client Prisma",
+      "Créer marsballController.ts",
+      "Créer marsball.routes.ts",
+      "Monter routes dans app.ts",
+      "Tester endpoints"
+    ],
+    "phase_2_frontend": [
+      "Créer marsball.models.ts",
+      "Créer marsball.service.ts",
+      "Transformer marsball.ts",
+      "Créer category.ts",
+      "Créer category.scss",
+      "Adapter marsball.routes.ts",
+      "Tester navigation"
+    ],
+    "phase_3_admin": [
+      "Intégrer boutons ConsoleV3",
+      "Créer dialogs création",
+      "Implémenter upload images",
+      "Tester workflow admin complet"
+    ]
+  },
+
+  "regles_techniques": {
+    "interdictions": [
+      "Données mockées",
+      "Type any",
+      "Suppositions ou inventions",
+      "Routes hardcodées",
+      "Limite de profondeur"
+    ],
+    "obligations": [
+      "Backend traite par ID uniquement",
+      "Frontend utilise rxResource Angular 20",
+      "Tester avant livraison",
+      "Code simple et robuste",
+      "Structure récursive",
+      "Images complètes auto-suffisantes"
+    ],
+    "conventions": {
+      "separateurs": "//======= SECTION =======",
+      "nommage": "Logique et cohérent",
+      "format": "1 fichier complet par livraison"
+    }
+  },
+
+  "notes_importantes": [
+    "Les images contiennent toutes les infos visuelles (titre, stats, prix)",
+    "Le champ 'title' des items sert uniquement au référencement backend",
+    "Une catégorie peut contenir des catégories ET/OU des items",
+    "Supprimer une catégorie supprime en cascade enfants et items",
+    "Utiliser include Prisma pour éviter N+1 queries",
+    "Routes POST/PUT/DELETE nécessitent authentification admin"
+  ]
+}

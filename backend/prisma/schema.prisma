@@ -1,3 +1,5 @@
+//======= GENERATOR & DATASOURCE =======
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,7 +9,91 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-//============ ENUMS ============
+//======= USER MODEL =======
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique @db.VarChar(50)
+  email        String   @unique @db.VarChar(100)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  description  String?
+  avatar       String?  @db.VarChar(255)
+  createdAt    DateTime @default(now()) @map("created_at")
+  role         UserRole @default(user)
+  playerDays   Int?     @map("player_days")
+  playerId     String?  @map("player_id") @db.VarChar(100)
+  likes        Like[]
+  stories      Story[]
+
+  @@map("users")
+}
+
+//======= STORY MODEL =======
+
+model Story {
+  id              Int         @id @default(autoincrement())
+  title           String      @db.VarChar(200)
+  content         String
+  status          StoryStatus @default(DRAFT)
+  userId          Int         @map("user_id")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+  publishedAt     DateTime?   @map("published_at")
+  originalStoryId Int?        @map("original_story_id")
+  likes           Like[]
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([status, publishedAt])
+  @@index([originalStoryId])
+  @@map("stories")
+}
+
+//======= LIKE MODEL =======
+
+model Like {
+  id      Int   @id @default(autoincrement())
+  userId  Int   @map("user_id")
+  storyId Int   @map("story_id")
+  story   Story @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, storyId])
+  @@map("likes")
+}
+
+//======= MARSBALL MODELS =======
+
+model MarsballCategory {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(200)
+  parentId  Int?     @map("parent_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamp(6)
+
+  parent   MarsballCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children MarsballCategory[] @relation("CategoryHierarchy")
+  items    MarsballItem[]
+
+  @@index([parentId], map: "idx_marsball_categories_parent")
+  @@map("marsball_categories")
+}
+
+model MarsballItem {
+  id         Int      @id @default(autoincrement())
+  title      String   @db.VarChar(200)
+  imageUrl   String   @map("image_url") @db.VarChar(500)
+  categoryId Int      @map("category_id")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt  DateTime @default(now()) @map("updated_at") @db.Timestamp(6)
+
+  category MarsballCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([categoryId], map: "idx_marsball_items_category")
+  @@map("marsball_items")
+}
+
+//======= ENUMS =======
 
 enum UserRole {
   admin
@@ -17,100 +103,4 @@ enum UserRole {
 enum StoryStatus {
   DRAFT
   PUBLISHED
-}
-
-//============ USER MODEL ============
-
-model User {
-  id           Int      @id @default(autoincrement())
-  username     String   @unique @db.VarChar(50)
-  email        String   @unique @db.VarChar(100)
-  passwordHash String   @map("password_hash") @db.VarChar(255)
-  description  String?  @db.Text
-  avatar       String?  @db.VarChar(255)
-  role         UserRole @default(user)
-  playerId     String?  @map("player_id") @db.VarChar(100)
-  playerDays   Int?     @map("player_days")
-  createdAt    DateTime @default(now()) @map("created_at")
-  
-  stories      Story[]
-  likes        Like[]
-  
-  @@map("users")
-}
-
-//============ STORY MODEL ============
-
-model Story {
-  id              Int         @id @default(autoincrement())
-  title           String      @db.VarChar(200)
-  content         String      @db.Text
-  status          StoryStatus @default(DRAFT)
-  userId          Int         @map("user_id")
-  originalStoryId Int?        @map("original_story_id")
-  createdAt       DateTime    @default(now()) @map("created_at")
-  updatedAt       DateTime    @updatedAt @map("updated_at")
-  publishedAt     DateTime?   @map("published_at")
-  
-  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  likes           Like[]
-  
-  @@index([userId, status])
-  @@index([status, publishedAt])
-  @@index([originalStoryId])
-  @@map("stories")
-}
-
-//============ LIKE MODEL ============
-
-model Like {
-  id      Int      @id @default(autoincrement())
-  userId  Int      @map("user_id")
-  storyId Int      @map("story_id")
-  createdAt DateTime @default(now()) @map("liked_at")
-  
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  story   Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
-  
-  @@unique([userId, storyId])
-  @@map("likes")
-}
-
-// ============ MODÈLES MARSBALL ============
-
-model MarsballCategory {
-  id        Int              @id @default(autoincrement())
-  title     String           @db.VarChar(100)
-  lists     MarsballList[]
-  createdAt DateTime         @default(now()) @map("created_at")
-  updatedAt DateTime         @updatedAt @map("updated_at")
-  
-  @@map("marsball_categories")
-}
-
-model MarsballList {
-  id         Int              @id @default(autoincrement())
-  title      String           @db.VarChar(100)
-  categoryId Int              @map("category_id")
-  category   MarsballCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  items      MarsballItem[]
-  createdAt  DateTime         @default(now()) @map("created_at")
-  updatedAt  DateTime         @updatedAt @map("updated_at")
-  
-  @@index([categoryId])
-  @@map("marsball_lists")
-}
-
-model MarsballItem {
-  id           Int          @id @default(autoincrement())
-  title        String       @db.VarChar(200)
-  imageUrl     String       @map("image_url") @db.VarChar(500)
-  thumbnailUrl String       @map("thumbnail_url") @db.VarChar(500)
-  listId       Int          @map("list_id")
-  list         MarsballList @relation(fields: [listId], references: [id], onDelete: Cascade)
-  createdAt    DateTime     @default(now()) @map("created_at")
-  updatedAt    DateTime     @updatedAt @map("updated_at")
-  
-  @@index([listId])
-  @@map("marsball_items")
 }
