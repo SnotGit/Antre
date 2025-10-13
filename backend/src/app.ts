@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import authRoutes from './routes/auth/auth.routes';
 import userRoutes from './routes/user/user.routes';
 import chroniquesRoutes from './routes/chroniques/chroniques.routes';
-import marsballRoutes from './routes/marsball/marsball.routes'; 
+import marsballRoutes from './routes/marsball/marsball.routes';
 
 const app = express();
 
@@ -52,7 +52,7 @@ app.use('/uploads', express.static('uploads', {
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/chroniques', chroniquesRoutes);
-app.use('/api/marsball', marsballRoutes); // ← LIGNE AJOUTÉE
+app.use('/api/marsball', marsballRoutes);
 
 //======= HEALTH CHECK =======
 
@@ -64,11 +64,6 @@ app.get('/api/health', (req, res) => {
 
 app.use(/.*/, (req, res) => {
   res.status(404).json({ error: 'Route non trouvée' });
-});
-
-// TEST DE DEBUG 
-app.get('/api/chroniques/debug', (req, res) => {
-  res.json({ message: 'Route debug OK - pas de contrôleur requis' });
 });
 
 export default app;

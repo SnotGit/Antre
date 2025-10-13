@@ -22,6 +22,7 @@ model User {
   role         UserRole @default(user)
   playerDays   Int?     @map("player_days")
   playerId     String?  @map("player_id") @db.VarChar(100)
+  
   likes        Like[]
   stories      Story[]
 
@@ -40,6 +41,7 @@ model Story {
   updatedAt       DateTime    @updatedAt @map("updated_at")
   publishedAt     DateTime?   @map("published_at")
   originalStoryId Int?        @map("original_story_id")
+  
   likes           Like[]
   user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -52,11 +54,13 @@ model Story {
 //======= LIKE MODEL =======
 
 model Like {
-  id      Int   @id @default(autoincrement())
-  userId  Int   @map("user_id")
-  storyId Int   @map("story_id")
-  story   Story @relation(fields: [storyId], references: [id], onDelete: Cascade)
-  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  storyId   Int      @map("story_id")
+  createdAt DateTime @default(now()) @map("liked_at")
+  
+  story     Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, storyId])
   @@map("likes")
