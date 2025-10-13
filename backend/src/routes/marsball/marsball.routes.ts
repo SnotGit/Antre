@@ -9,7 +9,7 @@ import {
   createCategory,
   createList,
   createItem
-} from '@controllers/marsball/marsballController';
+} from '@controllers/marsball/getController.ts';
 
 const router = Router();
 
