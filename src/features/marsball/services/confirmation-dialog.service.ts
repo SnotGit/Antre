@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 
-export interface ConfirmationConfig {
+interface ConfirmationConfig {
   title: string;
   message: string;
   confirmText: string;
@@ -20,9 +20,67 @@ export class ConfirmationDialogService {
   isVisible = this.visible.asReadonly();
   config = this.dialogConfig.asReadonly();
 
-  //======= DIALOG CORE (utilisé par les services spécialisés) =======
+  //======= DELETE CATEGORY =======
 
-  showDialog(config: ConfirmationConfig): Promise<boolean> {
+  confirmDeleteCategory(): Promise<boolean> {
+    const config: ConfirmationConfig = {
+      title: 'Supprimer la catégorie',
+      message: 'Êtes-vous sûr de vouloir supprimer cette catégorie ?\n\nToutes les sous-catégories et items seront également supprimés.',
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      isDanger: true
+    };
+
+    return this.showDialog(config);
+  }
+
+  //======= DELETE ITEM =======
+
+  confirmDeleteItem(): Promise<boolean> {
+    const config: ConfirmationConfig = {
+      title: 'Supprimer l\'item',
+      message: 'Êtes-vous sûr de vouloir supprimer cet item ?',
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler',
+      isDanger: true
+    };
+
+    return this.showDialog(config);
+  }
+
+  //======= SUCCESS MESSAGES =======
+
+  showSuccessMessage(): void {
+    const config: ConfirmationConfig = {
+      title: 'Opération Réussie',
+      message: 'Opération effectuée avec succès !',
+      confirmText: 'OK',
+      cancelText: '',
+      isDanger: false,
+      isMessage: true
+    };
+
+    this.showMessage(config);
+  }
+
+  //======= ERROR MESSAGES =======
+
+  showErrorMessage(): void {
+    const config: ConfirmationConfig = {
+      title: 'Opération Corrompue',
+      message: 'Une erreur est survenue',
+      confirmText: 'OK',
+      cancelText: '',
+      isDanger: true,
+      isMessage: true
+    };
+
+    this.showMessage(config);
+  }
+
+  //======= DIALOG CORE =======
+
+  private showDialog(config: ConfirmationConfig): Promise<boolean> {
     this.forceCloseDialog();
 
     return new Promise<boolean>((resolve) => {
@@ -32,7 +90,7 @@ export class ConfirmationDialogService {
     });
   }
 
-  showMessage(config: ConfirmationConfig): void {
+  private showMessage(config: ConfirmationConfig): void {
     this.forceCloseDialog();
     
     this.dialogConfig.set(config);

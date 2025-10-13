@@ -5,7 +5,7 @@ import { Location } from '@angular/common';
 import { SaveStoriesService, StoryFormData } from '@features/chroniques/services/save-stories.service';
 import { PublishedStoriesService } from '@features/chroniques/services/published-stories.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
-import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
+import { ConfirmationDialogService } from '@features/chroniques/services/confirmation-dialog.service';
 import { AuthService } from '@features/auth/services/auth.service';
 
 @Component({

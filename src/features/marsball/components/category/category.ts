@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, resource, effect } from '@angular
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { MarsballService, CategoryWithLists } from '../../services/marsball.service';
+import { MarsballService, CategoryWithLists } from '../../services/marsball-get.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
 
 @Component({

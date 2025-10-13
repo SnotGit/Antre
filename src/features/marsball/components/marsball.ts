@@ -1,11 +1,7 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angular/core';
 import { Router } from '@angular/router';
+import { MarsballGetService, MarsballCategory } from '@features/marsball/services/marsball-get.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
-
-export interface Category {
-  id: number;
-  title: string;
-}
 
 @Component({
   selector: 'app-marsball',
@@ -13,13 +9,14 @@ export interface Category {
   templateUrl: './marsball.html',
   styleUrl: './marsball.scss'
 })
-export class MarsballComponent implements OnInit, OnDestroy {
+export class Marsball implements OnInit, OnDestroy {
 
   //======= INJECTIONS =======
 
   private readonly router = inject(Router);
+  private readonly marsballGetService = inject(MarsballGetService);
   private readonly typingService = inject(TypingEffectService);
-  
+
   //======= TYPING EFFECT =======
 
   private readonly title = 'Marsball';
@@ -28,9 +25,17 @@ export class MarsballComponent implements OnInit, OnDestroy {
   showCursor = this.typingService.showCursor;
   typing = this.typingService.typingComplete;
 
-  //======= DATA =======
+  //======= DATA LOADING =======
 
-  categories = signal<Category[]>([]);
+  private readonly categoriesResource = resource({
+    loader: async () => {
+      return await this.marsballGetService.getRootCategories();
+    }
+  });
+
+  categories = computed((): MarsballCategory[] => {
+    return this.categoriesResource.value() || [];
+  });
 
   //======= LIFECYCLE =======
 
@@ -44,12 +49,7 @@ export class MarsballComponent implements OnInit, OnDestroy {
 
   //======= NAVIGATION =======
 
-  onCategoryClick(category: Category): void {
-    this.router.navigate(['/marsball', category.id], {
-      state: { 
-        categoryId: category.id,
-        title: category.title
-      }
-    });
+  onCardClick(category: MarsballCategory): void {
+    this.router.navigate(['/marsball', category.id]);
   }
 }
