@@ -3,9 +3,9 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { SaveStoriesService, StoryFormData } from '@features/chroniques/services/save-stories.service';
-import { DraftStoriesService, EditStory } from '@features/chroniques/services/draft-stories.service';
+import { DraftStoriesService } from '@features/chroniques/services/draft-stories.service';
 import { TypingEffectService } from '@shared/services/typing-effect.service';
-import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
+import { ConfirmationDialogService } from '@features/marsball/services/confirmation-dialog.service';
 import { AuthService } from '@features/auth/services/auth.service';
 
 @Component({
@@ -97,7 +97,7 @@ export class DraftEditor implements OnInit, OnDestroy {
 
   //======= EFFECTS =======
 
-  private readonly initializeStoryDataEffect = effect(() => {
+  private readonly _initializeStoryDataEffect = effect(() => {
     const resourceData = this.draftResource.value();
     
     if (resourceData?.story) {
@@ -107,7 +107,7 @@ export class DraftEditor implements OnInit, OnDestroy {
     }
   });
 
-  private readonly localSaveEffect = effect(() => {
+  private readonly _localSaveEffect = effect(() => {
     if (this.storyId() && this.isEdited()) {
       const key = `draft-${this.storyId()}-modifications`;
       this.saveStoriesService.saveLocal(key, this.storyData());

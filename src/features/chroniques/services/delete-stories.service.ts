@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
-import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
+import { ConfirmationDialogService } from './confirmation-dialog.service';
 
 //======= TYPES =======
 

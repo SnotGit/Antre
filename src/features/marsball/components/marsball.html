@@ -1,24 +1,30 @@
 <div class="container">
 
+  <!-- HEADER -->
   <div class="header">
     <h2 class="header-title" [class.typing]="typing()">
       {{ headerTitle() }}
     </h2>
   </div>
 
+  <!-- SEPARATOR -->
   <div class="separator">
     <div class="line"></div>
   </div>
 
+  <!-- CONTENT -->
   <div class="content">
-    <div class="content-grid">
+    <div class="marsball-grid">
+      
       @for (category of categories(); track category.id) {
-        <div class="button" (click)="onCategoryClick(category)">
-          <button class="btn">
-            <div class="title">{{ category.title }}</div>
-          </button>
+        <div class="category-card" (click)="onCardClick(category)">
+          <div class="card">
+            <span class="category-title">{{ category.title }}</span>
+          </div>
         </div>
       }
+
     </div>
   </div>
+
 </div>

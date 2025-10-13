@@ -1,7 +1,6 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { AuthService } from '@features/auth/services/auth.service';
-import { CredentialsService } from '@features/user/services/credentials.service';
-import { ConfirmationDialogService } from '@shared/services/confirmation-dialog.service';
+import { ConfirmationDialogService } from '@features/user/services/confirmation-dialog.service';
 import { EmailForm } from './email-form/email-form';
 import { PasswordForms } from './password-forms/password-forms';
 
@@ -16,7 +15,6 @@ export class UserCredentials {
   //============ INJECTIONS ============
 
   private readonly authService = inject(AuthService);
-  private readonly credentialsService = inject(CredentialsService);
   private readonly confirmationService = inject(ConfirmationDialogService);
 
   //============ SIGNALS ============

@@ -1,5 +1,5 @@
 @use 'content/artefacts/typing-effect/typing-effect' as *;
-@use 'content/artefacts/buttons/button' as *;
+@use 'content/marsball/marsball-grid' as *;
 
 .container {  
   padding: 0;
@@ -13,6 +13,7 @@
   flex: 1;
 }
 
+//============ HEADER ============
 
 .header {
   width: 100%;
@@ -32,8 +33,12 @@
   }
 }
 
+//============ SEPARATOR ============
+
 .separator {
   text-align: center;
+  padding: 0 30px 20px 30px;
+  flex-shrink: 0;
 
   .line {
     width: 80%;
@@ -51,55 +56,44 @@
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding: 30px;
 
   &::-webkit-scrollbar {
     display: none;
   }
 }
 
-//============ CONTENT GRID ============
+//============ MARSBALL GRID ============
 
-.content-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 30px;
-  justify-items: center;
-  margin: 0 auto;
-  max-width: 800px;
-}
+@include marsball-grid;
 
-//============ BUTTONS ============
+//============ CATEGORY CARDS ============
 
-.button {
-  @include button;
-  
-  .btn {
+.category-card {
+  cursor: pointer;
+
+  .card {
+    background-color: #1a1d20;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    gap: 15px;
-    padding: 40px 60px;
-    min-width: 280px;
-    min-height: 160px;
+    width: 280px;
+    height: 160px;
+    position: relative;
+    transition: all 0.3s ease;
     border-radius: 16px;
-    
-    .title {
-      font-size: 18px;
-      font-weight: 600;
-      color: #d0d0d0;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+    border: 2px solid #5d889e;
 
     &:hover {
-      .number {
-        color: #d0d0d0;
-      }
-      
-      .title {
-        color: #d0d0d0;
-      }
+      border-color: #d0d0d0;
+    }
+
+    .category-title {
+      color: #d0d0d0;
+      font-size: 18px;
+      font-weight: 700;
+      text-align: center;
+      padding: 0 20px;
     }
   }
 }
