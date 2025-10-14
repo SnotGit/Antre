@@ -1,12 +1,8 @@
-<!--======= CONTAINER ======= -->
-
 <div class="console-container" [ngClass]="{
   'collapsed': !openMenu(),
   'expanded': openMenu()
 }">
 
-<!--======= TOGGLE ======= -->
-  
   <button class="console-toggle" 
           [ngClass]="{ 'expanded': openMenu() }" 
           (click)="toggleMenu()">
@@ -14,18 +10,12 @@
     CONSOLE
   </button>
 
-<!--======= CONTENT ======= -->
-  
   <div class="console-content">
-    
-<!--======= HEADER ======= -->
     
     <div class="console-header">
       <span class="console-title">CONSOLE V3</span>
     </div>
 
-<!--======= STATUS ======= -->
-    
     <div class="console-status">
       <div class="status-line">
         <span>> STATUT:
@@ -42,8 +32,6 @@
       </div>
     </div>
 
-<!--======= COMMANDS ======= -->
-    
     <div class="console-commands">
       
       @if (isLoggedIn()) {
@@ -51,9 +39,8 @@
         @if (showAdminActions() && currentUser()?.role === 'admin') {
         <div class="action-group">
           <span class="group-title">> FONCTIONS ADMIN</span>
-          <button class="console-btn" (click)="addCategory()">AJOUTER CATEGORIE</button>
-          <button class="console-btn" (click)="addList()">AJOUTER LISTE</button>
-          <button class="console-btn" (click)="addItem()">AJOUTER ITEM</button>
+          <button class="console-btn" (click)="addCategory()">{{ categoryLabel() }}</button>
+          <button class="console-btn" (click)="addItem()">{{ itemLabel() }}</button>
         </div>
         }
 
@@ -68,8 +55,6 @@
       }
     </div>
 
-<!--======= FOOTER ======= -->
-    
     <div class="console-footer">
       
       @if (isLoggedIn()) {

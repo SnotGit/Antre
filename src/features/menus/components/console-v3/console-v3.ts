@@ -4,6 +4,11 @@ import { Router } from '@angular/router';
 import { AuthService } from '@features/auth';
 import { MobileMenuService } from '@features/menus/services/mobile-menu.service';
 
+interface SectionConfig {
+  itemLabel: string;
+  itemRoute: string;
+}
+
 @Component({
   selector: 'app-console-v3',
   imports: [CommonModule],
@@ -18,6 +23,23 @@ export class ConsoleV3 {
   private readonly authService = inject(AuthService);
   private readonly mobileMenuService = inject(MobileMenuService);
 
+  //======= CONFIGURATION =======
+
+  private readonly sectionsConfig: Record<string, SectionConfig> = {
+    marsball: {
+      itemLabel: 'AJOUTER ITEM',
+      itemRoute: '/marsball/admin/nouvel-item'
+    },
+    archives: {
+      itemLabel: 'AJOUTER ARCHIVE',
+      itemRoute: '/archives/admin/nouvelle-archive'
+    },
+    terraformars: {
+      itemLabel: 'AJOUTER ITEM',
+      itemRoute: '/terraformars/admin/nouvel-item'
+    }
+  };
+
   //======= SIGNALS =======
 
   currentUser = this.authService.currentUser;
@@ -27,12 +49,30 @@ export class ConsoleV3 {
 
   //======= COMPUTED =======
 
+  currentSection(): string | null {
+    const url = this.router.url;
+    return Object.keys(this.sectionsConfig).find(section => url.includes(`/${section}`)) || null;
+  }
+
+  sectionConfig(): SectionConfig | null {
+    const section = this.currentSection();
+    return section ? this.sectionsConfig[section] : null;
+  }
+
+  categoryLabel(): string {
+    return 'AJOUTER CATEGORIE';
+  }
+
+  itemLabel(): string {
+    return this.sectionConfig()?.itemLabel || 'AJOUTER ITEM';
+  }
+
   showUserActions(): boolean {
     return this.isLoggedIn() && this.router.url.includes('/chroniques');
   }
 
   showAdminActions(): boolean {
-    return this.isAdmin() && !this.router.url.includes('/chroniques');
+    return this.isAdmin() && this.currentSection() !== null;
   }
 
   CurrentStatus(): string {
@@ -93,17 +133,19 @@ export class ConsoleV3 {
     this.onClick();
   }
 
-  //======= ADMIN ACTIONS =======
+  //======= ADMIN CONTENT ACTIONS =======
 
   addCategory(): void {
-    // TODO: Implémenter + onClick()
+    const section = this.currentSection();
+    if (!section) return;
+    this.router.navigate([`/${section}/admin/nouvelle-categorie`]);
+    this.onClick();
   }
 
-  addList(): void {
-    // TODO: Implémenter + onClick()
-  }  
-
   addItem(): void {
-    // TODO: Implémenter + onClick()
+    const config = this.sectionConfig();
+    if (!config) return;
+    this.router.navigate([config.itemRoute]);
+    this.onClick();
   }
 }

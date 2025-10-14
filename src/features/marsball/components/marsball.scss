@@ -1,5 +1,5 @@
 @use 'content/artefacts/typing-effect/typing-effect' as *;
-@use 'content/marsball/marsball-grid' as *;
+@use 'content/artefacts/buttons/button' as *;
 
 .container {  
   padding: 0;
@@ -12,8 +12,6 @@
   height: 100%;
   flex: 1;
 }
-
-//============ HEADER ============
 
 .header {
   width: 100%;
@@ -33,12 +31,8 @@
   }
 }
 
-//============ SEPARATOR ============
-
 .separator {
   text-align: center;
-  padding: 0 30px 20px 30px;
-  flex-shrink: 0;
 
   .line {
     width: 80%;
@@ -49,51 +43,65 @@
   }
 }
 
-//============ CONTENT ============
-
 .content {
   flex: 1;
   overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  padding: 30px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(93, 136, 158, 0.3) transparent;
 
   &::-webkit-scrollbar {
-    display: none;
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(93, 136, 158, 0.3);
+    border-radius: 3px;
+    
+    &:hover {
+      background: rgba(93, 136, 158, 0.6);
+    }
   }
 }
 
-//============ MARSBALL GRID ============
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  justify-items: center;
+  margin: 0 auto;
+}
 
-@include marsball-grid;
-
-//============ CATEGORY CARDS ============
-
-.category-card {
-  cursor: pointer;
-
-  .card {
-    background-color: #1a1d20;
+.button {
+  @include button;
+  
+  .btn {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    width: 280px;
-    height: 160px;
-    position: relative;
-    transition: all 0.3s ease;
+    justify-content: center;
+    padding: 40px 60px;
+    min-width: 280px;
+    min-height: 160px;
     border-radius: 16px;
-    border: 2px solid #5d889e;
-
-    &:hover {
-      border-color: #d0d0d0;
+    
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #d0d0d0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-align: center;
     }
 
-    .category-title {
-      color: #d0d0d0;
-      font-size: 18px;
-      font-weight: 700;
-      text-align: center;
-      padding: 0 20px;
+    &:hover {
+      .title {
+        color: #d0d0d0;
+      }
     }
   }
 }

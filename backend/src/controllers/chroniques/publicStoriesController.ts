@@ -124,7 +124,7 @@ export const getUserStory = async (req: AuthenticatedRequest, res: Response): Pr
 
 export const getUserStories = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = parseInt(req.params.userId, 10);
+    const userId = parseInt(req.params.userId, 10);  
     
     if (isNaN(userId)) {
       sendNotFound(res, 'Utilisateur non trouvé');
