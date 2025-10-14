@@ -23,9 +23,11 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
 
   //======= PUBLIC USER STORIES =======
   
-  const isPublicUserStories = req.url.match(/\/api\/user\/\d+\/stories/) && 
-                             req.method === 'GET';
+  //======= PUBLIC USER STORIES =======
 
+const isPublicUserStories = req.url.match(/\/api\/chroniques\/stories\/user\/\d+/) &&  
+                           req.method === 'GET';
+                           
   //======= PUBLIC LIKES COUNT =======
   
   const isPublicLikesCount = req.url.includes('/api/user/likes/story/') && 

@@ -66,7 +66,7 @@ export class PublicStoriesService {
       );
 
       const stories = response.stories || [];
-      
+
       return stories.map(story => ({
         ...story,
         publishDate: this.formatDate(story.publishDate)
@@ -78,26 +78,31 @@ export class PublicStoriesService {
 
   //======= GET SINGLE STORY =======
 
+  //======= GET SINGLE STORY =======
+
   async getUserStory(storyId: number): Promise<StoryReader> {
     try {
       const response = await firstValueFrom(
         this.http.get<StoryResponse>(`${this.CHRONIQUES_API}/stories/${storyId}`)
       );
-      
-      return response.story;
+
+      return {
+        ...response.story,
+        publishDate: this.formatDate(response.story.publishDate)
+      };
     } catch (error) {
       throw error;
     }
   }
-
+  
   //======= GET USER STORIES =======
 
   async getUserStories(userId: number): Promise<UserStories[]> {
     try {
       const response = await firstValueFrom(
-        this.http.get<UserStoriesResponse>(`${this.USER_API}/${userId}/stories`)
+        this.http.get<UserStoriesResponse>(`${this.CHRONIQUES_API}/stories/user/${userId}`)
       );
-      
+
       return response.stories || [];
     } catch (error) {
       throw error;
