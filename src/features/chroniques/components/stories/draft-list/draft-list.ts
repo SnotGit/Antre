@@ -4,7 +4,7 @@ import { AuthService } from '@features/auth/services/auth.service';
 import { DraftStoriesService, DraftStory } from '@features/chroniques/services/draft-stories.service';
 import { DeleteStoriesService } from '@features/chroniques/services/delete-stories.service';
 import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
-import { TypingEffectService } from '@shared/services/typing-effect.service';
+import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 
 @Component({
   selector: 'app-draft-list',

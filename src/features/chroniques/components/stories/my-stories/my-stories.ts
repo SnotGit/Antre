@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
 import { StatsService } from '@features/user/services/stats.service';
 import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
-import { TypingEffectService } from '@shared/services/typing-effect.service';
+import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 
 @Component({
   selector: 'app-my-stories',

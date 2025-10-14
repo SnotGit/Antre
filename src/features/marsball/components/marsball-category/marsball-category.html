@@ -1,1 +1,91 @@
-<p>marsball-category works!</p>
+<div class="container">
+
+  @if (categoryData(); as data) {
+
+  <div class="header">
+    <div class="back-button">
+      <button class="btn" (click)="goBack()">Retour</button>
+    </div>
+    <h2 class="header-title" [class.typing]="typing()">
+      {{ headerTitle() }}
+    </h2>
+    @if (isAdmin() && selection()) {
+    <div class="delete-button">
+      <button class="btn" (click)="deleteSelected()">
+        <span>Supprimer ({{ selectedItems().size }})</span>
+      </button>
+    </div>
+    }
+  </div>
+
+  <div class="separator">
+    <div class="line"></div>
+  </div>
+
+  <div class="content">
+
+    @if (data.children.length > 0) {
+    <div class="section-title">Sous-catégories</div>
+    <div class="content-grid">
+      @for (child of data.children; track child.id) {
+        <div class="category-card" (click)="goToCategory(child.id)">
+          <div class="card">
+            <span class="category-title">{{ child.title }}</span>
+          </div>
+        </div>
+      }
+    </div>
+    }
+
+    @if (data.items.length > 0) {
+    <div class="section-title">Items</div>
+    <div class="items-list">
+      @for (item of data.items; track item.id) {
+        <div class="item-container" 
+             [class.open]="isItemOpen(item.id)"
+             [class.selection-mode]="selection()"
+             [class.selected]="isSelected(item.id)">
+          
+          <div class="item-header" (click)="toggleItem(item.id)">
+            <img [src]="getImageUrl(item.imageUrl)" [alt]="item.title" class="item-image">
+            <span class="item-title">{{ item.title }}</span>
+
+            @if (isAdmin()) {
+            <input 
+              type="checkbox" 
+              class="delete-checkbox"
+              [checked]="isSelected(item.id)"
+              (click)="$event.stopPropagation(); toggleSelection(item.id)">
+            }
+          </div>
+
+          @if (isItemOpen(item.id) && !selection()) {
+          <div class="item-content">
+            <div class="item-full-image">
+              <img [src]="getImageUrl(item.imageUrl)" [alt]="item.title">
+            </div>
+
+            @if (isAdmin()) {
+            <div class="admin-actions">
+              <button class="btn delete" (click)="deleteItem(item.id)">Supprimer</button>
+            </div>
+            }
+          </div>
+          }
+
+        </div>
+      }
+    </div>
+    }
+
+    @if (isAdmin() && !selection()) {
+    <div class="admin-section">
+      <button class="btn delete" (click)="deleteCategory(data.category.id)">Supprimer catégorie</button>
+    </div>
+    }
+
+  </div>
+
+  }
+
+</div>

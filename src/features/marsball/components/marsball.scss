@@ -1,5 +1,7 @@
 @use 'content/artefacts/typing-effect/typing-effect' as *;
 @use 'content/artefacts/buttons/button' as *;
+@use 'content/marsball/marsball-grid' as *;
+@use 'content/marsball/marsball-category-card' as *;
 
 .container {  
   padding: 0;
@@ -11,24 +13,6 @@
   box-sizing: border-box;
   height: 100%;
   flex: 1;
-}
-
-.header {
-  width: 100%;
-  padding: 30px;
-  flex-shrink: 0;
-  
-  .header-title {
-    font-size: 32px;
-    font-weight: 700;
-    color: #5d889e;
-    margin: 0 0 10px 0;
-    text-align: start;
-    display: inline;
-    width: auto;
-    
-    @include typing-effect;
-  }
 }
 
 .separator {
@@ -68,40 +52,76 @@
   }
 }
 
-.content-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
-  justify-items: center;
-  margin: 0 auto;
+@include marsball-grid;
+@include marsball-category-card;
+
+.header {
+  width: 100%;
+  padding: 30px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  
+  .header-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #5d889e;
+    margin: 0;
+    flex: 1;
+    
+    @include typing-effect;
+  }
+
+  .delete-button {
+    @include button;
+    flex-shrink: 0;
+
+    .btn {
+      border-color: crimson;
+      color: crimson;
+
+      &:hover {
+        color: #d0d0d0;
+        border-color: #d0d0d0;
+      }
+    }
+  }
 }
 
-.button {
-  @include button;
-  
-  .btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 60px;
-    min-width: 280px;
-    min-height: 160px;
-    border-radius: 16px;
-    
-    .title {
-      font-size: 18px;
-      font-weight: 600;
-      color: #d0d0d0;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      text-align: center;
+.category-card {
+  &.selection-mode {
+    cursor: default;
+  }
+
+  &.selected .card {
+    border-color: crimson;
+    background-color: transparent;
+
+    .category-title {
+      color: crimson;
+    }
+  }
+
+  .card {
+    position: relative;
+
+    .delete-checkbox {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 20px;
+      bottom: 15px;
+      right: 15px;
+      accent-color: crimson;
+      transform: scale(1.2);
+      cursor: pointer;
+      z-index: 10;
     }
 
-    &:hover {
-      .title {
-        color: #d0d0d0;
-      }
+    .category-title {
+      padding-bottom: 25px;
     }
   }
 }

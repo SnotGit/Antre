@@ -5,7 +5,7 @@ import { uploadImage } from '@middlewares/marsball/uploadImage';
 import { getRootCategories, getCategoryWithChildren } from '@controllers/marsball/getController';
 import { createCategory, createItem } from '@controllers/marsball/createController';
 import { updateCategory, updateItem } from '@controllers/marsball/updateController';
-import { deleteCategory, deleteItem } from '@controllers/marsball/deleteController';
+import { deleteCategory, deleteItem, batchDeleteCategories, batchDeleteItems } from '@controllers/marsball/deleteController';
 
 const router = Router();
 
@@ -21,9 +21,11 @@ router.use(authenticateToken);
 router.post('/categories', createCategory);
 router.put('/categories/:id', updateCategory);
 router.delete('/categories/:id', deleteCategory);
+router.post('/categories/batch-delete', batchDeleteCategories);
 
 router.post('/items', uploadImage.single('image'), createItem);
 router.put('/items/:id', updateItem);
 router.delete('/items/:id', deleteItem);
+router.post('/items/batch-delete', batchDeleteItems);
 
 export default router;

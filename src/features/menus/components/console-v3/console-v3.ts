@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/auth';
 import { MobileMenuService } from '@features/menus/services/mobile-menu.service';
+import { NewCategoryService } from '@features/marsball/services/new-category.service';
 
 interface SectionConfig {
   itemLabel: string;
@@ -22,6 +23,7 @@ export class ConsoleV3 {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly mobileMenuService = inject(MobileMenuService);
+  private readonly newCategoryService = inject(NewCategoryService);
 
   //======= CONFIGURATION =======
 
@@ -136,9 +138,7 @@ export class ConsoleV3 {
   //======= ADMIN CONTENT ACTIONS =======
 
   addCategory(): void {
-    const section = this.currentSection();
-    if (!section) return;
-    this.router.navigate([`/${section}/admin/nouvelle-categorie`]);
+    this.newCategoryService.show();
     this.onClick();
   }
 

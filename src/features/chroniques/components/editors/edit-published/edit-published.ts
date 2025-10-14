@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { SaveStoriesService, StoryFormData } from '@features/chroniques/services/save-stories.service';
 import { PublishedStoriesService } from '@features/chroniques/services/published-stories.service';
-import { TypingEffectService } from '@shared/services/typing-effect.service';
+import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 import { ConfirmationDialogService } from '@features/chroniques/services/confirmation-dialog.service';
 import { AuthService } from '@features/auth/services/auth.service';
 

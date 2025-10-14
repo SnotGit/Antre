@@ -20,7 +20,7 @@ export class ConfirmationDialogService {
   isVisible = this.visible.asReadonly();
   config = this.dialogConfig.asReadonly();
 
-  //======= DIALOG CORE (utilisé par les services spécialisés) =======
+  //======= DIALOG CORE =======
 
   showDialog(config: ConfirmationConfig): Promise<boolean> {
     this.forceCloseDialog();

@@ -52,4 +52,38 @@ export class MarsballDeleteService {
       throw error;
     }
   }
+
+  //======= DELETE MULTIPLE CATEGORIES =======
+
+  async deleteCategories(categoryIds: number[]): Promise<void> {
+    const confirmed = await this.confirmationService.confirmDeleteCategory();
+    if (!confirmed) return;
+
+    try {
+      await firstValueFrom(
+        this.http.post<DeleteResponse>(`${this.API_URL}/categories/batch-delete`, {
+          categoryIds
+        })
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  //======= DELETE MULTIPLE ITEMS =======
+
+  async deleteItems(itemIds: number[]): Promise<void> {
+    const confirmed = await this.confirmationService.confirmDeleteItem();
+    if (!confirmed) return;
+
+    try {
+      await firstValueFrom(
+        this.http.post<DeleteResponse>(`${this.API_URL}/items/batch-delete`, {
+          itemIds
+        })
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
 }
