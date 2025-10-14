@@ -64,6 +64,6 @@ export const routes: Routes = [
 
   {
     path: '**',
-    loadComponent: () => import('../shared/utilities/not-found/not-found').then(m => m.NotFound)
+    loadComponent: () => import('../features/not-found/not-found').then(m => m.NotFound)
   }
 ];

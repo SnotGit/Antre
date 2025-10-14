@@ -1,25 +1,40 @@
 <div class="container">
 
-  <!-- HEADER -->
   <div class="header">
     <h2 class="header-title" [class.typing]="typing()">
       {{ headerTitle() }}
     </h2>
+    @if (isAdmin() && selection()) {
+    <div class="delete-button">
+      <button class="btn" (click)="deleteSelected()">
+        <span>Supprimer ({{ selectedCategories().size }})</span>
+      </button>
+    </div>
+    }
   </div>
 
-  <!-- SEPARATOR -->
   <div class="separator">
     <div class="line"></div>
   </div>
 
-  <!-- CONTENT -->
   <div class="content">
     <div class="marsball-grid">
       
       @for (category of categories(); track category.id) {
-        <div class="category-card" (click)="onCardClick(category)">
+        <div class="category-card" 
+             [class.selection-mode]="selection()"
+             [class.selected]="isSelected(category.id)"
+             (click)="onCardClick(category)">
           <div class="card">
             <span class="category-title">{{ category.title }}</span>
+
+            @if (isAdmin()) {
+            <input 
+              type="checkbox" 
+              class="delete-checkbox"
+              [checked]="isSelected(category.id)"
+              (click)="$event.stopPropagation(); toggleSelection(category.id)">
+            }
           </div>
         </div>
       }

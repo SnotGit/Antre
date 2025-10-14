@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LikeService, LikedStory } from '@features/user/services/like.service';
 import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
-import { TypingEffectService } from '@shared/services/typing-effect.service';
+import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 import { environment } from '@environments/environment';
 
 @Component({

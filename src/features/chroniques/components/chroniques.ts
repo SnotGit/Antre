@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angular/core';
 import { Router } from '@angular/router';
 import { PublicStoriesService, StoryCard } from '@features/chroniques/services/public-stories.service';
-import { TypingEffectService } from '@shared/services/typing-effect.service';
+import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
 import { StoryCardComponent } from './story-card/story-card';
 

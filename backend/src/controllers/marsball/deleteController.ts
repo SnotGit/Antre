@@ -64,3 +64,63 @@ export const deleteItem = async (req: AuthenticatedRequest, res: Response): Prom
     handleError(res, 'Erreur lors de la suppression de l\'item');
   }
 };
+
+//======= BATCH DELETE CATEGORIES =======
+
+export const batchDeleteCategories = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { categoryIds } = req.body;
+
+    if (!Array.isArray(categoryIds) || categoryIds.length === 0) {
+      sendBadRequest(res, 'Liste d\'IDs invalide');
+      return;
+    }
+
+    const validIds = categoryIds.filter(id => !isNaN(parseInt(id, 10))).map(id => parseInt(id, 10));
+
+    if (validIds.length === 0) {
+      sendBadRequest(res, 'Aucun ID valide');
+      return;
+    }
+
+    await prisma.marsballCategory.deleteMany({
+      where: {
+        id: { in: validIds }
+      }
+    });
+
+    res.json({ message: `${validIds.length} catégorie(s) supprimée(s) avec succès` });
+  } catch (error) {
+    handleError(res, 'Erreur lors de la suppression des catégories');
+  }
+};
+
+//======= BATCH DELETE ITEMS =======
+
+export const batchDeleteItems = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { itemIds } = req.body;
+
+    if (!Array.isArray(itemIds) || itemIds.length === 0) {
+      sendBadRequest(res, 'Liste d\'IDs invalide');
+      return;
+    }
+
+    const validIds = itemIds.filter(id => !isNaN(parseInt(id, 10))).map(id => parseInt(id, 10));
+
+    if (validIds.length === 0) {
+      sendBadRequest(res, 'Aucun ID valide');
+      return;
+    }
+
+    await prisma.marsballItem.deleteMany({
+      where: {
+        id: { in: validIds }
+      }
+    });
+
+    res.json({ message: `${validIds.length} item(s) supprimé(s) avec succès` });
+  } catch (error) {
+    handleError(res, 'Erreur lors de la suppression des items');
+  }
+};

@@ -8,12 +8,12 @@ export const routes: Routes = [
   },
   {
     path: 'admin/nouvelle-categorie',
-    loadComponent: () => import('../components/admin/new-category/new-category').then(m => m.NewCategory),
+    loadComponent: () => import('../components/new-category/new-category').then(m => m.NewCategory),
     canActivate: [authGuard]
   },
   {
     path: 'admin/nouvel-item',
-    loadComponent: () => import('../components/admin/new-item/new-item').then(m => m.NewItem),
+    loadComponent: () => import('../components/new-item/new-item').then(m => m.NewItem),
     canActivate: [authGuard]
   },
   {

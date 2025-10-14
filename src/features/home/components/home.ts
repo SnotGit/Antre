@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject, signal, effect, EffectRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TypingEffectService } from '@shared/services/typing-effect.service';
+import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 
 @Component({
   selector: 'app-home',
