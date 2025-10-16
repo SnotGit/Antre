@@ -156,8 +156,8 @@
     }
 
     .item-thumbnail {
-      width: 80px;
-      height: 80px;
+      width: 60px;
+      height: 60px;
       object-fit: cover;
       border-radius: 8px;
       border: 2px solid #5d889e;
@@ -166,8 +166,8 @@
     }
 
     .item-thumbnail-crop {
-      width: 80px;
-      height: 80px;
+      width: 60px;
+      height: 60px;
       border-radius: 8px;
       border: 2px solid #5d889e;
       flex-shrink: 0;
@@ -205,7 +205,7 @@
 
     .delete-cross {
       top: 50%;
-      right: 10px;
+      right: 40px;
       transform: translateY(-50%);
     }
 
@@ -214,8 +214,8 @@
       color: #5d889e;
 
       &:hover {
-        color: #66BB6A;
-        border-color: #66BB6A;
+        color: #d0d0d0;
+        border-color: #d0d0d0;
       }
     }
 
@@ -271,7 +271,7 @@
     text-align: center;
 
     img {
-      max-width: 500px;
+      max-width: 450px;
       width: auto;
       height: auto;
       border-radius: 8px;

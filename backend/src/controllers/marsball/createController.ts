@@ -53,7 +53,7 @@ export const createCategory = async (req: AuthenticatedRequest, res: Response): 
 
 export const createItem = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { title, categoryId } = req.body;
+    const { title, categoryId, description } = req.body;
 
     if (!title || title.trim().length === 0) {
       sendBadRequest(res, 'Le titre est requis');
@@ -85,6 +85,7 @@ export const createItem = async (req: AuthenticatedRequest, res: Response): Prom
       data: {
         title: title.trim(),
         imageUrl,
+        description: description ? description.trim() : null,
         categoryId: parseInt(categoryId, 10)
       }
     });
@@ -93,6 +94,8 @@ export const createItem = async (req: AuthenticatedRequest, res: Response): Prom
       id: item.id,
       title: item.title,
       imageUrl: item.imageUrl,
+      thumbnailUrl: item.thumbnailUrl || undefined,
+      description: item.description || undefined,
       categoryId: item.categoryId,
       createdAt: item.createdAt.toISOString(),
       updatedAt: item.updatedAt.toISOString()
