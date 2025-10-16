@@ -17,6 +17,8 @@ export interface MarsballItem {
   id: number;
   title: string;
   imageUrl: string;
+  description: string;
+  thumbnailUrl: string;
   categoryId: number;
   createdAt: string;
   updatedAt: string;

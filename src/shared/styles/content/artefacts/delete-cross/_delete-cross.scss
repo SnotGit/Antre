@@ -1,0 +1,32 @@
+@mixin delete-cross {
+  .delete-cross {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: rgba(18, 20, 22, 0.9);
+    border: 2px solid #5d889e;
+    border-radius: 6px;
+    color: #5d889e;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    opacity: 0.6;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &.active {
+      background: crimson;
+      color: #121416;
+      border-color: crimson;
+      opacity: 1;
+    }
+  }
+}

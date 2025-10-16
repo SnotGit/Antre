@@ -18,28 +18,28 @@
   </div>
 
   <div class="content">
+
     <div class="marsball-grid">
-      
       @for (category of categories(); track category.id) {
         <div class="category-card" 
-             [class.selection-mode]="selection()"
              [class.selected]="isSelected(category.id)"
              (click)="onCardClick(category)">
           <div class="card">
             <span class="category-title">{{ category.title }}</span>
-
+            
             @if (isAdmin()) {
-            <input 
-              type="checkbox" 
-              class="delete-checkbox"
-              [checked]="isSelected(category.id)"
+            <button 
+              class="delete-cross" 
+              [class.active]="isSelected(category.id)"
               (click)="$event.stopPropagation(); toggleSelection(category.id)">
+              ✕
+            </button>
             }
           </div>
         </div>
       }
-
     </div>
+
   </div>
 
 </div>

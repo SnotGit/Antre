@@ -1,1 +1,63 @@
-<p>new-item works!</p>
+@if (newItemService.isVisible()) {
+<div class="overlay" (click)="cancel()">
+    <div class="dialog-box" (click)="$event.stopPropagation()">
+
+        <div class="header">
+            <h2 class="header-title" [class.typing]="typing()">
+                {{ headerTitle() }}
+            </h2>
+        </div>
+
+        <div class="separator">
+            <div class="line"></div>
+        </div>
+
+        <div class="content">
+            <form (ngSubmit)="createItem()">
+
+                <div class="form-field">
+                    <label class="label">Nom de l'item</label>
+                    <input type="text" [(ngModel)]="itemTitle" name="title" class="input" placeholder="Titre..."
+                        required autocomplete="off">
+                </div>
+
+                <div class="form-field">
+                    <label class="label">Description</label>
+                    <textarea [(ngModel)]="itemDescription" name="description" class="textarea"
+                        placeholder="Description de l'item..." rows="4" autocomplete="off"></textarea>
+                </div>
+
+                <div class="form-field">
+                    <label class="label">Image</label>
+
+                    @if (!image()) {
+                    <div class="upload-zone" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
+                        <p class="upload-text">📋 Collez (Ctrl+V) ou déposez une image ici</p>
+                        <button type="button" class="browse-btn" (click)="fileInput.click()">
+                            📁 Parcourir les fichiers
+                        </button>
+                    </div>
+                    }
+
+                    @if (image(); as img) {
+                    <div class="image-preview">
+                        <img [src]="img.preview" [alt]="itemTitle()">
+                        <button type="button" class="remove-image-btn" (click)="removeImage()">✕</button>
+                    </div>
+                    }
+
+                    <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)"
+                        style="display: none">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn cancel" (click)="cancel()">Annuler</button>
+                    <button type="submit" class="btn submit" [disabled]="!canCreate()">Créer</button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+}

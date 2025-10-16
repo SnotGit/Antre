@@ -1,5 +1,8 @@
 @use 'content/artefacts/typing-effect/typing-effect' as *;
 @use 'content/artefacts/buttons/button' as *;
+@use 'content/artefacts/delete-cross/delete-cross' as *;
+@use 'content/artefacts/crop-tool/crop-tool' as *;
+@use 'content/marsball/marsball-grid' as *;
 @use 'content/marsball/marsball-category-card' as *;
 
 .container {  
@@ -19,14 +22,10 @@
   padding: 30px;
   flex-shrink: 0;
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 20px;
 
-  .back-button {
-    @include button;
-    flex-shrink: 0;
-  }
-  
   .header-title {
     font-size: 32px;
     font-weight: 700;
@@ -35,6 +34,11 @@
     flex: 1;
     
     @include typing-effect;
+  }
+
+  .back-button {
+    @include button;
+    flex-shrink: 0;
   }
 
   .delete-button {
@@ -90,24 +94,30 @@
   }
 }
 
-.section-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #5d889e;
-  margin: 20px 0;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.content-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
-  justify-items: center;
-  margin-bottom: 40px;
-}
-
+@include marsball-grid;
 @include marsball-category-card;
+
+.category-card {
+  &.selected .card {
+    border-color: crimson;
+    background-color: rgba(220, 20, 60, 0.05);
+
+    .category-title {
+      color: crimson;
+    }
+  }
+
+  .card {
+    position: relative;
+
+    @include delete-cross;
+
+    .delete-cross {
+      top: 8px;
+      right: 8px;
+    }
+  }
+}
 
 .items-list {
   display: flex;
@@ -123,32 +133,21 @@
   transition: all 0.3s ease;
   cursor: pointer;
 
-  &.selection-mode {
-    cursor: default;
-    
-    .item-header {
-      pointer-events: none;
-      
-      .delete-checkbox {
-        pointer-events: auto;
-      }
-    }
-  }
-
   &.open {
     border-color: #d0d0d0;
+    cursor: default;
   }
 
   &.selected {
     border-color: crimson;
-    background-color: transparent;
+    background-color: rgba(220, 20, 60, 0.05);
   }
 
   .item-header {
     display: flex;
     align-items: center;
     gap: 20px;
-    padding: 20px;
+    padding: 30px 20px;
     transition: background-color 0.3s ease;
     position: relative;
 
@@ -156,13 +155,25 @@
       background-color: rgba(93, 136, 158, 0.1);
     }
 
-    .item-image {
+    .item-thumbnail {
       width: 80px;
       height: 80px;
       object-fit: cover;
       border-radius: 8px;
       border: 2px solid #5d889e;
       flex-shrink: 0;
+      margin: 10px 0;
+    }
+
+    .item-thumbnail-crop {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      border: 2px solid #5d889e;
+      flex-shrink: 0;
+      background-repeat: no-repeat;
+      background-size: auto;
+      margin: 10px 0;
     }
 
     .item-title {
@@ -172,16 +183,80 @@
       flex: 1;
     }
 
-    .delete-checkbox {
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      border-radius: 20px;
-      bottom: 15px;
-      right: 15px;
-      accent-color: crimson;
-      transform: scale(1.2);
-      cursor: pointer;
+    .edit-title-input-header {
+      flex: 1;
+      padding: 12px 16px;
+      background: #1a1d20;
+      border: 2px solid #5d889e;
+      border-radius: 8px;
+      color: #d0d0d0;
+      font-family: inherit;
+      font-size: 18px;
+      font-weight: 700;
+
+      &:focus {
+        outline: none;
+        border-color: #d0d0d0;
+      }
+    }
+
+    @include button;
+    @include delete-cross;
+
+    .delete-cross {
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+    }
+
+    .close-btn {
+      border-color: #5d889e;
+      color: #5d889e;
+
+      &:hover {
+        color: #66BB6A;
+        border-color: #66BB6A;
+      }
+    }
+
+    .edit-btn {
+      border-color: darkorange;
+      color: darkorange;
+
+      &:hover {
+        color: #FFA726;
+        border-color: #FFA726;
+      }
+    }
+
+    .delete-btn {
+      border-color: crimson;
+      color: crimson;
+
+      &:hover {
+        color: #d0d0d0;
+        border-color: #d0d0d0;
+      }
+    }
+
+    .cancel-btn {
+      border-color: darkorange;
+      color: darkorange;
+
+      &:hover {
+        color: crimson;
+        border-color: crimson;
+      }
+    }
+
+    .save-btn {
+      border-color: #4CAF50;
+      color: #4CAF50;
+
+      &:hover {
+        color: #66BB6A;
+        border-color: #66BB6A;
+      }
     }
   }
 
@@ -189,58 +264,61 @@
     padding: 20px;
     border-top: 1px solid rgba(93, 136, 158, 0.3);
     animation: slideDown 0.3s ease-out;
+  }
 
-    .item-full-image {
-      margin-bottom: 20px;
-      text-align: center;
+  .item-full-image {
+    margin-bottom: 20px;
+    text-align: center;
 
-      img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 8px;
-        border: 2px solid #5d889e;
-      }
-    }
-
-    .admin-actions {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-      
-      @include button;
-
-      .btn.delete {
-        border-color: crimson;
-        color: crimson;
-
-        &:hover {
-          color: #d0d0d0;
-          border-color: #d0d0d0;
-        }
-      }
+    img {
+      max-width: 500px;
+      width: auto;
+      height: auto;
+      border-radius: 8px;
+      border: 2px solid #5d889e;
+      display: block;
+      margin: 0 auto;
     }
   }
-}
 
-.admin-section {
-  margin-top: 40px;
-  padding-top: 20px;
-  border-top: 2px solid rgba(93, 136, 158, 0.3);
-  display: flex;
-  justify-content: center;
+  .item-description {
+    padding: 20px;
+    background: rgba(93, 136, 158, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(93, 136, 158, 0.2);
 
-  @include button;
-
-  .btn.delete {
-    border-color: crimson;
-    color: crimson;
-
-    &:hover {
+    p {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.6;
       color: #d0d0d0;
-      border-color: #d0d0d0;
+      white-space: pre-wrap;
+    }
+  }
+
+  .edit-description {
+    margin-bottom: 20px;
+
+    .edit-description-textarea {
+      width: 100%;
+      padding: 12px 16px;
+      background: #1a1d20;
+      border: 2px solid #5d889e;
+      border-radius: 8px;
+      color: #d0d0d0;
+      font-family: inherit;
+      font-size: 16px;
+      resize: vertical;
+
+      &:focus {
+        outline: none;
+        border-color: #d0d0d0;
+      }
     }
   }
 }
+
+@include crop-tool;
 
 @keyframes slideDown {
   from {
@@ -249,6 +327,6 @@
   }
   to {
     opacity: 1;
-    max-height: 2000px;
+    max-height: 3000px;
   }
 }
