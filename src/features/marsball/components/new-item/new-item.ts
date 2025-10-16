@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject, signal, computed, HostListener } from '@angular/core';
+import { Component, OnDestroy, inject, signal, computed, effect, ElementRef, ViewChild, AfterViewInit, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NewItemService } from '@features/marsball/services/new-item.service';
 import { MarsballCreateService } from '@features/marsball/services/marsball-create.service';
@@ -10,13 +10,19 @@ interface ImageFile {
   preview: string;
 }
 
+interface CropData {
+  x: number;
+  y: number;
+  size: number;
+}
+
 @Component({
   selector: 'app-new-item',
   imports: [FormsModule],
   templateUrl: './new-item.html',
   styleUrl: './new-item.scss'
 })
-export class NewItem implements OnDestroy {
+export class NewItem implements OnDestroy, AfterViewInit {
 
   //======= INJECTIONS =======
 
@@ -24,6 +30,11 @@ export class NewItem implements OnDestroy {
   private readonly marsballCreateService = inject(MarsballCreateService);
   private readonly confirmationService = inject(ConfirmationDialogService);
   private readonly typingService = inject(TypingEffectService);
+
+  //======= VIEW CHILDREN =======
+
+  @ViewChild('titleInput') titleInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('descriptionInput') descriptionInput?: ElementRef<HTMLTextAreaElement>;
 
   //======= TYPING EFFECT =======
 
@@ -34,28 +45,65 @@ export class NewItem implements OnDestroy {
 
   itemTitle = signal('');
   itemDescription = signal('');
-  image = signal<ImageFile | null>(null);
+  mainImage = signal<ImageFile | null>(null);
+  descriptionImage = signal<ImageFile | null>(null);
+  
+  crop = signal<CropData>({ x: 0, y: 0, size: 60 });
+  isDragging = signal(false);
 
   //======= COMPUTED =======
 
   canCreate = computed(() => {
-    return this.itemTitle().trim().length > 0 && this.image() !== null;
+    return this.itemTitle().trim().length > 0 && this.mainImage() !== null;
+  });
+
+  cropStyle = computed(() => {
+    const { x, y, size } = this.crop();
+    return {
+      left: `${x}px`,
+      top: `${y}px`,
+      width: `${size}px`,
+      height: `${size}px`
+    };
+  });
+
+  thumbnailPreview = computed(() => {
+    const img = this.mainImage();
+    const { x, y, size } = this.crop();
+    if (!img) return null;
+    
+    return {
+      backgroundImage: `url(${img.preview})`,
+      backgroundPosition: `-${x}px -${y}px`,
+      backgroundSize: 'auto'
+    };
+  });
+
+  //======= EFFECTS =======
+
+  private readonly autoFocusEffect = effect(() => {
+    if (this.newItemService.isVisible() && this.titleInput) {
+      setTimeout(() => this.titleInput?.nativeElement.focus(), 100);
+    }
   });
 
   //======= LIFECYCLE =======
 
-  ngOnDestroy(): void {
-    const img = this.image();
-    if (img) {
-      URL.revokeObjectURL(img.preview);
+  ngAfterViewInit(): void {
+    if (this.newItemService.isVisible()) {
+      this.titleInput?.nativeElement.focus();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.cleanupImages();
     this.typingService.destroy();
   }
 
   //======= PASTE LISTENER =======
 
   @HostListener('window:paste', ['$event'])
-  onPaste(event: ClipboardEvent): void {
+  onGlobalPaste(event: ClipboardEvent): void {
     if (!this.newItemService.isVisible()) return;
 
     const items = event.clipboardData?.items;
@@ -65,53 +113,112 @@ export class NewItem implements OnDestroy {
       if (items[i].type.indexOf('image') !== -1) {
         const file = items[i].getAsFile();
         if (file) {
-          this.setImage(file);
+          if (!this.mainImage()) {
+            this.setMainImage(file);
+            setTimeout(() => this.descriptionInput?.nativeElement.focus(), 50);
+          } else if (this.itemDescription().trim().length === 0) {
+            this.setDescriptionImage(file);
+          }
           break;
         }
       }
     }
   }
 
-  //======= UPLOAD ACTIONS =======
+  //======= IMAGE UPLOAD - MAIN =======
 
-  onFileSelected(event: Event): void {
+  onMainFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
-      this.setImage(input.files[0]);
+      this.setMainImage(input.files[0]);
       input.value = '';
     }
   }
 
-  onDrop(event: DragEvent): void {
+  onMainDrop(event: DragEvent): void {
     event.preventDefault();
     const files = event.dataTransfer?.files;
     if (files && files[0]) {
-      this.setImage(files[0]);
+      this.setMainImage(files[0]);
     }
   }
 
-  onDragOver(event: DragEvent): void {
+  onMainDragOver(event: DragEvent): void {
     event.preventDefault();
   }
 
-  private setImage(file: File): void {
-    const oldImage = this.image();
+  private setMainImage(file: File): void {
+    const oldImage = this.mainImage();
     if (oldImage) {
       URL.revokeObjectURL(oldImage.preview);
     }
 
     const preview = URL.createObjectURL(file);
-    this.image.set({ file, preview });
+    this.mainImage.set({ file, preview });
+    this.crop.set({ x: 0, y: 0, size: 60 });
   }
 
-  //======= IMAGE MANAGEMENT =======
-
-  removeImage(): void {
-    const img = this.image();
+  removeMainImage(): void {
+    const img = this.mainImage();
     if (img) {
       URL.revokeObjectURL(img.preview);
-      this.image.set(null);
+      this.mainImage.set(null);
     }
+  }
+
+  //======= IMAGE UPLOAD - DESCRIPTION =======
+
+  onDescriptionFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.setDescriptionImage(input.files[0]);
+      input.value = '';
+    }
+  }
+
+  private setDescriptionImage(file: File): void {
+    const oldImage = this.descriptionImage();
+    if (oldImage) {
+      URL.revokeObjectURL(oldImage.preview);
+    }
+
+    const preview = URL.createObjectURL(file);
+    this.descriptionImage.set({ file, preview });
+    this.itemDescription.set('');
+  }
+
+  removeDescriptionImage(): void {
+    const img = this.descriptionImage();
+    if (img) {
+      URL.revokeObjectURL(img.preview);
+      this.descriptionImage.set(null);
+    }
+  }
+
+  //======= CROP MANAGEMENT =======
+
+  startDrag(event: MouseEvent): void {
+    event.preventDefault();
+    this.isDragging.set(true);
+  }
+
+  onMouseMove(event: MouseEvent, container: HTMLElement): void {
+    if (!this.isDragging()) return;
+
+    const rect = container.getBoundingClientRect();
+    const currentCrop = this.crop();
+    
+    let newX = event.clientX - rect.left - currentCrop.size / 2;
+    let newY = event.clientY - rect.top - currentCrop.size / 2;
+
+    newX = Math.max(0, Math.min(newX, rect.width - currentCrop.size));
+    newY = Math.max(0, Math.min(newY, rect.height - currentCrop.size));
+
+    this.crop.set({ ...currentCrop, x: newX, y: newY });
+  }
+
+  stopDrag(): void {
+    this.isDragging.set(false);
   }
 
   //======= FORM ACTIONS =======
@@ -120,7 +227,7 @@ export class NewItem implements OnDestroy {
     if (!this.canCreate()) return;
 
     const categoryId = this.newItemService.contextCategoryId();
-    const img = this.image();
+    const img = this.mainImage();
     if (categoryId === null || !img) return;
 
     try {
@@ -145,14 +252,22 @@ export class NewItem implements OnDestroy {
     this.newItemService.close();
   }
 
+  //======= CLEANUP =======
+
   private resetForm(): void {
-    const img = this.image();
-    if (img) {
-      URL.revokeObjectURL(img.preview);
-    }
-    
+    this.cleanupImages();
     this.itemTitle.set('');
     this.itemDescription.set('');
-    this.image.set(null);
+  }
+
+  private cleanupImages(): void {
+    const main = this.mainImage();
+    if (main) URL.revokeObjectURL(main.preview);
+
+    const desc = this.descriptionImage();
+    if (desc) URL.revokeObjectURL(desc.preview);
+
+    this.mainImage.set(null);
+    this.descriptionImage.set(null);
   }
 }
