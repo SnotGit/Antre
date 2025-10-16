@@ -46,7 +46,7 @@ app.use('/uploads', express_1.default.static('uploads', {
 app.use('/api/auth', auth_routes_1.default);
 app.use('/api/user', user_routes_1.default);
 app.use('/api/chroniques', chroniques_routes_1.default);
-app.use('/api/marsball', marsball_routes_1.default); // ← LIGNE AJOUTÉE
+app.use('/api/marsball', marsball_routes_1.default);
 //======= HEALTH CHECK =======
 app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
@@ -54,9 +54,5 @@ app.get('/api/health', (req, res) => {
 //======= 404 HANDLER =======
 app.use(/.*/, (req, res) => {
     res.status(404).json({ error: 'Route non trouvée' });
-});
-// TEST DE DEBUG 
-app.get('/api/chroniques/debug', (req, res) => {
-    res.json({ message: 'Route debug OK - pas de contrôleur requis' });
 });
 exports.default = app;
