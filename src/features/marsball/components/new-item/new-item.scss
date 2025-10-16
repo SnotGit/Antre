@@ -1,0 +1,249 @@
+@use 'content/artefacts/typing-effect/typing-effect' as *;
+@use 'content/artefacts/buttons/button' as *;
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  font-family: 'Courier New', monospace;
+}
+
+.dialog-box {
+  background: #121416;
+  border: 2px solid #5d889e;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  padding: 30px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+
+  .header-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #5d889e;
+    margin: 0;
+    flex: 1;
+
+    @include typing-effect;
+  }
+}
+
+.separator {
+  text-align: center;
+
+  .line {
+    width: 80%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #5d889e, transparent);
+    margin: 0 auto;
+    border-radius: 1px;
+  }
+}
+
+.content {
+  padding: 30px;
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(93, 136, 158, 0.3) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(93, 136, 158, 0.3);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(93, 136, 158, 0.6);
+    }
+  }
+}
+
+.form-field {
+  margin-bottom: 30px;
+
+  .label {
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    color: #5d889e;
+    margin-bottom: 10px;
+  }
+
+  .input {
+    width: 100%;
+    padding: 12px 16px;
+    background: #1a1d20;
+    border: 2px solid #5d889e;
+    border-radius: 8px;
+    color: #d0d0d0;
+    font-family: inherit;
+    font-size: 16px;
+    transition: all 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #d0d0d0;
+    }
+
+    &::placeholder {
+      color: rgba(208, 208, 208, 0.4);
+    }
+  }
+
+  .textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background: #1a1d20;
+    border: 2px solid #5d889e;
+    border-radius: 8px;
+    color: #d0d0d0;
+    font-family: inherit;
+    font-size: 16px;
+    resize: vertical;
+    transition: all 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #d0d0d0;
+    }
+
+    &::placeholder {
+      color: rgba(208, 208, 208, 0.4);
+    }
+  }
+}
+
+.upload-zone {
+  border: 3px dashed #5d889e;
+  border-radius: 12px;
+  padding: 40px 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #d0d0d0;
+    background: rgba(93, 136, 158, 0.05);
+  }
+
+  .upload-text {
+    font-size: 18px;
+    color: #d0d0d0;
+    margin: 0 0 20px 0;
+  }
+
+  .browse-btn {
+    background: transparent;
+    border: 2px solid #5d889e;
+    border-radius: 8px;
+    padding: 10px 20px;
+    color: #5d889e;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: #5d889e;
+      color: #121416;
+    }
+  }
+}
+
+.image-preview {
+  position: relative;
+  max-width: 400px;
+  margin: 0 auto;
+  border: 2px solid #5d889e;
+  border-radius: 12px;
+  overflow: hidden;
+  
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .remove-image-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background: rgba(18, 20, 22, 0.9);
+    border: 2px solid crimson;
+    border-radius: 6px;
+    color: crimson;
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: crimson;
+      color: #121416;
+    }
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 20px;
+
+  @include button;
+
+  .btn.cancel {
+    border-color: darkorange;
+    color: darkorange;
+
+    &:hover {
+      color: crimson;
+      border-color: crimson;
+    }
+  }
+
+  .btn.submit {
+    border-color: #4CAF50;
+    color: #4CAF50;
+
+    &:hover:not(:disabled) {
+      color: #66BB6A;
+      border-color: #66BB6A;
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+  }
+}

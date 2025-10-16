@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '@features/auth';
 import { MobileMenuService } from '@features/menus/services/mobile-menu.service';
 import { NewCategoryService } from '@features/marsball/services/new-category.service';
+import { NewItemService } from '@features/marsball/services/new-item.service';
 
 interface SectionConfig {
   itemLabel: string;
@@ -24,6 +25,7 @@ export class ConsoleV3 {
   private readonly authService = inject(AuthService);
   private readonly mobileMenuService = inject(MobileMenuService);
   private readonly newCategoryService = inject(NewCategoryService);
+  private readonly newItemService = inject(NewItemService);
 
   //======= CONFIGURATION =======
 
@@ -143,6 +145,14 @@ export class ConsoleV3 {
   }
 
   addItem(): void {
+    const section = this.currentSection();
+    
+    if (section === 'marsball') {
+      this.newItemService.show();
+      this.onClick();
+      return;
+    }
+
     const config = this.sectionConfig();
     if (!config) return;
     this.router.navigate([config.itemRoute]);

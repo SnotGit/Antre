@@ -1,0 +1,43 @@
+@mixin crop-tool {
+  .edit-image-container {
+    text-align: center;
+
+    .image-with-crop {
+      display: inline-block;
+      position: relative;
+      border: 2px solid #5d889e;
+      border-radius: 8px;
+      overflow: hidden;
+      user-select: none;
+      max-width: 500px;
+
+      .edit-image {
+        width: 100%;
+        height: auto;
+        display: block;
+        pointer-events: none;
+      }
+
+      .crop-box {
+        position: absolute;
+        border: 3px solid darkorange;
+        border-radius: 8px;
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+        cursor: move;
+        pointer-events: auto;
+
+        &::after {
+          content: '⊕';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 32px;
+          color: darkorange;
+          font-weight: bold;
+          pointer-events: none;
+        }
+      }
+    }
+  }
+}

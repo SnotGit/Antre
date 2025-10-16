@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy, inject, computed, resource, signal } from
 import { Router } from '@angular/router';
 import { MarsballGetService, MarsballCategory } from '@features/marsball/services/marsball-get.service';
 import { MarsballDeleteService } from '@features/marsball/services/marsball-delete.service';
-import { ConfirmationDialogService } from '@features/marsball/services/confirmation-dialog.service';
 import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
 
@@ -19,7 +18,6 @@ export class Marsball implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly marsballGetService = inject(MarsballGetService);
   private readonly marsballDeleteService = inject(MarsballDeleteService);
-  private readonly confirmationService = inject(ConfirmationDialogService);
   private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
 
@@ -84,15 +82,13 @@ export class Marsball implements OnInit, OnDestroy {
     const selectedIds = Array.from(this.selectedCategories());
     if (selectedIds.length === 0) return;
 
-    try {
-      await this.marsballDeleteService.deleteCategories(selectedIds);
-      
-      this.selectedCategories.set(new Set());
-      this.confirmationService.showSuccessMessage();
-      this.categoriesResource.reload();
-    } catch (error) {
-      this.confirmationService.showErrorMessage();
-    }
+    const selectedNames = this.categories()
+      .filter(cat => selectedIds.includes(cat.id))
+      .map(cat => cat.title);
+
+    await this.marsballDeleteService.deleteCategories(selectedIds, selectedNames);
+    this.selectedCategories.set(new Set());
+    this.categoriesResource.reload();
   }
 
   //======= NAVIGATION =======

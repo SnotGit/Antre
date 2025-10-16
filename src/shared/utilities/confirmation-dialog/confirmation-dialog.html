@@ -13,6 +13,18 @@
 
         <div class="dialog-content">
           <p class="dialog-message">{{ config.message }}</p>
+          
+          @if (config.items && config.items.length > 0) {
+          <div class="dialog-items">
+            @for (item of config.items; track $index) {
+              <div class="dialog-item">{{ item }}</div>
+            }
+          </div>
+          }
+          
+          @if (config.additionalInfo) {
+          <p class="dialog-additional">{{ config.additionalInfo }}</p>
+          }
         </div>
 
         <div class="dialog-actions">

@@ -1,5 +1,6 @@
 @use 'content/artefacts/typing-effect/typing-effect' as *;
 @use 'content/artefacts/buttons/button' as *;
+@use 'content/artefacts/delete-cross/delete-cross' as *;
 @use 'content/marsball/marsball-grid' as *;
 @use 'content/marsball/marsball-category-card' as *;
 
@@ -97,7 +98,6 @@
 
   &.selected .card {
     border-color: crimson;
-    background-color: transparent;
 
     .category-title {
       color: crimson;
@@ -107,21 +107,11 @@
   .card {
     position: relative;
 
-    .delete-checkbox {
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      border-radius: 20px;
-      bottom: 15px;
-      right: 15px;
-      accent-color: crimson;
-      transform: scale(1.2);
-      cursor: pointer;
-      z-index: 10;
-    }
+    @include delete-cross;
 
-    .category-title {
-      padding-bottom: 25px;
+    .delete-cross {
+      top: 8px;
+      right: 8px;
     }
   }
 }

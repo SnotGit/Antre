@@ -3,20 +3,28 @@
   @if (categoryData(); as data) {
 
   <div class="header">
-    <div class="back-button">
-      <button class="btn" (click)="goBack()">Retour</button>
+  <h2 class="header-title" [class.typing]="typing()">
+    {{ headerTitle() }}
+  </h2>
+  
+  @if (isAdmin() && categorySelection()) {
+    <div class="delete-button">
+      <button class="btn" (click)="deleteSelectedCategories()">
+        <span>Supprimer ({{ selectedCategories().size }})</span>
+      </button>
     </div>
-    <h2 class="header-title" [class.typing]="typing()">
-      {{ headerTitle() }}
-    </h2>
-    @if (isAdmin() && selection()) {
+  } @else if (isAdmin() && selection()) {
     <div class="delete-button">
       <button class="btn" (click)="deleteSelected()">
         <span>Supprimer ({{ selectedItems().size }})</span>
       </button>
     </div>
-    }
-  </div>
+  } @else {
+    <div class="back-button">
+      <button class="btn" (click)="goBack()">Retour</button>
+    </div>
+  }
+</div>
 
   <div class="separator">
     <div class="line"></div>
@@ -25,12 +33,22 @@
   <div class="content">
 
     @if (data.children.length > 0) {
-    <div class="section-title">Sous-catégories</div>
-    <div class="content-grid">
+    <div class="marsball-grid">
       @for (child of data.children; track child.id) {
-        <div class="category-card" (click)="goToCategory(child.id)">
+        <div class="category-card" 
+             [class.selected]="isSelectedCategory(child.id)"
+             (click)="goToCategory(child.id)">
           <div class="card">
             <span class="category-title">{{ child.title }}</span>
+           
+            @if (isAdmin()) {
+            <button 
+              class="delete-cross" 
+              [class.active]="isSelectedCategory(child.id)"
+              (click)="$event.stopPropagation(); toggleCategorySelection(child.id)">
+              ✕
+            </button>
+            }
           </div>
         </div>
       }
@@ -38,49 +56,102 @@
     }
 
     @if (data.items.length > 0) {
-    <div class="section-title">Items</div>
     <div class="items-list">
       @for (item of data.items; track item.id) {
         <div class="item-container" 
              [class.open]="isItemOpen(item.id)"
-             [class.selection-mode]="selection()"
+             [class.editing]="editItemService.isEditingItem(item.id)"
              [class.selected]="isSelected(item.id)">
           
           <div class="item-header" (click)="toggleItem(item.id)">
-            <img [src]="getImageUrl(item.imageUrl)" [alt]="item.title" class="item-image">
-            <span class="item-title">{{ item.title }}</span>
-
-            @if (isAdmin()) {
-            <input 
-              type="checkbox" 
-              class="delete-checkbox"
-              [checked]="isSelected(item.id)"
-              (click)="$event.stopPropagation(); toggleSelection(item.id)">
+            
+            @if (!editItemService.isEditingItem(item.id)) {
+              <img [src]="getImageUrl(item.imageUrl)" [alt]="item.title" class="item-thumbnail">
+              <span class="item-title">{{ item.title }}</span>
+            } @else {
+              <div class="item-thumbnail-crop"
+                   [style.background-image]="'url(' + getImageUrl(editItemService.image()) + ')'"
+                   [style.background-position]="'-' + editItemService.crop().x + 'px -' + editItemService.crop().y + 'px'"
+                   [style.background-size]="'auto'">
+              </div>
+              <input 
+                type="text" 
+                class="edit-title-input-header"
+                [value]="editItemService.title()"
+                (input)="editItemService.updateTitle($any($event.target).value)"
+                (click)="$event.stopPropagation()"
+                placeholder="Titre...">
             }
+            
+            @if (isAdmin() && !editItemService.isEditing() && !isItemOpen(item.id)) {
+              <button 
+                class="delete-cross"
+                [class.active]="isSelected(item.id)"
+                (click)="$event.stopPropagation(); toggleSelection(item.id)">
+                ✕
+              </button>
+            }
+            
+            @if (isItemOpen(item.id) && !isAdmin() && !editItemService.isEditingItem(item.id)) {
+              <button class="btn close-btn" (click)="$event.stopPropagation(); closeItem()">Fermer</button>
+            }
+            
+            @if (isItemOpen(item.id) && isAdmin() && !editItemService.isEditingItem(item.id)) {
+              <button class="btn edit-btn" (click)="$event.stopPropagation(); editItem(item.id)">Modifier</button>
+              <button class="btn delete-btn" (click)="$event.stopPropagation(); deleteItem(item.id)">Supprimer</button>
+            }
+            
+            @if (editItemService.isEditingItem(item.id)) {
+              <button class="btn cancel-btn" (click)="$event.stopPropagation(); cancelEdit()">Annuler</button>
+              <button class="btn save-btn" (click)="$event.stopPropagation(); saveEdit()">Sauvegarder</button>
+            }
+            
           </div>
 
-          @if (isItemOpen(item.id) && !selection()) {
-          <div class="item-content">
+          @if (isItemOpen(item.id) && !editItemService.isEditingItem(item.id)) {
+          <div class="item-content" (click)="$event.stopPropagation()">
             <div class="item-full-image">
               <img [src]="getImageUrl(item.imageUrl)" [alt]="item.title">
             </div>
-
-            @if (isAdmin()) {
-            <div class="admin-actions">
-              <button class="btn delete" (click)="deleteItem(item.id)">Supprimer</button>
+            @if (item.description) {
+            <div class="item-description">
+              <p>{{ item.description }}</p>
             </div>
             }
           </div>
           }
 
+          @if (editItemService.isEditingItem(item.id)) {
+          <div class="item-content" (click)="$event.stopPropagation()">
+            <div class="edit-description">
+              <textarea 
+                class="edit-description-textarea"
+                [value]="editItemService.description()"
+                (input)="editItemService.updateDescription($any($event.target).value)"
+                placeholder="Description..."
+                rows="4"></textarea>
+            </div>
+            <div class="edit-image-container">
+              <div class="image-with-crop" 
+                   #imageContainer
+                   (mousemove)="onMouseMove($event, imageContainer)"
+                   (mouseup)="editItemService.stopDrag()"
+                   (mouseleave)="editItemService.stopDrag()">
+                <img [src]="getImageUrl(editItemService.image())" [alt]="editItemService.title()" class="edit-image">
+                <div class="crop-box" 
+                     [style.left.px]="editItemService.crop().x"
+                     [style.top.px]="editItemService.crop().y"
+                     [style.width.px]="editItemService.crop().size"
+                     [style.height.px]="editItemService.crop().size"
+                     (mousedown)="onCropMouseDown($event, imageContainer)">
+                </div>
+              </div>
+            </div>
+          </div>
+          }
+
         </div>
       }
-    </div>
-    }
-
-    @if (isAdmin() && !selection()) {
-    <div class="admin-section">
-      <button class="btn delete" (click)="deleteCategory(data.category.id)">Supprimer catégorie</button>
     </div>
     }
 

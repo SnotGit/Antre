@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy, inject, computed, resource, input, signal } from '@angular/core';
+import { Component, OnDestroy, inject, computed, resource, input, signal, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { MarsballGetService, CategoryWithChildren } from '@features/marsball/services/marsball-get.service';
 import { MarsballDeleteService } from '@features/marsball/services/marsball-delete.service';
-import { ConfirmationDialogService } from '@features/marsball/services/confirmation-dialog.service';
+import { EditItemService } from '@features/marsball/services/edit-item.service';
 import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
 import { environment } from '@environments/environment';
@@ -13,14 +13,14 @@ import { environment } from '@environments/environment';
   templateUrl: './marsball-category.html',
   styleUrl: './marsball-category.scss'
 })
-export class MarsballCategory implements OnInit, OnDestroy {
+export class MarsballCategory implements OnDestroy {
 
   //======= INJECTIONS =======
 
   private readonly router = inject(Router);
   private readonly marsballGetService = inject(MarsballGetService);
   private readonly marsballDeleteService = inject(MarsballDeleteService);
-  private readonly confirmationService = inject(ConfirmationDialogService);
+  protected readonly editItemService = inject(EditItemService);
   private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
   private readonly API_URL = environment.apiUrl;
@@ -39,6 +39,7 @@ export class MarsballCategory implements OnInit, OnDestroy {
 
   openItemId = signal<number | null>(null);
   selectedItems = signal<Set<number>>(new Set());
+  selectedCategories = signal<Set<number>>(new Set());
   isAdmin = this.authService.isAdmin;
 
   //======= DATA LOADING =======
@@ -67,14 +68,20 @@ export class MarsballCategory implements OnInit, OnDestroy {
   //======= COMPUTED =======
 
   selection = computed(() => this.selectedItems().size > 0);
+  categorySelection = computed(() => this.selectedCategories().size > 0);
+
+  currentTitle = computed(() => {
+    const data = this.categoryData();
+    return data?.category.title || 'Marsball';
+  });
+
+  //======= EFFECTS =======
+
+  private readonly _titleEffect = effect(() => {
+    this.typingService.title(this.currentTitle());
+  });
 
   //======= LIFECYCLE =======
-
-  ngOnInit(): void {
-    const data = this.categoryData();
-    const title = data?.category.title || 'Marsball';
-    this.typingService.title(title);
-  }
 
   ngOnDestroy(): void {
     this.typingService.destroy();
@@ -84,7 +91,12 @@ export class MarsballCategory implements OnInit, OnDestroy {
 
   toggleItem(itemId: number): void {
     if (this.selection()) return;
+    if (this.editItemService.isEditing()) return;
     this.openItemId.set(this.openItemId() === itemId ? null : itemId);
+  }
+
+  closeItem(): void {
+    this.openItemId.set(null);
   }
 
   isItemOpen(itemId: number): boolean {
@@ -95,7 +107,7 @@ export class MarsballCategory implements OnInit, OnDestroy {
     return `${this.API_URL.replace('/api', '')}${imageUrl}`;
   }
 
-  //======= SELECTION METHODS =======
+  //======= ITEM SELECTION METHODS =======
 
   toggleSelection(itemId: number): void {
     const newSelection = new Set(this.selectedItems());
@@ -105,48 +117,113 @@ export class MarsballCategory implements OnInit, OnDestroy {
       newSelection.add(itemId);
     }
     this.selectedItems.set(newSelection);
-    this.openItemId.set(null);
   }
 
   isSelected(itemId: number): boolean {
     return this.selectedItems().has(itemId);
   }
 
+  //======= CATEGORY SELECTION METHODS =======
+
+  toggleCategorySelection(categoryId: number): void {
+    const newSelection = new Set(this.selectedCategories());
+    if (newSelection.has(categoryId)) {
+      newSelection.delete(categoryId);
+    } else {
+      newSelection.add(categoryId);
+    }
+    this.selectedCategories.set(newSelection);
+  }
+
+  isSelectedCategory(categoryId: number): boolean {
+    return this.selectedCategories().has(categoryId);
+  }
+
+  //======= CROP DRAG METHODS =======
+
+  onCropMouseDown(event: MouseEvent, container: HTMLElement): void {
+    const rect = container.getBoundingClientRect();
+    this.editItemService.startDrag(event, rect);
+  }
+
+  onMouseMove(event: MouseEvent, container: HTMLElement): void {
+    const rect = container.getBoundingClientRect();
+    this.editItemService.onDrag(event, rect);
+  }
+
   //======= ADMIN ACTIONS =======
 
-  async deleteCategory(categoryId: number): Promise<void> {
-    try {
-      await this.marsballDeleteService.deleteCategory(categoryId);
-      this.confirmationService.showSuccessMessage();
-      this.router.navigate(['/marsball']);
-    } catch (error) {
-      this.confirmationService.showErrorMessage();
-    }
+  editItem(itemId: number): void {
+    const data = this.categoryData();
+    if (!data) return;
+
+    const item = data.items.find(i => i.id === itemId);
+    if (!item) return;
+
+    this.editItemService.startEdit(
+      itemId,
+      item.title,
+      item.description || '',
+      item.imageUrl
+    );
+  }
+
+  cancelEdit(): void {
+    this.editItemService.cancelEdit();
+  }
+
+  async saveEdit(): Promise<void> {
+    console.log('Save edit:', {
+      id: this.editItemService.isEditing(),
+      title: this.editItemService.title(),
+      description: this.editItemService.description(),
+      crop: this.editItemService.crop()
+    });
+    this.editItemService.cancelEdit();
+    this.categoryResource.reload();
   }
 
   async deleteItem(itemId: number): Promise<void> {
-    try {
-      await this.marsballDeleteService.deleteItem(itemId);
-      this.confirmationService.showSuccessMessage();
-      this.categoryResource.reload();
-    } catch (error) {
-      this.confirmationService.showErrorMessage();
-    }
+    const data = this.categoryData();
+    if (!data) return;
+
+    const item = data.items.find(i => i.id === itemId);
+    if (!item) return;
+
+    await this.marsballDeleteService.deleteItem(itemId, item.title);
+    this.categoryResource.reload();
   }
 
   async deleteSelected(): Promise<void> {
+    const data = this.categoryData();
+    if (!data) return;
+
     const selectedIds = Array.from(this.selectedItems());
     if (selectedIds.length === 0) return;
 
-    try {
-      await this.marsballDeleteService.deleteItems(selectedIds);
-      
-      this.selectedItems.set(new Set());
-      this.confirmationService.showSuccessMessage();
-      this.categoryResource.reload();
-    } catch (error) {
-      this.confirmationService.showErrorMessage();
-    }
+    const selectedNames = data.items
+      .filter(item => selectedIds.includes(item.id))
+      .map(item => item.title);
+
+    await this.marsballDeleteService.deleteItems(selectedIds, selectedNames);
+    this.selectedItems.set(new Set());
+    this.categoryResource.reload();
+  }
+
+  async deleteSelectedCategories(): Promise<void> {
+    const data = this.categoryData();
+    if (!data) return;
+
+    const selectedIds = Array.from(this.selectedCategories());
+    if (selectedIds.length === 0) return;
+
+    const selectedNames = data.children
+      .filter(cat => selectedIds.includes(cat.id))
+      .map(cat => cat.title);
+
+    await this.marsballDeleteService.deleteCategories(selectedIds, selectedNames);
+    this.selectedCategories.set(new Set());
+    this.categoryResource.reload();
   }
 
   //======= NAVIGATION =======

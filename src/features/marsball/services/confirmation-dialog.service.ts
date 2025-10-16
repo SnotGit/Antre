@@ -1,54 +1,55 @@
-import { Injectable, signal } from '@angular/core';
-
-interface ConfirmationConfig {
-  title: string;
-  message: string;
-  confirmText: string;
-  cancelText: string;
-  isDanger: boolean;
-  isMessage?: boolean;
-}
+import { Injectable, inject } from '@angular/core';
+import { ConfirmationDialogService as HubService, ConfirmationConfig } from '@shared/utilities/confirmation-dialog/confirmation-dialog.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConfirmationDialogService {
-  private visible = signal(false);
-  private dialogConfig = signal<ConfirmationConfig | null>(null);
-  private resolvePromise: ((result: boolean) => void) | null = null;
 
-  isVisible = this.visible.asReadonly();
-  config = this.dialogConfig.asReadonly();
+  //======= INJECTIONS =======
+
+  private readonly hub = inject(HubService);
 
   //======= DELETE CATEGORY =======
 
-  confirmDeleteCategory(): Promise<boolean> {
+  confirmDeleteCategory(names: string[]): Promise<boolean> {
+    const isMultiple = names.length > 1;
+    
     const config: ConfirmationConfig = {
-      title: 'Supprimer la catégorie',
-      message: 'Êtes-vous sûr de vouloir supprimer cette catégorie ?\n\nToutes les sous-catégories et items seront également supprimés.',
+      title: isMultiple ? 'Supprimer les catégories' : 'Supprimer la catégorie',
+      message: isMultiple 
+        ? 'Êtes-vous sûr de vouloir supprimer ?'
+        : 'Êtes-vous sûr de vouloir supprimer ?',
+      items: names,
+      additionalInfo: 'Toutes les sous-catégories et items seront également supprimés.',
       confirmText: 'Supprimer',
       cancelText: 'Annuler',
       isDanger: true
     };
 
-    return this.showDialog(config);
+    return this.hub.showDialog(config);
   }
 
   //======= DELETE ITEM =======
 
-  confirmDeleteItem(): Promise<boolean> {
+  confirmDeleteItem(names: string[]): Promise<boolean> {
+    const isMultiple = names.length > 1;
+    
     const config: ConfirmationConfig = {
-      title: 'Supprimer l\'item',
-      message: 'Êtes-vous sûr de vouloir supprimer cet item ?',
+      title: isMultiple ? 'Supprimer les items' : 'Supprimer l\'item',
+      message: isMultiple
+        ? 'Êtes-vous sûr de vouloir supprimer ?'
+        : 'Êtes-vous sûr de vouloir supprimer ?',
+      items: names,
       confirmText: 'Supprimer',
       cancelText: 'Annuler',
       isDanger: true
     };
 
-    return this.showDialog(config);
+    return this.hub.showDialog(config);
   }
 
-  //======= SUCCESS MESSAGES =======
+  //======= SUCCESS MESSAGE =======
 
   showSuccessMessage(): void {
     const config: ConfirmationConfig = {
@@ -60,10 +61,10 @@ export class ConfirmationDialogService {
       isMessage: true
     };
 
-    this.showMessage(config);
+    this.hub.showMessage(config);
   }
 
-  //======= ERROR MESSAGES =======
+  //======= ERROR MESSAGE =======
 
   showErrorMessage(): void {
     const config: ConfirmationConfig = {
@@ -75,74 +76,6 @@ export class ConfirmationDialogService {
       isMessage: true
     };
 
-    this.showMessage(config);
-  }
-
-  //======= DIALOG CORE =======
-
-  private showDialog(config: ConfirmationConfig): Promise<boolean> {
-    this.forceCloseDialog();
-
-    return new Promise<boolean>((resolve) => {
-      this.resolvePromise = resolve;
-      this.dialogConfig.set(config);
-      this.visible.set(true);
-    });
-  }
-
-  private showMessage(config: ConfirmationConfig): void {
-    this.forceCloseDialog();
-    
-    this.dialogConfig.set(config);
-    this.visible.set(true);
-    
-    setTimeout(() => {
-      this.cleanup();
-    }, 3000);
-  }
-
-  //======= USER ACTIONS =======
-
-  onConfirm(): void {
-    const config = this.dialogConfig();
-    if (config?.isMessage) {
-      this.cleanup();
-    } else {
-      this.closeDialog(true);
-    }
-  }
-
-  onCancel(): void {
-    const config = this.dialogConfig();
-    if (config?.isMessage) {
-      this.cleanup();
-    } else {
-      this.closeDialog(false);
-    }
-  }
-
-  //======= CLEANUP =======
-
-  private closeDialog(result: boolean): void {
-    if (this.resolvePromise) {
-      this.resolvePromise(result);
-      this.resolvePromise = null;
-    }
-
-    this.cleanup();
-  }
-
-  private forceCloseDialog(): void {
-    if (this.resolvePromise) {
-      this.resolvePromise(false);
-      this.resolvePromise = null;
-    }
-    
-    this.cleanup();
-  }
-
-  private cleanup(): void {
-    this.visible.set(false);
-    this.dialogConfig.set(null);
+    this.hub.showMessage(config);
   }
 }

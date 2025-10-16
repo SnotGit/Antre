@@ -3,6 +3,8 @@ import { Injectable, signal } from '@angular/core';
 export interface ConfirmationConfig {
   title: string;
   message: string;
+  items?: string[];
+  additionalInfo?: string;
   confirmText: string;
   cancelText: string;
   isDanger: boolean;
