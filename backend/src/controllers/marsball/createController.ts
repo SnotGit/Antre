@@ -79,12 +79,14 @@ export const createItem = async (req: AuthenticatedRequest, res: Response): Prom
       return;
     }
 
-    const imageUrl = `/uploads/marsball/${req.file.filename}`;
+    const imageUrl = `/uploads/marsball/full/${req.file.filename}`;
+    const thumbnailUrl = `/uploads/marsball/thumbnails/${req.file.filename}`;
 
     const item = await prisma.marsballItem.create({
       data: {
         title: title.trim(),
         imageUrl,
+        thumbnailUrl,
         description: description ? description.trim() : null,
         categoryId: parseInt(categoryId, 10)
       }

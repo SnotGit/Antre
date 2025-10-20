@@ -1,41 +1,44 @@
 @use 'content/artefacts/typing-effect/typing-effect' as *;
 @use 'content/artefacts/buttons/button' as *;
 @use 'content/artefacts/delete-cross/delete-cross' as *;
+@use 'content/artefacts/crop-box/crop-box' as *;
+
+//======= OVERLAY =======
 
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  animation: fadeIn 0.3s ease;
+  backdrop-filter: blur(4px);
 }
+
+//======= DIALOG BOX =======
 
 .dialog-box {
-  background-color: #1a1d20;
+  background: #121416;
   border: 2px solid #5d889e;
-  border-radius: 15px;
+  border-radius: 16px;
   width: 90%;
   max-width: 600px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  animation: slideIn 0.3s ease;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
-  max-height: 90vh;
   overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
+//======= HEADER =======
+
 .header {
-  padding: 30px 30px 20px 30px;
+  padding: 30px;
   flex-shrink: 0;
-  
+
   .header-title {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 700;
     color: #5d889e;
     margin: 0;
@@ -45,24 +48,27 @@
   }
 }
 
+//======= SEPARATOR =======
+
 .separator {
-  padding: 0 30px;
+  text-align: center;
   flex-shrink: 0;
 
   .line {
-    width: 100%;
+    width: 80%;
     height: 2px;
     background: linear-gradient(90deg, transparent, #5d889e, transparent);
+    margin: 0 auto;
     border-radius: 1px;
   }
 }
 
+//======= CONTENT =======
+
 .content {
-  padding: 30px;
   flex: 1;
   overflow-y: auto;
-  font-family: 'Courier New', monospace;
-  color: #d0d0d0;
+  padding: 30px;
   scrollbar-width: thin;
   scrollbar-color: rgba(93, 136, 158, 0.3) transparent;
 
@@ -82,26 +88,22 @@
       background: rgba(93, 136, 158, 0.6);
     }
   }
-
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-  }
 }
 
+//======= FORM FIELDS =======
+
 .form-field {
-  .input,
-  .textarea {
+  margin-bottom: 25px;
+
+  .input {
     width: 100%;
-    background-color: #121416;
+    padding: 12px 16px;
+    background: #1a1d20;
     border: 2px solid #5d889e;
     border-radius: 8px;
-    padding: 12px 16px;
     color: #d0d0d0;
     font-family: 'Courier New', monospace;
     font-size: 16px;
-    transition: all 0.3s ease;
 
     &:focus {
       outline: none;
@@ -125,6 +127,8 @@
   }
 }
 
+//======= UPLOAD ZONE =======
+
 .upload-zone {
   border: 2px dashed rgba(93, 136, 158, 0.4);
   border-radius: 8px;
@@ -136,20 +140,23 @@
   outline: none;
   
   &:hover {
-    border-color: #5d889e;
-    background: rgba(93, 136, 158, 0.1);
+    border-color: #d0d0d0;
+    background: rgba(208, 208, 208, 0.05);
   }
   
-  &:focus {
+  &:focus,
+  &.focused {
     border-color: #d0d0d0;
-    background: rgba(93, 136, 158, 0.15);
-    box-shadow: 0 0 10px rgba(93, 136, 158, 0.3);
+    border-style: dashed;
+    background: rgba(208, 208, 208, 0.08);
+    box-shadow: 0 0 15px rgba(208, 208, 208, 0.3);
   }
 
   .upload-text {
     color: rgba(208, 208, 208, 0.6);
     font-size: 15px;
     margin: 0 0 15px;
+    pointer-events: none;
   }
 
   .browse-btn {
@@ -158,43 +165,56 @@
     color: #5d889e;
     font-size: 16px;
     cursor: pointer;
-    padding: 0;
+    padding: 8px 12px;
     font-family: 'Courier New', monospace;
-    transition: color 0.3s ease;
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    border-radius: 4px;
+    outline: none;
+    pointer-events: none;
     
     svg {
       stroke: currentColor;
       flex-shrink: 0;
     }
-    
-    &:hover {
-      color: #d0d0d0;
-    }
   }
 }
 
-.thumbnail-preview-section {
+//======= ITEM PREVIEW HEADER =======
+
+.item-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 30px 20px;
+  background-color: #1a1d20;
+  border: 2px solid #5d889e;
+  border-radius: 16px;
   margin-bottom: 20px;
+  transition: background-color 0.3s ease;
 
-  .preview-label {
-    color: #5d889e;
-    font-size: 14px;
-    margin-bottom: 10px;
-    font-weight: bold;
-  }
-
-  .thumbnail-preview {
+  .item-thumbnail-crop {
     width: 60px;
     height: 60px;
-    border: 2px solid #5d889e;
     border-radius: 8px;
+    border: 2px solid #5d889e;
+    flex-shrink: 0;
     background-repeat: no-repeat;
+    background-size: auto;
     background-color: #121416;
   }
+
+  .item-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #d0d0d0;
+    flex: 1;
+    font-family: 'Courier New', monospace;
+  }
 }
+
+//======= IMAGE WITH CROP =======
 
 .image-preview-container {
   position: relative;
@@ -214,58 +234,7 @@
     pointer-events: none;
   }
 
-  .crop-box {
-    position: absolute;
-    border: 3px solid #ff6b35;
-    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
-    pointer-events: auto;
-    transition: border-color 0.2s ease;
-    
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(255, 107, 53, 0.1);
-    }
-
-    &.resizing-mode {
-      border-color: lime;
-    }
-  }
-
-  .resize-handle {
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    background: lime;
-    border: 2px solid #121416;
-    border-radius: 50%;
-    z-index: 10;
-    
-    &.top-left {
-      top: -7px;
-      left: -7px;
-      cursor: nwse-resize;
-    }
-    
-    &.top-right {
-      top: -7px;
-      right: -7px;
-      cursor: nesw-resize;
-    }
-    
-    &.bottom-left {
-      bottom: -7px;
-      left: -7px;
-      cursor: nesw-resize;
-    }
-    
-    &.bottom-right {
-      bottom: -7px;
-      right: -7px;
-      cursor: nwse-resize;
-    }
-  }
+  @include crop-box;
 
   @include delete-cross;
 
@@ -274,20 +243,22 @@
     right: 8px;
   }
 }
+
+//======= DESCRIPTION IMAGE =======
 
 .description-image-preview {
   position: relative;
   width: 100%;
-  max-width: 300px;
+  max-width: 500px;
+  margin: 0 auto;
   border-radius: 8px;
   overflow: hidden;
   border: 2px solid #5d889e;
-  
+
   img {
     display: block;
     width: 100%;
     height: auto;
-    object-fit: contain;
   }
 
   @include delete-cross;
@@ -298,51 +269,45 @@
   }
 }
 
+//======= FORM ACTIONS =======
+
 .form-actions {
   display: flex;
-  gap: 20px;
-  justify-content: center;
-  margin-top: 10px;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 30px;
 
   @include button;
 
   .btn.cancel {
     border-color: darkorange;
     color: darkorange;
+
+    &:hover {
+      color: crimson;
+      border-color: crimson;
+    }
   }
 
   .btn.submit {
-    border-color: #5d889e;
-    color: #5d889e;
+    border-color: #4CAF50;
+    color: #4CAF50;
 
-    &:hover:not(:disabled) {
-      border-color: #d0d0d0;
-      color: #d0d0d0;
+    &:hover {
+      color: #66BB6A;
+      border-color: #66BB6A;
     }
 
     &:disabled {
-      opacity: 0.3;
+      opacity: 0.4;
       cursor: not-allowed;
+      border-color: rgba(76, 175, 80, 0.3);
+      color: rgba(76, 175, 80, 0.3);
+
+      &:hover {
+        color: rgba(76, 175, 80, 0.3);
+        border-color: rgba(76, 175, 80, 0.3);
+      }
     }
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateY(-50px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
   }
 }

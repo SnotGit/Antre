@@ -86,11 +86,7 @@ export class FileNameFormatterService {
   }
 
   private handleApostrophe(apostropheWord: string, nextWord: string): string {
-    // Combiner: "l" + "aiglon" → "L'Aiglon"
     const combined = `${apostropheWord.toUpperCase()}'${this.capitalizeWord(nextWord)}`;
-    
-    // Retourner vide pour apostropheWord (sera filtré), nextWord devient combined
-    // HACK: On retourne le mot combiné et on filtrera l'apostrophe seule plus tard
     return combined;
   }
 

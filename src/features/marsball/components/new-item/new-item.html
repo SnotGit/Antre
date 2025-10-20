@@ -15,20 +15,34 @@
         <div class="content">
             <form (ngSubmit)="createItem()">
 
-                <!-- TITRE -->
                 <div class="form-field">
-                    <input #titleInput type="text" [(ngModel)]="itemTitle" name="title" class="input"
-                        placeholder="Nom de l'item..." required autocomplete="off" tabindex="1">
+                    <input 
+                        #titleInput 
+                        type="text" 
+                        [(ngModel)]="itemTitle" 
+                        name="title" 
+                        class="input"
+                        placeholder="Nom de l'item..." 
+                        readonly 
+                        disabled
+                        required 
+                        autocomplete="off" 
+                        tabindex="1">
                 </div>
 
-                <!-- IMAGE PRINCIPALE -->
                 <div class="form-field">
 
                     @if (!mainImage()) {
-                    <div class="upload-zone" (drop)="onMainDrop($event)" (dragover)="onMainDragOver($event)"
-                        tabindex="2">
+                    <div 
+                        #uploadZone
+                        class="upload-zone" 
+                        (drop)="onMainDrop($event)" 
+                        (dragover)="onMainDragOver($event)"
+                        (click)="mainFileInput.click()"
+                        (blur)="blurUploadZone()"
+                        tabindex="0">
                         <p class="upload-text">Collez (Ctrl+V) ou déposez une image</p>
-                        <button type="button" class="browse-btn" (click)="mainFileInput.click()">
+                        <button type="button" class="browse-btn" tabindex="-1">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
@@ -40,13 +54,13 @@
 
                     @if (mainImage(); as img) {
                         
-                    <div class="thumbnail-preview-section">
-                        <p class="preview-label">Aperçu</p>
-                        <div class="thumbnail-preview" 
-                             [style.backgroundImage]="thumbnailPreview()?.backgroundImage"
-                             [style.backgroundPosition]="thumbnailPreview()?.backgroundPosition"
-                             [style.backgroundSize]="thumbnailPreview()?.backgroundSize">
+                    <div class="item-preview-header">
+                        <div class="item-thumbnail-crop"
+                             [style.background-image]="thumbnailPreview()?.backgroundImage"
+                             [style.background-position]="thumbnailPreview()?.backgroundPosition"
+                             [style.background-size]="thumbnailPreview()?.backgroundSize">
                         </div>
+                        <span class="item-title">{{ itemTitle() }}</span>
                     </div>
 
                     <div class="image-preview-container" 
@@ -86,12 +100,18 @@
                         style="display: none">
                 </div>
 
-                <!-- DESCRIPTION -->
                 <div class="form-field">
 
                     @if (!descriptionImage()) {
-                    <textarea #descriptionInput [(ngModel)]="itemDescription" name="description" class="textarea"
-                        placeholder="Ajouter texte ou image" rows="4" autocomplete="off" tabindex="3"></textarea>
+                    <textarea 
+                        #descriptionInput 
+                        [(ngModel)]="itemDescription" 
+                        name="description" 
+                        class="input textarea"
+                        placeholder="Ajouter texte ou image" 
+                        rows="4" 
+                        autocomplete="off" 
+                        tabindex="3"></textarea>
                     }
 
                     @if (descriptionImage(); as descImg) {
@@ -109,7 +129,6 @@
                         (change)="onDescriptionFileSelected($event)" style="display: none">
                 </div>
 
-                <!-- ACTIONS -->
                 <div class="form-actions">
                     <button type="button" class="btn cancel" (click)="cancel()" tabindex="5">
                         Annuler

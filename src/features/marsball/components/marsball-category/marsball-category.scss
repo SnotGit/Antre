@@ -1,7 +1,7 @@
 @use 'content/artefacts/typing-effect/typing-effect' as *;
 @use 'content/artefacts/buttons/button' as *;
 @use 'content/artefacts/delete-cross/delete-cross' as *;
-@use 'content/artefacts/crop-tool/crop-tool' as *;
+@use 'content/artefacts/crop-box/crop-box' as *;
 @use 'content/marsball/marsball-grid' as *;
 @use 'content/marsball/marsball-category-card' as *;
 
@@ -318,7 +318,29 @@
   }
 }
 
-@include crop-tool;
+.edit-image-container {
+  text-align: center;
+  margin-bottom: 20px;
+
+  .image-with-crop {
+    display: inline-block;
+    position: relative;
+    border: 2px solid #5d889e;
+    border-radius: 8px;
+    overflow: hidden;
+    user-select: none;
+    max-width: 500px;
+
+    .edit-image {
+      width: 100%;
+      height: auto;
+      display: block;
+      pointer-events: none;
+    }
+
+    @include crop-box;
+  }
+}
 
 @keyframes slideDown {
   from {

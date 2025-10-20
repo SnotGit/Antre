@@ -1,0 +1,74 @@
+@mixin crop-box {
+
+  .crop-box {
+    position: absolute;
+    border: 3px solid darkorange;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+    pointer-events: auto;
+    transition: border-color 0.2s ease;
+    cursor: move;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 140, 0, 0.1);
+    }
+
+    &::after {
+      content: '⊕';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 32px;
+      color: darkorange;
+      font-weight: bold;
+      pointer-events: none;
+    }
+
+    &.resizing-mode {
+      border-color: lime;
+
+      &::after {
+        color: lime;
+      }
+    }
+  }
+
+  //======= RESIZE HANDLES =======
+
+  .resize-handle {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: lime;
+    border: 2px solid #121416;
+    border-radius: 50%;
+    z-index: 10;
+    
+    &.top-left {
+      top: -7px;
+      left: -7px;
+      cursor: nwse-resize;
+    }
+    
+    &.top-right {
+      top: -7px;
+      right: -7px;
+      cursor: nesw-resize;
+    }
+    
+    &.bottom-left {
+      bottom: -7px;
+      left: -7px;
+      cursor: nesw-resize;
+    }
+    
+    &.bottom-right {
+      bottom: -7px;
+      right: -7px;
+      cursor: nwse-resize;
+    }
+  }
+}
