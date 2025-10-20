@@ -3,17 +3,12 @@ import { FormsModule } from '@angular/forms';
 import { NewItemService } from '@features/marsball/services/new-item.service';
 import { MarsballCreateService } from '@features/marsball/services/marsball-create.service';
 import { ConfirmationDialogService } from '@features/marsball/services/confirmation-dialog.service';
-import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
+import { CropService } from '@shared/utilities/crop-images/crop.service';
+import { FileNameFormatterService } from '@shared/utilities/file-name-formatter/file-name-formatter.service';
 
 interface ImageFile {
   file: File;
   preview: string;
-}
-
-interface CropData {
-  x: number;
-  y: number;
-  size: number;
 }
 
 @Component({
@@ -29,17 +24,24 @@ export class NewItem implements OnDestroy, AfterViewInit {
   protected readonly newItemService = inject(NewItemService);
   private readonly marsballCreateService = inject(MarsballCreateService);
   private readonly confirmationService = inject(ConfirmationDialogService);
-  private readonly typingService = inject(TypingEffectService);
+  protected readonly cropService = inject(CropService);
+  private readonly fileNameFormatter = inject(FileNameFormatterService);
 
   //======= VIEW CHILDREN =======
 
-  @ViewChild('titleInput') titleInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('browseButton') browseButton?: ElementRef<HTMLButtonElement>;
   @ViewChild('descriptionInput') descriptionInput?: ElementRef<HTMLTextAreaElement>;
 
-  //======= TYPING EFFECT =======
+  //======= TYPING EFFECT LOCAL =======
 
-  headerTitle = this.typingService.headerTitle;
-  typing = this.typingService.typingComplete;
+  private _dialogTitle = signal('');
+  private _showCursor = signal(true);
+  private _typingComplete = signal(false);
+  private typingInterval: number | undefined;
+
+  headerTitle = this._dialogTitle.asReadonly();
+  showCursor = this._showCursor.asReadonly();
+  typing = this._typingComplete.asReadonly();
 
   //======= SIGNALS =======
 
@@ -47,9 +49,6 @@ export class NewItem implements OnDestroy, AfterViewInit {
   itemDescription = signal('');
   mainImage = signal<ImageFile | null>(null);
   descriptionImage = signal<ImageFile | null>(null);
-  
-  crop = signal<CropData>({ x: 0, y: 0, size: 60 });
-  isDragging = signal(false);
 
   //======= COMPUTED =======
 
@@ -58,7 +57,7 @@ export class NewItem implements OnDestroy, AfterViewInit {
   });
 
   cropStyle = computed(() => {
-    const { x, y, size } = this.crop();
+    const { x, y, size } = this.cropService.crop();
     return {
       left: `${x}px`,
       top: `${y}px`,
@@ -69,7 +68,7 @@ export class NewItem implements OnDestroy, AfterViewInit {
 
   thumbnailPreview = computed(() => {
     const img = this.mainImage();
-    const { x, y, size } = this.crop();
+    const { x, y, size } = this.cropService.crop();
     if (!img) return null;
     
     return {
@@ -81,23 +80,61 @@ export class NewItem implements OnDestroy, AfterViewInit {
 
   //======= EFFECTS =======
 
-  private readonly autoFocusEffect = effect(() => {
-    if (this.newItemService.isVisible() && this.titleInput) {
-      setTimeout(() => this.titleInput?.nativeElement.focus(), 100);
+  private readonly visibilityEffect = effect(() => {
+    if (this.newItemService.isVisible()) {
+      this.startTyping('Nouvel Item');
+    } else {
+      this.stopTyping();
     }
   });
+
+  private readonly autoFocusEffect = effect(() => {
+    if (this.newItemService.isVisible() && this.browseButton) {
+      setTimeout(() => this.browseButton?.nativeElement.focus(), 100);
+    }
+  });
+
+  //======= TYPING EFFECT METHODS =======
+
+  private startTyping(text: string): void {
+    this.stopTyping();
+    
+    this._dialogTitle.set('');
+    this._typingComplete.set(false);
+    this._showCursor.set(true);
+    
+    let currentIndex = 0;
+    const speed = 150;
+
+    this.typingInterval = window.setInterval(() => {
+      if (currentIndex < text.length) {
+        this._dialogTitle.set(text.substring(0, currentIndex + 1));
+        currentIndex++;
+      } else {
+        this.stopTyping();
+        this._typingComplete.set(true);
+      }
+    }, speed);
+  }
+
+  private stopTyping(): void {
+    if (this.typingInterval) {
+      clearInterval(this.typingInterval);
+      this.typingInterval = undefined;
+    }
+  }
 
   //======= LIFECYCLE =======
 
   ngAfterViewInit(): void {
     if (this.newItemService.isVisible()) {
-      this.titleInput?.nativeElement.focus();
+      this.browseButton?.nativeElement.focus();
     }
   }
 
   ngOnDestroy(): void {
     this.cleanupImages();
-    this.typingService.destroy();
+    this.stopTyping();
   }
 
   //======= PASTE LISTENER =======
@@ -115,7 +152,6 @@ export class NewItem implements OnDestroy, AfterViewInit {
         if (file) {
           if (!this.mainImage()) {
             this.setMainImage(file);
-            setTimeout(() => this.descriptionInput?.nativeElement.focus(), 50);
           } else if (this.itemDescription().trim().length === 0) {
             this.setDescriptionImage(file);
           }
@@ -155,7 +191,14 @@ export class NewItem implements OnDestroy, AfterViewInit {
 
     const preview = URL.createObjectURL(file);
     this.mainImage.set({ file, preview });
-    this.crop.set({ x: 0, y: 0, size: 60 });
+    this.cropService.init(60);
+    
+    if (this.itemTitle().trim().length === 0) {
+      const formattedTitle = this.fileNameFormatter.format(file);
+      this.itemTitle.set(formattedTitle);
+    }
+    
+    setTimeout(() => this.descriptionInput?.nativeElement.focus(), 50);
   }
 
   removeMainImage(): void {
@@ -197,28 +240,23 @@ export class NewItem implements OnDestroy, AfterViewInit {
 
   //======= CROP MANAGEMENT =======
 
-  startDrag(event: MouseEvent): void {
-    event.preventDefault();
-    this.isDragging.set(true);
+  onCropMouseDown(event: MouseEvent, container: HTMLElement): void {
+    const rect = container.getBoundingClientRect();
+    this.cropService.startMove(event, rect);
+  }
+
+  onResizeMouseDown(event: MouseEvent, corner: 'tl' | 'tr' | 'bl' | 'br', container: HTMLElement): void {
+    const rect = container.getBoundingClientRect();
+    this.cropService.startResize(event, corner, rect);
   }
 
   onMouseMove(event: MouseEvent, container: HTMLElement): void {
-    if (!this.isDragging()) return;
-
     const rect = container.getBoundingClientRect();
-    const currentCrop = this.crop();
-    
-    let newX = event.clientX - rect.left - currentCrop.size / 2;
-    let newY = event.clientY - rect.top - currentCrop.size / 2;
-
-    newX = Math.max(0, Math.min(newX, rect.width - currentCrop.size));
-    newY = Math.max(0, Math.min(newY, rect.height - currentCrop.size));
-
-    this.crop.set({ ...currentCrop, x: newX, y: newY });
+    this.cropService.onDrag(event, rect);
   }
 
-  stopDrag(): void {
-    this.isDragging.set(false);
+  onMouseUp(): void {
+    this.cropService.stopDrag();
   }
 
   //======= FORM ACTIONS =======
@@ -258,6 +296,7 @@ export class NewItem implements OnDestroy, AfterViewInit {
     this.cleanupImages();
     this.itemTitle.set('');
     this.itemDescription.set('');
+    this.cropService.reset();
   }
 
   private cleanupImages(): void {
