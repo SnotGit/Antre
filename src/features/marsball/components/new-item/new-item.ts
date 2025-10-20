@@ -29,7 +29,7 @@ export class NewItem implements OnDestroy, AfterViewInit {
 
   //======= VIEW CHILDREN =======
 
-  @ViewChild('browseButton') browseButton?: ElementRef<HTMLButtonElement>;
+  @ViewChild('uploadZone') uploadZone?: ElementRef<HTMLDivElement>;
   @ViewChild('descriptionInput') descriptionInput?: ElementRef<HTMLTextAreaElement>;
 
   //======= TYPING EFFECT LOCAL =======
@@ -83,14 +83,9 @@ export class NewItem implements OnDestroy, AfterViewInit {
   private readonly visibilityEffect = effect(() => {
     if (this.newItemService.isVisible()) {
       this.startTyping('Nouvel Item');
+      setTimeout(() => this.focusUploadZone(), 200);
     } else {
       this.stopTyping();
-    }
-  });
-
-  private readonly autoFocusEffect = effect(() => {
-    if (this.newItemService.isVisible() && this.browseButton) {
-      setTimeout(() => this.browseButton?.nativeElement.focus(), 100);
     }
   });
 
@@ -124,11 +119,26 @@ export class NewItem implements OnDestroy, AfterViewInit {
     }
   }
 
+  //======= FOCUS MANAGEMENT =======
+
+  private focusUploadZone(): void {
+    if (this.uploadZone?.nativeElement) {
+      this.uploadZone.nativeElement.focus();
+      this.uploadZone.nativeElement.classList.add('focused');
+    }
+  }
+
+  blurUploadZone(): void {
+    if (this.uploadZone?.nativeElement) {
+      this.uploadZone.nativeElement.classList.remove('focused');
+    }
+  }
+
   //======= LIFECYCLE =======
 
   ngAfterViewInit(): void {
     if (this.newItemService.isVisible()) {
-      this.browseButton?.nativeElement.focus();
+      setTimeout(() => this.focusUploadZone(), 50);
     }
   }
 
@@ -197,8 +207,6 @@ export class NewItem implements OnDestroy, AfterViewInit {
       const formattedTitle = this.fileNameFormatter.format(file);
       this.itemTitle.set(formattedTitle);
     }
-    
-    setTimeout(() => this.descriptionInput?.nativeElement.focus(), 50);
   }
 
   removeMainImage(): void {

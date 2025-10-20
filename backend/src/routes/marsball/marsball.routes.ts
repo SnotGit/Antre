@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authenticateToken } from '@middlewares/auth/authenticateToken';
-import { uploadImage } from '@middlewares/marsball/uploadImage';
+import { uploadItemImage, processItemImage } from '@middlewares/marsball/uploadItems';
 
 import { getRootCategories, getCategoryWithChildren } from '@controllers/marsball/getController';
 import { createCategory, createItem } from '@controllers/marsball/createController';
@@ -23,7 +23,7 @@ router.put('/categories/:id', updateCategory);
 router.delete('/categories/:id', deleteCategory);
 router.post('/categories/batch-delete', batchDeleteCategories);
 
-router.post('/items', uploadImage.single('image'), createItem);
+router.post('/items', uploadItemImage.single('image'), processItemImage, createItem);
 router.put('/items/:id', updateItem);
 router.delete('/items/:id', deleteItem);
 router.post('/items/batch-delete', batchDeleteItems);

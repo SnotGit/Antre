@@ -22,7 +22,7 @@ export class EditItemService {
   private itemTitle = signal('');
   private itemDescription = signal('');
   private originalImage = signal<string>('');
-  private cropBox = signal<CropBox>({ x: 0, y: 0, size: 150 });
+  private cropBox = signal<CropBox>({ x: 0, y: 0, size: 60 });
   private isDragging = signal(false);
   private dragOffset = signal({ x: 0, y: 0 });
 
@@ -41,7 +41,7 @@ export class EditItemService {
     this.itemTitle.set(title);
     this.itemDescription.set(description || '');
     this.originalImage.set(imageUrl);
-    this.cropBox.set({ x: 0, y: 0, size: 80 });
+    this.cropBox.set({ x: 0, y: 0, size: 60 });
   }
 
   cancelEdit(): void {
@@ -98,7 +98,7 @@ export class EditItemService {
     this.itemTitle.set('');
     this.itemDescription.set('');
     this.originalImage.set('');
-    this.cropBox.set({ x: 0, y: 0, size: 150 });
+    this.cropBox.set({ x: 0, y: 0, size: 60 });
     this.isDragging.set(false);
     this.dragOffset.set({ x: 0, y: 0 });
   }
