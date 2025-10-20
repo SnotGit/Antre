@@ -24,7 +24,7 @@ router.delete('/categories/:id', deleteCategory);
 router.post('/categories/batch-delete', batchDeleteCategories);
 
 router.post('/items', uploadItemImage.single('image'), processItemImage, createItem);
-router.put('/items/:id', updateItem);
+router.put('/items/:id', uploadItemImage.single('image'), processItemImage, updateItem);
 router.delete('/items/:id', deleteItem);
 router.post('/items/batch-delete', batchDeleteItems);
 

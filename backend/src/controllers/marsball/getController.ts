@@ -82,6 +82,8 @@ export const getCategoryWithChildren = async (req: Request, res: Response): Prom
         id: item.id,
         title: item.title,
         imageUrl: item.imageUrl,
+        thumbnailUrl: item.thumbnailUrl || undefined,
+        description: item.description || undefined,
         categoryId: item.categoryId,
         createdAt: item.createdAt.toISOString(),
         updatedAt: item.updatedAt.toISOString()

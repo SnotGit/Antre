@@ -132,11 +132,7 @@
                 rows="4"></textarea>
             </div>
             <div class="edit-image-container">
-              <div class="image-with-crop" 
-                   #imageContainer
-                   (mousemove)="onMouseMove($event, imageContainer)"
-                   (mouseup)="editItemService.stopDrag()"
-                   (mouseleave)="editItemService.stopDrag()">
+              <div class="image-with-crop" #imageContainer>
                 <img [src]="getImageUrl(editItemService.image())" [alt]="editItemService.title()" class="edit-image">
                 <div class="crop-box" 
                      [style.left.px]="editItemService.crop().x"

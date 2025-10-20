@@ -56,7 +56,7 @@ export const updateCategory = async (req: AuthenticatedRequest, res: Response): 
 export const updateItem = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const itemId = parseInt(req.params.id, 10);
-    const { title } = req.body;
+    const { title, description } = req.body;
 
     if (isNaN(itemId)) {
       sendBadRequest(res, 'ID invalide');
@@ -77,15 +77,27 @@ export const updateItem = async (req: AuthenticatedRequest, res: Response): Prom
       return;
     }
 
+    const updateData: any = { 
+      title: title.trim(),
+      description: description !== undefined ? (description.trim() || null) : undefined
+    };
+
+    if (req.file) {
+      updateData.imageUrl = `/uploads/marsball/full/${req.file.filename}`;
+      updateData.thumbnailUrl = `/uploads/marsball/thumbnails/${req.file.filename}`;
+    }
+
     const item = await prisma.marsballItem.update({
       where: { id: itemId },
-      data: { title: title.trim() }
+      data: updateData
     });
 
     const itemResponse: MarsballItem = {
       id: item.id,
       title: item.title,
       imageUrl: item.imageUrl,
+      thumbnailUrl: item.thumbnailUrl || undefined,
+      description: item.description || undefined,
       categoryId: item.categoryId,
       createdAt: item.createdAt.toISOString(),
       updatedAt: item.updatedAt.toISOString()
