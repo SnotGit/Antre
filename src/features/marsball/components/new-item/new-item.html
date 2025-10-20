@@ -41,20 +41,41 @@
                     @if (mainImage(); as img) {
                         
                     <div class="thumbnail-preview-section">
-                        <div class="thumbnail-preview" [style.backgroundImage]="thumbnailPreview()?.backgroundImage"
-                            [style.backgroundPosition]="thumbnailPreview()?.backgroundPosition"
-                            [style.backgroundSize]="thumbnailPreview()?.backgroundSize">
+                        <p class="preview-label">Aperçu</p>
+                        <div class="thumbnail-preview" 
+                             [style.backgroundImage]="thumbnailPreview()?.backgroundImage"
+                             [style.backgroundPosition]="thumbnailPreview()?.backgroundPosition"
+                             [style.backgroundSize]="thumbnailPreview()?.backgroundSize">
                         </div>
                     </div>
 
-                    <div class="image-preview-container" (mousemove)="onMouseMove($event, imageContainer)"
-                        (mouseup)="stopDrag()" (mouseleave)="stopDrag()" #imageContainer>
+                    <div class="image-preview-container" 
+                         (mousemove)="onMouseMove($event, imageContainer)"
+                         (mouseup)="onMouseUp()" 
+                         (mouseleave)="onMouseUp()" 
+                         #imageContainer>
 
                         <img [src]="img.preview" [alt]="itemTitle()" class="preview-image">
 
-                        <div class="crop-box" [style.left]="cropStyle().left" [style.top]="cropStyle().top"
-                            [style.width]="cropStyle().width" [style.height]="cropStyle().height"
-                            (mousedown)="startDrag($event)">
+                        <div class="crop-box" 
+                             [class.resizing-mode]="cropService.isCtrlPressed()"
+                             [style.left]="cropStyle().left" 
+                             [style.top]="cropStyle().top"
+                             [style.width]="cropStyle().width" 
+                             [style.height]="cropStyle().height"
+                             [style.cursor]="cropService.isCtrlPressed() ? 'default' : 'move'"
+                             (mousedown)="onCropMouseDown($event, imageContainer)">
+                            
+                            @if (cropService.isCtrlPressed()) {
+                                <div class="resize-handle top-left" 
+                                     (mousedown)="onResizeMouseDown($event, 'tl', imageContainer)"></div>
+                                <div class="resize-handle top-right" 
+                                     (mousedown)="onResizeMouseDown($event, 'tr', imageContainer)"></div>
+                                <div class="resize-handle bottom-left" 
+                                     (mousedown)="onResizeMouseDown($event, 'bl', imageContainer)"></div>
+                                <div class="resize-handle bottom-right" 
+                                     (mousedown)="onResizeMouseDown($event, 'br', imageContainer)"></div>
+                            }
                         </div>
 
                         <button type="button" class="delete-cross" (click)="removeMainImage()">✕</button>

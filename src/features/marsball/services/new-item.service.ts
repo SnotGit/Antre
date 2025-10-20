@@ -1,6 +1,5 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +9,6 @@ export class NewItemService {
   //======= INJECTIONS =======
 
   private readonly router = inject(Router);
-  private readonly typingService = inject(TypingEffectService);
 
   //======= SIGNALS =======
 
@@ -27,7 +25,6 @@ export class NewItemService {
     const categoryId = this.detectCategoryId();
     this.categoryId.set(categoryId);
     this.visible.set(true);
-    this.typingService.title('Nouvel Item');
 
     return new Promise<void>((resolve) => {
       this.resolvePromise = resolve;
