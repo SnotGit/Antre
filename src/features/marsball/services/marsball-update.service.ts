@@ -41,10 +41,21 @@ export class MarsballUpdateService {
 
   //======= UPDATE ITEM =======
 
-  async updateItem(itemId: number, title: string): Promise<MarsballItem> {
+  async updateItem(itemId: number, title: string, description: string, image?: File, cropX?: number, cropY?: number, cropSize?: number): Promise<MarsballItem> {
     try {
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('description', description);
+      
+      if (image && cropX !== undefined && cropY !== undefined && cropSize !== undefined) {
+        formData.append('image', image);
+        formData.append('cropX', cropX.toString());
+        formData.append('cropY', cropY.toString());
+        formData.append('cropSize', cropSize.toString());
+      }
+
       const response = await firstValueFrom(
-        this.http.put<ItemResponse>(`${this.API_URL}/items/${itemId}`, { title })
+        this.http.put<ItemResponse>(`${this.API_URL}/items/${itemId}`, formData)
       );
       return response.item;
     } catch (error) {

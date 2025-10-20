@@ -2,6 +2,7 @@ import { Component, OnDestroy, inject, computed, resource, input, signal, effect
 import { Router } from '@angular/router';
 import { MarsballGetService, CategoryWithChildren } from '@features/marsball/services/marsball-get.service';
 import { MarsballDeleteService } from '@features/marsball/services/marsball-delete.service';
+import { MarsballUpdateService } from '@features/marsball/services/marsball-update.service';
 import { EditItemService } from '@features/marsball/services/edit-item.service';
 import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
@@ -20,6 +21,7 @@ export class MarsballCategory implements OnDestroy {
   private readonly router = inject(Router);
   private readonly marsballGetService = inject(MarsballGetService);
   private readonly marsballDeleteService = inject(MarsballDeleteService);
+  private readonly marsballUpdateService = inject(MarsballUpdateService);
   protected readonly editItemService = inject(EditItemService);
   private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
@@ -54,14 +56,14 @@ export class MarsballCategory implements OnDestroy {
       
       try {
         return await this.marsballGetService.getCategoryWithChildren(params.categoryId);
-      } catch (error) {
+      } catch {
         this.router.navigate(['/marsball']);
         return null;
       }
     }
   });
 
-  categoryData = computed((): CategoryWithChildren | null => {
+  categoryData = computed(() => {
     return this.categoryResource.value() || null;
   });
 
@@ -79,6 +81,11 @@ export class MarsballCategory implements OnDestroy {
 
   private readonly _titleEffect = effect(() => {
     this.typingService.title(this.currentTitle());
+  });
+
+  private readonly _categoryChangeEffect = effect(() => {
+    this.categoryId();
+    this.openItemId.set(null);
   });
 
   //======= LIFECYCLE =======
@@ -142,13 +149,23 @@ export class MarsballCategory implements OnDestroy {
   //======= CROP DRAG METHODS =======
 
   onCropMouseDown(event: MouseEvent, container: HTMLElement): void {
+    event.preventDefault();
     const rect = container.getBoundingClientRect();
     this.editItemService.startDrag(event, rect);
-  }
-
-  onMouseMove(event: MouseEvent, container: HTMLElement): void {
-    const rect = container.getBoundingClientRect();
-    this.editItemService.onDrag(event, rect);
+    
+    const onMouseMove = (e: MouseEvent) => {
+      const r = container.getBoundingClientRect();
+      this.editItemService.onDrag(e, r);
+    };
+    
+    const onMouseUp = () => {
+      this.editItemService.stopDrag();
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+    
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
   }
 
   //======= ADMIN ACTIONS =======
@@ -160,12 +177,7 @@ export class MarsballCategory implements OnDestroy {
     const item = data.items.find(i => i.id === itemId);
     if (!item) return;
 
-    this.editItemService.startEdit(
-      itemId,
-      item.title,
-      item.description || '',
-      item.imageUrl
-    );
+    this.editItemService.startEdit(itemId, item.title, item.description || '', item.imageUrl);
   }
 
   cancelEdit(): void {
@@ -173,14 +185,30 @@ export class MarsballCategory implements OnDestroy {
   }
 
   async saveEdit(): Promise<void> {
-    console.log('Save edit:', {
-      id: this.editItemService.isEditing(),
-      title: this.editItemService.title(),
-      description: this.editItemService.description(),
-      crop: this.editItemService.crop()
-    });
-    this.editItemService.cancelEdit();
-    this.categoryResource.reload();
+    const itemId = this.editItemService.isEditing();
+    if (itemId === null) return;
+
+    const title = this.editItemService.title();
+    const description = this.editItemService.description();
+    const imageUrl = this.editItemService.image();
+    const crop = this.editItemService.crop();
+
+    if (!title.trim()) return;
+
+    try {
+      const fullImageUrl = this.getImageUrl(imageUrl);
+      const response = await fetch(fullImageUrl);
+      const blob = await response.blob();
+      const file = new File([blob], 'item.jpg', { type: 'image/jpeg' });
+
+      await this.marsballUpdateService.updateItem(itemId, title, description, file, crop.x, crop.y, crop.size);
+      
+      this.editItemService.cancelEdit();
+      this.openItemId.set(null);
+      this.categoryResource.reload();
+    } catch (error) {
+      console.error('Erreur:', error);
+    }
   }
 
   async deleteItem(itemId: number): Promise<void> {
