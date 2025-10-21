@@ -77,6 +77,17 @@ export class MarsballCategory implements OnDestroy {
     return data?.category.title || 'Marsball';
   });
 
+  editThumbnailPreview = computed(() => {
+    const crop = this.editItemService.crop();
+    const imageUrl = this.editItemService.image();
+    
+    return {
+      backgroundImage: `url(${this.getImageUrl(imageUrl)})`,
+      backgroundPosition: `-${crop.x}px -${crop.y}px`,
+      backgroundSize: 'auto'
+    };
+  });
+
   //======= EFFECTS =======
 
   private readonly _titleEffect = effect(() => {
@@ -190,19 +201,32 @@ export class MarsballCategory implements OnDestroy {
 
     const title = this.editItemService.title();
     const description = this.editItemService.description();
-    const imageUrl = this.editItemService.image();
     const crop = this.editItemService.crop();
 
     if (!title.trim()) return;
 
     try {
-      const fullImageUrl = this.getImageUrl(imageUrl);
-      const response = await fetch(fullImageUrl);
-      const blob = await response.blob();
-      const file = new File([blob], 'item.jpg', { type: 'image/jpeg' });
+      if (this.editItemService.imageChanged()) {
+        const imageFile = this.editItemService.imageFile();
+        if (!imageFile) return;
 
-      await this.marsballUpdateService.updateItem(itemId, title, description, file, crop.x, crop.y, crop.size);
-      
+        await this.marsballUpdateService.updateItem(
+          itemId,
+          title,
+          description,
+          imageFile,
+          crop.x,
+          crop.y,
+          crop.size
+        );
+      } else {
+        await this.marsballUpdateService.updateItem(
+          itemId,
+          title,
+          description
+        );
+      }
+
       this.editItemService.cancelEdit();
       this.openItemId.set(null);
       this.categoryResource.reload();
@@ -253,8 +277,6 @@ export class MarsballCategory implements OnDestroy {
     this.selectedCategories.set(new Set());
     this.categoryResource.reload();
   }
-
-  //======= NAVIGATION =======
 
   goToCategory(categoryId: number): void {
     this.router.navigate(['/marsball', categoryId]);

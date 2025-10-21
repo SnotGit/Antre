@@ -41,11 +41,25 @@ export class MarsballCreateService {
 
   //======= CREATE ITEM =======
 
-  async createItem(title: string, categoryId: number, image: File): Promise<MarsballItem> {
+  async createItem(
+    title: string,
+    categoryId: number,
+    image: File,
+    cropX: number,
+    cropY: number,
+    cropSize: number,
+    description?: string
+  ): Promise<MarsballItem> {
     const formData = new FormData();
     formData.append('title', title);
     formData.append('categoryId', categoryId.toString());
     formData.append('image', image);
+    formData.append('cropX', cropX.toString());
+    formData.append('cropY', cropY.toString());
+    formData.append('cropSize', cropSize.toString());
+    if (description) {
+      formData.append('description', description);
+    }
 
     try {
       const response = await firstValueFrom(

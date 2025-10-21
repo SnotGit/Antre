@@ -246,7 +246,7 @@ export class NewItem implements OnDestroy, AfterViewInit {
     }
   }
 
-  //======= CROP MANAGEMENT =======
+  //======= CROP METHODS =======
 
   onCropMouseDown(event: MouseEvent, container: HTMLElement): void {
     const rect = container.getBoundingClientRect();
@@ -276,11 +276,18 @@ export class NewItem implements OnDestroy, AfterViewInit {
     const img = this.mainImage();
     if (categoryId === null || !img) return;
 
+    const crop = this.cropService.crop();
+    const description = this.itemDescription().trim();
+
     try {
       await this.marsballCreateService.createItem(
         this.itemTitle().trim(),
         categoryId,
-        img.file
+        img.file,
+        crop.x,
+        crop.y,
+        crop.size,
+        description || undefined
       );
 
       this.confirmationService.showSuccessMessage();
