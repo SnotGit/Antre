@@ -23,8 +23,7 @@
                         name="title" 
                         class="input"
                         placeholder="Nom de l'item..." 
-                        readonly 
-                        disabled
+                        [readonly]="!mainImage()"
                         required 
                         autocomplete="off" 
                         tabindex="1">

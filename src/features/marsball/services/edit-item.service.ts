@@ -22,6 +22,8 @@ export class EditItemService {
   private itemTitle = signal('');
   private itemDescription = signal('');
   private originalImage = signal<string>('');
+  private originalImageFile = signal<File | null>(null);
+  private hasImageChanged = signal(false);
   private cropBox = signal<CropBox>({ x: 0, y: 0, size: 60 });
   private isDragging = signal(false);
   private dragOffset = signal({ x: 0, y: 0 });
@@ -32,6 +34,8 @@ export class EditItemService {
   title = this.itemTitle.asReadonly();
   description = this.itemDescription.asReadonly();
   image = this.originalImage.asReadonly();
+  imageFile = this.originalImageFile.asReadonly();
+  imageChanged = this.hasImageChanged.asReadonly();
   crop = this.cropBox.asReadonly();
 
   //======= ACTIONS =======
@@ -41,6 +45,8 @@ export class EditItemService {
     this.itemTitle.set(title);
     this.itemDescription.set(description || '');
     this.originalImage.set(imageUrl);
+    this.originalImageFile.set(null);
+    this.hasImageChanged.set(false);
     this.cropBox.set({ x: 0, y: 0, size: 60 });
   }
 
@@ -54,6 +60,16 @@ export class EditItemService {
 
   updateDescription(description: string): void {
     this.itemDescription.set(description);
+  }
+
+  updateImage(file: File): void {
+    if (this.originalImageFile()) {
+      URL.revokeObjectURL(this.originalImage());
+    }
+    this.originalImageFile.set(file);
+    this.originalImage.set(URL.createObjectURL(file));
+    this.hasImageChanged.set(true);
+    this.cropBox.set({ x: 0, y: 0, size: 60 });
   }
 
   isEditingItem(itemId: number): boolean {
@@ -94,10 +110,15 @@ export class EditItemService {
   //======= CLEANUP =======
 
   private cleanup(): void {
+    if (this.hasImageChanged() && this.originalImageFile()) {
+      URL.revokeObjectURL(this.originalImage());
+    }
     this.editingItemId.set(null);
     this.itemTitle.set('');
     this.itemDescription.set('');
     this.originalImage.set('');
+    this.originalImageFile.set(null);
+    this.hasImageChanged.set(false);
     this.cropBox.set({ x: 0, y: 0, size: 60 });
     this.isDragging.set(false);
     this.dragOffset.set({ x: 0, y: 0 });

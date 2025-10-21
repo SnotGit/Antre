@@ -1,4 +1,4 @@
-import { Injectable, signal, HostListener } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 //======= INTERFACES =======
 
@@ -47,21 +47,29 @@ export class CropService {
   isDragging = this._isDragging.asReadonly();
   currentDragMode = this._currentDragMode.asReadonly();
 
-  //======= HOST LISTENERS =======
+  //======= CONSTRUCTOR =======
 
-  @HostListener('window:keydown', ['$event'])
-  onKeyDown(event: KeyboardEvent): void {
-    if (event.ctrlKey && !this._isCtrlPressed()) {
-      this._isCtrlPressed.set(true);
-    }
+  constructor() {
+    this.setupKeyListeners();
   }
 
-  @HostListener('window:keyup', ['$event'])
-  onKeyUp(event: KeyboardEvent): void {
-    if (!event.ctrlKey && this._isCtrlPressed()) {
-      this._isCtrlPressed.set(false);
-      this._currentDragMode.set(DragMode.NONE);
-    }
+  //======= KEYBOARD LISTENERS =======
+
+  private setupKeyListeners(): void {
+    window.addEventListener('keydown', (event: KeyboardEvent) => {
+      if (event.ctrlKey && !this._isCtrlPressed()) {
+        this._isCtrlPressed.set(true);
+      }
+    });
+
+    window.addEventListener('keyup', (event: KeyboardEvent) => {
+      if (!event.ctrlKey && this._isCtrlPressed()) {
+        this._isCtrlPressed.set(false);
+        if (!this._isDragging()) {
+          this._currentDragMode.set(DragMode.NONE);
+        }
+      }
+    });
   }
 
   //======= INITIALISATION =======
