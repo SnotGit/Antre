@@ -274,10 +274,23 @@ export class NewItem implements OnDestroy, AfterViewInit {
 
     const categoryId = this.newItemService.contextCategoryId();
     const img = this.mainImage();
+    
     if (categoryId === null || !img) return;
+
+    const container = document.querySelector('.image-preview-container') as HTMLElement;
+    
+    if (!container) {
+      console.error('Container image non trouvé');
+      return;
+    }
 
     const crop = this.cropService.crop();
     const description = this.itemDescription().trim();
+    const displayWidth = container.clientWidth;
+    const displayHeight = container.clientHeight;
+
+    console.log('Dimensions container:', displayWidth, 'x', displayHeight);
+    console.log('Crop:', crop);
 
     try {
       await this.marsballCreateService.createItem(
@@ -287,6 +300,8 @@ export class NewItem implements OnDestroy, AfterViewInit {
         crop.x,
         crop.y,
         crop.size,
+        displayWidth,
+        displayHeight,
         description || undefined
       );
 
@@ -296,6 +311,7 @@ export class NewItem implements OnDestroy, AfterViewInit {
       
       window.location.reload();
     } catch (error) {
+      console.error('Erreur création:', error);
       this.confirmationService.showErrorMessage();
     }
   }

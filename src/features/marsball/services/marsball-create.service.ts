@@ -48,6 +48,8 @@ export class MarsballCreateService {
     cropX: number,
     cropY: number,
     cropSize: number,
+    imageWidth: number,
+    imageHeight: number,
     description?: string
   ): Promise<MarsballItem> {
     const formData = new FormData();
@@ -57,6 +59,8 @@ export class MarsballCreateService {
     formData.append('cropX', cropX.toString());
     formData.append('cropY', cropY.toString());
     formData.append('cropSize', cropSize.toString());
+    formData.append('imageWidth', imageWidth.toString());
+    formData.append('imageHeight', imageHeight.toString());
     if (description) {
       formData.append('description', description);
     }

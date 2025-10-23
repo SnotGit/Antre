@@ -41,17 +41,29 @@ export class MarsballUpdateService {
 
   //======= UPDATE ITEM =======
 
-  async updateItem(itemId: number, title: string, description: string, image?: File, cropX?: number, cropY?: number, cropSize?: number): Promise<MarsballItem> {
+  async updateItem(
+    itemId: number, 
+    title: string, 
+    description: string, 
+    cropX: number, 
+    cropY: number, 
+    cropSize: number,
+    imageWidth: number,
+    imageHeight: number,
+    image?: File
+  ): Promise<MarsballItem> {
     try {
       const formData = new FormData();
       formData.append('title', title);
       formData.append('description', description);
+      formData.append('cropX', cropX.toString());
+      formData.append('cropY', cropY.toString());
+      formData.append('cropSize', cropSize.toString());
+      formData.append('imageWidth', imageWidth.toString());
+      formData.append('imageHeight', imageHeight.toString());
       
-      if (image && cropX !== undefined && cropY !== undefined && cropSize !== undefined) {
+      if (image) {
         formData.append('image', image);
-        formData.append('cropX', cropX.toString());
-        formData.append('cropY', cropY.toString());
-        formData.append('cropSize', cropSize.toString());
       }
 
       const response = await firstValueFrom(

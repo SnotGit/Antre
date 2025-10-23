@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject, computed, resource, input, signal, effect } from '@angular/core';
+import { Component, OnDestroy, inject, computed, resource, input, signal, effect, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { MarsballGetService, CategoryWithChildren } from '@features/marsball/services/marsball-get.service';
 import { MarsballDeleteService } from '@features/marsball/services/marsball-delete.service';
@@ -26,6 +26,10 @@ export class MarsballCategory implements OnDestroy {
   private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
   private readonly API_URL = environment.apiUrl;
+
+  //======= VIEW CHILDREN =======
+
+  @ViewChild('imageContainer') imageContainer?: ElementRef<HTMLDivElement>;
 
   //======= TYPING EFFECT =======
 
@@ -63,7 +67,7 @@ export class MarsballCategory implements OnDestroy {
     }
   });
 
-  categoryData = computed(() => {
+  categoryData = computed((): CategoryWithChildren | null => {
     return this.categoryResource.value() || null;
   });
 
@@ -202,8 +206,12 @@ export class MarsballCategory implements OnDestroy {
     const title = this.editItemService.title();
     const description = this.editItemService.description();
     const crop = this.editItemService.crop();
+    const container = this.imageContainer?.nativeElement;
 
-    if (!title.trim()) return;
+    if (!title.trim() || !container) return;
+
+    const displayWidth = container.clientWidth;
+    const displayHeight = container.clientHeight;
 
     try {
       if (this.editItemService.imageChanged()) {
@@ -214,16 +222,23 @@ export class MarsballCategory implements OnDestroy {
           itemId,
           title,
           description,
-          imageFile,
           crop.x,
           crop.y,
-          crop.size
+          crop.size,
+          displayWidth,
+          displayHeight,
+          imageFile
         );
       } else {
         await this.marsballUpdateService.updateItem(
           itemId,
           title,
-          description
+          description,
+          crop.x,
+          crop.y,
+          crop.size,
+          displayWidth,
+          displayHeight
         );
       }
 
