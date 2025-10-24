@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
-import { MarsballCategory, MarsballItem } from './marsball-get.service';
+import { MarsballItem, MarsballCategory } from './marsball-get.service';
 
 //======= RESPONSE TYPES =======
 
@@ -48,30 +48,95 @@ export class MarsballCreateService {
     cropX: number,
     cropY: number,
     cropSize: number,
-    imageWidth: number,
-    imageHeight: number,
+    displayWidth: number,
+    displayHeight: number,
     description?: string
   ): Promise<MarsballItem> {
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('categoryId', categoryId.toString());
-    formData.append('image', image);
-    formData.append('cropX', cropX.toString());
-    formData.append('cropY', cropY.toString());
-    formData.append('cropSize', cropSize.toString());
-    formData.append('imageWidth', imageWidth.toString());
-    formData.append('imageHeight', imageHeight.toString());
-    if (description) {
-      formData.append('description', description);
-    }
-
     try {
+      const thumbnail = await this.cropThumbnail(image, cropX, cropY, cropSize);
+
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('categoryId', categoryId.toString());
+      formData.append('image', image);
+      formData.append('thumbnail', thumbnail, 'thumbnail.jpg');
+      
+      if (description) {
+        formData.append('description', description);
+      }
+
       const response = await firstValueFrom(
         this.http.post<ItemResponse>(`${this.API_URL}/items`, formData)
       );
+
       return response.item;
     } catch (error) {
       throw error;
     }
+  }
+
+  //======= CROP THUMBNAIL - SIMPLE ET DIRECT =======
+
+  private async cropThumbnail(
+    file: File,
+    cropX: number,
+    cropY: number,
+    cropSize: number
+  ): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      
+      img.onload = () => {
+        console.log('=== CROP THUMBNAIL ===');
+        console.log('Image:', img.naturalWidth, 'x', img.naturalHeight);
+        console.log('Crop position:', Math.round(cropX), Math.round(cropY));
+        console.log('Crop size:', Math.round(cropSize));
+
+        const canvas = document.createElement('canvas');
+        canvas.width = 60;
+        canvas.height = 60;
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas error'));
+          return;
+        }
+
+        // CROP DIRECT: extraire cropSize x cropSize depuis cropX, cropY
+        // puis redimensionner à 60x60
+        ctx.drawImage(
+          img,
+          Math.round(cropX),
+          Math.round(cropY),
+          Math.round(cropSize),
+          Math.round(cropSize),
+          0,
+          0,
+          60,
+          60
+        );
+
+        canvas.toBlob(
+          (blob) => {
+            URL.revokeObjectURL(img.src);
+            if (blob) {
+              console.log('✅ Thumbnail créé:', blob.size, 'bytes');
+              resolve(blob);
+            } else {
+              reject(new Error('Canvas toBlob error'));
+            }
+          },
+          'image/jpeg',
+          0.9
+        );
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(img.src);
+        reject(new Error('Image load error'));
+      };
+
+      img.src = URL.createObjectURL(file);
+    });
   }
 }

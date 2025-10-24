@@ -66,13 +66,13 @@
           <div class="item-header" (click)="toggleItem(item.id)">
             
             @if (!editItemService.isEditingItem(item.id)) {
-              <img [src]="getImageUrl(item.imageUrl)" [alt]="item.title" class="item-thumbnail">
+              <img [src]="getImageUrl(item.thumbnailUrl || item.imageUrl)" [alt]="item.title" class="item-thumbnail">
               <span class="item-title">{{ item.title }}</span>
             } @else {
               <div class="item-thumbnail-crop"
                    [style.background-image]="'url(' + getImageUrl(editItemService.image()) + ')'"
-                   [style.background-position]="'-' + editItemService.crop().x + 'px -' + editItemService.crop().y + 'px'"
-                   [style.background-size]="'auto'">
+                   [style.background-position]="editThumbnailPreview().backgroundPosition"
+                   [style.background-size]="editThumbnailPreview().backgroundSize">
               </div>
               <input 
                 type="text" 
@@ -132,14 +132,34 @@
                 rows="4"></textarea>
             </div>
             <div class="edit-image-container">
-              <div class="image-with-crop" #imageContainer>
-                <img [src]="getImageUrl(editItemService.image())" [alt]="editItemService.title()" class="edit-image">
+              <div class="image-with-crop" 
+                   (mousemove)="onMouseMove($event, imageContainer)"
+                   (mouseup)="onMouseUp()"
+                   (mouseleave)="onMouseUp()"
+                   #imageContainer>
+                <img [src]="getImageUrl(editItemService.image())" 
+                     [alt]="editItemService.title()" 
+                     class="edit-image"
+                     crossOrigin="anonymous">
                 <div class="crop-box" 
-                     [style.left.px]="editItemService.crop().x"
-                     [style.top.px]="editItemService.crop().y"
-                     [style.width.px]="editItemService.crop().size"
-                     [style.height.px]="editItemService.crop().size"
+                     [class.resizing-mode]="cropService.isCtrlPressed()"
+                     [style.left]="cropStyle().left"
+                     [style.top]="cropStyle().top"
+                     [style.width]="cropStyle().width"
+                     [style.height]="cropStyle().height"
+                     [style.cursor]="cropService.isCtrlPressed() ? 'default' : 'move'"
                      (mousedown)="onCropMouseDown($event, imageContainer)">
+                     
+                     @if (cropService.isCtrlPressed()) {
+                       <div class="resize-handle top-left" 
+                            (mousedown)="onResizeMouseDown($event, 'tl', imageContainer)"></div>
+                       <div class="resize-handle top-right" 
+                            (mousedown)="onResizeMouseDown($event, 'tr', imageContainer)"></div>
+                       <div class="resize-handle bottom-left" 
+                            (mousedown)="onResizeMouseDown($event, 'bl', imageContainer)"></div>
+                       <div class="resize-handle bottom-right" 
+                            (mousedown)="onResizeMouseDown($event, 'br', imageContainer)"></div>
+                     }
                 </div>
               </div>
             </div>

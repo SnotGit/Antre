@@ -4,6 +4,7 @@ import { MarsballGetService, CategoryWithChildren } from '@features/marsball/ser
 import { MarsballDeleteService } from '@features/marsball/services/marsball-delete.service';
 import { MarsballUpdateService } from '@features/marsball/services/marsball-update.service';
 import { EditItemService } from '@features/marsball/services/edit-item.service';
+import { CropService } from '@shared/utilities/crop-images/crop.service';
 import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
 import { environment } from '@environments/environment';
@@ -23,6 +24,7 @@ export class MarsballCategory implements OnDestroy {
   private readonly marsballDeleteService = inject(MarsballDeleteService);
   private readonly marsballUpdateService = inject(MarsballUpdateService);
   protected readonly editItemService = inject(EditItemService);
+  protected readonly cropService = inject(CropService);
   private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
   private readonly API_URL = environment.apiUrl;
@@ -81,8 +83,18 @@ export class MarsballCategory implements OnDestroy {
     return data?.category.title || 'Marsball';
   });
 
+  cropStyle = computed(() => {
+    const crop = this.cropService.crop();
+    return {
+      left: `${crop.x}px`,
+      top: `${crop.y}px`,
+      width: `${crop.size}px`,
+      height: `${crop.size}px`
+    };
+  });
+
   editThumbnailPreview = computed(() => {
-    const crop = this.editItemService.crop();
+    const crop = this.cropService.crop();
     const imageUrl = this.editItemService.image();
     
     return {
@@ -161,26 +173,25 @@ export class MarsballCategory implements OnDestroy {
     return this.selectedCategories().has(categoryId);
   }
 
-  //======= CROP DRAG METHODS =======
+  //======= CROP METHODS =======
 
   onCropMouseDown(event: MouseEvent, container: HTMLElement): void {
-    event.preventDefault();
     const rect = container.getBoundingClientRect();
-    this.editItemService.startDrag(event, rect);
-    
-    const onMouseMove = (e: MouseEvent) => {
-      const r = container.getBoundingClientRect();
-      this.editItemService.onDrag(e, r);
-    };
-    
-    const onMouseUp = () => {
-      this.editItemService.stopDrag();
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-    
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+    this.cropService.startMove(event, rect);
+  }
+
+  onResizeMouseDown(event: MouseEvent, corner: 'tl' | 'tr' | 'bl' | 'br', container: HTMLElement): void {
+    const rect = container.getBoundingClientRect();
+    this.cropService.startResize(event, corner, rect);
+  }
+
+  onMouseMove(event: MouseEvent, container: HTMLElement): void {
+    const rect = container.getBoundingClientRect();
+    this.cropService.onDrag(event, rect);
+  }
+
+  onMouseUp(): void {
+    this.cropService.stopDrag();
   }
 
   //======= ADMIN ACTIONS =======
@@ -193,10 +204,16 @@ export class MarsballCategory implements OnDestroy {
     if (!item) return;
 
     this.editItemService.startEdit(itemId, item.title, item.description || '', item.imageUrl);
+    
+    // Initialiser le crop service avec la taille du thumbnail
+    setTimeout(() => {
+      this.cropService.init(60);
+    }, 0);
   }
 
   cancelEdit(): void {
     this.editItemService.cancelEdit();
+    this.cropService.reset();
   }
 
   async saveEdit(): Promise<void> {
@@ -205,13 +222,19 @@ export class MarsballCategory implements OnDestroy {
 
     const title = this.editItemService.title();
     const description = this.editItemService.description();
-    const crop = this.editItemService.crop();
+    const crop = this.cropService.crop();
     const container = this.imageContainer?.nativeElement;
+    const imgElement = container?.querySelector('img') as HTMLImageElement;
 
-    if (!title.trim() || !container) return;
+    if (!title.trim() || !container || !imgElement) return;
 
-    const displayWidth = container.clientWidth;
-    const displayHeight = container.clientHeight;
+    // CORRECTION: Utiliser naturalWidth/Height de l'image, pas du container
+    const displayWidth = imgElement.naturalWidth;
+    const displayHeight = imgElement.naturalHeight;
+
+    console.log('=== SAVE EDIT ===');
+    console.log('Image dimensions:', displayWidth, 'x', displayHeight);
+    console.log('Crop:', crop);
 
     try {
       if (this.editItemService.imageChanged()) {
@@ -243,6 +266,7 @@ export class MarsballCategory implements OnDestroy {
       }
 
       this.editItemService.cancelEdit();
+      this.cropService.reset();
       this.openItemId.set(null);
       this.categoryResource.reload();
     } catch (error) {
