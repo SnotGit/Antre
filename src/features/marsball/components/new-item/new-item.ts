@@ -5,6 +5,7 @@ import { MarsballCreateService } from '@features/marsball/services/marsball-crea
 import { ConfirmationDialogService } from '@features/marsball/services/confirmation-dialog.service';
 import { CropService } from '@shared/utilities/crop-images/crop.service';
 import { FileNameFormatterService } from '@shared/utilities/file-name-formatter/file-name-formatter.service';
+import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 
 interface ImageFile {
   file: File;
@@ -26,22 +27,19 @@ export class NewItem implements OnDestroy, AfterViewInit {
   private readonly confirmationService = inject(ConfirmationDialogService);
   protected readonly cropService = inject(CropService);
   private readonly fileNameFormatter = inject(FileNameFormatterService);
+  private readonly typingService = inject(TypingEffectService);
+
+  //======= TYPING EFFECT =======
+
+  private readonly title = 'Nouvel Item';
+
+  headerTitle = this.typingService.headerTitle;
+  typing = this.typingService.typingComplete;
 
   //======= VIEW CHILDREN =======
 
   @ViewChild('uploadZone') uploadZone?: ElementRef<HTMLDivElement>;
   @ViewChild('descriptionInput') descriptionInput?: ElementRef<HTMLTextAreaElement>;
-
-  //======= TYPING EFFECT LOCAL =======
-
-  private _dialogTitle = signal('');
-  private _showCursor = signal(true);
-  private _typingComplete = signal(false);
-  private typingInterval: number | undefined;
-
-  headerTitle = this._dialogTitle.asReadonly();
-  showCursor = this._showCursor.asReadonly();
-  typing = this._typingComplete.asReadonly();
 
   //======= SIGNALS =======
 
@@ -57,102 +55,70 @@ export class NewItem implements OnDestroy, AfterViewInit {
   });
 
   cropStyle = computed(() => {
-    const { x, y, size } = this.cropService.crop();
+    const crop = this.cropService.crop();
     return {
-      left: `${x}px`,
-      top: `${y}px`,
-      width: `${size}px`,
-      height: `${size}px`
+      left: `${crop.x}px`,
+      top: `${crop.y}px`,
+      width: `${crop.size}px`,
+      height: `${crop.size}px`
     };
   });
 
   thumbnailPreview = computed(() => {
     const img = this.mainImage();
-    const { x, y, size } = this.cropService.crop();
-    if (!img) return null;
+    const crop = this.cropService.crop();
     
+    if (!img) return null;
+
     return {
       backgroundImage: `url(${img.preview})`,
-      backgroundPosition: `-${x}px -${y}px`,
+      backgroundPosition: `-${crop.x}px -${crop.y}px`,
       backgroundSize: 'auto'
     };
   });
 
   //======= EFFECTS =======
 
-  private readonly visibilityEffect = effect(() => {
+  private readonly _typingEffect = effect(() => {
     if (this.newItemService.isVisible()) {
-      this.startTyping('Nouvel Item');
-      setTimeout(() => this.focusUploadZone(), 200);
-    } else {
-      this.stopTyping();
+      this.typingService.title(this.title);
     }
   });
 
-  //======= TYPING EFFECT METHODS =======
-
-  private startTyping(text: string): void {
-    this.stopTyping();
-    
-    this._dialogTitle.set('');
-    this._typingComplete.set(false);
-    this._showCursor.set(true);
-    
-    let currentIndex = 0;
-    const speed = 150;
-
-    this.typingInterval = window.setInterval(() => {
-      if (currentIndex < text.length) {
-        this._dialogTitle.set(text.substring(0, currentIndex + 1));
-        currentIndex++;
-      } else {
-        this.stopTyping();
-        this._typingComplete.set(true);
-      }
-    }, speed);
-  }
-
-  private stopTyping(): void {
-    if (this.typingInterval) {
-      clearInterval(this.typingInterval);
-      this.typingInterval = undefined;
+  private readonly _focusEffect = effect(() => {
+    if (this.newItemService.isVisible() && !this.mainImage()) {
+      setTimeout(() => this.uploadZone?.nativeElement.focus(), 100);
     }
-  }
-
-  //======= FOCUS MANAGEMENT =======
-
-  private focusUploadZone(): void {
-    if (this.uploadZone?.nativeElement) {
-      this.uploadZone.nativeElement.focus();
-      this.uploadZone.nativeElement.classList.add('focused');
-    }
-  }
-
-  blurUploadZone(): void {
-    if (this.uploadZone?.nativeElement) {
-      this.uploadZone.nativeElement.classList.remove('focused');
-    }
-  }
+  });
 
   //======= LIFECYCLE =======
 
   ngAfterViewInit(): void {
-    if (this.newItemService.isVisible()) {
-      setTimeout(() => this.focusUploadZone(), 50);
+    const uploadZone = this.uploadZone?.nativeElement;
+    if (uploadZone) {
+      uploadZone.addEventListener('paste', this.onPaste.bind(this));
     }
   }
 
   ngOnDestroy(): void {
+    const uploadZone = this.uploadZone?.nativeElement;
+    if (uploadZone) {
+      uploadZone.removeEventListener('paste', this.onPaste.bind(this));
+    }
     this.cleanupImages();
-    this.stopTyping();
+    this.typingService.destroy();
   }
 
-  //======= PASTE LISTENER =======
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.newItemService.isVisible()) {
+      this.cancel();
+    }
+  }
 
-  @HostListener('window:paste', ['$event'])
-  onGlobalPaste(event: ClipboardEvent): void {
-    if (!this.newItemService.isVisible()) return;
+  //======= PASTE HANDLER =======
 
+  private onPaste(event: ClipboardEvent): void {
     const items = event.clipboardData?.items;
     if (!items) return;
 
@@ -160,11 +126,8 @@ export class NewItem implements OnDestroy, AfterViewInit {
       if (items[i].type.indexOf('image') !== -1) {
         const file = items[i].getAsFile();
         if (file) {
-          if (!this.mainImage()) {
-            this.setMainImage(file);
-          } else if (this.itemDescription().trim().length === 0) {
-            this.setDescriptionImage(file);
-          }
+          this.setMainImage(file);
+          event.preventDefault();
           break;
         }
       }
@@ -183,9 +146,8 @@ export class NewItem implements OnDestroy, AfterViewInit {
 
   onMainDrop(event: DragEvent): void {
     event.preventDefault();
-    const files = event.dataTransfer?.files;
-    if (files && files[0]) {
-      this.setMainImage(files[0]);
+    if (event.dataTransfer?.files && event.dataTransfer.files[0]) {
+      this.setMainImage(event.dataTransfer.files[0]);
     }
   }
 
@@ -267,6 +229,10 @@ export class NewItem implements OnDestroy, AfterViewInit {
     this.cropService.stopDrag();
   }
 
+  blurUploadZone(): void {
+    this.uploadZone?.nativeElement.blur();
+  }
+
   //======= FORM ACTIONS =======
 
   async createItem(): Promise<void> {
@@ -278,18 +244,22 @@ export class NewItem implements OnDestroy, AfterViewInit {
     if (categoryId === null || !img) return;
 
     const container = document.querySelector('.image-preview-container') as HTMLElement;
+    const imgElement = container?.querySelector('img') as HTMLImageElement;
     
-    if (!container) {
-      console.error('Container image non trouvé');
+    if (!container || !imgElement) {
+      console.error('Container ou image non trouvé');
       return;
     }
 
     const crop = this.cropService.crop();
     const description = this.itemDescription().trim();
-    const displayWidth = container.clientWidth;
-    const displayHeight = container.clientHeight;
+    
+    // Utiliser naturalWidth/Height = dimensions RÉELLES de l'image, pas celles du CSS
+    const displayWidth = imgElement.naturalWidth;
+    const displayHeight = imgElement.naturalHeight;
 
-    console.log('Dimensions container:', displayWidth, 'x', displayHeight);
+    console.log('Dimensions container:', container.clientWidth, 'x', container.clientHeight);
+    console.log('Dimensions image naturelle:', displayWidth, 'x', displayHeight);
     console.log('Crop:', crop);
 
     try {

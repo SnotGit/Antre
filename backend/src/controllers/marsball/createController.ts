@@ -54,6 +54,7 @@ export const createCategory = async (req: AuthenticatedRequest, res: Response): 
 export const createItem = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { title, categoryId, description } = req.body;
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
     if (!title || title.trim().length === 0) {
       sendBadRequest(res, 'Le titre est requis');
@@ -65,7 +66,7 @@ export const createItem = async (req: AuthenticatedRequest, res: Response): Prom
       return;
     }
 
-    if (!req.file) {
+    if (!files || !files['image'] || files['image'].length === 0) {
       sendBadRequest(res, 'L\'image est requise');
       return;
     }
@@ -79,8 +80,9 @@ export const createItem = async (req: AuthenticatedRequest, res: Response): Prom
       return;
     }
 
-    const imageUrl = `/uploads/marsball/full/${req.file.filename}`;
-    const thumbnailUrl = `/uploads/marsball/thumbnails/${req.file.filename}`;
+    const filename = (files['image'][0] as any).filename;
+    const imageUrl = `/uploads/marsball/full/${filename}`;
+    const thumbnailUrl = `/uploads/marsball/thumbnails/${filename}`;
 
     const item = await prisma.marsballItem.create({
       data: {

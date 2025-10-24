@@ -138,6 +138,8 @@
   cursor: pointer;
   transition: all 0.3s ease;
   outline: none;
+  caret-color: transparent;
+  user-select: none;
   
   &:hover {
     border-color: #d0d0d0;

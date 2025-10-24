@@ -23,15 +23,6 @@ export const updateCategory = async (req: AuthenticatedRequest, res: Response): 
       return;
     }
 
-    const categoryExists = await prisma.marsballCategory.findUnique({
-      where: { id: categoryId }
-    });
-
-    if (!categoryExists) {
-      sendNotFound(res, 'Catégorie non trouvée');
-      return;
-    }
-
     const category = await prisma.marsballCategory.update({
       where: { id: categoryId },
       data: { title: title.trim() }
@@ -57,6 +48,7 @@ export const updateItem = async (req: AuthenticatedRequest, res: Response): Prom
   try {
     const itemId = parseInt(req.params.id, 10);
     const { title, description } = req.body;
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
     if (isNaN(itemId)) {
       sendBadRequest(res, 'ID invalide');
@@ -68,23 +60,15 @@ export const updateItem = async (req: AuthenticatedRequest, res: Response): Prom
       return;
     }
 
-    const itemExists = await prisma.marsballItem.findUnique({
-      where: { id: itemId }
-    });
-
-    if (!itemExists) {
-      sendNotFound(res, 'Item non trouvé');
-      return;
-    }
-
-    const updateData: any = { 
+    const updateData: any = {
       title: title.trim(),
       description: description !== undefined ? (description.trim() || null) : undefined
     };
 
-    if (req.file) {
-      updateData.imageUrl = `/uploads/marsball/full/${req.file.filename}`;
-      updateData.thumbnailUrl = `/uploads/marsball/thumbnails/${req.file.filename}`;
+    if (files && files['image'] && files['image'].length > 0) {
+      const filename = (files['image'][0] as any).filename;
+      updateData.imageUrl = `/uploads/marsball/full/${filename}`;
+      updateData.thumbnailUrl = `/uploads/marsball/thumbnails/${filename}`;
     }
 
     const item = await prisma.marsballItem.update({

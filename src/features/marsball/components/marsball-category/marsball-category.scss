@@ -158,7 +158,7 @@
     .item-thumbnail {
       width: 60px;
       height: 60px;
-      object-fit: cover;
+      object-fit: contain;  /* CORRECTION: contain au lieu de cover */
       border-radius: 8px;
       border: 2px solid #5d889e;
       flex-shrink: 0;
