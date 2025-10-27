@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { AuthenticatedRequest } from '@models/shared';
-import { StoriesResponse, StoryCard } from '@models/chroniques';
-import { handleError, parseStoryId, sendNotFound } from '@utils/global/helpers';
+import { handleError, sendNotFound, parseStoryId } from '@utils/global/helpers';
 
 const prisma = new PrismaClient();
 
@@ -29,7 +28,7 @@ export const getLatestStories = async (req: Request, res: Response): Promise<voi
       }
     });
 
-    const storyCards: StoryCard[] = stories.map(story => ({
+    const storyCards = stories.map(story => ({
       id: story.id,
       title: story.title,
       publishDate: story.publishedAt!.toISOString(),
@@ -40,7 +39,7 @@ export const getLatestStories = async (req: Request, res: Response): Promise<voi
       }
     }));
 
-    const response: StoriesResponse = { stories: storyCards };
+    const response = { stories: storyCards };
     res.json(response);
   } catch (error) {
     handleError(res, 'Erreur lors de la récupération des histoires');
@@ -49,10 +48,9 @@ export const getLatestStories = async (req: Request, res: Response): Promise<voi
 
 //======= GET SINGLE STORY =======
 
-export const getUserStory = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getUserStory = async (req: Request | AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const storyId = parseStoryId(req.params.id);
-    
     if (storyId === null) {
       sendNotFound(res, 'Histoire non trouvée');
       return;
@@ -68,6 +66,7 @@ export const getUserStory = async (req: AuthenticatedRequest, res: Response): Pr
         title: true,
         content: true,
         publishedAt: true,
+        userId: true,
         user: {
           select: {
             id: true,
@@ -88,12 +87,15 @@ export const getUserStory = async (req: AuthenticatedRequest, res: Response): Pr
       where: { storyId: story.id }
     });
 
+    const currentUserId = (req as AuthenticatedRequest).user?.userId;
+    const isOwnStory = currentUserId ? story.userId === currentUserId : false;
+    
     let isliked = false;
-    if (req.user?.userId) {
+    if (currentUserId && !isOwnStory) {
       const userLike = await prisma.like.findFirst({
         where: {
           storyId: story.id,
-          userId: req.user.userId
+          userId: currentUserId
         }
       });
       isliked = !!userLike;
@@ -106,6 +108,7 @@ export const getUserStory = async (req: AuthenticatedRequest, res: Response): Pr
       publishDate: story.publishedAt!.toISOString(),
       likes: likesCount,
       isliked,
+      canLike: !isOwnStory,
       user: {
         id: story.user.id,
         username: story.user.username,

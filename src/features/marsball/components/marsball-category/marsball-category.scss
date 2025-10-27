@@ -24,14 +24,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 20px;
+  min-height: 105px;
 
   .header-title {
     font-size: 32px;
     font-weight: 700;
     color: #5d889e;
     margin: 0;
-    flex: 1;
     
     @include typing-effect;
   }
