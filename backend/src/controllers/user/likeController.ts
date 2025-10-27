@@ -77,9 +77,9 @@ export const toggleLike = async (req: AuthenticatedRequest, res: Response): Prom
   }
 };
 
-//======= GET POSTED LIKES (PRIVATE) =======
+//======= GET POSTED LIKES LIST (PRIVATE) =======
 
-export const getPostedLikes = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getPostedLikesList = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user.userId;
     
@@ -131,5 +131,90 @@ export const getPostedLikes = async (req: AuthenticatedRequest, res: Response): 
     res.json({ likedStories });
   } catch (error) {
     handleError(res, 'Erreur lors de la récupération des histoires likées');
+  }
+};
+
+//======= GET RECEIVED LIKES COUNT (PRIVATE) =======
+
+export const getReceivedLikesCount = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user.userId;
+
+    const receivedLikes = await prisma.like.count({
+      where: {
+        story: {
+          userId: userId,
+          status: 'PUBLISHED'
+        }
+      }
+    });
+
+    res.json({ receivedLikes });
+  } catch (error) {
+    handleError(res, 'Erreur lors de la récupération du nombre de likes reçus');
+  }
+};
+
+//======= GET POSTED LIKES COUNT (PRIVATE) =======
+
+export const getPostedLikesCount = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user.userId;
+
+    const postedLikes = await prisma.like.count({
+      where: {
+        userId: userId
+      }
+    });
+
+    res.json({ postedLikes });
+  } catch (error) {
+    handleError(res, 'Erreur lors de la récupération du nombre de likes postés');
+  }
+};
+
+//======= GET RECEIVED LIKES LIST (PRIVATE) =======
+
+export const getReceivedLikesList = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user.userId;
+
+    const stories = await prisma.story.findMany({
+      where: {
+        userId: userId,
+        status: 'PUBLISHED',
+        likes: {
+          some: {}
+        }
+      },
+      include: {
+        likes: {
+          orderBy: {
+            createdAt: 'desc'
+          },
+          take: 1
+        },
+        _count: {
+          select: {
+            likes: true
+          }
+        }
+      },
+      orderBy: {
+        publishedAt: 'desc'
+      }
+    });
+
+    const receivedLikes = stories.map(story => ({
+      storyId: story.id,
+      title: story.title,
+      publishDate: story.publishedAt!.toISOString(),
+      likesCount: story._count.likes,
+      lastLikedAt: story.likes[0]?.createdAt.toISOString() || story.publishedAt!.toISOString()
+    }));
+
+    res.json({ receivedLikes });
+  } catch (error) {
+    handleError(res, 'Erreur lors de la récupération de la liste des likes reçus');
   }
 };

@@ -3,40 +3,67 @@
   <div class="header">
     <h2 class="header-title" [class.typing]="typing()">
       {{ headerTitle() }}
-      @if (showCursor()) {
-        <span class="cursor">|</span>
-      }
     </h2>
+    <div class="back-button">
+      <button class="btn" (click)="goBack()">Retour</button>
+    </div>
   </div>
 
   <div class="content">
-    @if (hasLikedStories()) {
+    @if (hasLikes()) {
       <div class="liked-stories-list">
-        @for (story of likedStories(); track story.storyId) {
-          <div class="story-item" (click)="onStoryClick(story)">
-            
-            <div class="avatar-section">
-              <div class="avatar" [style.background-image]="getAvatarUrl(story.user.avatar)"></div>
-            </div>
-
-            <div class="info-section">
-              <div class="username">{{ story.user.username }}</div>
-              <div class="story-info">
-                {{ story.title }} - {{ formatDate(story.publishDate) }}
+        
+        @if (mode() === 'posted') {
+          @for (story of postedLikes(); track story.storyId) {
+            <div class="story-item" (click)="onPostedStoryClick(story)">
+              
+              <div class="avatar-section">
+                <div class="avatar" [style.background-image]="getAvatarUrl(story.user.avatar)"></div>
               </div>
-            </div>
 
-            <div class="like-section">
-              <div class="like-date">LIKEDAT - {{ formatDate(story.likedAt) }}</div>
-            </div>
+              <div class="info-section">
+                <div class="username">{{ story.user.username }}</div>
+                <div class="story-info">
+                  {{ story.title }} - {{ formatDate(story.publishDate) }}
+                </div>
+              </div>
 
-          </div>
+              <div class="like-section">
+                <div class="like-date">LIKÉ LE - {{ formatDate(story.likedAt) }}</div>
+              </div>
+
+            </div>
+          }
         }
+
+        @if (mode() === 'received') {
+          @for (story of receivedLikes(); track story.storyId) {
+            <div class="story-item" (click)="onReceivedStoryClick(story)">
+              
+              <div class="info-section-received">
+                <div class="story-title">{{ story.title }}</div>
+                <div class="story-date">Publié le {{ formatDate(story.publishDate) }}</div>
+              </div>
+
+              <div class="stats-section">
+                <div class="likes-count">{{ story.likesCount }} like{{ story.likesCount > 1 ? 's' : '' }}</div>
+                <div class="last-liked">Dernier like : {{ formatDate(story.lastLikedAt) }}</div>
+              </div>
+
+            </div>
+          }
+        }
+
       </div>
     } @else {
       <div class="empty-state">
-        <p>Aucune histoire likée pour le moment.</p>
-        <p>Explorez les chroniques pour découvrir de nouvelles histoires !</p>
+        @if (mode() === 'posted') {
+          <p>Aucune histoire likée pour le moment.</p>
+          <p>Explorez les chroniques pour découvrir de nouvelles histoires !</p>
+        } @else {
+          <p>Aucun like reçu pour le moment.</p>
+          <p>Continuez à publier vos histoires pour recevoir des likes !</p>
+        }
       </div>
     }
   </div>

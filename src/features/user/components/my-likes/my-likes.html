@@ -1,0 +1,34 @@
+<div class="container">
+
+  <div class="header">
+    <h1 class="header-title" [class.typing]="typing()">
+      {{ headerTitle() }}
+    </h1>
+    <div class="back-button">
+      <button class="btn" (click)="goBack()">Retour</button>
+    </div>
+  </div>
+
+  <div class="separator">
+    <div class="line"></div>
+  </div>
+
+  <div class="content">
+    <div class="content-grid">
+      <div class="button" (click)="goToReceivedLikes()">
+        <button class="btn">
+          <div class="number">{{ stats().receivedLikes }}</div>
+          <div class="title">Likes Reçus</div>
+        </button>
+      </div>
+
+      <div class="button" (click)="goToPostedLikes()">
+        <button class="btn">
+          <div class="number">{{ stats().postedLikes }}</div>
+          <div class="title">Likes Postés</div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

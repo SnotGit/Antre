@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { LikeService, LikedStory } from '@features/user/services/like.service';
+import { LikeService, LikedStory, ReceivedLike } from '@features/user/services/like.service';
 import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
 import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 import { environment } from '@environments/environment';
@@ -18,13 +18,18 @@ export class LikedStories implements OnInit, OnDestroy {
 
   private readonly likeService = inject(LikeService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly chroniquesResolver = inject(ChroniquesResolver);
   private readonly typingService = inject(TypingEffectService);
   private readonly API_URL = environment.apiUrl;
 
-  //======= TYPING EFFECT =======
+  //======= MODE =======
 
-  private readonly title = 'Histoires Likées';
+  private readonly _mode = (this.route.snapshot.data['mode'] as 'received' | 'posted') || 'posted';
+  
+  mode = computed(() => this._mode);
+
+  //======= TYPING EFFECT =======
 
   headerTitle = this.typingService.headerTitle;
   showCursor = this.typingService.showCursor;
@@ -32,25 +37,45 @@ export class LikedStories implements OnInit, OnDestroy {
 
   //======= DATA LOADING =======
 
-  private readonly likedStoriesResource = resource({
-    loader: async () => {
-      const response = await this.likeService.getLikedStories();
-      return response.likedStories;
+  private readonly likesResource = resource({
+    params: () => ({ mode: this._mode }),
+    loader: async ({ params }) => {
+      if (params.mode === 'received') {
+        const response = await this.likeService.getReceivedLikesList();
+        return { type: 'received' as const, data: response.receivedLikes };
+      } else {
+        const response = await this.likeService.getPostedLikesList();
+        return { type: 'posted' as const, data: response.likedStories };
+      }
     }
   });
 
-  likedStories = computed((): LikedStory[] => {
-    return this.likedStoriesResource.value() || [];
+  receivedLikes = computed((): ReceivedLike[] => {
+    const value = this.likesResource.value();
+    return value?.type === 'received' ? value.data : [];
+  });
+
+  postedLikes = computed((): LikedStory[] => {
+    const value = this.likesResource.value();
+    return value?.type === 'posted' ? value.data : [];
   });
 
   //======= COMPUTED =======
 
-  hasLikedStories = computed(() => this.likedStories().length > 0);
+  hasLikes = computed(() => {
+    return this._mode === 'received' 
+      ? this.receivedLikes().length > 0 
+      : this.postedLikes().length > 0;
+  });
+
+  title = computed(() => {
+    return this._mode === 'received' ? 'Likes Reçus' : 'Histoires Likées';
+  });
 
   //======= LIFECYCLE =======
 
   ngOnInit(): void {
-    this.typingService.title(this.title);
+    this.typingService.title(this.title());
   }
 
   ngOnDestroy(): void {
@@ -59,7 +84,7 @@ export class LikedStories implements OnInit, OnDestroy {
 
   //======= ACTIONS =======
 
-  onStoryClick(story: LikedStory): void {
+  onPostedStoryClick(story: LikedStory): void {
     const titleUrl = this.chroniquesResolver.encodeTitle(story.title);
     
     this.router.navigate(['/chroniques', story.user.username, titleUrl], {
@@ -67,6 +92,22 @@ export class LikedStories implements OnInit, OnDestroy {
         storyId: story.storyId,
         userId: story.user.id,
         username: story.user.username,
+        title: story.title
+      }
+    });
+  }
+
+  onReceivedStoryClick(story: ReceivedLike): void {
+    const username = this.router.getCurrentNavigation()?.extras?.state?.['username'] 
+      || history.state?.username;
+    
+    if (!username) return;
+
+    const titleUrl = this.chroniquesResolver.encodeTitle(story.title);
+    
+    this.router.navigate(['/chroniques', username, titleUrl], {
+      state: {
+        storyId: story.storyId,
         title: story.title
       }
     });
@@ -82,5 +123,11 @@ export class LikedStories implements OnInit, OnDestroy {
       month: '2-digit',
       year: 'numeric'
     });
+  }
+
+  //======= NAVIGATION =======
+
+  goBack(): void {
+    this.router.navigate(['/mon-compte/mes-likes']);
   }
 }

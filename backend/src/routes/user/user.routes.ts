@@ -7,7 +7,14 @@ import { errorHandler } from '@middlewares/chroniques/errorHandler';
 import { getProfile, updateProfile } from '@controllers/user/profileController';
 import { getStats } from '@controllers/user/statsController';
 import { updateEmail, changePassword } from '@controllers/user/credentialsController';
-import { getStatus, toggleLike, getPostedLikes } from '@controllers/user/likeController';
+import { 
+  getStatus, 
+  toggleLike, 
+  getPostedLikesList,
+  getReceivedLikesCount,
+  getPostedLikesCount,
+  getReceivedLikesList
+} from '@controllers/user/likeController';
 
 import { 
   getDraftStories, 
@@ -55,7 +62,10 @@ router.put('/credentials/password', changePassword);
 
 router.get('/likes/story/:id/status', getStatus);
 router.post('/likes/story/:id/toggle', toggleLike);
-router.get('/likes/liked-stories', getPostedLikes);
+router.get('/likes/liked-stories', getPostedLikesList);
+router.get('/likes/received', getReceivedLikesCount);
+router.get('/likes/posted', getPostedLikesCount);
+router.get('/likes/received-likes', getReceivedLikesList);
 
 //======= DRAFT ROUTES =======
 
