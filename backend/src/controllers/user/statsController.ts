@@ -9,7 +9,6 @@ interface UserStats {
   drafts: number;
   published: number;
   totalStories: number;
-  totalLikes: number;
 }
 
 //======= GET STATS =======
@@ -18,7 +17,7 @@ export const getStats = async (req: AuthenticatedRequest, res: Response): Promis
   try {
     const userId = req.user.userId;
 
-    const [draftsCount, publishedCount, totalLikes] = await Promise.all([
+    const [draftsCount, publishedCount] = await Promise.all([
       prisma.story.count({
         where: {
           userId: userId,
@@ -30,22 +29,13 @@ export const getStats = async (req: AuthenticatedRequest, res: Response): Promis
           userId: userId,
           status: 'PUBLISHED'
         }
-      }),
-      prisma.like.count({
-        where: {
-          story: {
-            userId: userId,
-            status: 'PUBLISHED'
-          }
-        }
       })
     ]);
 
     const stats: UserStats = {
       drafts: draftsCount,
       published: publishedCount,
-      totalStories: draftsCount + publishedCount,
-      totalLikes: totalLikes
+      totalStories: draftsCount + publishedCount
     };
 
     res.json({ stats });

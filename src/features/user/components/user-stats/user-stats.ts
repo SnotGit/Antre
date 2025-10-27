@@ -28,7 +28,7 @@ export class UserStats {
       try {
         return await this.statsService.getStats();
       } catch (error) {
-        return { drafts: 0, published: 0, totalLikes: 0 };
+        return { drafts: 0, published: 0, totalStories: 0 };
       }
     }
   });
@@ -37,14 +37,14 @@ export class UserStats {
     const resourceValue = this.statsResource.value();
     
     if (this.statsResource.isLoading()) {
-      return { drafts: 0, published: 0, totalLikes: 0 };
+      return { drafts: 0, published: 0, totalStories: 0 };
     }
     
     if (this.statsResource.error()) {
-      return { drafts: 0, published: 0, totalLikes: 0 };
+      return { drafts: 0, published: 0, totalStories: 0 };
     }
     
-    return resourceValue || { drafts: 0, published: 0, totalLikes: 0 };
+    return resourceValue || { drafts: 0, published: 0, totalStories: 0 };
   });
 
   //======= COMPUTED =======
@@ -52,10 +52,9 @@ export class UserStats {
   userStats = computed(() => {
     const statsData = this.stats();
     return {
-      totalStories: statsData.drafts + statsData.published,
+      totalStories: statsData.totalStories,
       publishedStories: statsData.published,
-      draftsStories: statsData.drafts,
-      totalLikes: statsData.totalLikes
+      draftsStories: statsData.drafts
     };
   });
 
@@ -83,5 +82,9 @@ export class UserStats {
   showMyDrafts(): void {
     const username = this.authService.currentUser()?.username;
     this.router.navigate(['/chroniques', username, 'mes-histoires', 'brouillons']);
+  }
+
+  showMyLikes(): void {
+    this.router.navigate(['/mon-compte/mes-likes']);
   }
 }

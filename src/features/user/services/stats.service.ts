@@ -7,7 +7,6 @@ export interface UserStats {
   drafts: number;
   published: number;
   totalStories: number;
-  totalLikes: number;
 }
 
 @Injectable({
@@ -47,7 +46,7 @@ export class StatsService {
       } else {
         this._error.set('Erreur lors du chargement des statistiques');
       }
-      return { drafts: 0, published: 0, totalStories: 0, totalLikes: 0 };
+      return { drafts: 0, published: 0, totalStories: 0 };
     } finally {
       this._loading.set(false);
     }

@@ -35,6 +35,26 @@ export interface LikedStoriesResponse {
   likedStories: LikedStory[];
 }
 
+export interface ReceivedLike {
+  storyId: number;
+  title: string;
+  publishDate: string;
+  likesCount: number;
+  lastLikedAt: string;
+}
+
+export interface ReceivedLikesListResponse {
+  receivedLikes: ReceivedLike[];
+}
+
+export interface ReceivedLikesCountResponse {
+  receivedLikes: number;
+}
+
+export interface PostedLikesCountResponse {
+  postedLikes: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -81,12 +101,48 @@ export class LikeService {
     }
   }
 
-  //======= GET LIKED STORIES (PRIVATE) =======
+  //======= GET POSTED LIKES LIST (PRIVATE) =======
 
-  async getLikedStories(): Promise<LikedStoriesResponse> {
+  async getPostedLikesList(): Promise<LikedStoriesResponse> {
     try {
       return await firstValueFrom(
         this.http.get<LikedStoriesResponse>(`${this.API_URL}/liked-stories`)
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  //======= GET RECEIVED LIKES COUNT (PRIVATE) =======
+
+  async getReceivedLikesCount(): Promise<ReceivedLikesCountResponse> {
+    try {
+      return await firstValueFrom(
+        this.http.get<ReceivedLikesCountResponse>(`${this.API_URL}/received`)
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  //======= GET POSTED LIKES COUNT (PRIVATE) =======
+
+  async getPostedLikesCount(): Promise<PostedLikesCountResponse> {
+    try {
+      return await firstValueFrom(
+        this.http.get<PostedLikesCountResponse>(`${this.API_URL}/posted`)
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  //======= GET RECEIVED LIKES LIST (PRIVATE) =======
+
+  async getReceivedLikesList(): Promise<ReceivedLikesListResponse> {
+    try {
+      return await firstValueFrom(
+        this.http.get<ReceivedLikesListResponse>(`${this.API_URL}/received-likes`)
       );
     } catch (error) {
       throw error;
