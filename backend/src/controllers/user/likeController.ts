@@ -41,11 +41,13 @@ export const getStatus = async (req: AuthenticatedRequest, res: Response): Promi
     if (!story) return sendNotFound(res, 'Histoire non trouvée');
 
     const userId = req.user.userId;
+    const isOwnStory = story.userId === userId;
     const existingLike = await prisma.like.findFirst({ where: { storyId, userId } });
     
     res.json({ 
       storyId, 
-      isLiked: !!existingLike 
+      isLiked: !!existingLike,
+      canLike: !isOwnStory
     });
   } catch (error) {
     handleError(res, 'Erreur lors de la vérification du statut du like');
@@ -63,6 +65,11 @@ export const toggleLike = async (req: AuthenticatedRequest, res: Response): Prom
     if (!story) return sendNotFound(res, 'Histoire non trouvée');
 
     const userId = req.user.userId;
+
+    if (story.userId === userId) {
+      return sendError(res, 'Vous ne pouvez pas liker votre propre histoire', 403);
+    }
+
     const existingLike = await prisma.like.findFirst({ where: { storyId, userId } });
     
     if (existingLike) {
@@ -90,7 +97,8 @@ export const getPostedLikesList = async (req: AuthenticatedRequest, res: Respons
             userId: userId
           }
         },
-        status: 'PUBLISHED'
+        status: 'PUBLISHED',
+        userId: { not: userId }
       },
       include: {
         user: {
@@ -145,7 +153,8 @@ export const getReceivedLikesCount = async (req: AuthenticatedRequest, res: Resp
         story: {
           userId: userId,
           status: 'PUBLISHED'
-        }
+        },
+        userId: { not: userId }
       }
     });
 
@@ -163,7 +172,10 @@ export const getPostedLikesCount = async (req: AuthenticatedRequest, res: Respon
 
     const postedLikes = await prisma.like.count({
       where: {
-        userId: userId
+        userId: userId,
+        story: {
+          userId: { not: userId }
+        }
       }
     });
 
@@ -184,11 +196,16 @@ export const getReceivedLikesList = async (req: AuthenticatedRequest, res: Respo
         userId: userId,
         status: 'PUBLISHED',
         likes: {
-          some: {}
+          some: {
+            userId: { not: userId }
+          }
         }
       },
       include: {
         likes: {
+          where: {
+            userId: { not: userId }
+          },
           orderBy: {
             createdAt: 'desc'
           },
@@ -196,7 +213,11 @@ export const getReceivedLikesList = async (req: AuthenticatedRequest, res: Respo
         },
         _count: {
           select: {
-            likes: true
+            likes: {
+              where: {
+                userId: { not: userId }
+              }
+            }
           }
         }
       },
