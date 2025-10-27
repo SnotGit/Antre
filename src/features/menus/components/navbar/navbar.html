@@ -3,7 +3,7 @@
   'expanded': openMenu()
 }">
   <!-- Logo (masqué sur mobile) -->
-  <div class="logo">
+  <a routerLink="/accueil" class="logo" (click)="onClick()">
     <div class="logo-container">
       <div class="glitch-logo">
         <img src="assets/images/Logo.png" alt="L'Antre Logo">
@@ -12,7 +12,7 @@
       <div class="rolling-bar"></div>
       <div class="noise"></div>
     </div>
-  </div>
+  </a>
 
   <!-- Bouton hamburger mobile (masqué sur desktop) -->
   <button class="menu-toggle" 

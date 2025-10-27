@@ -65,7 +65,7 @@ export class Auth implements OnInit, OnDestroy {
     }
     
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/chroniques']);
+      this.router.navigate(['/accueil']);
     }
   }
 
@@ -104,7 +104,7 @@ export class Auth implements OnInit, OnDestroy {
       this.tokenService.setToken(response.token);
       this.authService.setCurrentUser(response.user);
       
-      const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/chroniques';
+      const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/accueil';
       this.router.navigate([returnUrl]);
       
     } catch (error: any) {
