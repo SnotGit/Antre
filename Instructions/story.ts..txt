@@ -22,8 +22,8 @@ Faire TS avec méthodes simples:
 
  
 
-SIMPLE = BDD → API → Template.
-SIMPLE = Une resource (story), une API (storiesAPI), un affichage direct (dans chroniques component) 
+
+SIMPLE = Un component (story), un service (publicStories)
 
 Complexité inutile = interdit. 
 Logs = interdit. 

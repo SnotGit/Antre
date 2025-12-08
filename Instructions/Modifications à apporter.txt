@@ -23,3 +23,26 @@ editPublishedUrl(username: string, title: string): string {
 newStoryUrl(username: string): string {
   return `/chroniques/${username}/nouvelle-histoire`;
 }
+
+
+Backend : 
+
+// LECTURE (consultation)
+getDraftStory()     → Pour voir un brouillon
+getPublishedStory() → Pour voir une histoire publiée
+
+// ÉDITION (modification) 
+getDraftStoryForEdit()     → Pour éditer un brouillon
+getPublishedStoryForEdit() → Pour éditer une histoire publiée
+
+
+user account / profile : 
+
+export class UserProfile {
+
+  //============ SIGNAUX FORM - INITIALISÉS AVEC DONNÉES ============
+
+  username = signal(this.authService.currentUser()?.username || '');
+  description = signal(this.authService.currentUser()?.description || '');
+  playerId = signal(this.authService.currentUser()?.playerId || '');
+  playerDays = signal(this.authService.currentUser()?.playerDays?.toString() || '');
