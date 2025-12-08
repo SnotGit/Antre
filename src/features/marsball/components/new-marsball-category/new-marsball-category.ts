@@ -1,33 +1,31 @@
 import { Component, OnDestroy, inject, signal, computed, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { NewCategoryService } from '@features/marsball/services/new-category.service';
 import { MarsballCreateService } from '@features/marsball/services/marsball-create.service';
 import { ConfirmationDialogService } from '@features/marsball/services/confirmation-dialog.service';
-import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
+import { OverlayTypingEffectService } from '@shared/utilities/typing-effect/overlay-typing-effect.service';
 
 @Component({
-  selector: 'app-new-category',
+  selector: 'app-new-marsball-category',
   imports: [FormsModule],
-  templateUrl: './new-category.html',
-  styleUrl: './new-category.scss'
+  templateUrl: './new-marsball-category.html',
+  styleUrl: './new-marsball-category.scss'
 })
-export class NewCategory implements OnDestroy {
+export class NewMarsballCategory implements OnDestroy {
 
   //======= INJECTIONS =======
 
-  private readonly router = inject(Router);
   protected readonly newCategoryService = inject(NewCategoryService);
   private readonly marsballCreateService = inject(MarsballCreateService);
   private readonly confirmationService = inject(ConfirmationDialogService);
-  private readonly typingService = inject(TypingEffectService);
+  private readonly overlayTypingService = inject(OverlayTypingEffectService);
 
   //======= TYPING EFFECT =======
 
   private readonly title = 'Nouvelle Catégorie';
 
-  headerTitle = this.typingService.headerTitle;
-  typing = this.typingService.typingComplete;
+  headerTitle = this.overlayTypingService.headerTitle;
+  typing = this.overlayTypingService.typingComplete;
 
   //======= SIGNALS =======
 
@@ -43,14 +41,14 @@ export class NewCategory implements OnDestroy {
 
   private readonly _typingEffect = effect(() => {
     if (this.newCategoryService.isVisible()) {
-      this.typingService.title(this.title);
+      this.overlayTypingService.title(this.title);
     }
   });
 
   //======= LIFECYCLE =======
 
   ngOnDestroy(): void {
-    this.typingService.destroy();
+    this.overlayTypingService.destroy();
   }
 
   //======= ACTIONS =======
@@ -71,7 +69,7 @@ export class NewCategory implements OnDestroy {
       this.newCategoryService.close();
       
       window.location.reload();
-    } catch (error) {
+    } catch {
       this.confirmationService.showErrorMessage();
     }
   }

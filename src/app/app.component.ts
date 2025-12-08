@@ -4,12 +4,13 @@ import { Navbar } from '../features/menus/components/navbar/navbar';
 import { ConsoleV3 } from '../features/menus/components/console-v3/console-v3';
 import { Terminal } from '../features/menus/components/terminal/terminal';
 import { ConfirmationDialog } from '@shared/utilities/confirmation-dialog/confirmation-dialog';
-import { NewCategory } from '@features/marsball/components/new-category/new-category';
-import { NewItem } from '@features/marsball/components/new-item/new-item';
+import { NewMarsballCategory } from '@features/marsball/components/new-marsball-category/new-marsball-category';
+import { NewMarsballItem } from '@features/marsball/components/new-marsball-item/new-marsball-item';
+import { NewBestiaireCreature } from '@features/marsball/bestiaire/components/new-bestiaire-creature/new-bestiaire-creature';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Navbar, ConsoleV3, Terminal, ConfirmationDialog, NewCategory, NewItem],
+  imports: [RouterOutlet, Navbar, ConsoleV3, Terminal, ConfirmationDialog, NewMarsballCategory, NewMarsballItem, NewBestiaireCreature],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

@@ -1,11 +1,11 @@
 import { Component, OnDestroy, inject, signal, computed, effect, ElementRef, ViewChild, AfterViewInit, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NewItemService } from '@features/marsball/services/new-item.service';
-import { MarsballCreateService } from '@features/marsball/services/marsball-create.service';
+import { NewCreatureService } from '@features/marsball/services/new-creature.service';
+import { BestiaireCreateService } from '../../services/bestiaire-create.service';
 import { ConfirmationDialogService } from '@features/marsball/services/confirmation-dialog.service';
 import { CropService } from '@shared/utilities/crop-images/crop.service';
 import { FileNameFormatterService } from '@shared/utilities/file-name-formatter/file-name-formatter.service';
-import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
+import { OverlayTypingEffectService } from '@shared/utilities/typing-effect/overlay-typing-effect.service';
 
 interface ImageFile {
   file: File;
@@ -13,28 +13,28 @@ interface ImageFile {
 }
 
 @Component({
-  selector: 'app-new-item',
+  selector: 'app-new-bestiaire-creature',
   imports: [FormsModule],
-  templateUrl: './new-item.html',
-  styleUrl: './new-item.scss'
+  templateUrl: './new-bestiaire-creature.html',
+  styleUrl: './new-bestiaire-creature.scss'
 })
-export class NewItem implements OnDestroy, AfterViewInit {
+export class NewBestiaireCreature implements OnDestroy, AfterViewInit {
 
   //======= INJECTIONS =======
 
-  protected readonly newItemService = inject(NewItemService);
-  private readonly marsballCreateService = inject(MarsballCreateService);
+  protected readonly newCreatureService = inject(NewCreatureService);
+  private readonly bestiaireCreateService = inject(BestiaireCreateService);
   private readonly confirmationService = inject(ConfirmationDialogService);
   protected readonly cropService = inject(CropService);
   private readonly fileNameFormatter = inject(FileNameFormatterService);
-  private readonly typingService = inject(TypingEffectService);
+  private readonly overlayTypingService = inject(OverlayTypingEffectService);
 
   //======= TYPING EFFECT =======
 
-  private readonly title = 'Nouvel Item';
+  private readonly title = 'Nouvelle Créature';
 
-  headerTitle = this.typingService.headerTitle;
-  typing = this.typingService.typingComplete;
+  headerTitle = this.overlayTypingService.headerTitle;
+  typing = this.overlayTypingService.typingComplete;
 
   //======= VIEW CHILDREN =======
 
@@ -43,15 +43,15 @@ export class NewItem implements OnDestroy, AfterViewInit {
 
   //======= SIGNALS =======
 
-  itemTitle = signal('');
-  itemDescription = signal('');
+  creatureTitle = signal('');
+  creatureDescription = signal('');
   mainImage = signal<ImageFile | null>(null);
   descriptionImage = signal<ImageFile | null>(null);
 
   //======= COMPUTED =======
 
   canCreate = computed(() => {
-    return this.itemTitle().trim().length > 0 && this.mainImage() !== null;
+    return this.creatureTitle().trim().length > 0 && this.mainImage() !== null;
   });
 
   cropStyle = computed(() => {
@@ -80,13 +80,13 @@ export class NewItem implements OnDestroy, AfterViewInit {
   //======= EFFECTS =======
 
   private readonly _typingEffect = effect(() => {
-    if (this.newItemService.isVisible()) {
-      this.typingService.title(this.title);
+    if (this.newCreatureService.isVisible()) {
+      this.overlayTypingService.title(this.title);
     }
   });
 
   private readonly _focusEffect = effect(() => {
-    if (this.newItemService.isVisible() && !this.mainImage()) {
+    if (this.newCreatureService.isVisible() && !this.mainImage()) {
       setTimeout(() => this.uploadZone?.nativeElement.focus(), 100);
     }
   });
@@ -106,12 +106,12 @@ export class NewItem implements OnDestroy, AfterViewInit {
       uploadZone.removeEventListener('paste', this.onPaste.bind(this));
     }
     this.cleanupImages();
-    this.typingService.destroy();
+    this.overlayTypingService.destroy();
   }
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
-    if (this.newItemService.isVisible()) {
+    if (this.newCreatureService.isVisible()) {
       this.cancel();
     }
   }
@@ -163,11 +163,11 @@ export class NewItem implements OnDestroy, AfterViewInit {
 
     const preview = URL.createObjectURL(file);
     this.mainImage.set({ file, preview });
-    this.cropService.init(60);
+    this.cropService.initWithPosition(200, 20, 20);
     
-    if (this.itemTitle().trim().length === 0) {
+    if (this.creatureTitle().trim().length === 0) {
       const formattedTitle = this.fileNameFormatter.format(file);
-      this.itemTitle.set(formattedTitle);
+      this.creatureTitle.set(formattedTitle);
     }
   }
 
@@ -197,7 +197,7 @@ export class NewItem implements OnDestroy, AfterViewInit {
 
     const preview = URL.createObjectURL(file);
     this.descriptionImage.set({ file, preview });
-    this.itemDescription.set('');
+    this.creatureDescription.set('');
   }
 
   removeDescriptionImage(): void {
@@ -235,10 +235,10 @@ export class NewItem implements OnDestroy, AfterViewInit {
 
   //======= FORM ACTIONS =======
 
-  async createItem(): Promise<void> {
+  async createCreature(): Promise<void> {
     if (!this.canCreate()) return;
 
-    const categoryId = this.newItemService.contextCategoryId();
+    const categoryId = this.newCreatureService.contextCategoryId();
     const img = this.mainImage();
     
     if (categoryId === null || !img) return;
@@ -246,25 +246,17 @@ export class NewItem implements OnDestroy, AfterViewInit {
     const container = document.querySelector('.image-preview-container') as HTMLElement;
     const imgElement = container?.querySelector('img') as HTMLImageElement;
     
-    if (!container || !imgElement) {
-      console.error('Container ou image non trouvé');
-      return;
-    }
+    if (!container || !imgElement) return;
 
     const crop = this.cropService.crop();
-    const description = this.itemDescription().trim();
+    const description = this.creatureDescription().trim();
     
-    // Utiliser naturalWidth/Height = dimensions RÉELLES de l'image, pas celles du CSS
     const displayWidth = imgElement.naturalWidth;
     const displayHeight = imgElement.naturalHeight;
 
-    console.log('Dimensions container:', container.clientWidth, 'x', container.clientHeight);
-    console.log('Dimensions image naturelle:', displayWidth, 'x', displayHeight);
-    console.log('Crop:', crop);
-
     try {
-      await this.marsballCreateService.createItem(
-        this.itemTitle().trim(),
+      await this.bestiaireCreateService.createCreature(
+        this.creatureTitle().trim(),
         categoryId,
         img.file,
         crop.x,
@@ -277,26 +269,25 @@ export class NewItem implements OnDestroy, AfterViewInit {
 
       this.confirmationService.showSuccessMessage();
       this.resetForm();
-      this.newItemService.close();
+      this.newCreatureService.close();
       
       window.location.reload();
-    } catch (error) {
-      console.error('Erreur création:', error);
+    } catch {
       this.confirmationService.showErrorMessage();
     }
   }
 
   cancel(): void {
     this.resetForm();
-    this.newItemService.close();
+    this.newCreatureService.close();
   }
 
   //======= CLEANUP =======
 
   private resetForm(): void {
     this.cleanupImages();
-    this.itemTitle.set('');
-    this.itemDescription.set('');
+    this.creatureTitle.set('');
+    this.creatureDescription.set('');
     this.cropService.reset();
   }
 

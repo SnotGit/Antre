@@ -1,0 +1,101 @@
+<div class="container">
+
+  @if (categoryData(); as data) {
+
+  <div class="header">
+    <h2 class="header-title" [class.typing]="typing()">
+      {{ headerTitle() }}
+    </h2>
+    
+    @if (isAdmin() && categorySelection()) {
+      <div class="delete-button">
+        <button class="btn" (click)="deleteSelectedCategories()">
+          <span>Supprimer ({{ selectedCategories().size }})</span>
+        </button>
+      </div>
+    } @else if (isAdmin() && selection()) {
+      <div class="delete-button">
+        <button class="btn" (click)="deleteSelected()">
+          <span>Supprimer ({{ selectedCreatures().size }})</span>
+        </button>
+      </div>
+    } @else {
+      <div class="back-button">
+        <button class="btn" (click)="goBack()">Retour</button>
+      </div>
+    }
+  </div>
+
+  <div class="separator">
+    <div class="line"></div>
+  </div>
+
+  <div class="content">
+
+    @if (data.children.length > 0) {
+    <div class="marsball-grid">
+      @for (child of data.children; track child.id) {
+        <div class="category-card" 
+             [class.selected]="isSelectedCategory(child.id)"
+             (click)="goToCategory(child.id)">
+          <div class="card">
+            <span class="category-title">{{ child.title }}</span>
+           
+            @if (isAdmin()) {
+            <button 
+              class="delete-cross" 
+              [class.active]="isSelectedCategory(child.id)"
+              (click)="$event.stopPropagation(); toggleCategorySelection(child.id)">
+              ✕
+            </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+    }
+
+    @if (data.creatures.length > 0) {
+    <div class="creatures-list">
+      @for (creature of data.creatures; track creature.id) {
+        <div class="creature-container" 
+             [class.open]="isCreatureOpen(creature.id)"
+             [class.selected]="isSelected(creature.id)">
+          
+          <div class="creature-header" (click)="toggleCreature(creature.id)">
+            <img [src]="getImageUrl(creature.thumbnailUrl || creature.imageUrl)" [alt]="creature.title" class="creature-thumbnail">
+            <span class="creature-title">{{ creature.title }}</span>
+            
+            @if (isAdmin() && !isCreatureOpen(creature.id)) {
+              <button 
+                class="delete-cross" 
+                [class.active]="isSelected(creature.id)"
+                (click)="$event.stopPropagation(); toggleSelection(creature.id)">
+                ✕
+              </button>
+            }
+          </div>
+
+          @if (isCreatureOpen(creature.id)) {
+          <div class="creature-content">
+            <div class="creature-image">
+              <img [src]="getImageUrl(creature.imageUrl)" [alt]="creature.title">
+            </div>
+            @if (creature.description) {
+            <div class="creature-description">
+              <p>{{ creature.description }}</p>
+            </div>
+            }
+          </div>
+          }
+
+        </div>
+      }
+    </div>
+    }
+
+  </div>
+
+  }
+
+</div>
