@@ -1,0 +1,103 @@
+@use 'content/artefacts/typing-effect/typing-effect' as *;
+@use 'content/artefacts/buttons/button' as *;
+@use 'content/artefacts/delete-cross/delete-cross' as *;
+@use 'content/marsball/marsball-category-card' as *;
+@use 'content/marsball/marsball-grid' as *;
+
+//======= CONTAINER =======
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+//======= HEADER =======
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30px;
+  flex-shrink: 0;
+
+  .header-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #5d889e;
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    
+    @include typing-effect;
+  }
+
+  .delete-button {
+    @include button;
+
+    .btn {
+      border-color: crimson;
+      color: crimson;
+
+      &:hover {
+        color: #ff6b6b;
+        border-color: #ff6b6b;
+      }
+    }
+  }
+}
+
+//======= SEPARATOR =======
+
+.separator {
+  text-align: center;
+  flex-shrink: 0;
+
+  .line {
+    width: 80%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #5d889e, transparent);
+    margin: 0 auto;
+    border-radius: 1px;
+  }
+}
+
+//======= CONTENT =======
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 30px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(93, 136, 158, 0.3) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(93, 136, 158, 0.3);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(93, 136, 158, 0.6);
+    }
+  }
+}
+
+//======= GRID =======
+
+.marsball-grid {
+  @include marsball-grid;
+}
+
+//======= CARDS =======
+
+.category-card {
+  @include marsball-category-card;
+
+  @include delete-cross;
+}

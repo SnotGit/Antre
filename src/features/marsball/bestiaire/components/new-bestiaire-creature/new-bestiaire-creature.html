@@ -1,0 +1,145 @@
+@if (newCreatureService.isVisible()) {
+<div class="overlay" (click)="cancel()">
+    <div class="dialog-box" (click)="$event.stopPropagation()">
+
+        <div class="header">
+            <h2 class="header-title" [class.typing]="typing()">
+                {{ headerTitle() }}
+            </h2>
+        </div>
+
+        <div class="separator">
+            <div class="line"></div>
+        </div>
+
+        <div class="content">
+            <form (ngSubmit)="createCreature()">
+
+                <div class="form-field">
+                    <input 
+                        #titleInput 
+                        type="text" 
+                        [(ngModel)]="creatureTitle" 
+                        name="title" 
+                        class="input"
+                        placeholder="Nom de la créature..." 
+                        [readonly]="!mainImage()"
+                        required 
+                        autocomplete="off" 
+                        tabindex="1">
+                </div>
+
+                <div class="form-field">
+
+                    @if (!mainImage()) {
+                    <div 
+                        #uploadZone
+                        class="upload-zone" 
+                        (drop)="onMainDrop($event)" 
+                        (dragover)="onMainDragOver($event)"
+                        (click)="mainFileInput.click()"
+                        (blur)="blurUploadZone()"
+                        tabindex="0">
+                        <p class="upload-text">Collez (Ctrl+V) ou déposez une capture</p>
+                        <button type="button" class="browse-btn" tabindex="-1">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                            </svg>
+                            Fichiers
+                        </button>
+                    </div>
+                    }
+
+                    @if (mainImage(); as img) {
+                        
+                    <div class="item-preview-header">
+                        <div class="item-thumbnail-crop"
+                             [style.background-image]="thumbnailPreview()?.backgroundImage"
+                             [style.background-position]="thumbnailPreview()?.backgroundPosition"
+                             [style.background-size]="thumbnailPreview()?.backgroundSize">
+                        </div>
+                        <span class="item-title">{{ creatureTitle() }}</span>
+                    </div>
+
+                    <div class="image-preview-container" 
+                         (mousemove)="onMouseMove($event, imageContainer)"
+                         (mouseup)="onMouseUp()" 
+                         (mouseleave)="onMouseUp()" 
+                         #imageContainer>
+
+                        <img [src]="img.preview" [alt]="creatureTitle()" class="preview-image">
+
+                        <div class="crop-box" 
+                             [class.resizing-mode]="cropService.isCtrlPressed()"
+                             [style.left]="cropStyle().left" 
+                             [style.top]="cropStyle().top"
+                             [style.width]="cropStyle().width" 
+                             [style.height]="cropStyle().height"
+                             [style.cursor]="cropService.isCtrlPressed() ? 'default' : 'move'"
+                             (mousedown)="onCropMouseDown($event, imageContainer)">
+                            
+                            @if (cropService.isCtrlPressed()) {
+                                <div class="resize-handle top-left" 
+                                     (mousedown)="onResizeMouseDown($event, 'tl', imageContainer)"></div>
+                                <div class="resize-handle top-right" 
+                                     (mousedown)="onResizeMouseDown($event, 'tr', imageContainer)"></div>
+                                <div class="resize-handle bottom-left" 
+                                     (mousedown)="onResizeMouseDown($event, 'bl', imageContainer)"></div>
+                                <div class="resize-handle bottom-right" 
+                                     (mousedown)="onResizeMouseDown($event, 'br', imageContainer)"></div>
+                            }
+                        </div>
+
+                        <button type="button" class="delete-cross" (click)="removeMainImage()">✕</button>
+                    </div>
+                    }
+
+                    <input #mainFileInput type="file" accept="image/*" (change)="onMainFileSelected($event)"
+                        style="display: none">
+                </div>
+
+                <div class="form-field">
+
+                    @if (!descriptionImage()) {
+                    <textarea 
+                        #descriptionInput 
+                        [(ngModel)]="creatureDescription" 
+                        name="description" 
+                        class="input textarea"
+                        placeholder="Description de la créature..." 
+                        rows="4" 
+                        autocomplete="off" 
+                        tabindex="3"></textarea>
+                    }
+
+                    @if (descriptionImage(); as descImg) {
+                    <div class="description-image-preview">
+                        <img [src]="descImg.preview" alt="Description">
+                        <button type="button" class="delete-cross" (click)="removeDescriptionImage()">✕</button>
+                    </div>
+                    <button type="button" class="browse-btn" (click)="descriptionFileInput.click()"
+                        style="margin-top: 10px;">
+                        Changer l'image
+                    </button>
+                    }
+
+                    <input #descriptionFileInput type="file" accept="image/*"
+                        (change)="onDescriptionFileSelected($event)" style="display: none">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn cancel" (click)="cancel()" tabindex="5">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn submit" [disabled]="!canCreate()" tabindex="4">
+                        Créer
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+}

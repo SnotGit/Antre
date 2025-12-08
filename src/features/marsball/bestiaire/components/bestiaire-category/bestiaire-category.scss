@@ -1,0 +1,192 @@
+@use 'content/artefacts/typing-effect/typing-effect' as *;
+@use 'content/artefacts/buttons/button' as *;
+@use 'content/artefacts/delete-cross/delete-cross' as *;
+@use 'content/marsball/marsball-category-card' as *;
+@use 'content/marsball/marsball-grid' as *;
+
+//======= CONTAINER =======
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+//======= HEADER =======
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30px;
+  flex-shrink: 0;
+
+  .header-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #5d889e;
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    
+    @include typing-effect;
+  }
+
+  .delete-button,
+  .back-button {
+    @include button;
+  }
+
+  .delete-button .btn {
+    border-color: crimson;
+    color: crimson;
+
+    &:hover {
+      color: #ff6b6b;
+      border-color: #ff6b6b;
+    }
+  }
+}
+
+//======= SEPARATOR =======
+
+.separator {
+  text-align: center;
+  flex-shrink: 0;
+
+  .line {
+    width: 80%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #5d889e, transparent);
+    margin: 0 auto;
+    border-radius: 1px;
+  }
+}
+
+//======= CONTENT =======
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 30px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(93, 136, 158, 0.3) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(93, 136, 158, 0.3);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(93, 136, 158, 0.6);
+    }
+  }
+}
+
+//======= GRID =======
+
+.marsball-grid {
+  @include marsball-grid;
+  margin-bottom: 30px;
+}
+
+//======= CARDS =======
+
+.category-card {
+  @include marsball-category-card;
+
+  @include delete-cross;
+}
+
+//======= CREATURES LIST =======
+
+.creatures-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.creature-container {
+  background: #1a1d20;
+  border: 2px solid #5d889e;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  &.open {
+    border-color: #d0d0d0;
+  }
+
+  &.selected {
+    border-color: crimson;
+    background: rgba(220, 20, 60, 0.1);
+  }
+}
+
+.creature-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  position: relative;
+
+  &:hover {
+    background: rgba(93, 136, 158, 0.1);
+  }
+
+  .creature-thumbnail {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 2px solid #5d889e;
+    flex-shrink: 0;
+  }
+
+  .creature-title {
+    flex: 1;
+    font-size: 18px;
+    font-weight: 600;
+    color: #d0d0d0;
+    font-family: 'Courier New', monospace;
+  }
+
+  @include delete-cross;
+}
+
+.creature-content {
+  padding: 20px;
+  border-top: 1px solid rgba(93, 136, 158, 0.3);
+  background: rgba(0, 0, 0, 0.2);
+
+  .creature-image {
+    margin-bottom: 20px;
+    text-align: center;
+
+    img {
+      max-width: 100%;
+      max-height: 500px;
+      border-radius: 8px;
+      border: 2px solid #5d889e;
+    }
+  }
+
+  .creature-description {
+    p {
+      color: #d0d0d0;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      margin: 0;
+      white-space: pre-wrap;
+    }
+  }
+}

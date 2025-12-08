@@ -5,6 +5,7 @@ import authRoutes from './routes/auth/auth.routes';
 import userRoutes from './routes/user/user.routes';
 import chroniquesRoutes from './routes/chroniques/chroniques.routes';
 import marsballRoutes from './routes/marsball/marsball.routes';
+import bestiaireRoutes from './routes/marsball/bestiaire/bestiaire.routes';
 
 const app = express();
 
@@ -53,6 +54,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/chroniques', chroniquesRoutes);
 app.use('/api/marsball', marsballRoutes);
+app.use('/api/bestiaire', bestiaireRoutes);
 
 //======= HEALTH CHECK =======
 

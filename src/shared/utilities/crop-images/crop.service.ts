@@ -81,6 +81,13 @@ export class CropService {
     this._dragStart.set(null);
   }
 
+  initWithPosition(initialSize: number, initialX: number, initialY: number): void {
+    this._crop.set({ x: initialX, y: initialY, size: initialSize });
+    this._currentDragMode.set(DragMode.NONE);
+    this._isDragging.set(false);
+    this._dragStart.set(null);
+  }
+
   reset(): void {
     this.init();
   }
