@@ -86,3 +86,51 @@
     "Gestion ownership stories pour édition"
   ]
 }
+
+ANALYSE DU LOADSERVICE EXISTANT :
+
+Routes à implémenter (EXACTEMENT)
+
+PUBLIC (pas d'auth) :
+
+GET /api/get/latest → getLatest() → retourne StoryCard[]
+
+GET /api/get/story/:id → getStory(id) → retourne StoryReader
+
+GET /api/get/stories/:userId → getStories(userId) → retourne UserStories[]
+
+PRIVÉ (auth required) :
+
+GET /api/get/stats → getStats() → retourne UserStats
+
+GET /api/get/drafts → getDrafts() → retourne Draft[]
+
+GET /api/get/published → getPublished() → retourne Published[]
+
+GET /api/get/draft-story/:id → getDraftStory(id) → retourne EditStory
+
+GET /api/get/published-story/:id → getPublishedStory(id) → retourne EditStory
+
+Interfaces exactes à respecter
+
+typescript
+
+StoryCard { id, title, publishDate, user: { username, avatar } }
+StoryReader { id, title, content, publishDate, likes, isliked, user: { id, username, avatar, description } }
+UserStories { id, title }
+UserStats { drafts, published, totalLikes }
+Draft { id, title, lastModified }
+Published { id, title, lastModified, likes }
+EditStory { id, title, content }
+
+Logique métier
+
+LoadController = ID IN → DATA OUT
+
+Pas de résolution titre/username (c'est le resolver)
+
+Ownership check sur routes d'édition privées
+
+Calcul isliked selon user connecté
+
+Retours JSON standardisés

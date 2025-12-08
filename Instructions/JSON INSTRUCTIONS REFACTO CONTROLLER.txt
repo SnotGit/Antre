@@ -168,10 +168,8 @@
       "parameter_validation": "Validation basique req.params, req.body"
     },
     "database": {
-      "type": "SQLite",
-      "queries": "SQL direct, pas d'ORM",
-      "connection": "Utiliser db existant importé",
-      "transactions": "Pour opérations critiques uniquement"
+      "type": "postgresq",
+      "queries": "ORM PRISMA",
     }
   },
   "migration_steps": {

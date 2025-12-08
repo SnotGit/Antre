@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allowedCommands": [
+      "ng serve",
+      "ng build",
+      "ng test",
+      "ng lint",
+      "npm install",
+      "npm run format"
+    ],
+    "deniedCommands": [
+      "rm -rf",
+      "git push"
+    ]
+  },
+  "hooks": {
+    "postWrite": ["ng lint --fix"]
+  },
+  "context": {
+    "include": [
+      "CLAUDE.md",
+      "docs/ARCHITECTURE.md",
+      "docs/CONVENTIONS.md"
+    ]
+  }
+}

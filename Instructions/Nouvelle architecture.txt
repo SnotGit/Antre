@@ -37,10 +37,10 @@
     │   │   │   │   │       ├── published-list.html
     │   │   │   │   │       ├── published-list.scss
     │   │   │   │   │       └── published-list.ts
-    │   │   │   │   ├── story
-    │   │   │   │   │   ├── story.html
-    │   │   │   │   │   ├── story.scss
-    │   │   │   │   │   └── story.ts
+    │   │   │   │   ├── story-reader
+    │   │   │   │   │   ├── story-reader.html
+    │   │   │   │   │   ├── story-reader.scss
+    │   │   │   │   │   └── story-reader.ts
     │   │   │   │   ├── chroniques.html
     │   │   │   │   ├── chroniques.scss
     │   │   │   │   └── chroniques.ts

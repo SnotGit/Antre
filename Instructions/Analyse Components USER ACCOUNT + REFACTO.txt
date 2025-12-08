@@ -26,4 +26,12 @@ Nouveau user-service.
 3. Vérifier l'interface User dans auth.service
 
 
-Commençons par corriger les champs inexistants. Il faut ajouter ces tables dans prisma ? Comment faire ?  
+Corriger = ajouter ces tables dans bdd avec prisma. Comment faire ?
+
+User stats gère les stats de user account. utiliser user service. 
+Ne pas utiliser load service , load service = load histoires. 
+
+histoires data = load service
+user data = user service. 
+
+Load ne doit pas gérer le load de stats.  
