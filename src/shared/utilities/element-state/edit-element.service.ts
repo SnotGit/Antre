@@ -1,5 +1,4 @@
-import { Injectable, signal, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Injectable, signal } from '@angular/core';
 
 interface CropBox {
   x: number;
@@ -10,11 +9,7 @@ interface CropBox {
 @Injectable({
   providedIn: 'root'
 })
-export class EditItemService {
-
-  //======= INJECTIONS =======
-
-  private readonly router = inject(Router);
+export class EditElementService {
 
   //======= SIGNALS =======
 

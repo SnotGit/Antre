@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
-import { ConfirmationDialogService } from './confirmation-dialog.service';
+import { AdminDialogService } from '@shared/utilities/confirmation-dialog/admin-dialog.service';
 
 interface DeleteResponse {
   message: string;
@@ -16,22 +16,22 @@ export class MarsballDeleteService {
   //======= INJECTIONS =======
 
   private readonly http = inject(HttpClient);
-  private readonly confirmationService = inject(ConfirmationDialogService);
+  private readonly adminDialogService = inject(AdminDialogService);
   private readonly API_URL = `${environment.apiUrl}/marsball`;
 
   //======= DELETE CATEGORY =======
 
   async deleteCategory(categoryId: number, categoryName: string): Promise<void> {
-    const confirmed = await this.confirmationService.confirmDeleteCategory([categoryName]);
+    const confirmed = await this.adminDialogService.confirmDelete([categoryName]);
     if (!confirmed) return;
 
     try {
       await firstValueFrom(
         this.http.delete<DeleteResponse>(`${this.API_URL}/categories/${categoryId}`)
       );
-      this.confirmationService.showSuccessMessage();
+      this.adminDialogService.showSuccessMessage();
     } catch (error) {
-      this.confirmationService.showErrorMessage();
+      this.adminDialogService.showErrorMessage();
       throw error;
     }
   }
@@ -39,16 +39,16 @@ export class MarsballDeleteService {
   //======= DELETE ITEM =======
 
   async deleteItem(itemId: number, itemName: string): Promise<void> {
-    const confirmed = await this.confirmationService.confirmDeleteItem([itemName]);
+    const confirmed = await this.adminDialogService.confirmDelete([itemName]);
     if (!confirmed) return;
 
     try {
       await firstValueFrom(
         this.http.delete<DeleteResponse>(`${this.API_URL}/items/${itemId}`)
       );
-      this.confirmationService.showSuccessMessage();
+      this.adminDialogService.showSuccessMessage();
     } catch (error) {
-      this.confirmationService.showErrorMessage();
+      this.adminDialogService.showErrorMessage();
       throw error;
     }
   }
@@ -56,7 +56,7 @@ export class MarsballDeleteService {
   //======= DELETE MULTIPLE CATEGORIES =======
 
   async deleteCategories(categoryIds: number[], categoryNames: string[]): Promise<void> {
-    const confirmed = await this.confirmationService.confirmDeleteCategory(categoryNames);
+    const confirmed = await this.adminDialogService.confirmDelete(categoryNames);
     if (!confirmed) return;
 
     try {
@@ -65,9 +65,9 @@ export class MarsballDeleteService {
           categoryIds
         })
       );
-      this.confirmationService.showSuccessMessage();
+      this.adminDialogService.showSuccessMessage();
     } catch (error) {
-      this.confirmationService.showErrorMessage();
+      this.adminDialogService.showErrorMessage();
       throw error;
     }
   }
@@ -75,7 +75,7 @@ export class MarsballDeleteService {
   //======= DELETE MULTIPLE ITEMS =======
 
   async deleteItems(itemIds: number[], itemNames: string[]): Promise<void> {
-    const confirmed = await this.confirmationService.confirmDeleteItem(itemNames);
+    const confirmed = await this.adminDialogService.confirmDelete(itemNames);
     if (!confirmed) return;
 
     try {
@@ -84,9 +84,9 @@ export class MarsballDeleteService {
           itemIds
         })
       );
-      this.confirmationService.showSuccessMessage();
+      this.adminDialogService.showSuccessMessage();
     } catch (error) {
-      this.confirmationService.showErrorMessage();
+      this.adminDialogService.showErrorMessage();
       throw error;
     }
   }
