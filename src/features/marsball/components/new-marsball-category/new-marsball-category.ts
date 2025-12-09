@@ -1,8 +1,8 @@
 import { Component, OnDestroy, inject, signal, computed, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NewCategoryService } from '@features/marsball/services/new-category.service';
+import { NewCategoryService } from '@shared/utilities/element-state/create-category.service';
 import { MarsballCreateService } from '@features/marsball/services/marsball-create.service';
-import { ConfirmationDialogService } from '@features/marsball/services/confirmation-dialog.service';
+import { AdminDialogService } from '@shared/utilities/confirmation-dialog/admin-dialog.service';
 import { OverlayTypingEffectService } from '@shared/utilities/typing-effect/overlay-typing-effect.service';
 
 @Component({

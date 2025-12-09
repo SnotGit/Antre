@@ -1,6 +1,6 @@
 import { Component, OnDestroy, inject, signal, computed, effect, ElementRef, ViewChild, AfterViewInit, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NewCreatureService } from '@features/marsball/services/new-creature.service';
+import { NewElementService } from '@shared/utilities/element-state/new-element.service';
 import { BestiaireCreateService } from '../../services/bestiaire-create.service';
 import { ConfirmationDialogService } from '@features/marsball/services/confirmation-dialog.service';
 import { CropService } from '@shared/utilities/crop-images/crop.service';

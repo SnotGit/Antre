@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root'
 })
-export class NewCreatureService {
+export class NewElementService {
 
   //======= INJECTIONS =======
 
@@ -19,11 +19,11 @@ export class NewCreatureService {
   isVisible = this.visible.asReadonly();
   contextCategoryId = this.categoryId.asReadonly();
 
-  //======= SHOW DIALOG =======
+  //======= SHOW =======
 
   show(): Promise<void> {
-    const categoryId = this.detectCategoryId();
-    this.categoryId.set(categoryId);
+    const id = this.detectCategoryId();
+    this.categoryId.set(id);
     this.visible.set(true);
 
     return new Promise<void>((resolve) => {
@@ -31,23 +31,27 @@ export class NewCreatureService {
     });
   }
 
-  //======= CLOSE DIALOG =======
+  //======= CLOSE =======
 
   close(): void {
     this.visible.set(false);
     this.categoryId.set(null);
-
+    
     if (this.resolvePromise) {
       this.resolvePromise();
       this.resolvePromise = null;
     }
   }
 
-  //======= DETECT CONTEXT =======
+  //======= DETECT CATEGORY ID =======
 
   private detectCategoryId(): number | null {
     const url = this.router.url;
-    const match = url.match(/\/marsball\/bestiaire\/(\d+)/);
-    return match ? parseInt(match[1], 10) : null;
+    const matches = url.match(/\/(\d+)/g);
+    
+    if (!matches || matches.length === 0) return null;
+    
+    const lastMatch = matches[matches.length - 1];
+    return parseInt(lastMatch.replace('/', ''), 10);
   }
 }

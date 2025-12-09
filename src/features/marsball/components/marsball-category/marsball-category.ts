@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { MarsballGetService, CategoryWithChildren } from '@features/marsball/services/marsball-get.service';
 import { MarsballDeleteService } from '@features/marsball/services/marsball-delete.service';
 import { MarsballUpdateService } from '@features/marsball/services/marsball-update.service';
-import { EditItemService } from '@features/marsball/services/edit-item.service';
+import { EditItemService } from '@features/marsball/services/edit-marsball-item.service';
 import { CropService } from '@shared/utilities/crop-images/crop.service';
 import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
