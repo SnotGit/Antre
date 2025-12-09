@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/auth';
 import { MobileMenuService } from '@features/menus/services/mobile-menu.service';
-import { NewCategoryService } from '@features/marsball/services/new-category.service';
-import { NewItemService } from '@features/marsball/services/new-item.service';
+import { NewMarsballCategoryService } from '@features/marsball/services/new-marsball-category.service';
+import { NewMarsballItemService } from '@features/marsball/services/new-marsball-item.service';
+import { NewBestiaireCreatureService } from '@features/marsball/bestiaire/services/new-bestiaire-creature.service';
 
 interface SectionConfig {
   itemLabel: string;
@@ -24,8 +25,9 @@ export class ConsoleV3 {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly mobileMenuService = inject(MobileMenuService);
-  private readonly newCategoryService = inject(NewCategoryService);
-  private readonly newItemService = inject(NewItemService);
+  private readonly newMarsballCategoryService = inject(NewMarsballCategoryService);
+  private readonly newMarsballItemService = inject(NewMarsballItemService);
+  private readonly newBestiaireCreatureService = inject(NewBestiaireCreatureService);
 
   //======= CONFIGURATION =======
 
@@ -63,11 +65,18 @@ export class ConsoleV3 {
     return section ? this.sectionsConfig[section] : null;
   }
 
+  isInBestiaire(): boolean {
+    return this.router.url.includes('/marsball/bestiaire');
+  }
+
   categoryLabel(): string {
     return 'AJOUTER CATEGORIE';
   }
 
   itemLabel(): string {
+    if (this.isInBestiaire()) {
+      return 'AJOUTER CREATURE';
+    }
     return this.sectionConfig()?.itemLabel || 'AJOUTER ITEM';
   }
 
@@ -140,15 +149,21 @@ export class ConsoleV3 {
   //======= ADMIN CONTENT ACTIONS =======
 
   addCategory(): void {
-    this.newCategoryService.show();
+    this.newMarsballCategoryService.show();
     this.onClick();
   }
 
   addItem(): void {
+    if (this.isInBestiaire()) {
+      this.newBestiaireCreatureService.show();
+      this.onClick();
+      return;
+    }
+
     const section = this.currentSection();
     
     if (section === 'marsball') {
-      this.newItemService.show();
+      this.newMarsballItemService.show();
       this.onClick();
       return;
     }

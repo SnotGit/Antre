@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { authenticateToken } from '@middlewares/auth/authenticateToken';
-import { uploadCreatureImage, processCreatureImage } from '@middlewares/marsball/bestiaire/uploadCreatures';
-
+import { uploadCreatureImage, processCreatureImage } from '@middlewares/marsball/bestiaire/uploadCreature';
 import { getRootCategories, getCategoryWithCreatures } from '@controllers/marsball/bestiaire/getController';
 import { createCategory, createCreature } from '@controllers/marsball/bestiaire/createController';
 import { updateCategory, updateCreature } from '@controllers/marsball/bestiaire/updateController';

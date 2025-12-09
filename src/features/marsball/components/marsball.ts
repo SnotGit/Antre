@@ -93,6 +93,10 @@ export class Marsball implements OnInit, OnDestroy {
 
   //======= NAVIGATION =======
 
+  goToBestiaire(): void {
+    this.router.navigate(['/marsball/bestiaire']);
+  }
+
   onCardClick(category: MarsballCategory): void {
     if (this.selection()) return;
     this.router.navigate(['/marsball', category.id]);
