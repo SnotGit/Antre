@@ -20,6 +20,15 @@
   <div class="content">
 
     <div class="marsball-grid">
+
+      <!-- Card Bestiaire (immuable) -->
+      <div class="category-card protected" (click)="goToBestiaire()">
+        <div class="card">
+          <span class="category-title">Bestiaire</span>
+        </div>
+      </div>
+
+      <!-- Cards dynamiques -->
       @for (category of categories(); track category.id) {
         <div class="category-card" 
              [class.selected]="isSelected(category.id)"
