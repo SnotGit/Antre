@@ -23,7 +23,9 @@ try {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Health check: http://localhost:${PORT}/api/health`);
-    console.log('Routes mounted successfully');
+
+    console.log('Système Opérationnel');
+    console.log('Bienvenue Terraformeur !');
   });
   
 } catch (error) {
