@@ -9,7 +9,7 @@ interface CropBox {
 @Injectable({
   providedIn: 'root'
 })
-export class EditElementService {
+export class EditMarsballItemService {
 
   //======= SIGNALS =======
 

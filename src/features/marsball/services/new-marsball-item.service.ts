@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root'
 })
-export class NewElementService {
+export class NewMarsballItemService {
 
   //======= INJECTIONS =======
 

@@ -1,8 +1,8 @@
 import { Component, OnDestroy, inject, signal, computed, effect, ElementRef, ViewChild, AfterViewInit, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NewElementService } from '@shared/utilities/element-state/new-element.service';
+import { NewBestiaireCreatureService } from '../../services/new-bestiaire-creature.service';
 import { BestiaireCreateService } from '../../services/bestiaire-create.service';
-import { ConfirmationDialogService } from '@features/marsball/services/confirmation-dialog.service';
+import { AdminDialogService } from '@shared/utilities/confirmation-dialog/admin-dialog.service';
 import { CropService } from '@shared/utilities/crop-images/crop.service';
 import { FileNameFormatterService } from '@shared/utilities/file-name-formatter/file-name-formatter.service';
 import { OverlayTypingEffectService } from '@shared/utilities/typing-effect/overlay-typing-effect.service';
@@ -22,9 +22,9 @@ export class NewBestiaireCreature implements OnDestroy, AfterViewInit {
 
   //======= INJECTIONS =======
 
-  protected readonly newCreatureService = inject(NewCreatureService);
+  protected readonly newCreatureService = inject(NewBestiaireCreatureService);
   private readonly bestiaireCreateService = inject(BestiaireCreateService);
-  private readonly confirmationService = inject(ConfirmationDialogService);
+  private readonly confirmationService = inject(AdminDialogService);
   protected readonly cropService = inject(CropService);
   private readonly fileNameFormatter = inject(FileNameFormatterService);
   private readonly overlayTypingService = inject(OverlayTypingEffectService);

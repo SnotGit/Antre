@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/auth';
 import { MobileMenuService } from '@features/menus/services/mobile-menu.service';
-import { NewMarsballCategoryService } from '@features/marsball/services/new-marsball-category.service';
+import { NewCategoryService } from '@shared/utilities/element-state/create-category.service';
 import { NewMarsballItemService } from '@features/marsball/services/new-marsball-item.service';
 import { NewBestiaireCreatureService } from '@features/marsball/bestiaire/services/new-bestiaire-creature.service';
 
@@ -25,7 +25,7 @@ export class ConsoleV3 {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly mobileMenuService = inject(MobileMenuService);
-  private readonly newMarsballCategoryService = inject(NewMarsballCategoryService);
+  private readonly newMarsballCategoryService = inject(NewCategoryService);
   private readonly newMarsballItemService = inject(NewMarsballItemService);
   private readonly newBestiaireCreatureService = inject(NewBestiaireCreatureService);
 

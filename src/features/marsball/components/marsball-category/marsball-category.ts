@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { MarsballGetService, CategoryWithChildren } from '@features/marsball/services/marsball-get.service';
 import { MarsballDeleteService } from '@features/marsball/services/marsball-delete.service';
 import { MarsballUpdateService } from '@features/marsball/services/marsball-update.service';
-import { EditItemService } from '@features/marsball/services/edit-marsball-item.service';
+import { EditMarsballItemService } from '../../services/edit-marsball-item.service';
 import { CropService } from '@shared/utilities/crop-images/crop.service';
 import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
@@ -23,7 +23,7 @@ export class MarsballCategory implements OnDestroy {
   private readonly marsballGetService = inject(MarsballGetService);
   private readonly marsballDeleteService = inject(MarsballDeleteService);
   private readonly marsballUpdateService = inject(MarsballUpdateService);
-  protected readonly editItemService = inject(EditItemService);
+  protected readonly editItemService = inject(EditMarsballItemService);
   protected readonly cropService = inject(CropService);
   private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
