@@ -5,7 +5,7 @@ import { Location } from '@angular/common';
 import { SaveStoriesService, StoryFormData } from '@features/chroniques/services/save-stories.service';
 import { DraftStoriesService } from '@features/chroniques/services/draft-stories.service';
 import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
-import { ConfirmationDialogService } from '@features/marsball/services/confirmation-dialog.service';
+import { AdminDialogService } from '@shared/utilities/confirmation-dialog/admin-dialog.service';
 import { AuthService } from '@features/auth/services/auth.service';
 
 @Component({
@@ -23,7 +23,7 @@ export class DraftEditor implements OnInit, OnDestroy {
   private readonly saveStoriesService = inject(SaveStoriesService);
   private readonly draftStoriesService = inject(DraftStoriesService);
   private readonly typingService = inject(TypingEffectService);
-  private readonly confirmationService = inject(ConfirmationDialogService);
+  private readonly confirmationService = inject(AdminDialogService);
   private readonly authService = inject(AuthService);
 
   //======= TYPING EFFECT =======

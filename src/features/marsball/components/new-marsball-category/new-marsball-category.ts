@@ -17,7 +17,7 @@ export class NewMarsballCategory implements OnDestroy {
 
   protected readonly newCategoryService = inject(NewCategoryService);
   private readonly marsballCreateService = inject(MarsballCreateService);
-  private readonly confirmationService = inject(ConfirmationDialogService);
+  private readonly confirmationService = inject(AdminDialogService);
   private readonly overlayTypingService = inject(OverlayTypingEffectService);
 
   //======= TYPING EFFECT =======

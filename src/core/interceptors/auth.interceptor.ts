@@ -33,12 +33,19 @@ const isPublicUserStories = req.url.match(/\/api\/chroniques\/stories\/user\/\d+
   const isPublicLikesCount = req.url.includes('/api/user/likes/story/') && 
                             req.url.includes('/count');
 
+  //======= PUBLIC MARSBALL & BESTIAIRE READ-ONLY =======
+
+  const isMarsballRead = req.url.includes('/api/marsball/') && req.method === 'GET';
+  const isBestiaireRead = req.url.includes('/api/bestiaire/') && req.method === 'GET';
+
   //======= CHECK IF PUBLIC ROUTE =======
   
   const isPublicRoute = publicRoutes.some(route => req.url.includes(route)) ||
                        isPublicStoryRead ||
                        isPublicUserStories ||
-                       isPublicLikesCount;
+                       isPublicLikesCount ||
+                       isMarsballRead ||
+                       isBestiaireRead;
   
   if (isPublicRoute) {
     return next(req);
