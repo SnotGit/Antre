@@ -1,0 +1,178 @@
+<div class="container">
+
+  @if (categoryData(); as data) {
+
+  <div class="header">
+  <h2 class="header-title" [class.typing]="typing()">
+    {{ headerTitle() }}
+  </h2>
+
+  @if (isAdmin() && categorySelection()) {
+    <div class="delete-button">
+      <button class="btn" (click)="deleteSelectedCategories()">
+        <span>Supprimer ({{ selectedCategories().size }})</span>
+      </button>
+    </div>
+  } @else if (isAdmin() && selection()) {
+    <div class="delete-button">
+      <button class="btn" (click)="deleteSelected()">
+        <span>Supprimer ({{ selectedItems().size }})</span>
+      </button>
+    </div>
+  } @else {
+    <div class="back-button">
+      <button class="btn" (click)="goBack()">Retour</button>
+    </div>
+  }
+</div>
+
+  <div class="separator">
+    <div class="line"></div>
+  </div>
+
+  <div class="content">
+
+    @if (data.children.length > 0) {
+    <div class="marsball-grid">
+      @for (child of data.children; track child.id) {
+        <div class="category-card"
+             [class.selected]="isSelectedCategory(child.id)"
+             (click)="goToCategory(child.id)">
+          <div class="card">
+            <span class="category-title">{{ child.title }}</span>
+
+            @if (isAdmin()) {
+            <button
+              class="delete-cross"
+              [class.active]="isSelectedCategory(child.id)"
+              (click)="$event.stopPropagation(); toggleCategorySelection(child.id)">
+              
+            </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+    }
+
+    @if (data.items.length > 0) {
+    <div class="items-list">
+      @for (item of data.items; track item.id) {
+        <div class="item-container"
+             [class.open]="isItemOpen(item.id)"
+             [class.editing]="editItemService.isEditingItem(item.id)"
+             [class.selected]="isSelected(item.id)">
+
+          <div class="item-header" (click)="toggleItem(item.id)">
+
+            @if (!editItemService.isEditingItem(item.id)) {
+              <img [src]="getImageUrl(item.thumbnailUrl || item.imageUrl)" [alt]="item.title" class="item-thumbnail">
+              <span class="item-title">{{ item.title }}</span>
+            } @else {
+              <div class="item-thumbnail-crop"
+                   [style.background-image]="'url(' + getImageUrl(editItemService.image()) + ')'"
+                   [style.background-position]="editThumbnailPreview().backgroundPosition"
+                   [style.background-size]="editThumbnailPreview().backgroundSize">
+              </div>
+              <input
+                type="text"
+                class="edit-title-input-header"
+                [value]="editItemService.title()"
+                (input)="editItemService.updateTitle($any($event.target).value)"
+                (click)="$event.stopPropagation()"
+                placeholder="Titre...">
+            }
+
+            @if (isAdmin() && !editItemService.isEditing() && !isItemOpen(item.id)) {
+              <button
+                class="delete-cross"
+                [class.active]="isSelected(item.id)"
+                (click)="$event.stopPropagation(); toggleSelection(item.id)">
+                
+              </button>
+            }
+
+            @if (isItemOpen(item.id) && !isAdmin() && !editItemService.isEditingItem(item.id)) {
+              <button class="btn close-btn" (click)="$event.stopPropagation(); closeItem()">Fermer</button>
+            }
+
+            @if (isItemOpen(item.id) && isAdmin() && !editItemService.isEditingItem(item.id)) {
+              <button class="btn edit-btn" (click)="$event.stopPropagation(); editItem(item.id)">Modifier</button>
+              <button class="btn delete-btn" (click)="$event.stopPropagation(); deleteItem(item.id)">Supprimer</button>
+            }
+
+            @if (editItemService.isEditingItem(item.id)) {
+              <button class="btn cancel-btn" (click)="$event.stopPropagation(); cancelEdit()">Annuler</button>
+              <button class="btn save-btn" (click)="$event.stopPropagation(); saveEdit()">Sauvegarder</button>
+            }
+
+          </div>
+
+          @if (isItemOpen(item.id) && !editItemService.isEditingItem(item.id)) {
+          <div class="item-content" (click)="$event.stopPropagation()">
+            <div class="item-full-image">
+              <img [src]="getImageUrl(item.imageUrl)" [alt]="item.title">
+            </div>
+            @if (item.description) {
+            <div class="item-description">
+              <p>{{ item.description }}</p>
+            </div>
+            }
+          </div>
+          }
+
+          @if (editItemService.isEditingItem(item.id)) {
+          <div class="item-content" (click)="$event.stopPropagation()">
+            <div class="edit-description">
+              <textarea
+                class="edit-description-textarea"
+                [value]="editItemService.description()"
+                (input)="editItemService.updateDescription($any($event.target).value)"
+                placeholder="Description..."
+                rows="4"></textarea>
+            </div>
+            <div class="edit-image-container">
+              <div class="image-with-crop"
+                   (mousemove)="onMouseMove($event, imageContainer)"
+                   (mouseup)="onMouseUp()"
+                   (mouseleave)="onMouseUp()"
+                   #imageContainer>
+                <img [src]="getImageUrl(editItemService.image())"
+                     [alt]="editItemService.title()"
+                     class="edit-image"
+                     crossOrigin="anonymous">
+                <div class="crop-box"
+                     [class.resizing-mode]="cropService.isCtrlPressed()"
+                     [style.left]="cropStyle().left"
+                     [style.top]="cropStyle().top"
+                     [style.width]="cropStyle().width"
+                     [style.height]="cropStyle().height"
+                     [style.cursor]="cropService.isCtrlPressed() ? 'default' : 'move'"
+                     (mousedown)="onCropMouseDown($event, imageContainer)">
+
+                     @if (cropService.isCtrlPressed()) {
+                       <div class="resize-handle top-left"
+                            (mousedown)="onResizeMouseDown($event, 'tl', imageContainer)"></div>
+                       <div class="resize-handle top-right"
+                            (mousedown)="onResizeMouseDown($event, 'tr', imageContainer)"></div>
+                       <div class="resize-handle bottom-left"
+                            (mousedown)="onResizeMouseDown($event, 'bl', imageContainer)"></div>
+                       <div class="resize-handle bottom-right"
+                            (mousedown)="onResizeMouseDown($event, 'br', imageContainer)"></div>
+                     }
+                </div>
+              </div>
+            </div>
+          </div>
+          }
+
+        </div>
+      }
+    </div>
+    }
+
+  </div>
+
+  }
+
+</div>

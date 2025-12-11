@@ -10,6 +10,10 @@ export const routes: Routes = [
     loadChildren: () => import('../bestiaire/routes/bestiaire.routes').then(m => m.routes)
   },
   {
+    path: 'rover',
+    loadChildren: () => import('../rover/routes/rover.routes').then(m => m.routes)
+  },
+  {
     path: ':categoryId',
     loadComponent: () => import('../components/marsball-category/marsball-category').then(m => m.MarsballCategory)
   }

@@ -1,28 +1,28 @@
 import { Component, OnDestroy, inject, signal, computed, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NewCategoryService } from '@shared/utilities/element-state/create-category.service';
-import { BestiaireCreateService } from '@features/marsball/bestiaire/services/bestiaire-create.service';
+import { RoverCreateService } from '../../services/rover-create.service';
 import { AdminDialogService } from '@shared/utilities/confirmation-dialog/admin-dialog.service';
 import { OverlayTypingEffectService } from '@shared/utilities/typing-effect/overlay-typing-effect.service';
 
 @Component({
-  selector: 'app-new-bestiaire-category',
+  selector: 'app-new-rover-category',
   imports: [FormsModule],
-  templateUrl: './new-bestiaire-category.html',
-  styleUrl: './new-bestiaire-category.scss'
+  templateUrl: './new-rover-category.html',
+  styleUrl: './new-rover-category.scss'
 })
-export class NewBestiaireCategory implements OnDestroy {
+export class NewRoverCategory implements OnDestroy {
 
   //======= INJECTIONS =======
 
   protected readonly newCategoryService = inject(NewCategoryService);
-  private readonly bestiaireCreateService = inject(BestiaireCreateService);
+  private readonly roverCreateService = inject(RoverCreateService);
   private readonly confirmationService = inject(AdminDialogService);
   private readonly overlayTypingService = inject(OverlayTypingEffectService);
 
   //======= TYPING EFFECT =======
 
-  private readonly title = 'Nouvelle CatÃ©gorie';
+  private readonly title = 'Nouvelle Catégorie';
 
   headerTitle = this.overlayTypingService.headerTitle;
   typing = this.overlayTypingService.typingComplete;
@@ -59,7 +59,7 @@ export class NewBestiaireCategory implements OnDestroy {
     const parentId = this.newCategoryService.contextParentId();
 
     try {
-      await this.bestiaireCreateService.createCategory(
+      await this.roverCreateService.createCategory(
         this.categoryTitle().trim(),
         parentId
       );

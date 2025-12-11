@@ -10,6 +10,10 @@
         <span>Supprimer ({{ selectedCategories().size }})</span>
       </button>
     </div>
+    } @else {
+    <div class="back-button">
+      <button class="btn" (click)="goBack()">Retour</button>
+    </div>
     }
   </div>
 

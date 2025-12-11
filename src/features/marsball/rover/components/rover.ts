@@ -1,30 +1,30 @@
 import { Component, OnInit, OnDestroy, inject, computed, resource, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { MarsballGetService } from '@features/marsball/services/marsball-get.service';
-import { MarsballCategory } from '@features/marsball/models/marsball.models';
-import { MarsballDeleteService } from '@features/marsball/services/marsball-delete.service';
+import { RoverGetService } from '../services/rover-get.service';
+import { RoverDeleteService } from '../services/rover-delete.service';
+import { RoverCategory } from '../models/rover.models';
 import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
 
 @Component({
-  selector: 'app-marsball',
+  selector: 'app-rover',
   imports: [],
-  templateUrl: './marsball.html',
-  styleUrl: './marsball.scss'
+  templateUrl: './rover.html',
+  styleUrl: './rover.scss'
 })
-export class Marsball implements OnInit, OnDestroy {
+export class Rover implements OnInit, OnDestroy {
 
   //======= INJECTIONS =======
 
   private readonly router = inject(Router);
-  private readonly marsballGetService = inject(MarsballGetService);
-  private readonly marsballDeleteService = inject(MarsballDeleteService);
+  private readonly roverGetService = inject(RoverGetService);
+  private readonly roverDeleteService = inject(RoverDeleteService);
   private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
 
   //======= TYPING EFFECT =======
 
-  private readonly title = 'Marsball';
+  private readonly title = 'Rover';
 
   headerTitle = this.typingService.headerTitle;
   showCursor = this.typingService.showCursor;
@@ -39,11 +39,11 @@ export class Marsball implements OnInit, OnDestroy {
 
   private readonly categoriesResource = resource({
     loader: async () => {
-      return await this.marsballGetService.getRootCategories();
+      return await this.roverGetService.getRootCategories();
     }
   });
 
-  categories = computed((): MarsballCategory[] => {
+  categories = computed((): RoverCategory[] => {
     return this.categoriesResource.value() || [];
   });
 
@@ -83,27 +83,19 @@ export class Marsball implements OnInit, OnDestroy {
     const selectedIds = Array.from(this.selectedCategories());
     if (selectedIds.length === 0) return;
 
-    const selectedNames = this.categories()
-      .filter(cat => selectedIds.includes(cat.id))
-      .map(cat => cat.title);
-
-    await this.marsballDeleteService.deleteCategories(selectedIds, selectedNames);
+    await this.roverDeleteService.batchDeleteCategories(selectedIds);
     this.selectedCategories.set(new Set());
     this.categoriesResource.reload();
   }
 
   //======= NAVIGATION =======
 
-  goToBestiaire(): void {
-    this.router.navigate(['/marsball/bestiaire']);
-  }
-
-  goToRover(): void {
-    this.router.navigate(['/marsball/rover']);
-  }
-
-  onCardClick(category: MarsballCategory): void {
+  onCardClick(category: RoverCategory): void {
     if (this.selection()) return;
-    this.router.navigate(['/marsball', category.id]);
+    this.router.navigate(['/marsball/rover', category.id]);
+  }
+
+  goBack(): void {
+    this.router.navigate(['/marsball']);
   }
 }

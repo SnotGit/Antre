@@ -2,16 +2,16 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
-import { MarsballItem, MarsballCategory } from '../models/marsball.models';
+import { RoverItem, RoverCategory } from '../models/rover.models';
 
 //======= RESPONSE TYPES =======
 
 interface CategoryResponse {
-  category: MarsballCategory;
+  category: RoverCategory;
 }
 
 interface ItemResponse {
-  item: MarsballItem;
+  item: RoverItem;
 }
 
 //======= SERVICE =======
@@ -19,16 +19,16 @@ interface ItemResponse {
 @Injectable({
   providedIn: 'root'
 })
-export class MarsballCreateService {
+export class RoverCreateService {
 
   //======= INJECTIONS =======
 
   private readonly http = inject(HttpClient);
-  private readonly API_URL = `${environment.apiUrl}/marsball`;
+  private readonly API_URL = `${environment.apiUrl}/rover`;
 
   //======= CREATE CATEGORY =======
 
-  async createCategory(title: string, parentId: number | null): Promise<MarsballCategory> {
+  async createCategory(title: string, parentId: number | null): Promise<RoverCategory> {
     try {
       const response = await firstValueFrom(
         this.http.post<CategoryResponse>(`${this.API_URL}/categories`, { title, parentId })
@@ -51,7 +51,7 @@ export class MarsballCreateService {
     displayWidth: number,
     displayHeight: number,
     description?: string
-  ): Promise<MarsballItem> {
+  ): Promise<RoverItem> {
     try {
       const thumbnail = await this.cropThumbnail(image, cropX, cropY, cropSize);
 
@@ -60,7 +60,7 @@ export class MarsballCreateService {
       formData.append('categoryId', categoryId.toString());
       formData.append('image', image);
       formData.append('thumbnail', thumbnail, 'thumbnail.jpg');
-      
+
       if (description) {
         formData.append('description', description);
       }
@@ -75,7 +75,7 @@ export class MarsballCreateService {
     }
   }
 
-  //======= CROP THUMBNAIL - SIMPLE ET DIRECT =======
+  //======= CROP THUMBNAIL =======
 
   private async cropThumbnail(
     file: File,
@@ -85,25 +85,18 @@ export class MarsballCreateService {
   ): Promise<Blob> {
     return new Promise((resolve, reject) => {
       const img = new Image();
-      
-      img.onload = () => {
-        console.log('=== CROP THUMBNAIL ===');
-        console.log('Image:', img.naturalWidth, 'x', img.naturalHeight);
-        console.log('Crop position:', Math.round(cropX), Math.round(cropY));
-        console.log('Crop size:', Math.round(cropSize));
 
+      img.onload = () => {
         const canvas = document.createElement('canvas');
         canvas.width = 60;
         canvas.height = 60;
-        
+
         const ctx = canvas.getContext('2d');
         if (!ctx) {
           reject(new Error('Canvas error'));
           return;
         }
 
-        // CROP DIRECT: extraire cropSize x cropSize depuis cropX, cropY
-        // puis redimensionner à 60x60
         ctx.drawImage(
           img,
           Math.round(cropX),
@@ -120,7 +113,6 @@ export class MarsballCreateService {
           (blob) => {
             URL.revokeObjectURL(img.src);
             if (blob) {
-              console.log('✅ Thumbnail créé:', blob.size, 'bytes');
               resolve(blob);
             } else {
               reject(new Error('Canvas toBlob error'));

@@ -54,14 +54,14 @@
 //======= SEPARATOR =======
 
 .separator {
-  text-align: center;
+  padding: 0 30px;
+  margin-bottom: 20px;
   flex-shrink: 0;
 
   .line {
-    width: 80%;
+    width: 100%;
     height: 2px;
     background: linear-gradient(90deg, transparent, #5d889e, transparent);
-    margin: 0 auto;
     border-radius: 1px;
   }
 }
@@ -71,38 +71,5 @@
 .content {
   flex: 1;
   overflow-y: auto;
-  padding: 30px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(93, 136, 158, 0.3) transparent;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgba(93, 136, 158, 0.3);
-    border-radius: 3px;
-
-    &:hover {
-      background: rgba(93, 136, 158, 0.6);
-    }
-  }
-}
-
-//======= GRID =======
-
-.marsball-grid {
-  @include marsball-grid;
-}
-
-//======= CARDS =======
-
-.category-card {
-  @include marsball-category-card;
-
-  @include delete-cross;
+  padding: 0 30px 30px;
 }

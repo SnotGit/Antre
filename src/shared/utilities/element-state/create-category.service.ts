@@ -1,4 +1,4 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, inject, computed } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -19,11 +19,27 @@ export class NewCategoryService {
   isVisible = this.visible.asReadonly();
   contextParentId = this.parentId.asReadonly();
 
+  //======= COMPUTED =======
+
+  private readonly currentUrl = computed(() => this.router.url);
+
+  private readonly urlMatches = computed(() => {
+    const url = this.currentUrl();
+    return url.match(/\/(\d+)/g);
+  });
+
+  private readonly detectedParentId = computed(() => {
+    const matches = this.urlMatches();
+    if (!matches || matches.length === 0) return null;
+
+    const lastMatch = matches[matches.length - 1];
+    return parseInt(lastMatch.replace('/', ''), 10);
+  });
+
   //======= SHOW DIALOG =======
 
   show(): Promise<void> {
-    const parentId = this.detectParentId();
-    this.parentId.set(parentId);
+    this.parentId.set(this.detectedParentId());
     this.visible.set(true);
 
     return new Promise<void>((resolve) => {
@@ -36,18 +52,10 @@ export class NewCategoryService {
   close(): void {
     this.visible.set(false);
     this.parentId.set(null);
-    
+
     if (this.resolvePromise) {
       this.resolvePromise();
       this.resolvePromise = null;
     }
-  }
-
-  //======= DETECT CONTEXT =======
-
-  private detectParentId(): number | null {
-    const url = this.router.url;
-    const match = url.match(/\/marsball\/(\d+)/);
-    return match ? parseInt(match[1], 10) : null;
   }
 }

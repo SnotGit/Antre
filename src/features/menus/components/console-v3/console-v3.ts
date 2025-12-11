@@ -6,6 +6,7 @@ import { MobileMenuService } from '@features/menus/services/mobile-menu.service'
 import { NewCategoryService } from '@shared/utilities/element-state/create-category.service';
 import { NewMarsballItemService } from '@features/marsball/services/new-marsball-item.service';
 import { NewBestiaireCreatureService } from '@features/marsball/bestiaire/services/new-bestiaire-creature.service';
+import { NewRoverItemService } from '@features/marsball/rover/services/new-rover-item.service';
 
 interface SectionConfig {
   itemLabel: string;
@@ -21,13 +22,14 @@ interface SectionConfig {
 export class ConsoleV3 {
 
   //======= INJECTIONS =======
-  
+
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly mobileMenuService = inject(MobileMenuService);
-  private readonly newMarsballCategoryService = inject(NewCategoryService);
+  private readonly newCategoryService = inject(NewCategoryService);
   private readonly newMarsballItemService = inject(NewMarsballItemService);
   private readonly newBestiaireCreatureService = inject(NewBestiaireCreatureService);
+  private readonly newRoverItemService = inject(NewRoverItemService);
 
   //======= CONFIGURATION =======
 
@@ -69,6 +71,10 @@ export class ConsoleV3 {
     return this.router.url.includes('/marsball/bestiaire');
   }
 
+  isInRover(): boolean {
+    return this.router.url.includes('/marsball/rover');
+  }
+
   categoryLabel(): string {
     return 'AJOUTER CATEGORIE';
   }
@@ -76,6 +82,9 @@ export class ConsoleV3 {
   itemLabel(): string {
     if (this.isInBestiaire()) {
       return 'AJOUTER CREATURE';
+    }
+    if (this.isInRover()) {
+      return 'AJOUTER ITEM';
     }
     return this.sectionConfig()?.itemLabel || 'AJOUTER ITEM';
   }
@@ -149,7 +158,7 @@ export class ConsoleV3 {
   //======= ADMIN CONTENT ACTIONS =======
 
   addCategory(): void {
-    this.newMarsballCategoryService.show();
+    this.newCategoryService.show();
     this.onClick();
   }
 
@@ -160,8 +169,14 @@ export class ConsoleV3 {
       return;
     }
 
+    if (this.isInRover()) {
+      this.newRoverItemService.show();
+      this.onClick();
+      return;
+    }
+
     const section = this.currentSection();
-    
+
     if (section === 'marsball') {
       this.newMarsballItemService.show();
       this.onClick();

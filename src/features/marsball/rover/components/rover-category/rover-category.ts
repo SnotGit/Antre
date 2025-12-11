@@ -1,30 +1,30 @@
 import { Component, OnDestroy, inject, computed, resource, input, signal, effect, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { MarsballGetService } from '@features/marsball/services/marsball-get.service';
-import { CategoryWithChildren } from '@features/marsball/models/marsball.models';
-import { MarsballDeleteService } from '@features/marsball/services/marsball-delete.service';
-import { MarsballUpdateService } from '@features/marsball/services/marsball-update.service';
-import { EditMarsballItemService } from '../../services/edit-marsball-item.service';
+import { RoverGetService } from '../../services/rover-get.service';
+import { CategoryWithChildren } from '../../models/rover.models';
+import { RoverDeleteService } from '../../services/rover-delete.service';
+import { RoverUpdateService } from '../../services/rover-update.service';
+import { EditRoverItemService } from '../../services/edit-rover-item.service';
 import { CropService } from '@shared/utilities/crop-images/crop.service';
 import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
 import { environment } from '@environments/environment';
 
 @Component({
-  selector: 'app-marsball-category',
+  selector: 'app-rover-category',
   imports: [],
-  templateUrl: './marsball-category.html',
-  styleUrl: './marsball-category.scss'
+  templateUrl: './rover-category.html',
+  styleUrl: './rover-category.scss'
 })
-export class MarsballCategory implements OnDestroy {
+export class RoverCategory implements OnDestroy {
 
   //======= INJECTIONS =======
 
   private readonly router = inject(Router);
-  private readonly marsballGetService = inject(MarsballGetService);
-  private readonly marsballDeleteService = inject(MarsballDeleteService);
-  private readonly marsballUpdateService = inject(MarsballUpdateService);
-  protected readonly editItemService = inject(EditMarsballItemService);
+  private readonly roverGetService = inject(RoverGetService);
+  private readonly roverDeleteService = inject(RoverDeleteService);
+  private readonly roverUpdateService = inject(RoverUpdateService);
+  protected readonly editItemService = inject(EditRoverItemService);
   protected readonly cropService = inject(CropService);
   private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
@@ -57,14 +57,14 @@ export class MarsballCategory implements OnDestroy {
     params: () => ({ categoryId: parseInt(this.categoryId(), 10) }),
     loader: async ({ params }) => {
       if (isNaN(params.categoryId)) {
-        this.router.navigate(['/marsball']);
+        this.router.navigate(['/marsball/rover']);
         return null;
       }
-      
+
       try {
-        return await this.marsballGetService.getCategoryWithChildren(params.categoryId);
+        return await this.roverGetService.getCategoryWithChildren(params.categoryId);
       } catch {
-        this.router.navigate(['/marsball']);
+        this.router.navigate(['/marsball/rover']);
         return null;
       }
     }
@@ -81,7 +81,7 @@ export class MarsballCategory implements OnDestroy {
 
   currentTitle = computed(() => {
     const data = this.categoryData();
-    return data?.category.title || 'Marsball';
+    return data?.category.title || 'Rover';
   });
 
   cropStyle = computed(() => {
@@ -97,7 +97,7 @@ export class MarsballCategory implements OnDestroy {
   editThumbnailPreview = computed(() => {
     const crop = this.cropService.crop();
     const imageUrl = this.editItemService.image();
-    
+
     return {
       backgroundImage: `url(${this.getImageUrl(imageUrl)})`,
       backgroundPosition: `-${crop.x}px -${crop.y}px`,
@@ -205,8 +205,7 @@ export class MarsballCategory implements OnDestroy {
     if (!item) return;
 
     this.editItemService.startEdit(itemId, item.title, item.description || '', item.imageUrl);
-    
-    // Initialiser le crop service avec la taille du thumbnail
+
     setTimeout(() => {
       this.cropService.init(60);
     }, 0);
@@ -229,20 +228,15 @@ export class MarsballCategory implements OnDestroy {
 
     if (!title.trim() || !container || !imgElement) return;
 
-    // CORRECTION: Utiliser naturalWidth/Height de l'image, pas du container
     const displayWidth = imgElement.naturalWidth;
     const displayHeight = imgElement.naturalHeight;
-
-    console.log('=== SAVE EDIT ===');
-    console.log('Image dimensions:', displayWidth, 'x', displayHeight);
-    console.log('Crop:', crop);
 
     try {
       if (this.editItemService.imageChanged()) {
         const imageFile = this.editItemService.imageFile();
         if (!imageFile) return;
 
-        await this.marsballUpdateService.updateItem(
+        await this.roverUpdateService.updateItem(
           itemId,
           title,
           description,
@@ -254,7 +248,7 @@ export class MarsballCategory implements OnDestroy {
           imageFile
         );
       } else {
-        await this.marsballUpdateService.updateItem(
+        await this.roverUpdateService.updateItem(
           itemId,
           title,
           description,
@@ -282,52 +276,38 @@ export class MarsballCategory implements OnDestroy {
     const item = data.items.find(i => i.id === itemId);
     if (!item) return;
 
-    await this.marsballDeleteService.deleteItem(itemId, item.title);
+    await this.roverDeleteService.deleteItem(itemId);
     this.categoryResource.reload();
   }
 
   async deleteSelected(): Promise<void> {
-    const data = this.categoryData();
-    if (!data) return;
-
     const selectedIds = Array.from(this.selectedItems());
     if (selectedIds.length === 0) return;
 
-    const selectedNames = data.items
-      .filter(item => selectedIds.includes(item.id))
-      .map(item => item.title);
-
-    await this.marsballDeleteService.deleteItems(selectedIds, selectedNames);
+    await this.roverDeleteService.batchDeleteItems(selectedIds);
     this.selectedItems.set(new Set());
     this.categoryResource.reload();
   }
 
   async deleteSelectedCategories(): Promise<void> {
-    const data = this.categoryData();
-    if (!data) return;
-
     const selectedIds = Array.from(this.selectedCategories());
     if (selectedIds.length === 0) return;
 
-    const selectedNames = data.children
-      .filter(cat => selectedIds.includes(cat.id))
-      .map(cat => cat.title);
-
-    await this.marsballDeleteService.deleteCategories(selectedIds, selectedNames);
+    await this.roverDeleteService.batchDeleteCategories(selectedIds);
     this.selectedCategories.set(new Set());
     this.categoryResource.reload();
   }
 
   goToCategory(categoryId: number): void {
-    this.router.navigate(['/marsball', categoryId]);
+    this.router.navigate(['/marsball/rover', categoryId]);
   }
 
   goBack(): void {
     const data = this.categoryData();
     if (data?.category.parentId) {
-      this.router.navigate(['/marsball', data.category.parentId]);
+      this.router.navigate(['/marsball/rover', data.category.parentId]);
     } else {
-      this.router.navigate(['/marsball']);
+      this.router.navigate(['/marsball/rover']);
     }
   }
 }
