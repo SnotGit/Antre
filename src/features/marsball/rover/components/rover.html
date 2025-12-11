@@ -10,6 +10,10 @@
         <span>Supprimer ({{ selectedCategories().size }})</span>
       </button>
     </div>
+    } @else {
+    <div class="back-button">
+      <button class="btn" (click)="goBack()">Retour</button>
+    </div>
     }
   </div>
 
@@ -20,35 +24,19 @@
   <div class="content">
 
     <div class="marsball-grid">
-
-      <!-- Card Bestiaire (immuable) -->
-      <div class="category-card protected" (click)="goToBestiaire()">
-        <div class="card">
-          <span class="category-title">Bestiaire</span>
-        </div>
-      </div>
-
-      <!-- Card Rover (immuable) -->
-      <div class="category-card protected" (click)="goToRover()">
-        <div class="card">
-          <span class="category-title">Rover</span>
-        </div>
-      </div>
-
-      <!-- Cards dynamiques -->
       @for (category of categories(); track category.id) {
-        <div class="category-card" 
+        <div class="category-card"
              [class.selected]="isSelected(category.id)"
              (click)="onCardClick(category)">
           <div class="card">
             <span class="category-title">{{ category.title }}</span>
-            
+
             @if (isAdmin()) {
-            <button 
-              class="delete-cross" 
+            <button
+              class="delete-cross"
               [class.active]="isSelected(category.id)"
               (click)="$event.stopPropagation(); toggleSelection(category.id)">
-              ✕
+              
             </button>
             }
           </div>

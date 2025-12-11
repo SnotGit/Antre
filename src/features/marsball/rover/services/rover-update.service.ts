@@ -2,16 +2,16 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
-import { MarsballCategory, MarsballItem } from '../models/marsball.models';
+import { RoverCategory, RoverItem } from '../models/rover.models';
 
 //======= RESPONSE TYPES =======
 
 interface CategoryResponse {
-  category: MarsballCategory;
+  category: RoverCategory;
 }
 
 interface ItemResponse {
-  item: MarsballItem;
+  item: RoverItem;
 }
 
 //======= SERVICE =======
@@ -19,16 +19,16 @@ interface ItemResponse {
 @Injectable({
   providedIn: 'root'
 })
-export class MarsballUpdateService {
+export class RoverUpdateService {
 
   //======= INJECTIONS =======
 
   private readonly http = inject(HttpClient);
-  private readonly API_URL = `${environment.apiUrl}/marsball`;
+  private readonly API_URL = `${environment.apiUrl}/rover`;
 
   //======= UPDATE CATEGORY =======
 
-  async updateCategory(categoryId: number, title: string): Promise<MarsballCategory> {
+  async updateCategory(categoryId: number, title: string): Promise<RoverCategory> {
     try {
       const response = await firstValueFrom(
         this.http.put<CategoryResponse>(`${this.API_URL}/categories/${categoryId}`, { title })
@@ -42,16 +42,16 @@ export class MarsballUpdateService {
   //======= UPDATE ITEM =======
 
   async updateItem(
-    itemId: number, 
-    title: string, 
-    description: string, 
-    cropX: number, 
-    cropY: number, 
+    itemId: number,
+    title: string,
+    description: string,
+    cropX: number,
+    cropY: number,
     cropSize: number,
     displayWidth: number,
     displayHeight: number,
     image?: File
-  ): Promise<MarsballItem> {
+  ): Promise<RoverItem> {
     try {
       const formData = new FormData();
       formData.append('title', title);
@@ -62,7 +62,7 @@ export class MarsballUpdateService {
         formData.append('image', image);
         formData.append('thumbnail', thumbnail, 'thumbnail.jpg');
       } else {
-        const imageElement = document.querySelector(`img[src*="/uploads/marsball/full/"]`) as HTMLImageElement;
+        const imageElement = document.querySelector(`img[src*="/uploads/rover/full/"]`) as HTMLImageElement;
         if (imageElement && imageElement.complete) {
           const thumbnail = await this.cropFromImageElement(imageElement, cropX, cropY, cropSize, displayWidth, displayHeight);
           formData.append('thumbnail', thumbnail, 'thumbnail.jpg');
@@ -78,7 +78,7 @@ export class MarsballUpdateService {
     }
   }
 
-  //======= CROP WITH CANVAS - FROM FILE =======
+  //======= CROP FROM FILE =======
 
   private async cropImageToBlob(
     file: File,
@@ -90,7 +90,7 @@ export class MarsballUpdateService {
   ): Promise<Blob> {
     return new Promise((resolve, reject) => {
       const img = new Image();
-      
+
       img.onload = () => {
         const realWidth = img.naturalWidth;
         const realHeight = img.naturalHeight;
@@ -105,7 +105,7 @@ export class MarsballUpdateService {
         const canvas = document.createElement('canvas');
         canvas.width = 60;
         canvas.height = 60;
-        
+
         const ctx = canvas.getContext('2d');
         if (!ctx) {
           reject(new Error('Canvas context error'));
@@ -147,7 +147,7 @@ export class MarsballUpdateService {
     });
   }
 
-  //======= CROP WITH CANVAS - FROM IMAGE ELEMENT =======
+  //======= CROP FROM IMAGE ELEMENT =======
 
   private async cropFromImageElement(
     imgElement: HTMLImageElement,
@@ -159,26 +159,21 @@ export class MarsballUpdateService {
   ): Promise<Blob> {
     return new Promise(async (resolve, reject) => {
       try {
-        // Recharger l'image avec fetch pour éviter CORS
         const response = await fetch(imgElement.src);
         const blob = await response.blob();
         const img = new Image();
-        
-        img.onload = () => {
-          const realWidth = img.naturalWidth;
-          const realHeight = img.naturalHeight;
 
+        img.onload = () => {
           const canvas = document.createElement('canvas');
           canvas.width = 60;
           canvas.height = 60;
-          
+
           const ctx = canvas.getContext('2d');
           if (!ctx) {
             reject(new Error('Canvas context error'));
             return;
           }
 
-          // Crop direct sans calculs de ratio
           ctx.drawImage(
             img,
             Math.round(cropX),

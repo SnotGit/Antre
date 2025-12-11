@@ -94,4 +94,8 @@ export class Bestiaire implements OnInit, OnDestroy {
     if (this.selection()) return;
     this.router.navigate(['/marsball/bestiaire', category.id]);
   }
+
+  goBack(): void {
+    this.router.navigate(['/marsball']);
+  }
 }

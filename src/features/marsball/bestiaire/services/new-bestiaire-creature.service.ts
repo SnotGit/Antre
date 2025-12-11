@@ -1,4 +1,4 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, inject, computed } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -19,11 +19,27 @@ export class NewBestiaireCreatureService {
   isVisible = this.visible.asReadonly();
   contextCategoryId = this.categoryId.asReadonly();
 
+  //======= COMPUTED =======
+
+  private readonly currentUrl = computed(() => this.router.url);
+
+  private readonly urlMatches = computed(() => {
+    const url = this.currentUrl();
+    return url.match(/\/(\d+)/g);
+  });
+
+  private readonly detectedCategoryId = computed(() => {
+    const matches = this.urlMatches();
+    if (!matches || matches.length === 0) return null;
+
+    const lastMatch = matches[matches.length - 1];
+    return parseInt(lastMatch.replace('/', ''), 10);
+  });
+
   //======= SHOW =======
 
   show(): Promise<void> {
-    const id = this.detectCategoryId();
-    this.categoryId.set(id);
+    this.categoryId.set(this.detectedCategoryId());
     this.visible.set(true);
 
     return new Promise<void>((resolve) => {
@@ -36,22 +52,10 @@ export class NewBestiaireCreatureService {
   close(): void {
     this.visible.set(false);
     this.categoryId.set(null);
-    
+
     if (this.resolvePromise) {
       this.resolvePromise();
       this.resolvePromise = null;
     }
-  }
-
-  //======= DETECT CATEGORY ID =======
-
-  private detectCategoryId(): number | null {
-    const url = this.router.url;
-    const matches = url.match(/\/(\d+)/g);
-    
-    if (!matches || matches.length === 0) return null;
-    
-    const lastMatch = matches[matches.length - 1];
-    return parseInt(lastMatch.replace('/', ''), 10);
   }
 }
