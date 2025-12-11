@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angul
 import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
 import { StatsService } from '@features/user/services/stats.service';
-import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
+import { TitleResolver } from '@shared/utilities/resolvers/title-resolver';
 import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 
 @Component({
@@ -18,7 +18,7 @@ export class MyStories implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly statsService = inject(StatsService);
-  private readonly chroniquesResolver = inject(ChroniquesResolver);
+  private readonly titleResolver = inject(TitleResolver);
   private readonly typingService = inject(TypingEffectService);
 
   //======= TYPING EFFECT =======

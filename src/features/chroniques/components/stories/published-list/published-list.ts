@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
 import { PublishedStoriesService, PublishedStory } from '@features/chroniques/services/published-stories.service';
 import { DeleteStoriesService } from '@features/chroniques/services/delete-stories.service';
-import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
+import { TitleResolver } from '@shared/utilities/resolvers/title-resolver';
 import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 
 @Component({
@@ -20,7 +20,7 @@ export class PublishedList implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly publishedStoriesService = inject(PublishedStoriesService);
   private readonly deleteStoriesService = inject(DeleteStoriesService);
-  private readonly chroniquesResolver = inject(ChroniquesResolver);
+  private readonly titleResolver = inject(TitleResolver);
   private readonly typingService = inject(TypingEffectService);
 
   //======= TYPING EFFECT =======
@@ -92,7 +92,7 @@ export class PublishedList implements OnInit, OnDestroy {
 
   onCardClick(publishedStory: PublishedStory): void {
     const username = this.authService.currentUser()?.username;
-    const titleUrl = this.chroniquesResolver.encodeTitle(publishedStory.title);
+    const titleUrl = this.titleResolver.encodeTitle(publishedStory.title);
     
     this.router.navigate(['/chroniques', username, 'edition', 'publiee', titleUrl], {
       state: { 

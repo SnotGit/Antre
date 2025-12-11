@@ -3,10 +3,11 @@ import { NgClass } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../auth/services/auth.service';
 import { MobileMenuService } from '../../services/mobile-menu.service';
+import { Searchbar } from '@shared/utilities/searchbar/searchbar';
 
 @Component({
   selector: 'app-navbar',
-  imports: [NgClass, RouterLink, RouterLinkActive],
+  imports: [NgClass, RouterLink, RouterLinkActive, Searchbar],
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.scss']
 })

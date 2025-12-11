@@ -31,7 +31,7 @@ export const getRootCategories = async (req: Request, res: Response): Promise<vo
 
     res.json({ categories: categoriesList });
   } catch (error) {
-    handleError(res, 'Erreur lors de la récupération des catégories racines');
+    handleError(res, 'Erreur lors de la rÃ©cupÃ©ration des catÃ©gories racines');
   }
 };
 
@@ -59,7 +59,7 @@ export const getCategoryWithChildren = async (req: Request, res: Response): Prom
     });
 
     if (!category) {
-      sendNotFound(res, 'Catégorie non trouvée');
+      sendNotFound(res, 'CatÃ©gorie non trouvÃ©e');
       return;
     }
 
@@ -92,6 +92,6 @@ export const getCategoryWithChildren = async (req: Request, res: Response): Prom
 
     res.json(response);
   } catch (error) {
-    handleError(res, 'Erreur lors de la récupération de la catégorie');
+    handleError(res, 'Erreur lors de la rÃ©cupÃ©ration de la catÃ©gorie');
   }
 };

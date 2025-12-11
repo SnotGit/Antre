@@ -1,0 +1,84 @@
+<!-- DESKTOP VERSION (NAVBAR) -->
+<div class="searchbar-container">
+  <div class="search-input-wrapper">
+    <span class="search-icon">🔍</span>
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Rechercher..."
+      [value]="searchQuery()"
+      (input)="onInputChange($event)"
+    />
+    @if (searchQuery().length > 0) {
+      <button class="search-clear" (click)="clearSearch()">×</button>
+    }
+  </div>
+  <span class="search-shortcut">Ctrl+K</span>
+</div>
+
+<!-- MOBILE ICON -->
+<button class="search-icon-mobile" (click)="openOverlay()">
+  🔍
+</button>
+
+<!-- OVERLAY FULLSCREEN (MOBILE) -->
+<div
+  class="searchbar-overlay"
+  [class.active]="isOverlayOpen()"
+  (click)="onOverlayBackdropClick($event)"
+>
+  <div class="overlay-header">
+    <span class="overlay-title">Recherche</span>
+    <button class="overlay-close" (click)="closeOverlay()">×</button>
+  </div>
+
+  <div class="overlay-search">
+    <div class="overlay-input-wrapper">
+      <span class="overlay-search-icon">🔍</span>
+      <input
+        type="text"
+        class="overlay-search-input"
+        placeholder="Rechercher dans l'Antre..."
+        [value]="searchQuery()"
+        (input)="onInputChange($event)"
+        autofocus
+      />
+      @if (searchQuery().length > 0) {
+        <button class="overlay-search-clear" (click)="clearSearch()">×</button>
+      }
+    </div>
+  </div>
+
+  <div class="search-results">
+    @if (isLoading()) {
+      <div class="search-loading">
+        Recherche en cours...
+      </div>
+    }
+
+    @if (showNoResults()) {
+      <div class="search-no-results">
+        Aucun résultat trouvé pour "{{ searchQuery() }}"
+      </div>
+    }
+
+    @if (hasResults()) {
+      @for (result of searchResults(); track result.id) {
+        <div class="search-result-item" (click)="onResultClick(result)">
+          <div class="result-title">{{ result.title }}</div>
+          @if (result.description) {
+            <div class="result-description">{{ result.description }}</div>
+          }
+          <div class="result-category">{{ result.category }} • {{ result.type }}</div>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- AI BUTTON PLACEHOLDER (FUTURE) -->
+  <div class="ai-button-placeholder">
+    <button class="ai-btn" disabled>
+      Demander à [name] (bientôt disponible)
+    </button>
+  </div>
+</div>

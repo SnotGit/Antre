@@ -26,7 +26,7 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
   if (allowedMimes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Format non supporté'));
+    cb(new Error('Format non supportÃ©'));
   }
 };
 
