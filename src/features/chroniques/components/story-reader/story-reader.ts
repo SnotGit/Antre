@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
 import { PublicStoriesService } from '@features/chroniques/services/public-stories.service';
 import { LikeService } from '@features/user/services/like.service';
-import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
+import { TitleResolver } from '@shared/utilities/resolvers/title-resolver';
 import { environment } from '@environments/environment';
 
 @Component({
@@ -18,7 +18,7 @@ export class StoryReader {
   private readonly authService = inject(AuthService);
   private readonly publicStoriesService = inject(PublicStoriesService);
   private readonly likeService = inject(LikeService);
-  private readonly chroniquesResolver = inject(ChroniquesResolver);
+  private readonly titleResolver = inject(TitleResolver);
   private readonly API_URL = environment.apiUrl;
 
   //======= ROUTER INPUTS =======
@@ -117,7 +117,7 @@ export class StoryReader {
     const data = this.storyData.value();
     if (!data?.hasNext || !data.nextStory) return;
 
-    const titleUrl = this.chroniquesResolver.encodeTitle(data.nextStory.title);
+    const titleUrl = this.titleResolver.encodeTitle(data.nextStory.title);
     this.router.navigate(['/chroniques', this.username(), titleUrl], {
       state: {
         storyId: data.nextStory.id,
@@ -132,7 +132,7 @@ export class StoryReader {
     const data = this.storyData.value();
     if (!data?.hasPrevious || !data.previousStory) return;
 
-    const titleUrl = this.chroniquesResolver.encodeTitle(data.previousStory.title);
+    const titleUrl = this.titleResolver.encodeTitle(data.previousStory.title);
     this.router.navigate(['/chroniques', this.username(), titleUrl], {
       state: {
         storyId: data.previousStory.id,

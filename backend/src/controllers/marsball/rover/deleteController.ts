@@ -21,7 +21,7 @@ export const deleteCategory = async (req: AuthenticatedRequest, res: Response): 
     });
 
     if (!categoryExists) {
-      sendNotFound(res, 'Catégorie non trouvée');
+      sendNotFound(res, 'CatÃ©gorie non trouvÃ©e');
       return;
     }
 
@@ -29,9 +29,9 @@ export const deleteCategory = async (req: AuthenticatedRequest, res: Response): 
       where: { id: categoryId }
     });
 
-    res.json({ message: 'Catégorie supprimée avec succès' });
+    res.json({ message: 'CatÃ©gorie supprimÃ©e avec succÃ¨s' });
   } catch (error) {
-    handleError(res, 'Erreur lors de la suppression de la catégorie');
+    handleError(res, 'Erreur lors de la suppression de la catÃ©gorie');
   }
 };
 
@@ -51,7 +51,7 @@ export const deleteItem = async (req: AuthenticatedRequest, res: Response): Prom
     });
 
     if (!itemExists) {
-      sendNotFound(res, 'Item non trouvé');
+      sendNotFound(res, 'Item non trouvÃ©');
       return;
     }
 
@@ -59,7 +59,7 @@ export const deleteItem = async (req: AuthenticatedRequest, res: Response): Prom
       where: { id: itemId }
     });
 
-    res.json({ message: 'Item supprimé avec succès' });
+    res.json({ message: 'Item supprimÃ© avec succÃ¨s' });
   } catch (error) {
     handleError(res, 'Erreur lors de la suppression de l\'item');
   }
@@ -89,9 +89,9 @@ export const batchDeleteCategories = async (req: AuthenticatedRequest, res: Resp
       }
     });
 
-    res.json({ message: `${validIds.length} catégorie(s) supprimée(s) avec succès` });
+    res.json({ message: `${validIds.length} catÃ©gorie(s) supprimÃ©e(s) avec succÃ¨s` });
   } catch (error) {
-    handleError(res, 'Erreur lors de la suppression des catégories');
+    handleError(res, 'Erreur lors de la suppression des catÃ©gories');
   }
 };
 
@@ -119,7 +119,7 @@ export const batchDeleteItems = async (req: AuthenticatedRequest, res: Response)
       }
     });
 
-    res.json({ message: `${validIds.length} item(s) supprimé(s) avec succès` });
+    res.json({ message: `${validIds.length} item(s) supprimÃ©(s) avec succÃ¨s` });
   } catch (error) {
     handleError(res, 'Erreur lors de la suppression des items');
   }

@@ -7,6 +7,7 @@ import chroniquesRoutes from './routes/chroniques/chroniques.routes';
 import marsballRoutes from './routes/marsball/marsball.routes';
 import bestiaireRoutes from './routes/marsball/bestiaire/bestiaire.routes';
 import roverRoutes from './routes/marsball/rover/rover.routes';
+import searchRoutes from './routes/search/search.routes';
 
 const app = express();
 
@@ -57,6 +58,7 @@ app.use('/api/chroniques', chroniquesRoutes);
 app.use('/api/marsball', marsballRoutes);
 app.use('/api/bestiaire', bestiaireRoutes);
 app.use('/api/rover', roverRoutes);
+app.use('/api/search', searchRoutes);
 
 //======= HEALTH CHECK =======
 

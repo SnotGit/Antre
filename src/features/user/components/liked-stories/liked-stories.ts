@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angul
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LikeService, LikedStory, ReceivedLike } from '@features/user/services/like.service';
-import { ChroniquesResolver } from '@shared/utilities/resolvers/chroniques-resolver';
+import { TitleResolver } from '@shared/utilities/resolvers/title-resolver';
 import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
 import { environment } from '@environments/environment';
 
@@ -19,7 +19,7 @@ export class LikedStories implements OnInit, OnDestroy {
   private readonly likeService = inject(LikeService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly chroniquesResolver = inject(ChroniquesResolver);
+  private readonly titleResolver = inject(TitleResolver);
   private readonly typingService = inject(TypingEffectService);
   private readonly API_URL = environment.apiUrl;
 
@@ -85,7 +85,7 @@ export class LikedStories implements OnInit, OnDestroy {
   //======= ACTIONS =======
 
   onPostedStoryClick(story: LikedStory): void {
-    const titleUrl = this.chroniquesResolver.encodeTitle(story.title);
+    const titleUrl = this.titleResolver.encodeTitle(story.title);
     
     this.router.navigate(['/chroniques', story.user.username, titleUrl], {
       state: {
@@ -103,8 +103,8 @@ export class LikedStories implements OnInit, OnDestroy {
     
     if (!username) return;
 
-    const titleUrl = this.chroniquesResolver.encodeTitle(story.title);
-    
+    const titleUrl = this.titleResolver.encodeTitle(story.title);
+
     this.router.navigate(['/chroniques', username, titleUrl], {
       state: {
         storyId: story.storyId,

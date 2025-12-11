@@ -38,7 +38,7 @@ export const updateCategory = async (req: AuthenticatedRequest, res: Response): 
 
     res.json({ category: categoryResponse });
   } catch (error) {
-    handleError(res, 'Erreur lors de la modification de la catégorie');
+    handleError(res, 'Erreur lors de la modification de la catÃ©gorie');
   }
 };
 

@@ -23,7 +23,7 @@ export const createCategory = async (req: AuthenticatedRequest, res: Response): 
       });
 
       if (!parentExists) {
-        sendNotFound(res, 'Catégorie parente non trouvée');
+        sendNotFound(res, 'CatÃ©gorie parente non trouvÃ©e');
         return;
       }
     }
@@ -45,7 +45,7 @@ export const createCategory = async (req: AuthenticatedRequest, res: Response): 
 
     res.status(201).json({ category: categoryResponse });
   } catch (error) {
-    handleError(res, 'Erreur lors de la création de la catégorie');
+    handleError(res, 'Erreur lors de la crÃ©ation de la catÃ©gorie');
   }
 };
 
@@ -62,7 +62,7 @@ export const createItem = async (req: AuthenticatedRequest, res: Response): Prom
     }
 
     if (!categoryId) {
-      sendBadRequest(res, 'La catégorie est requise');
+      sendBadRequest(res, 'La catÃ©gorie est requise');
       return;
     }
 
@@ -76,7 +76,7 @@ export const createItem = async (req: AuthenticatedRequest, res: Response): Prom
     });
 
     if (!categoryExists) {
-      sendNotFound(res, 'Catégorie non trouvée');
+      sendNotFound(res, 'CatÃ©gorie non trouvÃ©e');
       return;
     }
 
@@ -107,6 +107,6 @@ export const createItem = async (req: AuthenticatedRequest, res: Response): Prom
 
     res.status(201).json({ item: itemResponse });
   } catch (error) {
-    handleError(res, 'Erreur lors de la création de l\'item');
+    handleError(res, 'Erreur lors de la crÃ©ation de l\'item');
   }
 };
