@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { BestiaireGetService } from '../services/bestiaire-get.service';
 import { BestiaireDeleteService } from '../services/bestiaire-delete.service';
 import { BestiaireCategory } from '../models/bestiaire.models';
-import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
+import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
 
 @Component({

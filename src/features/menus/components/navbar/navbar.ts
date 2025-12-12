@@ -3,7 +3,7 @@ import { NgClass } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../auth/services/auth.service';
 import { MobileMenuService } from '../../services/mobile-menu.service';
-import { Searchbar } from '@shared/utilities/searchbar/searchbar';
+import { Searchbar } from '@shared/components/searchbar/searchbar';
 
 @Component({
   selector: 'app-navbar',

@@ -1,7 +1,7 @@
 <!-- DESKTOP VERSION (NAVBAR) -->
 <div class="searchbar-container">
   <div class="search-input-wrapper">
-    <span class="search-icon">🔍</span>
+    <span class="search-icon"></span>
     <input
       type="text"
       class="search-input"
@@ -13,7 +13,18 @@
       <button class="search-clear" (click)="clearSearch()">×</button>
     }
   </div>
-  <span class="search-shortcut">Ctrl+K</span>
+
+  <!-- DROPDOWN RÉSULTATS DESKTOP -->
+  @if (hasMinLength() && searchResults().length > 0) {
+    <div class="search-dropdown">
+      @for (result of searchResults(); track result.id) {
+        <div class="dropdown-item" (click)="onResultClick(result)">
+          <div class="dropdown-title">{{ result.title }}</div>
+          <div class="dropdown-category">{{ result.category }} • {{ result.type }}</div>
+        </div>
+      }
+    </div>
+  }
 </div>
 
 <!-- MOBILE ICON -->

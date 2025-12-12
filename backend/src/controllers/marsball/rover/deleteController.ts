@@ -69,14 +69,14 @@ export const deleteItem = async (req: AuthenticatedRequest, res: Response): Prom
 
 export const batchDeleteCategories = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { categoryIds } = req.body;
+    const { ids } = req.body;
 
-    if (!Array.isArray(categoryIds) || categoryIds.length === 0) {
+    if (!Array.isArray(ids) || ids.length === 0) {
       sendBadRequest(res, 'Liste d\'IDs invalide');
       return;
     }
 
-    const validIds = categoryIds.filter(id => !isNaN(parseInt(id, 10))).map(id => parseInt(id, 10));
+    const validIds = ids.filter(id => !isNaN(parseInt(id, 10))).map(id => parseInt(id, 10));
 
     if (validIds.length === 0) {
       sendBadRequest(res, 'Aucun ID valide');
@@ -99,14 +99,14 @@ export const batchDeleteCategories = async (req: AuthenticatedRequest, res: Resp
 
 export const batchDeleteItems = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { itemIds } = req.body;
+    const { ids } = req.body;
 
-    if (!Array.isArray(itemIds) || itemIds.length === 0) {
+    if (!Array.isArray(ids) || ids.length === 0) {
       sendBadRequest(res, 'Liste d\'IDs invalide');
       return;
     }
 
-    const validIds = itemIds.filter(id => !isNaN(parseInt(id, 10))).map(id => parseInt(id, 10));
+    const validIds = ids.filter(id => !isNaN(parseInt(id, 10))).map(id => parseInt(id, 10));
 
     if (validIds.length === 0) {
       sendBadRequest(res, 'Aucun ID valide');

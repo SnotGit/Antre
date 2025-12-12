@@ -2,10 +2,10 @@ import { Component, OnDestroy, inject, signal, computed, effect, ElementRef, Vie
 import { FormsModule } from '@angular/forms';
 import { NewMarsballItemService } from '@features/marsball/services/new-marsball-item.service';
 import { MarsballCreateService } from '@features/marsball/services/marsball-create.service';
-import { AdminDialogService } from '@shared/utilities/confirmation-dialog/admin-dialog.service';
-import { CropService } from '@shared/utilities/crop-images/crop.service';
-import { FileNameFormatterService } from '@shared/utilities/file-name-formatter/file-name-formatter.service';
-import { OverlayTypingEffectService } from '@shared/utilities/typing-effect/overlay-typing-effect.service';
+import { AdminDialogService } from '@shared/services/dialog/admin-dialog.service';
+import { CropService } from '@shared/services/crop-images/crop.service';
+import { FileNameFormatterService } from '@shared/services/file-name-formatter/file-name-formatter.service';
+import { OverlayTypingEffectService } from '@shared/services/typing-effect/overlay-typing-effect.service';
 
 interface ImageFile {
   file: File;

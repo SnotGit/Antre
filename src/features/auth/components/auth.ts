@@ -107,8 +107,8 @@ export class Auth implements OnInit, OnDestroy {
       const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/accueil';
       this.router.navigate([returnUrl]);
       
-    } catch (error: any) {
-      this.error.set(error.message || 'Erreur de connexion');
+    } catch (error: unknown) {
+      this.error.set(error instanceof Error ? error.message : 'Erreur de connexion');
     } finally {
       this.loading.set(false);
     }
@@ -148,8 +148,8 @@ export class Auth implements OnInit, OnDestroy {
         this.setAuthMode('login');
       }, 2000);
       
-    } catch (error: any) {
-      this.error.set(error.message || 'Erreur lors de l\'inscription');
+    } catch (error: unknown) {
+      this.error.set(error instanceof Error ? error.message : 'Erreur lors de l\'inscription');
     } finally {
       this.loading.set(false);
     }

@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { RoverGetService } from '../services/rover-get.service';
 import { RoverDeleteService } from '../services/rover-delete.service';
 import { RoverCategory } from '../models/rover.models';
-import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
+import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
 
 @Component({

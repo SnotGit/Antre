@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
 import { Router } from '@angular/router';
-import { SearchbarService, SearchResult } from './searchbar.service';
+import { SearchbarService, SearchResult } from '../../services/search/searchbar.service';
 
 @Component({
   selector: 'app-searchbar',
@@ -109,6 +109,7 @@ export class Searchbar implements OnInit, OnDestroy {
   onResultClick(result: SearchResult): void {
     this.router.navigate([result.route]);
     this.closeOverlay();
+    this.clearSearch();
   }
 
   onOverlayBackdropClick(event: MouseEvent): void {

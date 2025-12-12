@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/auth';
 import { MobileMenuService } from '@features/menus/services/mobile-menu.service';
-import { NewCategoryService } from '@shared/utilities/element-state/create-category.service';
+import { CreateCategoryService } from '@shared/services/category/create-category.service';
 import { NewMarsballItemService } from '@features/marsball/services/new-marsball-item.service';
 import { NewBestiaireCreatureService } from '@features/marsball/bestiaire/services/new-bestiaire-creature.service';
 import { NewRoverItemService } from '@features/marsball/rover/services/new-rover-item.service';
@@ -26,7 +26,7 @@ export class ConsoleV3 {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly mobileMenuService = inject(MobileMenuService);
-  private readonly newCategoryService = inject(NewCategoryService);
+  private readonly createCategoryService = inject(CreateCategoryService);
   private readonly newMarsballItemService = inject(NewMarsballItemService);
   private readonly newBestiaireCreatureService = inject(NewBestiaireCreatureService);
   private readonly newRoverItemService = inject(NewRoverItemService);
@@ -158,7 +158,7 @@ export class ConsoleV3 {
   //======= ADMIN CONTENT ACTIONS =======
 
   addCategory(): void {
-    this.newCategoryService.show();
+    this.createCategoryService.show();
     this.onClick();
   }
 

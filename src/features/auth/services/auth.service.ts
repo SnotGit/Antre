@@ -113,7 +113,6 @@ export class AuthService {
       this.logout('Session expirée, veuillez vous reconnecter');
     } else if (error.includes('connexion')) {
       // Erreur réseau : ne pas déconnecter automatiquement
-      console.error('Erreur de connexion lors de la validation du token');
     } else {
       this.logout('Erreur de connexion');
     }

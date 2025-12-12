@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
 import { AuthService } from '../../auth/services/auth.service';
+import { User } from '../../auth/services/login.service';
 
 export interface ProfileData {
   username: string;
@@ -43,7 +44,7 @@ export class ProfileService {
       }
 
       const response = await firstValueFrom(
-        this.http.put<{ message: string; user: any }>(`${this.API_URL}`, profileData)
+        this.http.put<{ message: string; user: User }>(`${this.API_URL}`, profileData)
       );
 
       this.updateUserInAuth(response.user);
@@ -63,7 +64,7 @@ export class ProfileService {
     formData.append('avatar', file);
 
     const response = await firstValueFrom(
-      this.http.post<{ message: string; user: any }>(`${this.API_URL}/avatar`, formData)
+      this.http.post<{ message: string; user: User }>(`${this.API_URL}/avatar`, formData)
     );
 
     this.updateUserInAuth(response.user);
@@ -96,7 +97,7 @@ export class ProfileService {
     this._successMessage.set(null);
   }
 
-  private updateUserInAuth(user: any): void {
+  private updateUserInAuth(user: User): void {
     this.authService.updateCurrentUser(user);
   }
 }

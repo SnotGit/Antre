@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 //======= SEARCH ALL =======
 
-router.get('/search', async (req: Request, res: Response): Promise<void> => {
+router.get('/', async (req: Request, res: Response): Promise<void> => {
   try {
     const query = req.query.q as string;
     const section = req.query.section as string | undefined;

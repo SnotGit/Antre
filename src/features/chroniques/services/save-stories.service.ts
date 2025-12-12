@@ -118,7 +118,7 @@ export class SaveStoriesService {
       try {
         localStorage.setItem(key, JSON.stringify(data));
       } catch (error) {
-        console.error('Erreur lors de la sauvegarde locale:', error);
+        // Ignore localStorage errors
       }
     });
   }
@@ -128,7 +128,6 @@ export class SaveStoriesService {
       const stored = localStorage.getItem(key);
       return stored ? JSON.parse(stored) : null;
     } catch (error) {
-      console.error('Erreur lors de la restauration locale:', error);
       return null;
     }
   }

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
 import { User } from './login.service';
@@ -62,7 +62,7 @@ export class TokenService {
         isValid: true,
         user: response.user
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return this.handleValidationError(error);
     }
   }
@@ -81,26 +81,28 @@ export class TokenService {
 
   //======= ERROR HANDLING =======
 
-  private handleValidationError(error: any): TokenInfo {
-    if (error.status === 401) {
-      return {
-        isValid: false,
-        error: 'Token manquant'
-      };
-    }
-    
-    if (error.status === 403) {
-      return {
-        isValid: false,
-        error: 'Token invalide'
-      };
-    }
-    
-    if (error.status === 0 || !navigator.onLine) {
-      return {
-        isValid: false,
-        error: 'Erreur de connexion'
-      };
+  private handleValidationError(error: unknown): TokenInfo {
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 401) {
+        return {
+          isValid: false,
+          error: 'Token manquant'
+        };
+      }
+
+      if (error.status === 403) {
+        return {
+          isValid: false,
+          error: 'Token invalide'
+        };
+      }
+
+      if (error.status === 0 || !navigator.onLine) {
+        return {
+          isValid: false,
+          error: 'Erreur de connexion'
+        };
+      }
     }
     
     return {
