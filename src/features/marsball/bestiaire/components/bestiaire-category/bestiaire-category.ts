@@ -4,8 +4,8 @@ import { BestiaireGetService } from '../../services/bestiaire-get.service';
 import { BestiaireDeleteService } from '../../services/bestiaire-delete.service';
 import { BestiaireUpdateService } from '../../services/bestiaire-update.service';
 import { CategoryWithCreatures, Creature } from '../../models/bestiaire.models';
-import { CropService } from '@shared/utilities/crop-images/crop.service';
-import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
+import { CropService } from '@shared/services/crop-images/crop.service';
+import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
 import { environment } from '@environments/environment';
 

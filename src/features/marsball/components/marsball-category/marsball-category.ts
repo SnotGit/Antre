@@ -5,8 +5,8 @@ import { CategoryWithChildren } from '@features/marsball/models/marsball.models'
 import { MarsballDeleteService } from '@features/marsball/services/marsball-delete.service';
 import { MarsballUpdateService } from '@features/marsball/services/marsball-update.service';
 import { EditMarsballItemService } from '../../services/edit-marsball-item.service';
-import { CropService } from '@shared/utilities/crop-images/crop.service';
-import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
+import { CropService } from '@shared/services/crop-images/crop.service';
+import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
 import { environment } from '@environments/environment';
 
@@ -233,10 +233,6 @@ export class MarsballCategory implements OnDestroy {
     const displayWidth = imgElement.naturalWidth;
     const displayHeight = imgElement.naturalHeight;
 
-    console.log('=== SAVE EDIT ===');
-    console.log('Image dimensions:', displayWidth, 'x', displayHeight);
-    console.log('Crop:', crop);
-
     try {
       if (this.editItemService.imageChanged()) {
         const imageFile = this.editItemService.imageFile();
@@ -271,7 +267,7 @@ export class MarsballCategory implements OnDestroy {
       this.openItemId.set(null);
       this.categoryResource.reload();
     } catch (error) {
-      console.error('Erreur:', error);
+      // Ignore update errors
     }
   }
 

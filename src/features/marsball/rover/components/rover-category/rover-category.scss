@@ -5,7 +5,7 @@
 @use 'content/marsball/marsball-grid' as *;
 @use 'content/marsball/marsball-category-card' as *;
 
-.container {
+.container {  
   padding: 0;
   background-color: #121416;
   color: #d0d0d0;
@@ -31,7 +31,7 @@
     font-weight: 700;
     color: #5d889e;
     margin: 0;
-
+    
     @include typing-effect;
   }
 
@@ -86,7 +86,7 @@
   &::-webkit-scrollbar-thumb {
     background: rgba(93, 136, 158, 0.3);
     border-radius: 3px;
-
+    
     &:hover {
       background: rgba(93, 136, 158, 0.6);
     }
@@ -157,7 +157,7 @@
     .item-thumbnail {
       width: 60px;
       height: 60px;
-      object-fit: contain;
+      object-fit: contain;  /* CORRECTION: contain au lieu de cover */
       border-radius: 8px;
       border: 2px solid #5d889e;
       flex-shrink: 0;

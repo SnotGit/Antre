@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
 import { PublicStoriesService } from '@features/chroniques/services/public-stories.service';
 import { LikeService } from '@features/user/services/like.service';
-import { TitleResolver } from '@shared/utilities/resolvers/title-resolver';
+import { TitleResolver } from '@shared/services/resolvers/title-resolver.service';
 import { environment } from '@environments/environment';
 
 @Component({
@@ -107,7 +107,7 @@ export class StoryReader {
       // Force resource update
       this.storyData.reload();
     } catch (error) {
-      console.error('Erreur lors du like:', error);
+      // Ignore like errors
     }
   }
 

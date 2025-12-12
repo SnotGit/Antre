@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild } fro
 import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
 import { CredentialsService } from '@features/user/services/credentials.service';
-import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
+import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { UserStats } from '../user-stats/user-stats';
 import { UserProfile } from '../user-profile/user-profile';
 import { UserCredentials } from '../user-credentials/user-credentials';

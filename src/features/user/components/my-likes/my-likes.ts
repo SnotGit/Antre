@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angul
 import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
 import { LikeService } from '@features/user/services/like.service';
-import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
+import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 
 @Component({
   selector: 'app-my-likes',

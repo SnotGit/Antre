@@ -78,7 +78,6 @@ export class SearchbarService {
       this.isLoading.set(false);
       return response?.results || [];
     } catch (error) {
-      console.error('Erreur recherche:', error);
       this.isLoading.set(false);
       return [];
     }

@@ -87,11 +87,6 @@ export class MarsballCreateService {
       const img = new Image();
       
       img.onload = () => {
-        console.log('=== CROP THUMBNAIL ===');
-        console.log('Image:', img.naturalWidth, 'x', img.naturalHeight);
-        console.log('Crop position:', Math.round(cropX), Math.round(cropY));
-        console.log('Crop size:', Math.round(cropSize));
-
         const canvas = document.createElement('canvas');
         canvas.width = 60;
         canvas.height = 60;
@@ -120,7 +115,6 @@ export class MarsballCreateService {
           (blob) => {
             URL.revokeObjectURL(img.src);
             if (blob) {
-              console.log('✅ Thumbnail créé:', blob.size, 'bytes');
               resolve(blob);
             } else {
               reject(new Error('Canvas toBlob error'));

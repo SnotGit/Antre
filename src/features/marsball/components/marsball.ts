@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { MarsballGetService } from '@features/marsball/services/marsball-get.service';
 import { MarsballCategory } from '@features/marsball/models/marsball.models';
 import { MarsballDeleteService } from '@features/marsball/services/marsball-delete.service';
-import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
+import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
 
 @Component({

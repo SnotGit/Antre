@@ -5,8 +5,8 @@ import { CategoryWithChildren } from '../../models/rover.models';
 import { RoverDeleteService } from '../../services/rover-delete.service';
 import { RoverUpdateService } from '../../services/rover-update.service';
 import { EditRoverItemService } from '../../services/edit-rover-item.service';
-import { CropService } from '@shared/utilities/crop-images/crop.service';
-import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
+import { CropService } from '@shared/services/crop-images/crop.service';
+import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
 import { environment } from '@environments/environment';
 
@@ -265,7 +265,7 @@ export class RoverCategory implements OnDestroy {
       this.openItemId.set(null);
       this.categoryResource.reload();
     } catch (error) {
-      console.error('Erreur:', error);
+      // Ignore update errors
     }
   }
 

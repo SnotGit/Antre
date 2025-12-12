@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angul
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LikeService, LikedStory, ReceivedLike } from '@features/user/services/like.service';
-import { TitleResolver } from '@shared/utilities/resolvers/title-resolver';
-import { TypingEffectService } from '@shared/utilities/typing-effect/typing-effect.service';
+import { TitleResolver } from '@shared/services/resolvers/title-resolver.service';
+import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { environment } from '@environments/environment';
 
 @Component({

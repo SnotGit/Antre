@@ -1,4 +1,4 @@
-@if (newCategoryService.isVisible()) {
+@if (createCategoryService.isVisible()) {
   <div class="overlay" (click)="cancel()">
     <div class="dialog-box" (click)="$event.stopPropagation()">
 
@@ -16,7 +16,7 @@
         <form (ngSubmit)="createCategory()">
 
           <div class="form-field">
-            <label class="label">Nom de la catégorie</label>
+            <label class="label">Nom de la catÃ©gorie</label>
             <input
               type="text"
               [(ngModel)]="categoryTitle"
@@ -29,7 +29,7 @@
 
           <div class="form-actions">
             <button type="button" class="btn cancel" (click)="cancel()">Annuler</button>
-            <button type="submit" class="btn submit" [disabled]="!canCreate()">Créer</button>
+            <button type="submit" class="btn submit" [disabled]="!canCreate()">CrÃ©er</button>
           </div>
 
         </form>

@@ -46,7 +46,7 @@
               class="delete-cross"
               [class.active]="isSelectedCategory(child.id)"
               (click)="$event.stopPropagation(); toggleCategorySelection(child.id)">
-              
+              ✕
             </button>
             }
           </div>
@@ -88,7 +88,7 @@
                 class="delete-cross"
                 [class.active]="isSelected(item.id)"
                 (click)="$event.stopPropagation(); toggleSelection(item.id)">
-                
+                ✕
               </button>
             }
 
