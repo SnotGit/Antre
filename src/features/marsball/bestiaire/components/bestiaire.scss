@@ -93,16 +93,20 @@
   }
 }
 
-//======= GRID =======
+//======= GRID & CARDS =======
 
-.marsball-grid {
-  @include marsball-grid;
-}
-
-//======= CARDS =======
+@include marsball-grid;
+@include marsball-category-card;
 
 .category-card {
-  @include marsball-category-card;
+  .card {
+    position: relative;
 
-  @include delete-cross;
+    @include delete-cross;
+
+    .delete-cross {
+      top: 8px;
+      right: 8px;
+    }
+  }
 }

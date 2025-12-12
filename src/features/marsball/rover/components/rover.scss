@@ -73,3 +73,21 @@
   overflow-y: auto;
   padding: 0 30px 30px;
 }
+
+//======= GRID & CARDS =======
+
+@include marsball-grid;
+@include marsball-category-card;
+
+.category-card {
+  .card {
+    position: relative;
+
+    @include delete-cross;
+
+    .delete-cross {
+      top: 8px;
+      right: 8px;
+    }
+  }
+}
