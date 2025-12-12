@@ -3,12 +3,10 @@
     cursor: pointer;
 
     .card {
-      background: linear-gradient(
-        180deg, 
-        rgba(93, 136, 158, 0.3) 0%, 
-        rgba(10, 12, 14, 0.7) 50%,
-        rgba(10, 12, 14, 0.85) 100%
-      );
+      background: linear-gradient(180deg,
+          rgba(93, 136, 158, 0.3) 0%,
+          rgba(10, 12, 14, 0.7) 50%,
+          rgba(10, 12, 14, 0.85) 100%);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -23,12 +21,10 @@
 
       &:hover {
         border-color: #d0d0d0;
-        background: linear-gradient(
-          135deg, 
-          rgba(93, 136, 158, 0.4) 0%, 
-          rgba(10, 12, 14, 0.6) 50%,
-          rgba(10, 12, 14, 0.8) 100%
-        );
+        background: linear-gradient(135deg,
+            rgba(93, 136, 158, 0.4) 0%,
+            rgba(10, 12, 14, 0.6) 50%,
+            rgba(10, 12, 14, 0.8) 100%);
         box-shadow: 0 0 25px rgba(93, 136, 158, 0.4);
       }
 
@@ -41,6 +37,8 @@
         letter-spacing: 2px;
         padding: 0 20px;
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        word-spacing: 100vw;
+        line-height: 2;
       }
     }
   }
