@@ -4,6 +4,7 @@ import { RoverGetService } from '../services/rover-get.service';
 import { RoverDeleteService } from '../services/rover-delete.service';
 import { RoverCategory } from '../models/rover.models';
 import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
+import { TitleResolver } from '@shared/services/resolvers/title-resolver.service';
 import { AuthService } from '@features/auth/services/auth.service';
 
 @Component({
@@ -20,6 +21,7 @@ export class Rover implements OnInit, OnDestroy {
   private readonly roverGetService = inject(RoverGetService);
   private readonly roverDeleteService = inject(RoverDeleteService);
   private readonly typingService = inject(TypingEffectService);
+  private readonly titleResolver = inject(TitleResolver);
   private readonly authService = inject(AuthService);
 
   //======= TYPING EFFECT =======
@@ -92,7 +94,13 @@ export class Rover implements OnInit, OnDestroy {
 
   onCardClick(category: RoverCategory): void {
     if (this.selection()) return;
-    this.router.navigate(['/marsball/rover', category.id]);
+    
+    const titleUrl = this.titleResolver.encodeTitle(category.title);
+    this.router.navigate(['/marsball/rover', titleUrl], {
+      state: { 
+        categoryId: category.id
+      }
+    });
   }
 
   goBack(): void {

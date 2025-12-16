@@ -5,6 +5,7 @@ import { MarsballCategory } from '@features/marsball/models/marsball.models';
 import { MarsballDeleteService } from '@features/marsball/services/marsball-delete.service';
 import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
+import { TitleResolver } from '@shared/services/resolvers/title-resolver.service';
 
 @Component({
   selector: 'app-marsball',
@@ -21,6 +22,7 @@ export class Marsball implements OnInit, OnDestroy {
   private readonly marsballDeleteService = inject(MarsballDeleteService);
   private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
+  private readonly titleResolver = inject(TitleResolver);
 
   //======= TYPING EFFECT =======
 
@@ -104,6 +106,12 @@ export class Marsball implements OnInit, OnDestroy {
 
   onCardClick(category: MarsballCategory): void {
     if (this.selection()) return;
-    this.router.navigate(['/marsball', category.id]);
+    
+    const titleUrl = this.titleResolver.encodeTitle(category.title);
+    this.router.navigate(['/marsball', titleUrl], {
+      state: { 
+        categoryId: category.id
+      }
+    });
   }
 }

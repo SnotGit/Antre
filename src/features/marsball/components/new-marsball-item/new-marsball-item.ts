@@ -40,6 +40,7 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
 
   @ViewChild('uploadZone') uploadZone?: ElementRef<HTMLDivElement>;
   @ViewChild('descriptionInput') descriptionInput?: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('imageContainer') imageContainer?: ElementRef<HTMLDivElement>;
 
   //======= SIGNALS =======
 
@@ -47,6 +48,8 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
   itemDescription = signal('');
   mainImage = signal<ImageFile | null>(null);
   descriptionImage = signal<ImageFile | null>(null);
+
+  imageLoaded = signal(false);
 
   //======= COMPUTED =======
 
@@ -64,16 +67,46 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
     };
   });
 
+  private readonly displayedRatio = computed(() => {
+    this.imageLoaded();
+
+    const img = this.mainImage();
+    if (!img || !this.imageContainer?.nativeElement) return 1;
+
+    const container = this.imageContainer.nativeElement;
+    const imgElement = container.querySelector('img') as HTMLImageElement;
+    
+    // Si l'élément n'est pas encore rendu ou chargé, défaut à 1
+    if (!imgElement || !imgElement.naturalWidth) return 1;
+
+    return imgElement.naturalWidth / imgElement.width;
+  });
+
   thumbnailPreview = computed(() => {
     const img = this.mainImage();
     const crop = this.cropService.crop();
+    const ratio = this.displayedRatio();
     
     if (!img) return null;
 
+    const realX = crop.x * ratio;
+    const realY = crop.y * ratio;
+    const realSize = crop.size * ratio;
+    
+    const thumbSize = 60;
+    const scale = thumbSize / realSize;
+    
+    const containerWidth = this.imageContainer?.nativeElement?.clientWidth || 0;
+    const realImageWidth = containerWidth * ratio;
+    
+    const bgWidth = realImageWidth * scale; 
+    const bgPosX = -(realX * scale);
+    const bgPosY = -(realY * scale);
+
     return {
       backgroundImage: `url(${img.preview})`,
-      backgroundPosition: `-${crop.x}px -${crop.y}px`,
-      backgroundSize: 'auto'
+      backgroundPosition: `${bgPosX}px ${bgPosY}px`,
+      backgroundSize: `${bgWidth}px auto`
     };
   });
 
@@ -98,6 +131,9 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
     if (uploadZone) {
       uploadZone.addEventListener('paste', this.onPaste.bind(this));
     }
+    
+    window.addEventListener('mousemove', this.onWindowMouseMove.bind(this));
+    window.addEventListener('mouseup', this.onMouseUp.bind(this));
   }
 
   ngOnDestroy(): void {
@@ -105,6 +141,9 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
     if (uploadZone) {
       uploadZone.removeEventListener('paste', this.onPaste.bind(this));
     }
+    window.removeEventListener('mousemove', this.onWindowMouseMove.bind(this));
+    window.removeEventListener('mouseup', this.onMouseUp.bind(this));
+    
     this.cleanupImages();
     this.overlayTypingService.destroy();
   }
@@ -113,6 +152,14 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
   onEscape(): void {
     if (this.newItemService.isVisible()) {
       this.cancel();
+    }
+  }
+
+  //======= MOUSE HANDLERS =======
+
+  private onWindowMouseMove(event: MouseEvent): void {
+    if (this.imageContainer?.nativeElement) {
+      this.cropService.onDrag(event, this.imageContainer.nativeElement.getBoundingClientRect());
     }
   }
 
@@ -163,7 +210,8 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
 
     const preview = URL.createObjectURL(file);
     this.mainImage.set({ file, preview });
-    this.cropService.init(60);
+    this.imageLoaded.set(false);
+    this.cropService.initWithPosition(58, 29, 15);
     
     if (this.itemTitle().trim().length === 0) {
       const formattedTitle = this.fileNameFormatter.format(file);
@@ -220,10 +268,7 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
     this.cropService.startResize(event, corner, rect);
   }
 
-  onMouseMove(event: MouseEvent, container: HTMLElement): void {
-    const rect = container.getBoundingClientRect();
-    this.cropService.onDrag(event, rect);
-  }
+
 
   onMouseUp(): void {
     this.cropService.stopDrag();
@@ -251,8 +296,8 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
     const crop = this.cropService.crop();
     const description = this.itemDescription().trim();
     
-    const displayWidth = imgElement.naturalWidth;
-    const displayHeight = imgElement.naturalHeight;
+    const displayWidth = imgElement.width;
+    const displayHeight = imgElement.height;
 
     try {
       await this.marsballCreateService.createItem(

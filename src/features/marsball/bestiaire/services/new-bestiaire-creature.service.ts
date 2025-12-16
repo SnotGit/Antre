@@ -36,10 +36,18 @@ export class NewBestiaireCreatureService {
     return parseInt(lastMatch.replace('/', ''), 10);
   });
 
-  //======= SHOW =======
+  //======= OPEN =======
+
+  setCategoryId(id: number): void {
+    this.categoryId.set(id);
+  }
 
   show(): Promise<void> {
-    this.categoryId.set(this.detectedCategoryId());
+    const detectedId = this.detectedCategoryId();
+    if (detectedId) {
+      this.categoryId.set(detectedId);
+    }
+    
     this.visible.set(true);
 
     return new Promise<void>((resolve) => {

@@ -1,4 +1,5 @@
 import { Component, OnDestroy, inject, computed, resource, input, signal, effect, ViewChild, ElementRef } from '@angular/core';
+import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { MarsballGetService } from '@features/marsball/services/marsball-get.service';
 import { CategoryWithChildren } from '@features/marsball/models/marsball.models';
@@ -6,6 +7,7 @@ import { MarsballDeleteService } from '@features/marsball/services/marsball-dele
 import { MarsballUpdateService } from '@features/marsball/services/marsball-update.service';
 import { EditMarsballItemService } from '../../services/edit-marsball-item.service';
 import { CropService } from '@shared/services/crop-images/crop.service';
+import { TitleResolver } from '@shared/services/resolvers/title-resolver.service';
 import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
 import { environment } from '@environments/environment';
@@ -20,12 +22,14 @@ export class MarsballCategory implements OnDestroy {
 
   //======= INJECTIONS =======
 
+  private readonly location = inject(Location);
   private readonly router = inject(Router);
   private readonly marsballGetService = inject(MarsballGetService);
   private readonly marsballDeleteService = inject(MarsballDeleteService);
   private readonly marsballUpdateService = inject(MarsballUpdateService);
   protected readonly editItemService = inject(EditMarsballItemService);
   protected readonly cropService = inject(CropService);
+  private readonly titleResolver = inject(TitleResolver);
   private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
   private readonly API_URL = environment.apiUrl;
@@ -42,7 +46,12 @@ export class MarsballCategory implements OnDestroy {
 
   //======= ROUTER INPUTS =======
 
-  categoryId = input.required<string>();
+  titleUrl = input.required<string>();
+
+  //======= ROUTER STATE =======
+
+  private readonly routerState = history.state;
+  private readonly routerStateCategoryId = this.routerState?.categoryId || 0;
 
   //======= SIGNALS =======
 
@@ -54,15 +63,14 @@ export class MarsballCategory implements OnDestroy {
   //======= DATA LOADING =======
 
   private readonly categoryResource = resource({
-    params: () => ({ categoryId: parseInt(this.categoryId(), 10) }),
-    loader: async ({ params }) => {
-      if (isNaN(params.categoryId)) {
+    loader: async () => {
+      if (!this.routerStateCategoryId) {
         this.router.navigate(['/marsball']);
         return null;
       }
       
       try {
-        return await this.marsballGetService.getCategoryWithChildren(params.categoryId);
+        return await this.marsballGetService.getCategoryWithChildren(this.routerStateCategoryId);
       } catch {
         this.router.navigate(['/marsball']);
         return null;
@@ -112,7 +120,7 @@ export class MarsballCategory implements OnDestroy {
   });
 
   private readonly _categoryChangeEffect = effect(() => {
-    this.categoryId();
+    this.titleUrl();
     this.openItemId.set(null);
   });
 
@@ -206,7 +214,6 @@ export class MarsballCategory implements OnDestroy {
 
     this.editItemService.startEdit(itemId, item.title, item.description || '', item.imageUrl);
     
-    // Initialiser le crop service avec la taille du thumbnail
     setTimeout(() => {
       this.cropService.init(60);
     }, 0);
@@ -229,7 +236,6 @@ export class MarsballCategory implements OnDestroy {
 
     if (!title.trim() || !container || !imgElement) return;
 
-    // CORRECTION: Utiliser naturalWidth/Height de l'image, pas du container
     const displayWidth = imgElement.naturalWidth;
     const displayHeight = imgElement.naturalHeight;
 
@@ -267,7 +273,6 @@ export class MarsballCategory implements OnDestroy {
       this.openItemId.set(null);
       this.categoryResource.reload();
     } catch (error) {
-      // Ignore update errors
     }
   }
 
@@ -314,14 +319,27 @@ export class MarsballCategory implements OnDestroy {
     this.categoryResource.reload();
   }
 
+  //======= NAVIGATION =======
+
   goToCategory(categoryId: number): void {
-    this.router.navigate(['/marsball', categoryId]);
+    const data = this.categoryData();
+    if (!data) return;
+
+    const category = data.children.find(c => c.id === categoryId);
+    if (!category) return;
+
+    const titleUrl = this.titleResolver.encodeTitle(category.title);
+    this.router.navigate(['/marsball', titleUrl], {
+      state: { 
+        categoryId: category.id
+      }
+    });
   }
 
   goBack(): void {
     const data = this.categoryData();
     if (data?.category.parentId) {
-      this.router.navigate(['/marsball', data.category.parentId]);
+      this.location.back();
     } else {
       this.router.navigate(['/marsball']);
     }

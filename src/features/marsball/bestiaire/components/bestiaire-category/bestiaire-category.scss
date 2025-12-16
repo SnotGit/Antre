@@ -1,6 +1,7 @@
 @use 'content/artefacts/typing-effect/typing-effect' as *;
 @use 'content/artefacts/buttons/button' as *;
 @use 'content/artefacts/delete-cross/delete-cross' as *;
+@use 'content/artefacts/close-cross/close-cross' as *;
 @use 'content/artefacts/crop-box/crop-box' as *;
 @use 'content/marsball/marsball-grid' as *;
 @use 'content/marsball/marsball-category-card' as *;
@@ -148,10 +149,6 @@
     transition: background-color 0.3s ease;
     position: relative;
 
-    &:hover:not(.selected) {
-      background-color: #5d889e;
-    }
-
     .creature-thumbnail {
       width: 60px;
       height: 60px;
@@ -257,6 +254,10 @@
     }
   }
 
+  &:not(.open) .creature-header:hover:not(.selected) {
+    background-color: #5d889e;
+  }
+
   .creature-content {
     padding: 20px;
     border-top: 1px solid #5d889e;
@@ -291,6 +292,14 @@
       color: #d0d0d0;
       white-space: pre-wrap;
     }
+  }
+
+  .creature-footer {
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+
+    @include close-cross;
   }
 
   .edit-description {

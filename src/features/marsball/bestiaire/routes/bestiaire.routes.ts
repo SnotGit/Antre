@@ -6,7 +6,7 @@ export const routes: Routes = [
     loadComponent: () => import('../components/bestiaire').then(m => m.Bestiaire)
   },
   {
-    path: ':categoryId',
+    path: ':titleUrl',
     loadComponent: () => import('../components/bestiaire-category/bestiaire-category').then(m => m.BestiaireCategory)
   }
 ];

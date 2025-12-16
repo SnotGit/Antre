@@ -6,7 +6,7 @@ export const routes: Routes = [
     loadComponent: () => import('../components/rover').then(m => m.Rover)
   },
   {
-    path: ':categoryId',
+    path: ':titleUrl',
     loadComponent: () => import('../components/rover-category/rover-category').then(m => m.RoverCategory)
   }
 ];

@@ -4,6 +4,7 @@ import { BestiaireGetService } from '../services/bestiaire-get.service';
 import { BestiaireDeleteService } from '../services/bestiaire-delete.service';
 import { BestiaireCategory } from '../models/bestiaire.models';
 import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
+import { TitleResolver } from '@shared/services/resolvers/title-resolver.service';
 import { AuthService } from '@features/auth/services/auth.service';
 
 @Component({
@@ -20,6 +21,7 @@ export class Bestiaire implements OnInit, OnDestroy {
   private readonly bestiaireGetService = inject(BestiaireGetService);
   private readonly bestiaireDeleteService = inject(BestiaireDeleteService);
   private readonly typingService = inject(TypingEffectService);
+  private readonly titleResolver = inject(TitleResolver);
   private readonly authService = inject(AuthService);
 
   //======= TYPING EFFECT =======
@@ -83,7 +85,11 @@ export class Bestiaire implements OnInit, OnDestroy {
     const selectedIds = Array.from(this.selectedCategories());
     if (selectedIds.length === 0) return;
 
-    await this.bestiaireDeleteService.batchDeleteCategories(selectedIds);
+    const titles = this.categories()
+      .filter(c => selectedIds.includes(c.id))
+      .map(c => c.title);
+
+    await this.bestiaireDeleteService.batchDeleteCategories(selectedIds, titles);
     this.selectedCategories.set(new Set());
     this.categoriesResource.reload();
   }
@@ -92,7 +98,14 @@ export class Bestiaire implements OnInit, OnDestroy {
 
   onCardClick(category: BestiaireCategory): void {
     if (this.selection()) return;
-    this.router.navigate(['/marsball/bestiaire', category.id]);
+    
+    const titleUrl = this.titleResolver.encodeTitle(category.title);
+    this.router.navigate(['/marsball/bestiaire', titleUrl], {
+      state: { 
+        categoryId: category.id,
+        categoryTitle: category.title
+      }
+    });
   }
 
   goBack(): void {
