@@ -4,9 +4,8 @@
 
     .card {
       background: linear-gradient(180deg,
-          rgba(93, 136, 158, 0.3) 0%,
-          rgba(10, 12, 14, 0.7) 50%,
-          rgba(10, 12, 14, 0.85) 100%);
+          rgba(10, 12, 14, 0.7) 5%,
+          rgba(0, 0, 0, 0.85) 10%);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -16,15 +15,15 @@
       position: relative;
       transition: all 0.3s ease;
       border-radius: 16px;
-      border: 2px solid #5d889e;
+      border: 2px solid #d0d0d0;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 
       &:hover {
         border-color: #d0d0d0;
         background: linear-gradient(135deg,
             rgba(93, 136, 158, 0.4) 0%,
-            rgba(10, 12, 14, 0.6) 50%,
-            rgba(10, 12, 14, 0.8) 100%);
+            rgba(10, 12, 14, 0.6) 5%,
+            rgba(10, 12, 14, 0.8) 10%);
         box-shadow: 0 0 25px rgba(93, 136, 158, 0.4);
       }
 
