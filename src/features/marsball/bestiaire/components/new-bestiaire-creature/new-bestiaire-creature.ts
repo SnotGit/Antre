@@ -40,6 +40,7 @@ export class NewBestiaireCreature implements OnDestroy, AfterViewInit {
 
   @ViewChild('uploadZone') uploadZone?: ElementRef<HTMLDivElement>;
   @ViewChild('descriptionInput') descriptionInput?: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('imageContainer') imageContainer?: ElementRef<HTMLDivElement>;
 
   //======= SIGNALS =======
 
@@ -64,16 +65,57 @@ export class NewBestiaireCreature implements OnDestroy, AfterViewInit {
     };
   });
 
+  private readonly displayedRatio = computed(() => {
+    // Ce signal dépend de mainImage (pour trigger le changement)
+    // Mais la lecture du DOM n'est pas réactive. On suppose que l'image
+    // s'affiche en largeur 100% de son conteneur (max 500px).
+    const img = this.mainImage();
+    if (!img || !this.imageContainer?.nativeElement) return 1;
+
+    const container = this.imageContainer.nativeElement;
+    const imgElement = container.querySelector('img') as HTMLImageElement;
+    
+    // Si l'élément n'est pas encore rendu ou chargé, défaut à 1
+    if (!imgElement || !imgElement.naturalWidth) return 1;
+
+    return imgElement.naturalWidth / imgElement.width;
+  });
+
   thumbnailPreview = computed(() => {
     const img = this.mainImage();
     const crop = this.cropService.crop();
+    const ratio = this.displayedRatio();
     
     if (!img) return null;
 
+    // Calcul précis pour éviter le décalage :
+    // 1. Convertir les coordonnées écran (crop.x, crop.y) en coordonnées image réelle
+    const realX = crop.x * ratio;
+    const realY = crop.y * ratio;
+    const realSize = crop.size * ratio;
+
+    // 2. On veut afficher cette portion réelle dans un carré CSS de taille fixe (disons 60px).
+    // Factor de scale nécessaire = 60 / realSize.
+    // Width du background = LargeurImageReelle * Scale.
+    
+    // Pour simplifier, supposons que la vignette fait 60px.
+    const thumbSize = 60;
+    const scale = thumbSize / realSize;
+
+    // Largeur de l'image de fond virtuelle
+    // On doit redemander la largeur réelle si on ne l'a pas stockée, ou la déduire :
+    // LargeurReelle = LargeurAffichée * ratio.
+    const containerWidth = this.imageContainer?.nativeElement?.clientWidth || 0;
+    const realImageWidth = containerWidth * ratio;
+    
+    const bgWidth = realImageWidth * scale; // Largeur finale du background CSS
+    const bgPosX = -(realX * scale);
+    const bgPosY = -(realY * scale);
+
     return {
       backgroundImage: `url(${img.preview})`,
-      backgroundPosition: `-${crop.x}px -${crop.y}px`,
-      backgroundSize: 'auto'
+      backgroundPosition: `${bgPosX}px ${bgPosY}px`,
+      backgroundSize: `${bgWidth}px auto`
     };
   });
 
@@ -223,6 +265,7 @@ export class NewBestiaireCreature implements OnDestroy, AfterViewInit {
   onMouseMove(event: MouseEvent, container: HTMLElement): void {
     const rect = container.getBoundingClientRect();
     this.cropService.onDrag(event, rect);
+    // Force recheck of ratio during drag ? No, only on resize/init.
   }
 
   onMouseUp(): void {
@@ -251,8 +294,8 @@ export class NewBestiaireCreature implements OnDestroy, AfterViewInit {
     const crop = this.cropService.crop();
     const description = this.creatureDescription().trim();
     
-    const displayWidth = imgElement.naturalWidth;
-    const displayHeight = imgElement.naturalHeight;
+    const displayWidth = imgElement.width;
+    const displayHeight = imgElement.height;
 
     try {
       await this.bestiaireCreateService.createCreature(

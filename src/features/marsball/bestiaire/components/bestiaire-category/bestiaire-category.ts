@@ -1,10 +1,13 @@
-import { Component, OnDestroy, inject, computed, resource, input, signal, effect, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnDestroy, inject, computed, resource, input, signal, ViewChild, ElementRef } from '@angular/core';
+import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { BestiaireGetService } from '../../services/bestiaire-get.service';
 import { BestiaireDeleteService } from '../../services/bestiaire-delete.service';
-import { BestiaireUpdateService } from '../../services/bestiaire-update.service';
-import { CategoryWithCreatures, Creature } from '../../models/bestiaire.models';
+import { NewBestiaireCreatureService } from '../../services/new-bestiaire-creature.service';
+import { EditBestiaireCreatureService } from '../../services/edit-bestiaire-creature.service';
+import { CategoryWithCreatures } from '../../models/bestiaire.models';
 import { CropService } from '@shared/services/crop-images/crop.service';
+import { TitleResolver } from '@shared/services/resolvers/title-resolver.service';
 import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
 import { environment } from '@environments/environment';
@@ -19,11 +22,14 @@ export class BestiaireCategory implements OnDestroy {
 
   //======= INJECTIONS =======
 
+  private readonly location = inject(Location);
   private readonly router = inject(Router);
   private readonly bestiaireGetService = inject(BestiaireGetService);
   private readonly bestiaireDeleteService = inject(BestiaireDeleteService);
-  private readonly bestiaireUpdateService = inject(BestiaireUpdateService);
+  private readonly newBestiaireCreatureService = inject(NewBestiaireCreatureService);
+  private readonly editBestiaireCreatureService = inject(EditBestiaireCreatureService);
   protected readonly cropService = inject(CropService);
+  private readonly titleResolver = inject(TitleResolver);
   private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
   private readonly API_URL = environment.apiUrl;
@@ -40,7 +46,12 @@ export class BestiaireCategory implements OnDestroy {
 
   //======= ROUTER INPUTS =======
 
-  categoryId = input.required<string>();
+  titleUrl = input.required<string>();
+
+  //======= ROUTER STATE =======
+
+  private readonly routerState = history.state;
+  private readonly routerStateCategoryId = this.routerState?.categoryId || 0;
 
   //======= SIGNALS =======
 
@@ -52,15 +63,16 @@ export class BestiaireCategory implements OnDestroy {
   //======= DATA LOADING =======
 
   private readonly categoryResource = resource({
-    params: () => ({ categoryId: parseInt(this.categoryId(), 10) }),
-    loader: async ({ params }) => {
-      if (isNaN(params.categoryId)) {
+    loader: async () => {
+      if (!this.routerStateCategoryId) {
         this.router.navigate(['/marsball/bestiaire']);
         return null;
       }
       
       try {
-        return await this.bestiaireGetService.getCategoryWithCreatures(params.categoryId);
+        const data = await this.bestiaireGetService.getCategoryWithCreatures(this.routerStateCategoryId);
+        this.newBestiaireCreatureService.setCategoryId(data.category.id);
+        return data;
       } catch {
         this.router.navigate(['/marsball/bestiaire']);
         return null;
@@ -82,16 +94,7 @@ export class BestiaireCategory implements OnDestroy {
     return data?.category.title || 'Bestiaire';
   });
 
-  //======= EFFECTS =======
 
-  private readonly _titleEffect = effect(() => {
-    this.typingService.title(this.currentTitle());
-  });
-
-  private readonly _categoryChangeEffect = effect(() => {
-    this.categoryId();
-    this.openCreatureId.set(null);
-  });
 
   //======= LIFECYCLE =======
 
@@ -156,7 +159,11 @@ export class BestiaireCategory implements OnDestroy {
     const selectedIds = Array.from(this.selectedCreatures());
     if (selectedIds.length === 0) return;
 
-    await this.bestiaireDeleteService.batchDeleteCreatures(selectedIds);
+    const titles = this.categoryData()?.creatures
+      .filter(c => selectedIds.includes(c.id))
+      .map(c => c.title) || [];
+
+    await this.bestiaireDeleteService.batchDeleteCreatures(selectedIds, titles);
     this.selectedCreatures.set(new Set());
     this.categoryResource.reload();
   }
@@ -165,22 +172,53 @@ export class BestiaireCategory implements OnDestroy {
     const selectedIds = Array.from(this.selectedCategories());
     if (selectedIds.length === 0) return;
 
-    await this.bestiaireDeleteService.batchDeleteCategories(selectedIds);
+    const titles = this.categoryData()?.children
+      .filter(c => selectedIds.includes(c.id))
+      .map(c => c.title) || [];
+
+    await this.bestiaireDeleteService.batchDeleteCategories(selectedIds, titles);
     this.selectedCategories.set(new Set());
+    this.categoryResource.reload();
+  }
+
+  editCreature(creatureId: number): void {
+    const creature = this.categoryData()?.creatures.find(c => c.id === creatureId);
+    if (!creature) return;
+
+    this.editBestiaireCreatureService.startEdit(
+      creature.id,
+      creature.title,
+      creature.description,
+      this.getImageUrl(creature.imageUrl)
+    );
+  }
+
+  async deleteCreature(creatureId: number): Promise<void> {
+    const creature = this.categoryData()?.creatures.find(c => c.id === creatureId);
+    if (!creature) return;
+
+    await this.bestiaireDeleteService.deleteCreature(creatureId, creature.title);
     this.categoryResource.reload();
   }
 
   //======= NAVIGATION =======
 
-  goToCategory(categoryId: number): void {
+  goToCategory(categoryId: number, categoryTitle: string): void {
     if (this.categorySelection()) return;
-    this.router.navigate(['/marsball/bestiaire', categoryId]);
+    
+    const titleUrl = this.titleResolver.encodeTitle(categoryTitle);
+    this.router.navigate(['/marsball/bestiaire', titleUrl], {
+      state: { 
+        categoryId: categoryId,
+        categoryTitle: categoryTitle
+      }
+    });
   }
 
   goBack(): void {
     const data = this.categoryData();
     if (data?.category.parentId) {
-      this.router.navigate(['/marsball/bestiaire', data.category.parentId]);
+      this.location.back();
     } else {
       this.router.navigate(['/marsball/bestiaire']);
     }

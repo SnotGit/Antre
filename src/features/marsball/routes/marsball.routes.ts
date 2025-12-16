@@ -14,7 +14,7 @@ export const routes: Routes = [
     loadChildren: () => import('../rover/routes/rover.routes').then(m => m.routes)
   },
   {
-    path: ':categoryId',
+    path: '**',
     loadComponent: () => import('../components/marsball-category/marsball-category').then(m => m.MarsballCategory)
   }
 ];

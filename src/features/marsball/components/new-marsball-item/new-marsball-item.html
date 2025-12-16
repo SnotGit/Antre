@@ -63,12 +63,11 @@
                     </div>
 
                     <div class="image-preview-container" 
-                         (mousemove)="onMouseMove($event, imageContainer)"
                          (mouseup)="onMouseUp()" 
                          (mouseleave)="onMouseUp()" 
                          #imageContainer>
 
-                        <img [src]="img.preview" [alt]="itemTitle()" class="preview-image">
+                        <img [src]="img.preview" [alt]="itemTitle()" class="preview-image" (load)="imageLoaded.set(true)">
 
                         <div class="crop-box" 
                              [class.resizing-mode]="cropService.isCtrlPressed()"

@@ -37,7 +37,7 @@
       @for (child of data.children; track child.id) {
         <div class="category-card" 
              [class.selected]="isSelectedCategory(child.id)"
-             (click)="goToCategory(child.id)">
+             (click)="goToCategory(child.id, child.title)">
           <div class="card">
             <span class="category-title">{{ child.title }}</span>
            
@@ -74,6 +74,15 @@
                 ✕
               </button>
             }
+
+            @if (isCreatureOpen(creature.id) && !isAdmin()) {
+              <button class="btn close-btn" (click)="$event.stopPropagation(); closeCreature()">Fermer</button>
+            }
+
+            @if (isCreatureOpen(creature.id) && isAdmin()) {
+              <button class="btn edit-btn" (click)="$event.stopPropagation(); editCreature(creature.id)">Modifier</button>
+              <button class="btn delete-btn" (click)="$event.stopPropagation(); deleteCreature(creature.id)">Supprimer</button>
+            }
           </div>
 
           @if (isCreatureOpen(creature.id)) {
@@ -86,6 +95,9 @@
               <p>{{ creature.description }}</p>
             </div>
             }
+            <div class="creature-footer">
+              <button class="close-cross" (click)="$event.stopPropagation(); closeCreature()">✕</button>
+            </div>
           </div>
           }
 
