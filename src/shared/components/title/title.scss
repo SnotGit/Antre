@@ -5,7 +5,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   width: 100%;
-  padding: 50px;
+  padding: 40px;
   gap: 20px;
   background: transparent;
   pointer-events: none;
@@ -19,6 +19,7 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  padding-top: 20px;
 }
 
 .title-section {
@@ -36,10 +37,11 @@
 
 .title {
   color: #d0d0d0;
-  font-size: 1.8rem;
-  font-weight: 500;
+  font-size: 2rem;
+  font-weight: 600;
   text-align: left;
   margin: 0;
+  padding-left: 190px;
   min-width: 600px;
   @include typing-effect;
 }
