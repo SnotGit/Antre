@@ -3,9 +3,11 @@
     cursor: pointer;
 
     .card {
-      background: linear-gradient(180deg,
-          rgba(10, 12, 14, 0.7) 5%,
-          rgba(0, 0, 0, 0.85) 10%);
+      background-color: #000000d7;
+      border-radius: 40px;
+      background-image: url('/assets/images/frames/CategoryCard.png');
+      background-size: cover;
+    background-repeat: no-repeat;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -14,17 +16,13 @@
       height: 160px;
       position: relative;
       transition: all 0.3s ease;
-      border-radius: 16px;
-      border: 2px solid #d0d0d0;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      //border-radius: 16px;
+      //border: 2px solid #d0d0d0;
+      //box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 
       &:hover {
-        border-color: #d0d0d0;
-        background: linear-gradient(135deg,
-            rgba(93, 136, 158, 0.4) 0%,
-            rgba(10, 12, 14, 0.6) 5%,
-            rgba(10, 12, 14, 0.8) 10%);
-        box-shadow: 0 0 25px rgba(93, 136, 158, 0.4);
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
       }
 
       .category-title {

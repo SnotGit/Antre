@@ -2,7 +2,6 @@
   'collapsed': !openMenu(),
   'expanded': openMenu()
 }">
-  <!-- Logo (masqué sur mobile) -->
   <a routerLink="/accueil" class="logo" (click)="onClick()">
     <div class="logo-container">
       <div class="glitch-logo">
@@ -14,7 +13,6 @@
     </div>
   </a>
 
-  <!-- Bouton hamburger mobile (masqué sur desktop) -->
   <button class="menu-toggle" 
           [ngClass]="{
             'expanded': openMenu(),
@@ -25,7 +23,6 @@
     MENU
   </button>
 
-  <!-- Menu content -->
   <div class="menu-content">
     <div class="search-container">
       <app-searchbar></app-searchbar>
@@ -43,10 +40,22 @@
     <a routerLink="/chroniques" routerLinkActive="active" class="menu-btn" (click)="onClick()">
       Chroniques de Mars
     </a>
-    @if (isAdmin()) {
-      <a routerLink="/staff" routerLinkActive="active" class="menu-btn staff-only" (click)="onClick()">
-        Staff
-      </a>
+  </div>
+
+  <div class="navbar-footer">
+    @if (isLoggedIn()) {
+      <span class="group-title">> PARAMETRES DU COMPTE</span>
+      @if (isAdmin()) {
+        <a routerLink="/staff" routerLinkActive="active" class="navbar-btn" (click)="onClick()">
+          STAFF
+        </a>
+      }
+      <button class="navbar-btn" (click)="openAccount()">MON COMPTE</button>
+      <button class="navbar-btn logout" (click)="logout()">DECONNEXION</button>
+    } @else {
+      <span class="group-title">> SYSTÈME VERROUILLÉ</span>
+      <button class="navbar-btn" (click)="openLogin()">[⚡] CONNEXION</button>
+      <button class="navbar-btn" (click)="openRegister()">[👤] INSCRIPTION</button>
     }
   </div>
 </nav>

@@ -5,6 +5,7 @@ import { MarsballGetService } from '@features/marsball/services/marsball-get.ser
 import { CategoryWithChildren } from '@features/marsball/models/marsball.models';
 import { MarsballDeleteService } from '@features/marsball/services/marsball-delete.service';
 import { MarsballUpdateService } from '@features/marsball/services/marsball-update.service';
+import { MarsballCategoryStateService } from '@features/marsball/services/marsball-category-state.service';
 import { EditMarsballItemService } from '../../services/edit-marsball-item.service';
 import { CropService } from '@shared/services/crop-images/crop.service';
 import { TitleResolver } from '@shared/services/resolvers/title-resolver.service';
@@ -27,6 +28,7 @@ export class MarsballCategory implements OnDestroy {
   private readonly marsballGetService = inject(MarsballGetService);
   private readonly marsballDeleteService = inject(MarsballDeleteService);
   private readonly marsballUpdateService = inject(MarsballUpdateService);
+  private readonly categoryState = inject(MarsballCategoryStateService);
   protected readonly editItemService = inject(EditMarsballItemService);
   protected readonly cropService = inject(CropService);
   private readonly titleResolver = inject(TitleResolver);
@@ -56,9 +58,14 @@ export class MarsballCategory implements OnDestroy {
   //======= SIGNALS =======
 
   openItemId = signal<number | null>(null);
-  selectedItems = signal<Set<number>>(new Set());
-  selectedCategories = signal<Set<number>>(new Set());
   isAdmin = this.authService.isAdmin;
+
+  //======= STATE SERVICE COMPUTED =======
+
+  selection = this.categoryState.selectionItems;
+  categorySelection = this.categoryState.selectionCategories;
+  selectedItems = this.categoryState.selectedItems;
+  selectedCategories = this.categoryState.selectedCategories;
 
   //======= DATA LOADING =======
 
@@ -83,9 +90,6 @@ export class MarsballCategory implements OnDestroy {
   });
 
   //======= COMPUTED =======
-
-  selection = computed(() => this.selectedItems().size > 0);
-  categorySelection = computed(() => this.selectedCategories().size > 0);
 
   currentTitle = computed(() => {
     const data = this.categoryData();
@@ -153,33 +157,21 @@ export class MarsballCategory implements OnDestroy {
   //======= ITEM SELECTION METHODS =======
 
   toggleSelection(itemId: number): void {
-    const newSelection = new Set(this.selectedItems());
-    if (newSelection.has(itemId)) {
-      newSelection.delete(itemId);
-    } else {
-      newSelection.add(itemId);
-    }
-    this.selectedItems.set(newSelection);
+    this.categoryState.toggleItemSelection(itemId);
   }
 
   isSelected(itemId: number): boolean {
-    return this.selectedItems().has(itemId);
+    return this.categoryState.selectedItems().has(itemId);
   }
 
   //======= CATEGORY SELECTION METHODS =======
 
   toggleCategorySelection(categoryId: number): void {
-    const newSelection = new Set(this.selectedCategories());
-    if (newSelection.has(categoryId)) {
-      newSelection.delete(categoryId);
-    } else {
-      newSelection.add(categoryId);
-    }
-    this.selectedCategories.set(newSelection);
+    this.categoryState.toggleCategorySelection(categoryId);
   }
 
   isSelectedCategory(categoryId: number): boolean {
-    return this.selectedCategories().has(categoryId);
+    return this.categoryState.selectedCategories().has(categoryId);
   }
 
   //======= CROP METHODS =======
@@ -284,38 +276,6 @@ export class MarsballCategory implements OnDestroy {
     if (!item) return;
 
     await this.marsballDeleteService.deleteItem(itemId, item.title);
-    this.categoryResource.reload();
-  }
-
-  async deleteSelected(): Promise<void> {
-    const data = this.categoryData();
-    if (!data) return;
-
-    const selectedIds = Array.from(this.selectedItems());
-    if (selectedIds.length === 0) return;
-
-    const selectedNames = data.items
-      .filter(item => selectedIds.includes(item.id))
-      .map(item => item.title);
-
-    await this.marsballDeleteService.deleteItems(selectedIds, selectedNames);
-    this.selectedItems.set(new Set());
-    this.categoryResource.reload();
-  }
-
-  async deleteSelectedCategories(): Promise<void> {
-    const data = this.categoryData();
-    if (!data) return;
-
-    const selectedIds = Array.from(this.selectedCategories());
-    if (selectedIds.length === 0) return;
-
-    const selectedNames = data.children
-      .filter(cat => selectedIds.includes(cat.id))
-      .map(cat => cat.title);
-
-    await this.marsballDeleteService.deleteCategories(selectedIds, selectedNames);
-    this.selectedCategories.set(new Set());
     this.categoryResource.reload();
   }
 
