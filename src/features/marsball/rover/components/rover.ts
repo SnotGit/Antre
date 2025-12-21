@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy, inject, computed, resource, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angular/core';
 import { Router } from '@angular/router';
 import { RoverGetService } from '../services/rover-get.service';
-import { RoverDeleteService } from '../services/rover-delete.service';
 import { RoverCategory } from '../models/rover.models';
+import { MarsballStateService } from '@features/marsball/services/marsball-state.service';
 import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { TitleResolver } from '@shared/services/resolvers/title-resolver.service';
 import { AuthService } from '@features/auth/services/auth.service';
@@ -19,7 +19,7 @@ export class Rover implements OnInit, OnDestroy {
 
   private readonly router = inject(Router);
   private readonly roverGetService = inject(RoverGetService);
-  private readonly roverDeleteService = inject(RoverDeleteService);
+  private readonly marsballStateService = inject(MarsballStateService);
   private readonly typingService = inject(TypingEffectService);
   private readonly titleResolver = inject(TitleResolver);
   private readonly authService = inject(AuthService);
@@ -34,8 +34,12 @@ export class Rover implements OnInit, OnDestroy {
 
   //======= SIGNALS =======
 
-  selectedCategories = signal<Set<number>>(new Set());
   isAdmin = this.authService.isAdmin;
+
+  //======= STATE SERVICE =======
+
+  selectedCategories = this.marsballStateService.selectedCategories;
+  selection = this.marsballStateService.selection;
 
   //======= DATA LOADING =======
 
@@ -49,10 +53,6 @@ export class Rover implements OnInit, OnDestroy {
     return this.categoriesResource.value() || [];
   });
 
-  //======= COMPUTED =======
-
-  selection = computed(() => this.selectedCategories().size > 0);
-
   //======= LIFECYCLE =======
 
   ngOnInit(): void {
@@ -61,33 +61,17 @@ export class Rover implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.typingService.destroy();
+    this.marsballStateService.clearSelection();
   }
 
   //======= SELECTION METHODS =======
 
   toggleSelection(categoryId: number): void {
-    const newSelection = new Set(this.selectedCategories());
-    if (newSelection.has(categoryId)) {
-      newSelection.delete(categoryId);
-    } else {
-      newSelection.add(categoryId);
-    }
-    this.selectedCategories.set(newSelection);
+    this.marsballStateService.toggleSelection(categoryId);
   }
 
   isSelected(categoryId: number): boolean {
     return this.selectedCategories().has(categoryId);
-  }
-
-  //======= ADMIN ACTIONS =======
-
-  async deleteSelected(): Promise<void> {
-    const selectedIds = Array.from(this.selectedCategories());
-    if (selectedIds.length === 0) return;
-
-    await this.roverDeleteService.batchDeleteCategories(selectedIds);
-    this.selectedCategories.set(new Set());
-    this.categoriesResource.reload();
   }
 
   //======= NAVIGATION =======

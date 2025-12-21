@@ -1,7 +1,7 @@
-import { Injectable, inject, computed } from '@angular/core';
+import { Injectable, inject, computed, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { MarsballStateService } from '@features/marsball/services/marsball-state.service';
-import { MarsballCategoryStateService } from '@features/marsball/services/marsball-category-state.service';
+import { CategoryStateService } from '@features/marsball/services/category-state.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +12,15 @@ export class ConsoleStateService {
 
   private readonly router = inject(Router);
   private readonly marsballState = inject(MarsballStateService);
-  private readonly categoryState = inject(MarsballCategoryStateService);
+  private readonly categoryState = inject(CategoryStateService);
+
+  //======= SIGNALS =======
+
+  private deleteRequestedSignal = signal<void>(undefined, { equal: () => false });
+
+  //======= COMPUTED =======
+
+  deleteRequested = this.deleteRequestedSignal.asReadonly();
 
   //======= ROUTE DETECTION =======
 
@@ -30,13 +38,25 @@ export class ConsoleStateService {
            url !== '/marsball';
   }
 
-  //======= COMPUTED =======
+  private isInBestiaireCategory(): boolean {
+    const url = this.router.url;
+    return url.includes('/marsball/bestiaire/') && 
+           url !== '/marsball/bestiaire';
+  }
+
+  private isInRoverCategory(): boolean {
+    const url = this.router.url;
+    return url.includes('/marsball/rover/') && 
+           url !== '/marsball/rover';
+  }
+
+  //======= COMPUTED - SELECTION =======
 
   hasSelection = computed(() => {
     if (this.isInMarsballRoot()) {
       return this.marsballState.selection();
     }
-    if (this.isInMarsballCategory()) {
+    if (this.isInMarsballCategory() || this.isInBestiaireCategory() || this.isInRoverCategory()) {
       return this.categoryState.hasSelection();
     }
     return false;
@@ -52,16 +72,7 @@ export class ConsoleStateService {
     this.marsballState.openCreateItem();
   }
 
-  deleteSelection(data?: unknown): void {
-    if (this.isInMarsballRoot()) {
-      this.marsballState.deleteSelected(data as Array<{ id: number; title: string }>);
-    } else if (this.isInMarsballCategory()) {
-      if (this.categoryState.selectionItems()) {
-        this.categoryState.deleteSelectedItems(data as Array<{ id: number; title: string }>);
-      }
-      if (this.categoryState.selectionCategories()) {
-        this.categoryState.deleteSelectedCategories(data as Array<{ id: number; title: string }>);
-      }
-    }
+  requestDelete(): void {
+    this.deleteRequestedSignal.set(undefined);
   }
 }

@@ -41,7 +41,6 @@
         
         @if (showAdminActions() && currentUser()?.role === 'admin') {
         <div class="action-group">
-          <span class="group-title">> FONCTIONS ADMIN</span>
           <button class="console-btn" (click)="addCategory()">{{ categoryLabel() }}</button>
           <button class="console-btn" (click)="addItem()">{{ itemLabel() }}</button>
           @if (hasSelection()) {
@@ -52,7 +51,6 @@
 
         @if (showUserActions()) {
         <div class="action-group">
-          <span class="group-title">> FONCTIONS UTILISATEUR</span>
           <button class="console-btn" (click)="newStory()">NOUVELLE HISTOIRE</button>
           <button class="console-btn" (click)="myStories()">MES HISTOIRES</button>
         </div>

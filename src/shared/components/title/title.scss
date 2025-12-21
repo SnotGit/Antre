@@ -1,20 +1,45 @@
+@use 'content/artefacts/buttons/button' as *;
 @use 'content/artefacts/typing-effect/typing-effect' as *;
 
-.content-title {
-  position: absolute;
-  top: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1100;
-
-  .title {
-    font-size: 32px;
-    font-weight: 700;
-    color: #d0d0d0;
-    margin: 0;
-    white-space: nowrap;
-    text-align: center;
-
-    @include typing-effect;
+.title-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  width: 100%;
+  padding: 50px;
+  gap: 20px;
+  background: transparent;
+  pointer-events: none;
+  
+  * {
+    pointer-events: auto;
   }
+}
+
+.search-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.title-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.back-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  @include button;
+}
+
+.title {
+  color: #d0d0d0;
+  font-size: 1.8rem;
+  font-weight: 500;
+  text-align: left;
+  margin: 0;
+  min-width: 600px;
+  @include typing-effect;
 }

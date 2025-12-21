@@ -1,14 +1,15 @@
-import { Component, OnDestroy, inject, computed, resource, input, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnDestroy, inject, computed, resource, input, signal, effect, ViewChild, ElementRef } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { BestiaireGetService } from '../../services/bestiaire-get.service';
 import { BestiaireDeleteService } from '../../services/bestiaire-delete.service';
+import { BestiaireUpdateService } from '../../services/bestiaire-update.service';
 import { NewBestiaireCreatureService } from '../../services/new-bestiaire-creature.service';
 import { EditBestiaireCreatureService } from '../../services/edit-bestiaire-creature.service';
+import { CategoryStateService } from '@features/marsball/services/category-state.service';
+import { ConsoleStateService } from '@features/menus/services/console-state.service';
 import { CategoryWithCreatures } from '../../models/bestiaire.models';
 import { CropService } from '@shared/services/crop-images/crop.service';
-import { TitleResolver } from '@shared/services/resolvers/title-resolver.service';
-import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
 import { environment } from '@environments/environment';
 
@@ -26,23 +27,18 @@ export class BestiaireCategory implements OnDestroy {
   private readonly router = inject(Router);
   private readonly bestiaireGetService = inject(BestiaireGetService);
   private readonly bestiaireDeleteService = inject(BestiaireDeleteService);
+  private readonly bestiaireUpdateService = inject(BestiaireUpdateService);
   private readonly newBestiaireCreatureService = inject(NewBestiaireCreatureService);
   private readonly editBestiaireCreatureService = inject(EditBestiaireCreatureService);
+  private readonly categoryState = inject(CategoryStateService);
+  private readonly consoleState = inject(ConsoleStateService);
   protected readonly cropService = inject(CropService);
-  private readonly titleResolver = inject(TitleResolver);
-  private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
   private readonly API_URL = environment.apiUrl;
 
   //======= VIEW CHILDREN =======
 
   @ViewChild('imageContainer') imageContainer?: ElementRef<HTMLDivElement>;
-
-  //======= TYPING EFFECT =======
-
-  headerTitle = this.typingService.headerTitle;
-  showCursor = this.typingService.showCursor;
-  typing = this.typingService.typingComplete;
 
   //======= ROUTER INPUTS =======
 
@@ -56,9 +52,14 @@ export class BestiaireCategory implements OnDestroy {
   //======= SIGNALS =======
 
   openCreatureId = signal<number | null>(null);
-  selectedCreatures = signal<Set<number>>(new Set());
-  selectedCategories = signal<Set<number>>(new Set());
   isAdmin = this.authService.isAdmin;
+
+  //======= STATE SERVICE =======
+
+  selectedItems = this.categoryState.selectedItems;
+  selectedCategories = this.categoryState.selectedCategories;
+  selection = this.categoryState.selectionItems;
+  categorySelection = this.categoryState.selectionCategories;
 
   //======= DATA LOADING =======
 
@@ -68,7 +69,7 @@ export class BestiaireCategory implements OnDestroy {
         this.router.navigate(['/marsball/bestiaire']);
         return null;
       }
-      
+
       try {
         const data = await this.bestiaireGetService.getCategoryWithCreatures(this.routerStateCategoryId);
         this.newBestiaireCreatureService.setCategoryId(data.category.id);
@@ -84,22 +85,33 @@ export class BestiaireCategory implements OnDestroy {
     return this.categoryResource.value() || null;
   });
 
-  //======= COMPUTED =======
+  //======= EFFECTS =======
 
-  selection = computed(() => this.selectedCreatures().size > 0);
-  categorySelection = computed(() => this.selectedCategories().size > 0);
-
-  currentTitle = computed(() => {
-    const data = this.categoryData();
-    return data?.category.title || 'Bestiaire';
+  private readonly _deleteRequestEffect = effect(() => {
+    this.consoleState.deleteRequested();
+    this.handleDeleteRequest();
   });
 
+  //======= DELETE HANDLER =======
 
+  private async handleDeleteRequest(): Promise<void> {
+    const data = this.categoryData();
+    if (!data) return;
+
+    if (this.categoryState.selectionItems()) {
+      await this.categoryState.deleteSelectedItems(data.creatures, this.bestiaireDeleteService);
+    }
+    if (this.categoryState.selectionCategories()) {
+      await this.categoryState.deleteSelectedCategories(data.children, this.bestiaireDeleteService);
+    }
+
+    this.categoryResource.reload();
+  }
 
   //======= LIFECYCLE =======
 
   ngOnDestroy(): void {
-    this.typingService.destroy();
+    this.categoryState.clearAllSelections();
   }
 
   //======= CREATURE ACTIONS =======
@@ -121,65 +133,25 @@ export class BestiaireCategory implements OnDestroy {
     return `${this.API_URL.replace('/api', '')}${imageUrl}`;
   }
 
-  //======= CREATURE SELECTION METHODS =======
+  //======= SELECTION METHODS =======
 
   toggleSelection(creatureId: number): void {
-    const newSelection = new Set(this.selectedCreatures());
-    if (newSelection.has(creatureId)) {
-      newSelection.delete(creatureId);
-    } else {
-      newSelection.add(creatureId);
-    }
-    this.selectedCreatures.set(newSelection);
+    this.categoryState.toggleItemSelection(creatureId);
   }
 
   isSelected(creatureId: number): boolean {
-    return this.selectedCreatures().has(creatureId);
+    return this.categoryState.selectedItems().has(creatureId);
   }
 
-  //======= CATEGORY SELECTION METHODS =======
-
   toggleCategorySelection(categoryId: number): void {
-    const newSelection = new Set(this.selectedCategories());
-    if (newSelection.has(categoryId)) {
-      newSelection.delete(categoryId);
-    } else {
-      newSelection.add(categoryId);
-    }
-    this.selectedCategories.set(newSelection);
+    this.categoryState.toggleCategorySelection(categoryId);
   }
 
   isSelectedCategory(categoryId: number): boolean {
-    return this.selectedCategories().has(categoryId);
+    return this.categoryState.selectedCategories().has(categoryId);
   }
 
   //======= ADMIN ACTIONS =======
-
-  async deleteSelected(): Promise<void> {
-    const selectedIds = Array.from(this.selectedCreatures());
-    if (selectedIds.length === 0) return;
-
-    const titles = this.categoryData()?.creatures
-      .filter(c => selectedIds.includes(c.id))
-      .map(c => c.title) || [];
-
-    await this.bestiaireDeleteService.batchDeleteCreatures(selectedIds, titles);
-    this.selectedCreatures.set(new Set());
-    this.categoryResource.reload();
-  }
-
-  async deleteSelectedCategories(): Promise<void> {
-    const selectedIds = Array.from(this.selectedCategories());
-    if (selectedIds.length === 0) return;
-
-    const titles = this.categoryData()?.children
-      .filter(c => selectedIds.includes(c.id))
-      .map(c => c.title) || [];
-
-    await this.bestiaireDeleteService.batchDeleteCategories(selectedIds, titles);
-    this.selectedCategories.set(new Set());
-    this.categoryResource.reload();
-  }
 
   editCreature(creatureId: number): void {
     const creature = this.categoryData()?.creatures.find(c => c.id === creatureId);
@@ -205,10 +177,9 @@ export class BestiaireCategory implements OnDestroy {
 
   goToCategory(categoryId: number, categoryTitle: string): void {
     if (this.categorySelection()) return;
-    
-    const titleUrl = this.titleResolver.encodeTitle(categoryTitle);
-    this.router.navigate(['/marsball/bestiaire', titleUrl], {
-      state: { 
+
+    this.router.navigate(['/marsball/bestiaire', categoryTitle.toLowerCase().replace(/\s+/g, '-')], {
+      state: {
         categoryId: categoryId,
         categoryTitle: categoryTitle
       }

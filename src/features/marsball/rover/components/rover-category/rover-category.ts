@@ -5,10 +5,10 @@ import { RoverGetService } from '../../services/rover-get.service';
 import { CategoryWithChildren } from '../../models/rover.models';
 import { RoverDeleteService } from '../../services/rover-delete.service';
 import { RoverUpdateService } from '../../services/rover-update.service';
+import { CategoryStateService } from '@features/marsball/services/category-state.service';
+import { ConsoleStateService } from '@features/menus/services/console-state.service';
 import { EditRoverItemService } from '../../services/edit-rover-item.service';
 import { CropService } from '@shared/services/crop-images/crop.service';
-import { TitleResolver } from '@shared/services/resolvers/title-resolver.service';
-import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
 import { environment } from '@environments/environment';
 
@@ -27,22 +27,16 @@ export class RoverCategory implements OnDestroy {
   private readonly roverGetService = inject(RoverGetService);
   private readonly roverDeleteService = inject(RoverDeleteService);
   private readonly roverUpdateService = inject(RoverUpdateService);
+  private readonly categoryState = inject(CategoryStateService);
+  private readonly consoleState = inject(ConsoleStateService);
   protected readonly editItemService = inject(EditRoverItemService);
   protected readonly cropService = inject(CropService);
-  private readonly titleResolver = inject(TitleResolver);
-  private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
   private readonly API_URL = environment.apiUrl;
 
   //======= VIEW CHILDREN =======
 
   @ViewChild('imageContainer') imageContainer?: ElementRef<HTMLDivElement>;
-
-  //======= TYPING EFFECT =======
-
-  headerTitle = this.typingService.headerTitle;
-  showCursor = this.typingService.showCursor;
-  typing = this.typingService.typingComplete;
 
   //======= ROUTER INPUTS =======
 
@@ -56,9 +50,14 @@ export class RoverCategory implements OnDestroy {
   //======= SIGNALS =======
 
   openItemId = signal<number | null>(null);
-  selectedItems = signal<Set<number>>(new Set());
-  selectedCategories = signal<Set<number>>(new Set());
   isAdmin = this.authService.isAdmin;
+
+  //======= STATE SERVICE =======
+
+  selectedItems = this.categoryState.selectedItems;
+  selectedCategories = this.categoryState.selectedCategories;
+  selection = this.categoryState.selectionItems;
+  categorySelection = this.categoryState.selectionCategories;
 
   //======= DATA LOADING =======
 
@@ -84,14 +83,6 @@ export class RoverCategory implements OnDestroy {
 
   //======= COMPUTED =======
 
-  selection = computed(() => this.selectedItems().size > 0);
-  categorySelection = computed(() => this.selectedCategories().size > 0);
-
-  currentTitle = computed(() => {
-    const data = this.categoryData();
-    return data?.category.title || 'Rover';
-  });
-
   cropStyle = computed(() => {
     const crop = this.cropService.crop();
     return {
@@ -115,19 +106,36 @@ export class RoverCategory implements OnDestroy {
 
   //======= EFFECTS =======
 
-  private readonly _titleEffect = effect(() => {
-    this.typingService.title(this.currentTitle());
-  });
-
   private readonly _categoryChangeEffect = effect(() => {
     this.titleUrl();
     this.openItemId.set(null);
   });
 
+  private readonly _deleteRequestEffect = effect(() => {
+    this.consoleState.deleteRequested();
+    this.handleDeleteRequest();
+  });
+
+  //======= DELETE HANDLER =======
+
+  private async handleDeleteRequest(): Promise<void> {
+    const data = this.categoryData();
+    if (!data) return;
+
+    if (this.categoryState.selectionItems()) {
+      await this.categoryState.deleteSelectedItems(data.items, this.roverDeleteService);
+    }
+    if (this.categoryState.selectionCategories()) {
+      await this.categoryState.deleteSelectedCategories(data.children, this.roverDeleteService);
+    }
+
+    this.categoryResource.reload();
+  }
+
   //======= LIFECYCLE =======
 
   ngOnDestroy(): void {
-    this.typingService.destroy();
+    this.categoryState.clearAllSelections();
   }
 
   //======= ITEM ACTIONS =======
@@ -150,36 +158,22 @@ export class RoverCategory implements OnDestroy {
     return `${this.API_URL.replace('/api', '')}${imageUrl}`;
   }
 
-  //======= ITEM SELECTION METHODS =======
+  //======= SELECTION METHODS =======
 
   toggleSelection(itemId: number): void {
-    const newSelection = new Set(this.selectedItems());
-    if (newSelection.has(itemId)) {
-      newSelection.delete(itemId);
-    } else {
-      newSelection.add(itemId);
-    }
-    this.selectedItems.set(newSelection);
+    this.categoryState.toggleItemSelection(itemId);
   }
 
   isSelected(itemId: number): boolean {
-    return this.selectedItems().has(itemId);
+    return this.categoryState.selectedItems().has(itemId);
   }
 
-  //======= CATEGORY SELECTION METHODS =======
-
   toggleCategorySelection(categoryId: number): void {
-    const newSelection = new Set(this.selectedCategories());
-    if (newSelection.has(categoryId)) {
-      newSelection.delete(categoryId);
-    } else {
-      newSelection.add(categoryId);
-    }
-    this.selectedCategories.set(newSelection);
+    this.categoryState.toggleCategorySelection(categoryId);
   }
 
   isSelectedCategory(categoryId: number): boolean {
-    return this.selectedCategories().has(categoryId);
+    return this.categoryState.selectedCategories().has(categoryId);
   }
 
   //======= CROP METHODS =======
@@ -273,7 +267,6 @@ export class RoverCategory implements OnDestroy {
       this.openItemId.set(null);
       this.categoryResource.reload();
     } catch (error) {
-      // Ignore update errors
     }
   }
 
@@ -288,24 +281,6 @@ export class RoverCategory implements OnDestroy {
     this.categoryResource.reload();
   }
 
-  async deleteSelected(): Promise<void> {
-    const selectedIds = Array.from(this.selectedItems());
-    if (selectedIds.length === 0) return;
-
-    await this.roverDeleteService.batchDeleteItems(selectedIds);
-    this.selectedItems.set(new Set());
-    this.categoryResource.reload();
-  }
-
-  async deleteSelectedCategories(): Promise<void> {
-    const selectedIds = Array.from(this.selectedCategories());
-    if (selectedIds.length === 0) return;
-
-    await this.roverDeleteService.batchDeleteCategories(selectedIds);
-    this.selectedCategories.set(new Set());
-    this.categoryResource.reload();
-  }
-
   //======= NAVIGATION =======
 
   goToCategory(categoryId: number): void {
@@ -315,9 +290,8 @@ export class RoverCategory implements OnDestroy {
     const category = data.children.find(c => c.id === categoryId);
     if (!category) return;
 
-    const titleUrl = this.titleResolver.encodeTitle(category.title);
-    this.router.navigate(['/marsball/rover', titleUrl], {
-      state: { 
+    this.router.navigate(['/marsball/rover', category.title.toLowerCase().replace(/\s+/g, '-')], {
+      state: {
         categoryId: category.id
       }
     });

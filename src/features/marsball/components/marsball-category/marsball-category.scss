@@ -17,61 +17,11 @@
   flex: 1;
 }
 
-.header {
-  width: 100%;
-  padding: 30px;
-  flex-shrink: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 105px;
-
-  .header-title {
-    font-size: 32px;
-    font-weight: 700;
-    color: #d0d0d0;
-    margin: 0;
-    
-    @include typing-effect;
-  }
-
-  .back-button {
-    @include button;
-    flex-shrink: 0;
-  }
-
-  .delete-button {
-    @include button;
-    flex-shrink: 0;
-
-    .btn {
-      border-color: crimson;
-      color: crimson;
-
-      &:hover {
-        color: #d0d0d0;
-        border-color: #d0d0d0;
-      }
-    }
-  }
-}
-
-.separator {
-  text-align: center;
-
-  .line {
-    width: 80%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #d0d0d0, transparent);
-    margin: 0 auto;
-    border-radius: 1px;
-  }
-}
 
 .content {
   flex: 1;
   overflow-y: auto;
-  padding: 30px;
+  padding-top: 120px;
   scrollbar-width: thin;
   scrollbar-color: #5d889e transparent;
 

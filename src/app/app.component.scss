@@ -18,13 +18,25 @@
 .content-zone {
   grid-area: content;
   background-color: #0a0c0e;
-  border-radius: 15px;
   padding: 50px;
   height: 100%;
   overflow: hidden;
   color: #d0d0d0;
   min-height: 0;
   position: relative;
+
+  app-title {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    pointer-events: none;
+  }
+
+  router-outlet {
+    display: contents;
+  }
 
   &::after {
     content: '';

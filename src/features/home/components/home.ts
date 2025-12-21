@@ -1,59 +1,25 @@
-import { Component, OnInit, OnDestroy, inject, signal, effect, EffectRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { HomeTitleService } from '@shared/components/title/services/home-title.service';
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
 export class Home implements OnInit, OnDestroy {
 
-  //============ TYPING EFFECT ============
+  //======= INJECTIONS =======
 
-  private readonly typingService = inject(TypingEffectService);
+  private readonly homeTitleService = inject(HomeTitleService);
 
-  private readonly title1 = "Salut à toi Gros Têtard !";
-  private readonly title2 = "Bienvenue dans l'Antre";
-
-  private currentTitle = signal<string>('');
-
-  private titleEffect: EffectRef = effect(() => {
-    const title = this.currentTitle();
-    if (title) {
-      this.typingService.title(title);
-    }
-  });
-
-  headerTitle = this.typingService.headerTitle;
-  showCursor = this.typingService.showCursor;
-  typing = this.typingService.typingComplete;
-
-  //============ STATE MANAGEMENT ============
-
-  showTitle1 = signal(true);     
-  showTitle2 = signal(false);     
-  fadeOutTitle1 = signal(false); 
-
-  //============ LIFECYCLE ============
+  //======= LIFECYCLE =======
 
   ngOnInit(): void {
-    this.currentTitle.set(this.title1);
-    
-    setTimeout(() => {
-      this.fadeOutTitle1.set(true);
-      
-      setTimeout(() => {
-        this.showTitle1.set(false); 
-        this.showTitle2.set(true);   
-        this.currentTitle.set(this.title2);
-      }, 600);
-    }, 5000);
+    this.homeTitleService.startSequence();
   }
 
   ngOnDestroy(): void {
-    this.titleEffect.destroy();
-    this.typingService.destroy();
+    this.homeTitleService.stop();
   }
 }

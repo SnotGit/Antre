@@ -5,11 +5,10 @@ import { MarsballGetService } from '@features/marsball/services/marsball-get.ser
 import { CategoryWithChildren } from '@features/marsball/models/marsball.models';
 import { MarsballDeleteService } from '@features/marsball/services/marsball-delete.service';
 import { MarsballUpdateService } from '@features/marsball/services/marsball-update.service';
-import { MarsballCategoryStateService } from '@features/marsball/services/marsball-category-state.service';
+import { CategoryStateService } from '@features/marsball/services/category-state.service';
+import { ConsoleStateService } from '@features/menus/services/console-state.service';
 import { EditMarsballItemService } from '../../services/edit-marsball-item.service';
 import { CropService } from '@shared/services/crop-images/crop.service';
-import { TitleResolver } from '@shared/services/resolvers/title-resolver.service';
-import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { AuthService } from '@features/auth/services/auth.service';
 import { environment } from '@environments/environment';
 
@@ -28,23 +27,16 @@ export class MarsballCategory implements OnDestroy {
   private readonly marsballGetService = inject(MarsballGetService);
   private readonly marsballDeleteService = inject(MarsballDeleteService);
   private readonly marsballUpdateService = inject(MarsballUpdateService);
-  private readonly categoryState = inject(MarsballCategoryStateService);
+  private readonly categoryState = inject(CategoryStateService);
+  private readonly consoleState = inject(ConsoleStateService);
   protected readonly editItemService = inject(EditMarsballItemService);
   protected readonly cropService = inject(CropService);
-  private readonly titleResolver = inject(TitleResolver);
-  private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
   private readonly API_URL = environment.apiUrl;
 
   //======= VIEW CHILDREN =======
 
   @ViewChild('imageContainer') imageContainer?: ElementRef<HTMLDivElement>;
-
-  //======= TYPING EFFECT =======
-
-  headerTitle = this.typingService.headerTitle;
-  showCursor = this.typingService.showCursor;
-  typing = this.typingService.typingComplete;
 
   //======= ROUTER INPUTS =======
 
@@ -91,11 +83,6 @@ export class MarsballCategory implements OnDestroy {
 
   //======= COMPUTED =======
 
-  currentTitle = computed(() => {
-    const data = this.categoryData();
-    return data?.category.title || 'Marsball';
-  });
-
   cropStyle = computed(() => {
     const crop = this.cropService.crop();
     return {
@@ -119,19 +106,36 @@ export class MarsballCategory implements OnDestroy {
 
   //======= EFFECTS =======
 
-  private readonly _titleEffect = effect(() => {
-    this.typingService.title(this.currentTitle());
-  });
-
   private readonly _categoryChangeEffect = effect(() => {
     this.titleUrl();
     this.openItemId.set(null);
   });
 
+  private readonly _deleteRequestEffect = effect(() => {
+    this.consoleState.deleteRequested();
+    this.handleDeleteRequest();
+  });
+
+  //======= DELETE HANDLER =======
+
+  private async handleDeleteRequest(): Promise<void> {
+  const data = this.categoryData();
+  if (!data) return;
+
+  if (this.categoryState.selectionItems()) {
+    await this.categoryState.deleteSelectedItems(data.items, this.marsballDeleteService);
+  }
+  if (this.categoryState.selectionCategories()) {
+    await this.categoryState.deleteSelectedCategories(data.children, this.marsballDeleteService);
+  }
+  
+  this.categoryResource.reload();
+}
+
   //======= LIFECYCLE =======
 
   ngOnDestroy(): void {
-    this.typingService.destroy();
+    this.categoryState.clearAllSelections();
   }
 
   //======= ITEM ACTIONS =======
@@ -288,8 +292,7 @@ export class MarsballCategory implements OnDestroy {
     const category = data.children.find(c => c.id === categoryId);
     if (!category) return;
 
-    const titleUrl = this.titleResolver.encodeTitle(category.title);
-    this.router.navigate(['/marsball', titleUrl], {
+    this.router.navigate(['/marsball', category.title.toLowerCase().replace(/\s+/g, '-')], {
       state: { 
         categoryId: category.id
       }
