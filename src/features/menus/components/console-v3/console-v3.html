@@ -13,7 +13,10 @@
   <div class="console-content">
     
     <div class="console-header">
-      <span class="console-title">CONSOLE V3</span>
+      <div class="user-avatar">
+        <img src="/assets/images/frames/Avatar-Circle.png" class="avatar-frame">
+        <img [src]="avatarUrl()" class="avatar-image" alt="Avatar">
+      </div>
     </div>
 
     <div class="console-status">
@@ -41,11 +44,14 @@
           <span class="group-title">> FONCTIONS ADMIN</span>
           <button class="console-btn" (click)="addCategory()">{{ categoryLabel() }}</button>
           <button class="console-btn" (click)="addItem()">{{ itemLabel() }}</button>
+          @if (hasSelection()) {
+            <button class="console-btn delete-btn" (click)="deleteSelection()">SUPPRIMER SÉLECTION</button>
+          }
         </div>
         }
 
         @if (showUserActions()) {
-        <div class="action-group no-separator">
+        <div class="action-group">
           <span class="group-title">> FONCTIONS UTILISATEUR</span>
           <button class="console-btn" (click)="newStory()">NOUVELLE HISTOIRE</button>
           <button class="console-btn" (click)="myStories()">MES HISTOIRES</button>
@@ -53,21 +59,6 @@
         }
         
       }
-    </div>
-
-    <div class="console-footer">
-      
-      @if (isLoggedIn()) {
-        <span class="group-title">> PARAMETRES DU COMPTE</span>
-        <button class="console-btn" (click)="openAccount()">MON COMPTE</button>
-        <button class="console-btn logout" (click)="logout()">DECONNEXION</button>
-        
-      } @else {
-        <span class="group-title">> SYSTÈME VERROUILLÉ</span>
-        <button class="console-btn" (click)="openLogin()">[⚡] CONNEXION</button>
-        <button class="console-btn" (click)="openRegister()">[👤] INSCRIPTION</button>
-      }
-      
     </div>
   </div>
 </div>

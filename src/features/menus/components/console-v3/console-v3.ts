@@ -1,12 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/auth';
 import { MobileMenuService } from '@features/menus/services/mobile-menu.service';
-import { CreateCategoryService } from '@shared/services/category/create-category.service';
-import { NewMarsballItemService } from '@features/marsball/services/new-marsball-item.service';
-import { NewBestiaireCreatureService } from '@features/marsball/bestiaire/services/new-bestiaire-creature.service';
-import { NewRoverItemService } from '@features/marsball/rover/services/new-rover-item.service';
+import { ConsoleStateService } from '@features/menus/services/console-state.service';
 
 interface SectionConfig {
   itemLabel: string;
@@ -26,10 +23,7 @@ export class ConsoleV3 {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly mobileMenuService = inject(MobileMenuService);
-  private readonly createCategoryService = inject(CreateCategoryService);
-  private readonly newMarsballItemService = inject(NewMarsballItemService);
-  private readonly newBestiaireCreatureService = inject(NewBestiaireCreatureService);
-  private readonly newRoverItemService = inject(NewRoverItemService);
+  private readonly consoleState = inject(ConsoleStateService);
 
   //======= CONFIGURATION =======
 
@@ -56,6 +50,17 @@ export class ConsoleV3 {
   openMenu = this.mobileMenuService.isConsoleOpen;
 
   //======= COMPUTED =======
+
+  avatarUrl = computed(() => {
+    const user = this.currentUser();
+    if (!user?.avatar) {
+      return '/assets/images/default-avatar.png';
+    }
+    const baseUrl = 'http://localhost:3000';
+    return `${baseUrl}${user.avatar}`;
+  });
+
+  hasSelection = this.consoleState.hasSelection;
 
   currentSection(): string | null {
     const url = this.router.url;
@@ -90,7 +95,7 @@ export class ConsoleV3 {
   }
 
   showUserActions(): boolean {
-    return this.isLoggedIn() && this.router.url.includes('/chroniques');
+    return this.router.url.includes('/chroniques');
   }
 
   showAdminActions(): boolean {
@@ -119,23 +124,6 @@ export class ConsoleV3 {
     this.mobileMenuService.closeAll();
   }
 
-  //======= AUTH ACTIONS =======
-
-  openLogin(): void {
-    this.router.navigate(['/auth/login']);
-    this.onClick();
-  }
-
-  openRegister(): void {
-    this.router.navigate(['/auth/register']);
-    this.onClick();
-  }
-
-  logout(): void {
-    this.authService.logout();
-    this.onClick();
-  }
-
   //======= USER ACTIONS =======
 
   newStory(): void {
@@ -150,42 +138,20 @@ export class ConsoleV3 {
     this.onClick();
   }
 
-  openAccount(): void {
-    this.router.navigate(['/mon-compte']);
-    this.onClick();
-  }
-
   //======= ADMIN CONTENT ACTIONS =======
 
   addCategory(): void {
-    this.createCategoryService.show();
+    this.consoleState.openCreateCategory();
     this.onClick();
   }
 
   addItem(): void {
-    if (this.isInBestiaire()) {
-      this.newBestiaireCreatureService.show();
-      this.onClick();
-      return;
-    }
+    this.consoleState.openCreateItem();
+    this.onClick();
+  }
 
-    if (this.isInRover()) {
-      this.newRoverItemService.show();
-      this.onClick();
-      return;
-    }
-
-    const section = this.currentSection();
-
-    if (section === 'marsball') {
-      this.newMarsballItemService.show();
-      this.onClick();
-      return;
-    }
-
-    const config = this.sectionConfig();
-    if (!config) return;
-    this.router.navigate([config.itemRoute]);
+  deleteSelection(): void {
+    this.consoleState.deleteSelection();
     this.onClick();
   }
 }
