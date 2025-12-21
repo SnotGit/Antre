@@ -1,5 +1,17 @@
-<div class="content-title">
-  <h1 class="title" [class.typing]="typing()">
-    {{ headerTitle() }}
-  </h1>
+<div class="title-container">
+  <div class="search-wrapper">
+    <app-searchbar></app-searchbar>
+  </div>
+
+  <div class="title-section">
+    <h2 class="title" [class.typing]="typing()">
+      {{ headerTitle() }}
+    </h2>
+  </div>
+
+  <div class="back-wrapper">
+    @if (showBack()) {
+      <button class="btn" (click)="goBack()">Retour</button>
+    }
+  </div>
 </div>

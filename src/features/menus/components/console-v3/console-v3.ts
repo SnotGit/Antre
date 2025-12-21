@@ -151,7 +151,7 @@ export class ConsoleV3 {
   }
 
   deleteSelection(): void {
-    this.consoleState.deleteSelection();
+    this.consoleState.requestDelete();
     this.onClick();
   }
 }
