@@ -6,8 +6,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #0a0c0e;
-  border: 2px solid #5d889e;
+  background-color: #000000;
+  border: 2px solid #96804b;
   border-radius: 12px;
   cursor: pointer;
   transition: border-color 0.3s ease;
@@ -25,7 +25,7 @@
 
   .avatar {
     border-radius: 50%;
-    border: 2px solid #5d889e;
+    border: 2px solid #96804b;
     background-size: cover;
     background-position: center;
     display: flex;
@@ -38,7 +38,7 @@
   .user-data .username {
     font-weight: 700;
     text-align: center;
-    color: #5d889e;
+    color: #96804b;
   }
 
   .story-data {
@@ -54,7 +54,7 @@
     .story-date {
       font-weight: 400;
       text-align: center;
-      color: #5d889e;
+      color: #96804b;
     }
   }
 }

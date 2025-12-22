@@ -1,12 +1,13 @@
 <div class="title-container">
-  <div class="search-wrapper">
-    <app-searchbar></app-searchbar>
-  </div>
+  <h2 
+    #titleElement
+    class="title" 
+    [class.typing]="typing()"
+    [style.left.px]="titleLeftPosition()">
+    {{ headerTitle() }}
+  </h2>
 
   <div class="title-section">
-    <h2 class="title" [class.typing]="typing()">
-      {{ headerTitle() }}
-    </h2>
   </div>
 
   <div class="back-wrapper">
@@ -14,4 +15,7 @@
       <button class="btn" (click)="goBack()">Retour</button>
     }
   </div>
+
+ 
+
 </div>

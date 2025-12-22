@@ -3,7 +3,7 @@
 
 .container {  
   padding: 0;
-  background-color: #0a0c0e;
+  background-color: #000000;
   color: #d0d0d0;
   font-family: 'Courier New', monospace;
   display: flex;
@@ -11,25 +11,7 @@
   box-sizing: border-box;
   height: 100%;
   flex: 1;
-}
-
-
-.header {
-  width: 100%;
-  padding: 30px;
-  flex-shrink: 0;
-  
-  .header-title {
-    font-size: 32px;
-    font-weight: 700;
-    color: #5d889e;
-    margin: 0 0 10px 0;
-    text-align: start;
-    display: inline;
-    width: auto;
-    
-    @include typing-effect;
-  }
+  padding-top: 120px;
 }
 
 .description {

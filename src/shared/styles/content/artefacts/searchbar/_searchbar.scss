@@ -23,7 +23,7 @@
   .search-input {
     width: 100%;
     background-color: rgba(93, 136, 158, 0.05);
-    border: 1px solid rgba(93, 136, 158, 0.2);
+    border: 1px solid #96804b;
     border-radius: 10px;
     padding: 15px 40px 15px 40px;
     color: #d0d0d0;
@@ -41,7 +41,7 @@
     &:focus,
     &:hover {
       background-color: rgba(93, 136, 158, 0.15);
-      border-color: #5d889e;
+      border-color: #979385;
     }
   }
 
@@ -57,7 +57,7 @@
       position: absolute;
       width: 12px;
       height: 12px;
-      border: 2px solid #d0d0d0;
+      border: 2px solid #96804b;
       border-radius: 50%;
       top: 0;
       left: 0;
@@ -68,7 +68,7 @@
       position: absolute;
       width: 6px;
       height: 2px;
-      background: #d0d0d0;
+      background: #96804b;
       bottom: 0;
       right: 0;
       transform: rotate(45deg);
@@ -81,7 +81,7 @@
     right: 12px;
     background: transparent;
     border: none;
-    color: #5d889e;
+    color: #96804b;
     font-size: 20px;
     cursor: pointer;
     padding: 0;
@@ -93,7 +93,7 @@
     transition: color 0.3s ease;
 
     &:hover {
-      color: #d0d0d0;
+      color: #979385;
     }
   }
 

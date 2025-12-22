@@ -77,6 +77,7 @@ export class Terminal implements OnInit, OnDestroy {
 
   private initializeTerminal() {
     this.terminalLines.set([
+      { content: 'Terminal', type: 'output' },
       { content: 'Initialisation connexion...', type: 'output' },
     ]);
     

@@ -7,7 +7,7 @@ export class HomeTitleService {
 
   //======= SIGNALS =======
 
-  private _title1 = "Salut à toi Gros Têtard !";
+  private _title1 = "Salut Gros Têtard !";
   private _title2 = "Bienvenue dans l'Antre";
   
   private _currentTitle = signal<string>('');

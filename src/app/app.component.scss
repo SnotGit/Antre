@@ -13,17 +13,48 @@
   grid-area: navbar;
   height: 100%;
   min-height: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .content-zone {
   grid-area: content;
-  background-color: #0a0c0e;
+  background-color: #000000;
   padding: 50px;
   height: 100%;
-  overflow: hidden;
+  overflow: visible;
   color: #d0d0d0;
   min-height: 0;
   position: relative;
+  z-index: 10;
+
+  .flame-video {
+    position: absolute;
+    left: -120px;
+    top: 340px;
+    width: 250px;
+    height: 250px;
+    object-fit: contain;
+    z-index: 5;
+    pointer-events: none;
+    transform: rotate(90deg);
+    filter: hue-rotate(60deg);
+
+    &.marsball {
+      filter: hue-rotate(70deg);
+    }
+    &.terraformars {
+      filter: hue-rotate(30deg);
+    }
+
+    &.chroniques {
+      filter: hue-rotate(180deg);
+    }
+
+    &.archives {
+      filter: hue-rotate(180deg);
+    }
+  }
 
   app-title {
     position: absolute;
@@ -45,11 +76,12 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: url('/assets/images/frames/Content-Frame.png');
+    background-image: url('/assets/images/frames/Content-Frame-5.png');
     background-size: 100% 100%;
     background-repeat: no-repeat;
     pointer-events: none;
     z-index: 50;
+    left: -30px;
   }
 }
 
@@ -79,7 +111,7 @@
   }
 
   app-console-v3 {
-    flex: 6;
+    flex: 6.3;
     min-height: 0;
   }
 

@@ -5,7 +5,6 @@
     position: relative;
     flex-shrink: 0;
     
-    // MASQUER SUR MOBILE ET TABLET PORTRAIT
     @media (max-width: 768px) {
       display: none;
     }
@@ -14,7 +13,6 @@
       display: none;
     }
     
-    // MASQUER SUR MOBILE LARGE LANDSCAPE
     @media (orientation: landscape) and (max-width: 932px) {
       display: none;
     }
@@ -27,7 +25,6 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      border: 1px solid #5d889e;
     }
     
     img {

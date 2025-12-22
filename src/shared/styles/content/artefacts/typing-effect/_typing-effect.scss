@@ -1,13 +1,13 @@
 @mixin typing-effect {
   &::before {
     content: '> ';
-    color: #b55a44;
+    color: #96804b;
     font-weight: 700;
   }
   
   &::after {
     content: '|';
-    color: #b55a44;
+    color: #96804b;
     animation: blink 1s infinite;
     margin-left: -0.5em;
   }
