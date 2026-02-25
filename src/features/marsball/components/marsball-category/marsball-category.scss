@@ -5,8 +5,9 @@
 @use 'content/marsball/marsball-grid' as *;
 @use 'content/marsball/marsball-category-card' as *;
 
-.container {  
+.content-container {
   padding: 0;
+  padding-top: 170px;
   background-color: #0a0c0e;
   color: #d0d0d0;
   font-family: 'Courier New', monospace;
@@ -15,13 +16,7 @@
   box-sizing: border-box;
   height: 100%;
   flex: 1;
-}
-
-
-.content {
-  flex: 1;
   overflow-y: auto;
-  padding-top: 120px;
   scrollbar-width: thin;
   scrollbar-color: #5d889e transparent;
 
@@ -36,7 +31,7 @@
   &::-webkit-scrollbar-thumb {
     background: #5d889e;
     border-radius: 3px;
-    
+
     &:hover {
       background: #d0d0d0;
     }

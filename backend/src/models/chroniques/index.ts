@@ -48,6 +48,7 @@ export interface StoryReader {
 export interface StoryCard {
   id: number;
   title: string;
+  slug: string | null;
   publishDate: string;
   user: {
     id: number;
@@ -60,6 +61,7 @@ export interface EditStory {
   id: number;
   title: string;
   content: string;
+  originalStoryId: number | null;
 }
 
 export interface DraftStory {
@@ -78,4 +80,5 @@ export interface PublishedStory {
 export interface UserStories {
   id: number;
   title: string;
+  slug: string | null;
 }

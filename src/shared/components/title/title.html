@@ -1,21 +1,15 @@
 <div class="title-container">
-  <h2 
+  <h2
     #titleElement
-    class="title" 
+    class="title"
     [class.typing]="typing()"
     [style.left.px]="titleLeftPosition()">
     {{ headerTitle() }}
   </h2>
 
-  <div class="title-section">
-  </div>
-
-  <div class="back-wrapper">
-    @if (showBack()) {
+  @if (showBack()) {
+    <div class="back-wrapper">
       <button class="btn" (click)="goBack()">Retour</button>
-    }
-  </div>
-
- 
-
+    </div>
+  }
 </div>

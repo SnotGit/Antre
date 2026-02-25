@@ -1,12 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { Router } from '@angular/router';
-import { MarsballDeleteService } from './marsball-delete.service';
-import { BestiaireDeleteService } from '../bestiaire/services/bestiaire-delete.service';
-import { RoverDeleteService } from '../rover/services/rover-delete.service';
+import { VaultDeleteService } from '@shared/vault/services/vault-delete.service';
+import { VaultNewEntryService } from '@shared/vault/services/vault-new-entry.service';
 import { CreateCategoryService } from '@shared/services/category/create-category.service';
-import { NewMarsballItemService } from './new-marsball-item.service';
-import { NewBestiaireCreatureService } from '../bestiaire/services/new-bestiaire-creature.service';
-import { NewRoverItemService } from '../rover/services/new-rover-item.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,14 +10,9 @@ export class MarsballStateService {
 
   //======= INJECTIONS =======
 
-  private readonly router = inject(Router);
-  private readonly marsballDeleteService = inject(MarsballDeleteService);
-  private readonly bestiaireDeleteService = inject(BestiaireDeleteService);
-  private readonly roverDeleteService = inject(RoverDeleteService);
+  private readonly vaultDeleteService = inject(VaultDeleteService);
   private readonly createCategoryService = inject(CreateCategoryService);
-  private readonly newMarsballItemService = inject(NewMarsballItemService);
-  private readonly newBestiaireCreatureService = inject(NewBestiaireCreatureService);
-  private readonly newRoverItemService = inject(NewRoverItemService);
+  private readonly newEntryService = inject(VaultNewEntryService);
 
   //======= SIGNALS =======
 
@@ -48,16 +38,6 @@ export class MarsballStateService {
     this.selectedCategories.set(new Set());
   }
 
-  //======= CONTEXT DETECTION =======
-
-  private isInBestiaire(): boolean {
-    return this.router.url.includes('/marsball/bestiaire');
-  }
-
-  private isInRover(): boolean {
-    return this.router.url.includes('/marsball/rover');
-  }
-
   //======= ACTIONS =======
 
   openCreateCategory(): void {
@@ -65,32 +45,18 @@ export class MarsballStateService {
   }
 
   openCreateItem(): void {
-    if (this.isInBestiaire()) {
-      this.newBestiaireCreatureService.show();
-    } else if (this.isInRover()) {
-      this.newRoverItemService.show();
-    } else {
-      this.newMarsballItemService.show();
-    }
+    this.newEntryService.show();
   }
 
   async deleteSelected(categories: Array<{ id: number; title: string }>): Promise<void> {
     const selectedIds = Array.from(this.selectedCategories());
     if (selectedIds.length === 0) return;
 
-    if (this.isInBestiaire()) {
-      const selectedNames = categories
-        .filter(cat => selectedIds.includes(cat.id))
-        .map(cat => cat.title);
-      await this.bestiaireDeleteService.batchDeleteCategories(selectedIds, selectedNames);
-    } else if (this.isInRover()) {
-      await this.roverDeleteService.batchDeleteCategories(selectedIds);
-    } else {
-      const selectedNames = categories
-        .filter(cat => selectedIds.includes(cat.id))
-        .map(cat => cat.title);
-      await this.marsballDeleteService.deleteCategories(selectedIds, selectedNames);
-    }
+    const selectedNames = categories
+      .filter(cat => selectedIds.includes(cat.id))
+      .map(cat => cat.title);
+
+    await this.vaultDeleteService.deleteCategories(selectedIds, selectedNames);
 
     this.clearSelection();
   }

@@ -1,7 +1,7 @@
 import { Component, OnDestroy, inject, signal, computed, effect, ElementRef, ViewChild, AfterViewInit, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NewBestiaireCreatureService } from '../../services/new-bestiaire-creature.service';
-import { BestiaireCreateService } from '../../services/bestiaire-create.service';
+import { VaultNewEntryService } from '@shared/vault/services/vault-new-entry.service';
+import { VaultCreateService } from '@shared/vault/services/vault-create.service';
 import { AdminDialogService } from '@shared/services/dialog/admin-dialog.service';
 import { CropService } from '@shared/services/crop-images/crop.service';
 import { FileNameFormatterService } from '@shared/services/file-name-formatter/file-name-formatter.service';
@@ -22,8 +22,8 @@ export class NewBestiaireCreature implements OnDestroy, AfterViewInit {
 
   //======= INJECTIONS =======
 
-  protected readonly newCreatureService = inject(NewBestiaireCreatureService);
-  private readonly bestiaireCreateService = inject(BestiaireCreateService);
+  protected readonly newCreatureService = inject(VaultNewEntryService);
+  private readonly vaultCreateService = inject(VaultCreateService);
   private readonly confirmationService = inject(AdminDialogService);
   protected readonly cropService = inject(CropService);
   private readonly fileNameFormatter = inject(FileNameFormatterService);
@@ -35,6 +35,10 @@ export class NewBestiaireCreature implements OnDestroy, AfterViewInit {
 
   headerTitle = this.overlayTypingService.headerTitle;
   typing = this.overlayTypingService.typingComplete;
+
+  //======= BOUND HANDLERS =======
+
+  private readonly boundOnPaste = this.onPaste.bind(this);
 
   //======= VIEW CHILDREN =======
 
@@ -66,16 +70,12 @@ export class NewBestiaireCreature implements OnDestroy, AfterViewInit {
   });
 
   private readonly displayedRatio = computed(() => {
-    // Ce signal dépend de mainImage (pour trigger le changement)
-    // Mais la lecture du DOM n'est pas réactive. On suppose que l'image
-    // s'affiche en largeur 100% de son conteneur (max 500px).
     const img = this.mainImage();
     if (!img || !this.imageContainer?.nativeElement) return 1;
 
     const container = this.imageContainer.nativeElement;
     const imgElement = container.querySelector('img') as HTMLImageElement;
-    
-    // Si l'élément n'est pas encore rendu ou chargé, défaut à 1
+
     if (!imgElement || !imgElement.naturalWidth) return 1;
 
     return imgElement.naturalWidth / imgElement.width;
@@ -85,30 +85,20 @@ export class NewBestiaireCreature implements OnDestroy, AfterViewInit {
     const img = this.mainImage();
     const crop = this.cropService.crop();
     const ratio = this.displayedRatio();
-    
+
     if (!img) return null;
 
-    // Calcul précis pour éviter le décalage :
-    // 1. Convertir les coordonnées écran (crop.x, crop.y) en coordonnées image réelle
     const realX = crop.x * ratio;
     const realY = crop.y * ratio;
     const realSize = crop.size * ratio;
 
-    // 2. On veut afficher cette portion réelle dans un carré CSS de taille fixe (disons 60px).
-    // Factor de scale nécessaire = 60 / realSize.
-    // Width du background = LargeurImageReelle * Scale.
-    
-    // Pour simplifier, supposons que la vignette fait 60px.
     const thumbSize = 60;
     const scale = thumbSize / realSize;
 
-    // Largeur de l'image de fond virtuelle
-    // On doit redemander la largeur réelle si on ne l'a pas stockée, ou la déduire :
-    // LargeurReelle = LargeurAffichée * ratio.
     const containerWidth = this.imageContainer?.nativeElement?.clientWidth || 0;
     const realImageWidth = containerWidth * ratio;
-    
-    const bgWidth = realImageWidth * scale; // Largeur finale du background CSS
+
+    const bgWidth = realImageWidth * scale;
     const bgPosX = -(realX * scale);
     const bgPosY = -(realY * scale);
 
@@ -119,16 +109,20 @@ export class NewBestiaireCreature implements OnDestroy, AfterViewInit {
     };
   });
 
+  //======= SIGNALS =======
+
+  isVisible = computed((): boolean => this.newCreatureService.isVisible() && this.newCreatureService.activeContext() === 'bestiaire');
+
   //======= EFFECTS =======
 
   private readonly _typingEffect = effect(() => {
-    if (this.newCreatureService.isVisible()) {
+    if (this.isVisible()) {
       this.overlayTypingService.title(this.title);
     }
   });
 
   private readonly _focusEffect = effect(() => {
-    if (this.newCreatureService.isVisible() && !this.mainImage()) {
+    if (this.isVisible() && !this.mainImage()) {
       setTimeout(() => this.uploadZone?.nativeElement.focus(), 100);
     }
   });
@@ -138,14 +132,14 @@ export class NewBestiaireCreature implements OnDestroy, AfterViewInit {
   ngAfterViewInit(): void {
     const uploadZone = this.uploadZone?.nativeElement;
     if (uploadZone) {
-      uploadZone.addEventListener('paste', this.onPaste.bind(this));
+      uploadZone.addEventListener('paste', this.boundOnPaste);
     }
   }
 
   ngOnDestroy(): void {
     const uploadZone = this.uploadZone?.nativeElement;
     if (uploadZone) {
-      uploadZone.removeEventListener('paste', this.onPaste.bind(this));
+      uploadZone.removeEventListener('paste', this.boundOnPaste);
     }
     this.cleanupImages();
     this.overlayTypingService.destroy();
@@ -153,7 +147,7 @@ export class NewBestiaireCreature implements OnDestroy, AfterViewInit {
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
-    if (this.newCreatureService.isVisible()) {
+    if (this.isVisible()) {
       this.cancel();
     }
   }
@@ -206,7 +200,7 @@ export class NewBestiaireCreature implements OnDestroy, AfterViewInit {
     const preview = URL.createObjectURL(file);
     this.mainImage.set({ file, preview });
     this.cropService.initWithPosition(200, 20, 20);
-    
+
     if (this.creatureTitle().trim().length === 0) {
       const formattedTitle = this.fileNameFormatter.format(file);
       this.creatureTitle.set(formattedTitle);
@@ -265,7 +259,6 @@ export class NewBestiaireCreature implements OnDestroy, AfterViewInit {
   onMouseMove(event: MouseEvent, container: HTMLElement): void {
     const rect = container.getBoundingClientRect();
     this.cropService.onDrag(event, rect);
-    // Force recheck of ratio during drag ? No, only on resize/init.
   }
 
   onMouseUp(): void {
@@ -283,22 +276,22 @@ export class NewBestiaireCreature implements OnDestroy, AfterViewInit {
 
     const categoryId = this.newCreatureService.contextCategoryId();
     const img = this.mainImage();
-    
+
     if (categoryId === null || !img) return;
 
-    const container = document.querySelector('.image-preview-container') as HTMLElement;
+    const container = this.imageContainer?.nativeElement;
     const imgElement = container?.querySelector('img') as HTMLImageElement;
-    
+
     if (!container || !imgElement) return;
 
     const crop = this.cropService.crop();
     const description = this.creatureDescription().trim();
-    
+
     const displayWidth = imgElement.width;
     const displayHeight = imgElement.height;
 
     try {
-      await this.bestiaireCreateService.createCreature(
+      await this.vaultCreateService.createEntry(
         this.creatureTitle().trim(),
         categoryId,
         img.file,
@@ -312,9 +305,8 @@ export class NewBestiaireCreature implements OnDestroy, AfterViewInit {
 
       this.confirmationService.showSuccessMessage();
       this.resetForm();
+      this.newCreatureService.notifyCreated();
       this.newCreatureService.close();
-      
-      window.location.reload();
     } catch {
       this.confirmationService.showErrorMessage();
     }

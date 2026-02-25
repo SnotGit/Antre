@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { AuthenticatedRequest } from '@models/shared';
 import { StoryResponse } from '@models/chroniques';
 import { parseStoryId, sendError, sendSuccess, sendNotFound, handleError } from '@utils/global/helpers';
+import { generateUniqueSlug } from '@utils/chroniques/slug';
 
 const prisma = new PrismaClient();
 
@@ -97,11 +98,14 @@ export const publishStory = async (req: AuthenticatedRequest, res: Response): Pr
       return sendNotFound(res, 'Brouillon non trouvé');
     }
 
+    const slug = await generateUniqueSlug(prisma, story.title, userId);
+
     await prisma.story.update({
       where: { id: storyId },
-      data: { 
+      data: {
         status: 'PUBLISHED',
-        publishedAt: new Date()
+        publishedAt: new Date(),
+        slug
       }
     });
 
@@ -112,39 +116,46 @@ export const publishStory = async (req: AuthenticatedRequest, res: Response): Pr
   }
 };
 
-//======= UPDATE STORY =======
+//======= REPUBLISH FROM DRAFT =======
 
-export const updateStory = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const republishFromDraft = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const storyId = parseStoryId(id);
+    const draftId = parseStoryId(id);
     const userId = req.user.userId;
-    const { title, content } = req.body;
 
-    if (storyId === null) {
+    if (draftId === null) {
       return sendError(res, 'ID invalide', 400);
     }
 
-    const story = await prisma.story.findFirst({
-      where: { 
-        id: storyId,
-        userId: userId,
-        status: 'PUBLISHED' 
-      }
+    const draft = await prisma.story.findFirst({
+      where: { id: draftId, userId, status: 'DRAFT' }
     });
 
-    if (!story) {
-      return sendNotFound(res, 'Histoire publiée non trouvée');
+    if (!draft || !draft.originalStoryId) {
+      return sendNotFound(res, 'Brouillon de republication non trouvé');
     }
 
-    await prisma.story.update({
-      where: { id: storyId },
-      data: { title, content }
+    const original = await prisma.story.findFirst({
+      where: { id: draft.originalStoryId, userId, status: 'PUBLISHED' }
     });
 
-    sendSuccess(res, 'Histoire mise à jour');
+    if (!original) {
+      return sendNotFound(res, 'Histoire originale non trouvée');
+    }
+
+    const slug = await generateUniqueSlug(prisma, draft.title, userId, original.id);
+
+    await prisma.story.update({
+      where: { id: original.id },
+      data: { title: draft.title, content: draft.content, slug }
+    });
+
+    await prisma.story.delete({ where: { id: draftId } });
+
+    sendSuccess(res, 'Histoire republiée');
 
   } catch (error) {
-    handleError(res, 'Erreur lors de la mise à jour de l\'histoire');
+    handleError(res, 'Erreur lors de la republication');
   }
 };

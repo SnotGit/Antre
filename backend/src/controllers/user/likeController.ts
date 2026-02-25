@@ -126,6 +126,7 @@ export const getPostedLikesList = async (req: AuthenticatedRequest, res: Respons
       .map(story => ({
         storyId: story.id,
         title: story.title,
+        slug: story.slug,
         publishDate: story.publishedAt!.toISOString(),
         likedAt: story.likes[0].createdAt.toISOString(),
         user: {
@@ -229,6 +230,7 @@ export const getReceivedLikesList = async (req: AuthenticatedRequest, res: Respo
     const receivedLikes = stories.map(story => ({
       storyId: story.id,
       title: story.title,
+      slug: story.slug,
       publishDate: story.publishedAt!.toISOString(),
       likesCount: story._count.likes,
       lastLikedAt: story.likes[0]?.createdAt.toISOString() || story.publishedAt!.toISOString()

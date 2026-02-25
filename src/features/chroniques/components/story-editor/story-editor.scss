@@ -1,0 +1,110 @@
+@use 'content/artefacts/typing-effect/typing-effect' as *;
+@use 'content/artefacts/buttons/button' as *;
+
+.container {
+  padding: 0;
+  background-color: #0a0c0e;
+  color: #d0d0d0;
+  font-family: 'Courier New', monospace;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+//============ HEADER ============
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 30px;
+
+  .header-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #5d889e;
+    margin: 0;
+
+    @include typing-effect;
+  }
+
+  .back-button {
+    @include button;
+  }
+}
+
+// ============ EDITOR ============
+
+.editor {
+  flex: 1;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .field-title {
+    display: flex;
+    flex-direction: column;
+
+    input {
+      background-color: #121416;
+      border: 2px solid #5d889e;
+      border-radius: 6px;
+      padding: 12px 15px;
+      color: #d0d0d0;
+      font-family: inherit;
+      font-size: 16px;
+    }
+  }
+
+  .field-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+
+    textarea {
+      background-color: #121416;
+      border: 2px solid #5d889e;
+      border-radius: 6px;
+      padding: 15px;
+      color: #d0d0d0;
+      font-family: inherit;
+      font-size: 16px;
+      flex: 1;
+      resize: none;
+    }
+  }
+
+  //============ FOOTER ============
+
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .cancel-button {
+      @include button;
+
+      .btn {
+        border-color: #b55a44;
+        color: #b55a44;
+
+        &:hover {
+          color: #d0d0d0;
+          border-color: #d0d0d0;
+        }
+      }
+    }
+
+    .publish-button {
+      @include button;
+    }
+  }
+}

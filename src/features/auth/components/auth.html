@@ -1,17 +1,10 @@
-<!-- auth.component.html -->
 <div class="auth-container">
 
-  <!-- Authentification -->
   <div class="auth-section">
     <div class="auth-content">
-      <!-- Header du terminal -->
-      <div class="header">
-        <span class="title">SYSTÈME D'AUTHENTIFICATION</span>
-      </div>
 
-      <!-- Contenu du terminal -->
       <div class="terminal-content">
-        <!-- Navigation entre login/register -->
+        
         <div class="auth-tabs">
           <button class="auth-tab" [class.active]="authMode() === 'login'" (click)="setAuthMode('login')">
             CONNEXION
@@ -21,10 +14,8 @@
           </button>
         </div>
 
-        <!-- Formulaires -->
         <div class="forms-container">
 
-          <!-- Formulaire de connexion -->
           @if (authMode() === 'login') {
           <form class="auth-form" (ngSubmit)="onLogin()" #loginForm="ngForm">
             <div class="form-header">
@@ -62,7 +53,6 @@
           </form>
           }
 
-          <!-- Formulaire d'inscription -->
           @if (authMode() === 'register') {
           <form class="auth-form" (ngSubmit)="onRegister()" #registerForm="ngForm">
             <div class="form-header">
@@ -85,13 +75,6 @@
               <label class="field-label">MOT DE PASSE: 8 Caractères + 1 Maj minimum</label>
               <input type="password" name="password" [(ngModel)]="registerData.password" class="terminal-input" required
                 minlength="6" autocomplete="new-password" [disabled]="loading()">
-            </div>
-
-            <div class="form-field">
-              <label class="field-label">DESCRIPTION (optionnel):</label>
-              <textarea name="description" [(ngModel)]="registerData.description" class="terminal-textarea"
-                maxlength="500" rows="3" [disabled]="loading()">
-              </textarea>
             </div>
 
             @if (error()) {
@@ -120,7 +103,6 @@
           }
         </div>
 
-        <!-- Info bas de terminal -->
         <div class="terminal-footer">
           <div class="system-info">
             <span class="info-line">Système: Evil Software</span>

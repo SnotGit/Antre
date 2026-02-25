@@ -60,22 +60,24 @@ export const getPublishedStory = async (req: AuthenticatedRequest, res: Response
         userId: userId,
         status: 'PUBLISHED' 
       },
-      select: { 
-        id: true, 
-        title: true, 
-        content: true 
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        originalStoryId: true
       }
     });
-    
+
     if (!story) {
       sendNotFound(res, 'Histoire publiée non trouvée');
       return;
     }
-    
+
     const editStory: EditStory = {
       id: story.id,
       title: story.title,
-      content: story.content
+      content: story.content,
+      originalStoryId: story.originalStoryId
     };
     
     res.json({ story: editStory });

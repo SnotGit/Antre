@@ -1,4 +1,4 @@
-@if (newItemService.isVisible()) {
+@if (isVisible()) {
 <div class="overlay" (click)="cancel()">
     <div class="dialog-box" (click)="$event.stopPropagation()">
 
@@ -133,7 +133,7 @@
                         Annuler
                     </button>
                     <button type="submit" class="btn submit" [disabled]="!canCreate()" tabindex="4">
-                        Cr�er
+                        Créer
                     </button>
                 </div>
 

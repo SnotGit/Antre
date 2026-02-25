@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
 import { PublicStoriesService } from '@features/chroniques/services/public-stories.service';
 import { LikeService } from '@features/user/services/like.service';
-import { TitleResolver } from '@shared/services/resolvers/title-resolver.service';
 import { environment } from '@environments/environment';
 
 @Component({
@@ -13,57 +12,51 @@ import { environment } from '@environments/environment';
   styleUrl: './story-reader.scss'
 })
 export class StoryReader {
-  
+
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly publicStoriesService = inject(PublicStoriesService);
   private readonly likeService = inject(LikeService);
-  private readonly titleResolver = inject(TitleResolver);
   private readonly API_URL = environment.apiUrl;
 
   //======= ROUTER INPUTS =======
-  
+
   username = input.required<string>();
-  titleUrl = input.required<string>();
+  slug = input.required<string>();
 
   //======= STORY DATA RESOURCE =======
 
   storyData = resource({
     params: () => ({
-      storyId: history.state?.storyId || 0,
-      userId: history.state?.userId || 0,
       username: this.username(),
-      titleUrl: this.titleUrl()
+      slug: this.slug()
     }),
     loader: async ({ params }) => {
       try {
-        if (params.storyId && params.userId) {
-          const [story, userStories] = await Promise.all([
-            this.publicStoriesService.getUserStory(params.storyId),
-            this.publicStoriesService.getUserStories(params.userId)
-          ]);
+        const story = await this.publicStoriesService.getStoryBySlug(params.username, params.slug);
 
-          if (!story) return null;
-
-          const currentStory = userStories.findIndex(s => s.id === params.storyId);
-
-          return {
-            story: { 
-              ...story, 
-              isliked: typeof story.isliked === 'boolean' ? story.isliked : false 
-            },
-            userStories,
-            currentStory,
-            hasNext: currentStory > 0,
-            hasPrevious: currentStory < userStories.length - 1,
-            nextStory: currentStory > 0 ? userStories[currentStory - 1] : null,
-            previousStory: currentStory < userStories.length - 1 ? userStories[currentStory + 1] : null
-          };
-        } else {
+        if (!story) {
           this.router.navigate(['/chroniques']);
           return null;
         }
-      } catch (error) {
+
+        const userStories = await this.publicStoriesService.getUserStories(story.user.id);
+        const currentStory = userStories.findIndex(s => s.id === story.id);
+
+        return {
+          story: {
+            ...story,
+            isliked: typeof story.isliked === 'boolean' ? story.isliked : false
+          },
+          userStories,
+          currentStory,
+          hasNext: currentStory > 0,
+          hasPrevious: currentStory < userStories.length - 1,
+          nextStory: currentStory > 0 ? userStories[currentStory - 1] : null,
+          previousStory: currentStory < userStories.length - 1 ? userStories[currentStory + 1] : null
+        };
+      } catch {
+        this.router.navigate(['/chroniques']);
         return null;
       }
     }
@@ -74,9 +67,9 @@ export class StoryReader {
   canLike = computed(() => {
     const user = this.authService.currentUser();
     const data = this.storyData.value();
-    return this.authService.isLoggedIn() && 
-           user && 
-           data?.story && 
+    return this.authService.isLoggedIn() &&
+           user &&
+           data?.story &&
            user.id !== data.story.user?.id;
   });
 
@@ -94,19 +87,8 @@ export class StoryReader {
 
     try {
       await this.likeService.toggleLike(data.story.id);
-      
-      const updatedData = {
-        ...data,
-        story: {
-          ...data.story,
-          isliked: !data.story.isliked,
-          likes: data.story.isliked ? data.story.likes - 1 : data.story.likes + 1
-        }
-      };
-
-      // Force resource update
       this.storyData.reload();
-    } catch (error) {
+    } catch {
       // Ignore like errors
     }
   }
@@ -115,32 +97,16 @@ export class StoryReader {
 
   goToNextStory(): void {
     const data = this.storyData.value();
-    if (!data?.hasNext || !data.nextStory) return;
+    if (!data?.hasNext || !data.nextStory?.slug) return;
 
-    const titleUrl = this.titleResolver.encodeTitle(data.nextStory.title);
-    this.router.navigate(['/chroniques', this.username(), titleUrl], {
-      state: {
-        storyId: data.nextStory.id,
-        userId: history.state?.userId,
-        username: this.username(),
-        title: data.nextStory.title
-      }
-    });
+    this.router.navigate(['/chroniques', this.username(), data.nextStory.slug]);
   }
 
   goToPreviousStory(): void {
     const data = this.storyData.value();
-    if (!data?.hasPrevious || !data.previousStory) return;
+    if (!data?.hasPrevious || !data.previousStory?.slug) return;
 
-    const titleUrl = this.titleResolver.encodeTitle(data.previousStory.title);
-    this.router.navigate(['/chroniques', this.username(), titleUrl], {
-      state: {
-        storyId: data.previousStory.id,
-        userId: history.state?.userId,
-        username: this.username(),
-        title: data.previousStory.title
-      }
-    });
+    this.router.navigate(['/chroniques', this.username(), data.previousStory.slug]);
   }
 
   goBack(): void {

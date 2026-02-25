@@ -42,7 +42,7 @@ export class Title implements OnInit, OnDestroy {
 
   showBack = computed(() => {
     const url = this.currentUrl();
-    const rootPaths = ['/accueil', '/chroniques', '/marsball', '/archives', '/terraformars'];
+    const rootPaths = ['/accueil', '/chroniques', '/marsball', '/archives', '/terraformars' , '/auth'];
     return !rootPaths.includes(url);
   });
 
@@ -107,6 +107,8 @@ export class Title implements OnInit, OnDestroy {
       title = 'Mon Compte';
     } else if (url.startsWith('/staff')) {
       title = 'Staff';
+    } else if (url.startsWith('/auth')) {
+      title = 'Authentification';
     }
 
     if (title) {

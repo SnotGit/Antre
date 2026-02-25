@@ -1,0 +1,43 @@
+<div class="container">
+
+  <div class="header">
+    <h1 class="header-title" [class.typing]="typing()">
+      {{ headerTitle() }}
+    </h1>
+
+    <div class="back-button">
+      <button class="btn" (click)="goBack()">
+        <span>← Retour</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="editor">
+    <div class="field-title">
+      <input type="text" [(ngModel)]="storyTitle" placeholder="Titre...">
+    </div>
+
+    <div class="field-content">
+      <textarea [(ngModel)]="storyContent" placeholder="Texte...">
+    </textarea>
+    </div>
+
+    <div class="footer">
+
+      <div class="cancel-button">
+        <button class="btn" (click)="cancel()">
+          <span>Annuler</span>
+        </button>
+      </div>
+
+      <div class="publish-button">
+        <button class="btn" (click)="publish()">
+          <span>{{ isRepublishMode() ? 'Republier' : 'Publier' }}</span>
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

@@ -1,7 +1,7 @@
 import { Component, OnDestroy, inject, signal, computed, effect, ElementRef, ViewChild, AfterViewInit, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NewMarsballItemService } from '@features/marsball/services/new-marsball-item.service';
-import { MarsballCreateService } from '@features/marsball/services/marsball-create.service';
+import { VaultNewEntryService } from '@shared/vault/services/vault-new-entry.service';
+import { VaultCreateService } from '@shared/vault/services/vault-create.service';
 import { AdminDialogService } from '@shared/services/dialog/admin-dialog.service';
 import { CropService } from '@shared/services/crop-images/crop.service';
 import { FileNameFormatterService } from '@shared/services/file-name-formatter/file-name-formatter.service';
@@ -22,8 +22,8 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
 
   //======= INJECTIONS =======
 
-  protected readonly newItemService = inject(NewMarsballItemService);
-  private readonly marsballCreateService = inject(MarsballCreateService);
+  protected readonly newItemService = inject(VaultNewEntryService);
+  private readonly vaultCreateService = inject(VaultCreateService);
   private readonly confirmationService = inject(AdminDialogService);
   protected readonly cropService = inject(CropService);
   private readonly fileNameFormatter = inject(FileNameFormatterService);
@@ -36,6 +36,12 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
   headerTitle = this.overlayTypingService.headerTitle;
   typing = this.overlayTypingService.typingComplete;
 
+  //======= BOUND HANDLERS =======
+
+  private readonly boundOnPaste = this.onPaste.bind(this);
+  private readonly boundOnMouseMove = this.onWindowMouseMove.bind(this);
+  private readonly boundOnMouseUp = this.onMouseUp.bind(this);
+
   //======= VIEW CHILDREN =======
 
   @ViewChild('uploadZone') uploadZone?: ElementRef<HTMLDivElement>;
@@ -43,6 +49,8 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
   @ViewChild('imageContainer') imageContainer?: ElementRef<HTMLDivElement>;
 
   //======= SIGNALS =======
+
+  isVisible = computed((): boolean => this.newItemService.isVisible() && this.newItemService.activeContext() === 'marsball');
 
   itemTitle = signal('');
   itemDescription = signal('');
@@ -75,8 +83,7 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
 
     const container = this.imageContainer.nativeElement;
     const imgElement = container.querySelector('img') as HTMLImageElement;
-    
-    // Si l'élément n'est pas encore rendu ou chargé, défaut à 1
+
     if (!imgElement || !imgElement.naturalWidth) return 1;
 
     return imgElement.naturalWidth / imgElement.width;
@@ -86,20 +93,20 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
     const img = this.mainImage();
     const crop = this.cropService.crop();
     const ratio = this.displayedRatio();
-    
+
     if (!img) return null;
 
     const realX = crop.x * ratio;
     const realY = crop.y * ratio;
     const realSize = crop.size * ratio;
-    
+
     const thumbSize = 60;
     const scale = thumbSize / realSize;
-    
+
     const containerWidth = this.imageContainer?.nativeElement?.clientWidth || 0;
     const realImageWidth = containerWidth * ratio;
-    
-    const bgWidth = realImageWidth * scale; 
+
+    const bgWidth = realImageWidth * scale;
     const bgPosX = -(realX * scale);
     const bgPosY = -(realY * scale);
 
@@ -113,13 +120,13 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
   //======= EFFECTS =======
 
   private readonly _typingEffect = effect(() => {
-    if (this.newItemService.isVisible()) {
+    if (this.isVisible()) {
       this.overlayTypingService.title(this.title);
     }
   });
 
   private readonly _focusEffect = effect(() => {
-    if (this.newItemService.isVisible() && !this.mainImage()) {
+    if (this.isVisible() && !this.mainImage()) {
       setTimeout(() => this.uploadZone?.nativeElement.focus(), 100);
     }
   });
@@ -129,28 +136,28 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
   ngAfterViewInit(): void {
     const uploadZone = this.uploadZone?.nativeElement;
     if (uploadZone) {
-      uploadZone.addEventListener('paste', this.onPaste.bind(this));
+      uploadZone.addEventListener('paste', this.boundOnPaste);
     }
-    
-    window.addEventListener('mousemove', this.onWindowMouseMove.bind(this));
-    window.addEventListener('mouseup', this.onMouseUp.bind(this));
+
+    window.addEventListener('mousemove', this.boundOnMouseMove);
+    window.addEventListener('mouseup', this.boundOnMouseUp);
   }
 
   ngOnDestroy(): void {
     const uploadZone = this.uploadZone?.nativeElement;
     if (uploadZone) {
-      uploadZone.removeEventListener('paste', this.onPaste.bind(this));
+      uploadZone.removeEventListener('paste', this.boundOnPaste);
     }
-    window.removeEventListener('mousemove', this.onWindowMouseMove.bind(this));
-    window.removeEventListener('mouseup', this.onMouseUp.bind(this));
-    
+    window.removeEventListener('mousemove', this.boundOnMouseMove);
+    window.removeEventListener('mouseup', this.boundOnMouseUp);
+
     this.cleanupImages();
     this.overlayTypingService.destroy();
   }
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
-    if (this.newItemService.isVisible()) {
+    if (this.isVisible()) {
       this.cancel();
     }
   }
@@ -212,7 +219,7 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
     this.mainImage.set({ file, preview });
     this.imageLoaded.set(false);
     this.cropService.initWithPosition(58, 29, 15);
-    
+
     if (this.itemTitle().trim().length === 0) {
       const formattedTitle = this.fileNameFormatter.format(file);
       this.itemTitle.set(formattedTitle);
@@ -268,8 +275,6 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
     this.cropService.startResize(event, corner, rect);
   }
 
-
-
   onMouseUp(): void {
     this.cropService.stopDrag();
   }
@@ -285,22 +290,22 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
 
     const categoryId = this.newItemService.contextCategoryId();
     const img = this.mainImage();
-    
+
     if (categoryId === null || !img) return;
 
-    const container = document.querySelector('.image-preview-container') as HTMLElement;
+    const container = this.imageContainer?.nativeElement;
     const imgElement = container?.querySelector('img') as HTMLImageElement;
-    
+
     if (!container || !imgElement) return;
 
     const crop = this.cropService.crop();
     const description = this.itemDescription().trim();
-    
+
     const displayWidth = imgElement.width;
     const displayHeight = imgElement.height;
 
     try {
-      await this.marsballCreateService.createItem(
+      await this.vaultCreateService.createEntry(
         this.itemTitle().trim(),
         categoryId,
         img.file,
@@ -314,9 +319,8 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
 
       this.confirmationService.showSuccessMessage();
       this.resetForm();
+      this.newItemService.notifyCreated();
       this.newItemService.close();
-      
-      window.location.reload();
     } catch {
       this.confirmationService.showErrorMessage();
     }

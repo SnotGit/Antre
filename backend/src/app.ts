@@ -4,10 +4,9 @@ import helmet from 'helmet';
 import authRoutes from './routes/auth/auth.routes';
 import userRoutes from './routes/user/user.routes';
 import chroniquesRoutes from './routes/chroniques/chroniques.routes';
-import marsballRoutes from './routes/marsball/marsball.routes';
-import bestiaireRoutes from './routes/marsball/bestiaire/bestiaire.routes';
-import roverRoutes from './routes/marsball/rover/rover.routes';
 import searchRoutes from './routes/search/search.routes';
+import { vaultContexts } from './vault/config';
+import { createVaultRoutes } from './vault/routesFactory';
 
 const app = express();
 
@@ -64,9 +63,9 @@ app.use((req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/chroniques', chroniquesRoutes);
-app.use('/api/marsball', marsballRoutes);
-app.use('/api/bestiaire', bestiaireRoutes);
-app.use('/api/rover', roverRoutes);
+for (const [key, config] of Object.entries(vaultContexts)) {
+  app.use(`/api/${key}`, createVaultRoutes(config));
+}
 app.use('/api/search', searchRoutes);
 
 //======= HEALTH CHECK =======

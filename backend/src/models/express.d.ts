@@ -3,6 +3,7 @@ declare global {
     interface Request {
       user: {
         userId: number;
+        role: string;
       };
       storyId?: number;
       story?: {

@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
 import { DraftStoriesService, DraftStory } from '@features/chroniques/services/draft-stories.service';
 import { DeleteStoriesService } from '@features/chroniques/services/delete-stories.service';
-import { TitleResolver } from '@shared/services/resolvers/title-resolver.service';
 import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 
 @Component({
@@ -20,7 +19,6 @@ export class DraftList implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly draftStoriesService = inject(DraftStoriesService);
   private readonly deleteStoriesService = inject(DeleteStoriesService);
-  private readonly titleResolver = inject(TitleResolver);
   private readonly typingService = inject(TypingEffectService);
 
   //======= TYPING EFFECT =======
@@ -92,15 +90,7 @@ export class DraftList implements OnInit, OnDestroy {
 
   onCardClick(draftStory: DraftStory): void {
     const username = this.authService.currentUser()?.username;
-    const titleUrl = this.titleResolver.encodeTitle(draftStory.title);
-    
-    this.router.navigate(['/chroniques', username, 'edition', titleUrl], {
-      state: { 
-        storyId: draftStory.id,
-        title: draftStory.title,
-        isDraft: true
-      }
-    });
+    this.router.navigate(['/chroniques', username, 'edition', draftStory.id]);
   }
 
   goBack(): void {

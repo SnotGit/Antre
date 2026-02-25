@@ -101,12 +101,12 @@ export class SaveStoriesService {
     );
   }
 
-  //======= UPDATE STORY =======
+  //======= REPUBLISH FROM DRAFT =======
 
-  async updateStory(id: number, data: StoryFormData): Promise<void> {
+  async republishFromDraft(draftId: number): Promise<void> {
     await this.executeHttpRequest(
       firstValueFrom(
-        this.http.put(this.buildStoryUrl('published', id), data)
+        this.http.post(`${this.buildStoryUrl('drafts', draftId)}/republish`, {})
       )
     );
   }

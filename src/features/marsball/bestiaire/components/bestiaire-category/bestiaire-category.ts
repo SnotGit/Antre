@@ -1,14 +1,15 @@
 import { Component, OnDestroy, inject, computed, resource, input, signal, effect, ViewChild, ElementRef } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
-import { BestiaireGetService } from '../../services/bestiaire-get.service';
-import { BestiaireDeleteService } from '../../services/bestiaire-delete.service';
-import { BestiaireUpdateService } from '../../services/bestiaire-update.service';
-import { NewBestiaireCreatureService } from '../../services/new-bestiaire-creature.service';
-import { EditBestiaireCreatureService } from '../../services/edit-bestiaire-creature.service';
+import { VaultGetService } from '@shared/vault/services/vault-get.service';
+import { VaultDeleteService } from '@shared/vault/services/vault-delete.service';
+import { VaultUpdateService } from '@shared/vault/services/vault-update.service';
+import { VaultContextService } from '@shared/vault/services/vault-context.service';
+import { CategoryWithChildren } from '@shared/vault/models/vault.models';
+import { VaultEditEntryService } from '@shared/vault/services/vault-edit-entry.service';
+import { VaultNewEntryService } from '@shared/vault/services/vault-new-entry.service';
 import { CategoryStateService } from '@features/marsball/services/category-state.service';
 import { ConsoleStateService } from '@features/menus/services/console-state.service';
-import { CategoryWithCreatures } from '../../models/bestiaire.models';
 import { CropService } from '@shared/services/crop-images/crop.service';
 import { AuthService } from '@features/auth/services/auth.service';
 import { environment } from '@environments/environment';
@@ -25,11 +26,12 @@ export class BestiaireCategory implements OnDestroy {
 
   private readonly location = inject(Location);
   private readonly router = inject(Router);
-  private readonly bestiaireGetService = inject(BestiaireGetService);
-  private readonly bestiaireDeleteService = inject(BestiaireDeleteService);
-  private readonly bestiaireUpdateService = inject(BestiaireUpdateService);
-  private readonly newBestiaireCreatureService = inject(NewBestiaireCreatureService);
-  private readonly editBestiaireCreatureService = inject(EditBestiaireCreatureService);
+  private readonly vaultGetService = inject(VaultGetService);
+  private readonly vaultDeleteService = inject(VaultDeleteService);
+  private readonly vaultUpdateService = inject(VaultUpdateService);
+  private readonly vaultContext = inject(VaultContextService);
+  private readonly editEntryService = inject(VaultEditEntryService);
+  private readonly newEntryService = inject(VaultNewEntryService);
   private readonly categoryState = inject(CategoryStateService);
   private readonly consoleState = inject(ConsoleStateService);
   protected readonly cropService = inject(CropService);
@@ -61,6 +63,12 @@ export class BestiaireCategory implements OnDestroy {
   selection = this.categoryState.selectionItems;
   categorySelection = this.categoryState.selectionCategories;
 
+  //======= CONSTRUCTOR =======
+
+  constructor() {
+    this.vaultContext.setContext('bestiaire');
+  }
+
   //======= DATA LOADING =======
 
   private readonly categoryResource = resource({
@@ -71,8 +79,8 @@ export class BestiaireCategory implements OnDestroy {
       }
 
       try {
-        const data = await this.bestiaireGetService.getCategoryWithCreatures(this.routerStateCategoryId);
-        this.newBestiaireCreatureService.setCategoryId(data.category.id);
+        const data = await this.vaultGetService.getCategoryWithChildren(this.routerStateCategoryId);
+        this.newEntryService.setCategoryId(data.category.id);
         return data;
       } catch {
         this.router.navigate(['/marsball/bestiaire']);
@@ -81,7 +89,7 @@ export class BestiaireCategory implements OnDestroy {
     }
   });
 
-  categoryData = computed((): CategoryWithCreatures | null => {
+  categoryData = computed((): CategoryWithChildren | null => {
     return this.categoryResource.value() || null;
   });
 
@@ -92,6 +100,11 @@ export class BestiaireCategory implements OnDestroy {
     this.handleDeleteRequest();
   });
 
+  private readonly _refreshEffect = effect(() => {
+    this.newEntryService.refreshCounter();
+    this.categoryResource.reload();
+  });
+
   //======= DELETE HANDLER =======
 
   private async handleDeleteRequest(): Promise<void> {
@@ -99,10 +112,10 @@ export class BestiaireCategory implements OnDestroy {
     if (!data) return;
 
     if (this.categoryState.selectionItems()) {
-      await this.categoryState.deleteSelectedItems(data.creatures, this.bestiaireDeleteService);
+      await this.categoryState.deleteSelectedItems(data.entries, this.vaultDeleteService);
     }
     if (this.categoryState.selectionCategories()) {
-      await this.categoryState.deleteSelectedCategories(data.children, this.bestiaireDeleteService);
+      await this.categoryState.deleteSelectedCategories(data.children, this.vaultDeleteService);
     }
 
     this.categoryResource.reload();
@@ -154,22 +167,22 @@ export class BestiaireCategory implements OnDestroy {
   //======= ADMIN ACTIONS =======
 
   editCreature(creatureId: number): void {
-    const creature = this.categoryData()?.creatures.find(c => c.id === creatureId);
+    const creature = this.categoryData()?.entries.find(c => c.id === creatureId);
     if (!creature) return;
 
-    this.editBestiaireCreatureService.startEdit(
+    this.editEntryService.startEdit(
       creature.id,
       creature.title,
-      creature.description,
+      creature.description || '',
       this.getImageUrl(creature.imageUrl)
     );
   }
 
   async deleteCreature(creatureId: number): Promise<void> {
-    const creature = this.categoryData()?.creatures.find(c => c.id === creatureId);
+    const creature = this.categoryData()?.entries.find(c => c.id === creatureId);
     if (!creature) return;
 
-    await this.bestiaireDeleteService.deleteCreature(creatureId, creature.title);
+    await this.vaultDeleteService.deleteEntry(creatureId, creature.title);
     this.categoryResource.reload();
   }
 

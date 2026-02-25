@@ -26,11 +26,11 @@ import {
   getPublishedStory 
 } from '@controllers/chroniques/publishedStoriesController';
 
-import { 
-  createDraft, 
-  saveDraft, 
-  publishStory, 
-  updateStory 
+import {
+  createDraft,
+  saveDraft,
+  publishStory,
+  republishFromDraft
 } from '@controllers/chroniques/saveStoriesController';
 
 import { 
@@ -74,12 +74,12 @@ router.get('/stories/drafts/:id', validateStoryId, getDraftStory);
 router.post('/stories/drafts', createDraft);
 router.put('/stories/drafts/:id', validateStoryId, saveDraft);
 router.post('/stories/drafts/:id/publish', validateStoryId, publishStory);
+router.post('/stories/drafts/:id/republish', validateStoryId, republishFromDraft);
 
 //======= PUBLISHED ROUTES =======
 
 router.get('/stories/published', getPublishedStories);
 router.get('/stories/published/:id', validateStoryId, getPublishedStory);
-router.put('/stories/published/:id', validateStoryId, updateStory);
 
 //======= DELETE ROUTES =======
 

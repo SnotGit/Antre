@@ -5,15 +5,15 @@
     @if (data.children.length > 0) {
     <div class="marsball-grid">
       @for (child of data.children; track child.id) {
-        <div class="category-card" 
+        <div class="category-card"
              [class.selected]="isSelectedCategory(child.id)"
              (click)="goToCategory(child.id, child.title)">
           <div class="card">
             <span class="category-title">{{ child.title }}</span>
-           
+
             @if (isAdmin()) {
-            <button 
-              class="delete-cross" 
+            <button
+              class="delete-cross"
               [class.active]="isSelectedCategory(child.id)"
               (click)="$event.stopPropagation(); toggleCategorySelection(child.id)">
               ✕
@@ -25,20 +25,20 @@
     </div>
     }
 
-    @if (data.creatures.length > 0) {
+    @if (data.entries.length > 0) {
     <div class="creatures-list">
-      @for (creature of data.creatures; track creature.id) {
-        <div class="creature-container" 
+      @for (creature of data.entries; track creature.id) {
+        <div class="creature-container"
              [class.open]="isCreatureOpen(creature.id)"
              [class.selected]="isSelected(creature.id)">
-          
+
           <div class="creature-header" (click)="toggleCreature(creature.id)">
             <img [src]="getImageUrl(creature.thumbnailUrl || creature.imageUrl)" [alt]="creature.title" class="creature-thumbnail">
             <span class="creature-title">{{ creature.title }}</span>
-            
+
             @if (isAdmin() && !isCreatureOpen(creature.id)) {
-              <button 
-                class="delete-cross" 
+              <button
+                class="delete-cross"
                 [class.active]="isSelected(creature.id)"
                 (click)="$event.stopPropagation(); toggleSelection(creature.id)">
                 ✕

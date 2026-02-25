@@ -17,6 +17,7 @@ export const getLatestStories = async (req: Request, res: Response): Promise<voi
       select: {
         id: true,
         title: true,
+        slug: true,
         publishedAt: true,
         user: {
           select: {
@@ -31,6 +32,7 @@ export const getLatestStories = async (req: Request, res: Response): Promise<voi
     const storyCards = stories.map(story => ({
       id: story.id,
       title: story.title,
+      slug: story.slug,
       publishDate: story.publishedAt!.toISOString(),
       user: {
         id: story.user.id,
@@ -142,12 +144,90 @@ export const getUserStories = async (req: Request, res: Response): Promise<void>
       orderBy: { publishedAt: 'desc' },
       select: {
         id: true,
-        title: true
+        title: true,
+        slug: true
       }
     });
 
     res.json({ stories });
   } catch (error) {
     handleError(res, 'Erreur lors de la récupération des histoires de l\'utilisateur');
+  }
+};
+
+//======= GET STORY BY SLUG =======
+
+export const getStoryBySlug = async (req: Request | AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { username, slug } = req.params;
+
+    const user = await prisma.user.findUnique({
+      where: { username },
+      select: { id: true }
+    });
+
+    if (!user) {
+      sendNotFound(res, 'Utilisateur non trouvé');
+      return;
+    }
+
+    const story = await prisma.story.findFirst({
+      where: { userId: user.id, slug, status: 'PUBLISHED' },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        publishedAt: true,
+        userId: true,
+        user: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+            description: true
+          }
+        }
+      }
+    });
+
+    if (!story) {
+      sendNotFound(res, 'Histoire non trouvée');
+      return;
+    }
+
+    const likesCount = await prisma.like.count({
+      where: { storyId: story.id }
+    });
+
+    const currentUserId = (req as AuthenticatedRequest).user?.userId;
+    const isOwnStory = currentUserId ? story.userId === currentUserId : false;
+
+    let isliked = false;
+    if (currentUserId && !isOwnStory) {
+      const userLike = await prisma.like.findFirst({
+        where: { storyId: story.id, userId: currentUserId }
+      });
+      isliked = !!userLike;
+    }
+
+    const storyData = {
+      id: story.id,
+      title: story.title,
+      content: story.content,
+      publishDate: story.publishedAt!.toISOString(),
+      likes: likesCount,
+      isliked,
+      canLike: !isOwnStory,
+      user: {
+        id: story.user.id,
+        username: story.user.username,
+        avatar: story.user.avatar || '',
+        description: story.user.description || ''
+      }
+    };
+
+    res.json({ story: storyData });
+  } catch (error) {
+    handleError(res, 'Erreur lors de la récupération de l\'histoire');
   }
 };

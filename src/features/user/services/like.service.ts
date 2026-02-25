@@ -22,6 +22,7 @@ export interface LikeToggleResponse {
 export interface LikedStory {
   storyId: number;
   title: string;
+  slug: string | null;
   publishDate: string;
   likedAt: string;
   user: {
@@ -38,6 +39,7 @@ export interface LikedStoriesResponse {
 export interface ReceivedLike {
   storyId: number;
   title: string;
+  slug: string | null;
   publishDate: string;
   likesCount: number;
   lastLikedAt: string;

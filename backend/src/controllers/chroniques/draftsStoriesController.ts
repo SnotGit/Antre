@@ -51,10 +51,11 @@ export const getDraftStory = async (req: AuthenticatedRequest, res: Response): P
         userId: userId,
         status: 'DRAFT' 
       },
-      select: { 
-        id: true, 
-        title: true, 
-        content: true 
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        originalStoryId: true
       }
     });
     
@@ -66,7 +67,8 @@ export const getDraftStory = async (req: AuthenticatedRequest, res: Response): P
     const editStory: EditStory = {
       id: story.id,
       title: story.title,
-      content: story.content
+      content: story.content,
+      originalStoryId: story.originalStoryId
     };
     
     res.json({ story: editStory });

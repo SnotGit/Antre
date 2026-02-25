@@ -1,4 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
+import { VaultDeleteService } from '@shared/vault/services/vault-delete.service';
 
 @Injectable({
   providedIn: 'root'
@@ -52,30 +53,20 @@ export class CategoryStateService {
     this.selectedCategoriesSignal.set(new Set());
   }
 
-  //======= DELETE ITEMS =======
+  //======= DELETE ENTRIES =======
 
   async deleteSelectedItems(
-    items: Array<{ id: number; title: string }>,
-    deleteService: { 
-      deleteItems?: (ids: number[], names: string[]) => Promise<void>;
-      batchDeleteCreatures?: (ids: number[], names: string[]) => Promise<void>; 
-      batchDeleteItems?: (ids: number[]) => Promise<void> 
-    }
+    entries: Array<{ id: number; title: string }>,
+    deleteService: VaultDeleteService
   ): Promise<void> {
     const selectedIds = Array.from(this.selectedItemsSignal());
     if (selectedIds.length === 0) return;
 
-    const titles = items
-      .filter(item => selectedIds.includes(item.id))
-      .map(item => item.title);
+    const titles = entries
+      .filter(entry => selectedIds.includes(entry.id))
+      .map(entry => entry.title);
 
-    if (deleteService.deleteItems) {
-      await deleteService.deleteItems(selectedIds, titles);
-    } else if (deleteService.batchDeleteCreatures) {
-      await deleteService.batchDeleteCreatures(selectedIds, titles);
-    } else if (deleteService.batchDeleteItems) {
-      await deleteService.batchDeleteItems(selectedIds);
-    }
+    await deleteService.deleteEntries(selectedIds, titles);
 
     this.selectedItemsSignal.set(new Set());
   }
@@ -84,10 +75,7 @@ export class CategoryStateService {
 
   async deleteSelectedCategories(
     categories: Array<{ id: number; title: string }>,
-    deleteService: { 
-      deleteCategories?: (ids: number[], names: string[]) => Promise<void>;
-      batchDeleteCategories?: (ids: number[], names: string[]) => Promise<void> 
-    }
+    deleteService: VaultDeleteService
   ): Promise<void> {
     const selectedIds = Array.from(this.selectedCategoriesSignal());
     if (selectedIds.length === 0) return;
@@ -96,11 +84,7 @@ export class CategoryStateService {
       .filter(cat => selectedIds.includes(cat.id))
       .map(cat => cat.title);
 
-    if (deleteService.deleteCategories) {
-      await deleteService.deleteCategories(selectedIds, titles);
-    } else if (deleteService.batchDeleteCategories) {
-      await deleteService.batchDeleteCategories(selectedIds, titles);
-    }
+    await deleteService.deleteCategories(selectedIds, titles);
 
     this.selectedCategoriesSignal.set(new Set());
   }

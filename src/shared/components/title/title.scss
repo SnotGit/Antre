@@ -2,11 +2,9 @@
 @use 'content/artefacts/typing-effect/typing-effect' as *;
 
 .title-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  padding: 40px;
-  gap: 20px;
   background: transparent;
   pointer-events: none;
   position: relative;
@@ -15,15 +13,6 @@
     pointer-events: auto;
   }
 }
-
-.title-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-}
-
-
 
 .title {
   position: absolute;
@@ -39,8 +28,7 @@
 }
 
 .back-wrapper {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
   @include button;
+  padding-top: 110px;
+  padding-left: 60px;
 }

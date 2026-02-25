@@ -1,7 +1,7 @@
 import { Component, OnDestroy, inject, signal, computed, effect, ElementRef, ViewChild, AfterViewInit, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NewRoverItemService } from '../../services/new-rover-item.service';
-import { RoverCreateService } from '../../services/rover-create.service';
+import { VaultNewEntryService } from '@shared/vault/services/vault-new-entry.service';
+import { VaultCreateService } from '@shared/vault/services/vault-create.service';
 import { AdminDialogService } from '@shared/services/dialog/admin-dialog.service';
 import { CropService } from '@shared/services/crop-images/crop.service';
 import { FileNameFormatterService } from '@shared/services/file-name-formatter/file-name-formatter.service';
@@ -22,8 +22,8 @@ export class NewRoverItem implements OnDestroy, AfterViewInit {
 
   //======= INJECTIONS =======
 
-  protected readonly newItemService = inject(NewRoverItemService);
-  private readonly roverCreateService = inject(RoverCreateService);
+  protected readonly newItemService = inject(VaultNewEntryService);
+  private readonly vaultCreateService = inject(VaultCreateService);
   private readonly confirmationService = inject(AdminDialogService);
   protected readonly cropService = inject(CropService);
   private readonly fileNameFormatter = inject(FileNameFormatterService);
@@ -36,10 +36,15 @@ export class NewRoverItem implements OnDestroy, AfterViewInit {
   headerTitle = this.overlayTypingService.headerTitle;
   typing = this.overlayTypingService.typingComplete;
 
+  //======= BOUND HANDLERS =======
+
+  private readonly boundOnPaste = this.onPaste.bind(this);
+
   //======= VIEW CHILDREN =======
 
   @ViewChild('uploadZone') uploadZone?: ElementRef<HTMLDivElement>;
   @ViewChild('descriptionInput') descriptionInput?: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('imageContainer') imageContainer?: ElementRef<HTMLDivElement>;
 
   //======= SIGNALS =======
 
@@ -77,16 +82,20 @@ export class NewRoverItem implements OnDestroy, AfterViewInit {
     };
   });
 
+  //======= SIGNALS =======
+
+  isVisible = computed((): boolean => this.newItemService.isVisible() && this.newItemService.activeContext() === 'rover');
+
   //======= EFFECTS =======
 
   private readonly _typingEffect = effect(() => {
-    if (this.newItemService.isVisible()) {
+    if (this.isVisible()) {
       this.overlayTypingService.title(this.title);
     }
   });
 
   private readonly _focusEffect = effect(() => {
-    if (this.newItemService.isVisible() && !this.mainImage()) {
+    if (this.isVisible() && !this.mainImage()) {
       setTimeout(() => this.uploadZone?.nativeElement.focus(), 100);
     }
   });
@@ -96,14 +105,14 @@ export class NewRoverItem implements OnDestroy, AfterViewInit {
   ngAfterViewInit(): void {
     const uploadZone = this.uploadZone?.nativeElement;
     if (uploadZone) {
-      uploadZone.addEventListener('paste', this.onPaste.bind(this));
+      uploadZone.addEventListener('paste', this.boundOnPaste);
     }
   }
 
   ngOnDestroy(): void {
     const uploadZone = this.uploadZone?.nativeElement;
     if (uploadZone) {
-      uploadZone.removeEventListener('paste', this.onPaste.bind(this));
+      uploadZone.removeEventListener('paste', this.boundOnPaste);
     }
     this.cleanupImages();
     this.overlayTypingService.destroy();
@@ -111,7 +120,7 @@ export class NewRoverItem implements OnDestroy, AfterViewInit {
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
-    if (this.newItemService.isVisible()) {
+    if (this.isVisible()) {
       this.cancel();
     }
   }
@@ -243,7 +252,7 @@ export class NewRoverItem implements OnDestroy, AfterViewInit {
 
     if (categoryId === null || !img) return;
 
-    const container = document.querySelector('.image-preview-container') as HTMLElement;
+    const container = this.imageContainer?.nativeElement;
     const imgElement = container?.querySelector('img') as HTMLImageElement;
 
     if (!container || !imgElement) return;
@@ -255,7 +264,7 @@ export class NewRoverItem implements OnDestroy, AfterViewInit {
     const displayHeight = imgElement.naturalHeight;
 
     try {
-      await this.roverCreateService.createItem(
+      await this.vaultCreateService.createEntry(
         this.itemTitle().trim(),
         categoryId,
         img.file,
@@ -269,9 +278,8 @@ export class NewRoverItem implements OnDestroy, AfterViewInit {
 
       this.confirmationService.showSuccessMessage();
       this.resetForm();
+      this.newItemService.notifyCreated();
       this.newItemService.close();
-
-      window.location.reload();
     } catch {
       this.confirmationService.showErrorMessage();
     }

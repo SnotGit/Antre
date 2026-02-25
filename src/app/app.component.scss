@@ -20,13 +20,13 @@
 .content-zone {
   grid-area: content;
   background-color: #000000;
-  padding: 50px;
   height: 100%;
   overflow: visible;
   color: #d0d0d0;
   min-height: 0;
   position: relative;
   z-index: 10;
+  
 
   .flame-video {
     position: absolute;
@@ -40,9 +40,14 @@
     transform: rotate(90deg);
     filter: hue-rotate(60deg);
 
-    &.marsball {
-      filter: hue-rotate(70deg);
+    @media (max-width: 1366px) {
+      display: none;
     }
+
+    &.marsball {
+      filter: hue-rotate(60deg);
+    }
+
     &.terraformars {
       filter: hue-rotate(30deg);
     }

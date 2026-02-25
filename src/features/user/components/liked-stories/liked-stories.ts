@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angul
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LikeService, LikedStory, ReceivedLike } from '@features/user/services/like.service';
-import { TitleResolver } from '@shared/services/resolvers/title-resolver.service';
+import { AuthService } from '@features/auth/services/auth.service';
 import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { environment } from '@environments/environment';
 
@@ -17,9 +17,9 @@ export class LikedStories implements OnInit, OnDestroy {
   //======= INJECTIONS =======
 
   private readonly likeService = inject(LikeService);
+  private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly titleResolver = inject(TitleResolver);
   private readonly typingService = inject(TypingEffectService);
   private readonly API_URL = environment.apiUrl;
 
@@ -85,32 +85,15 @@ export class LikedStories implements OnInit, OnDestroy {
   //======= ACTIONS =======
 
   onPostedStoryClick(story: LikedStory): void {
-    const titleUrl = this.titleResolver.encodeTitle(story.title);
-    
-    this.router.navigate(['/chroniques', story.user.username, titleUrl], {
-      state: {
-        storyId: story.storyId,
-        userId: story.user.id,
-        username: story.user.username,
-        title: story.title
-      }
-    });
+    if (!story.slug) return;
+    this.router.navigate(['/chroniques', story.user.username, story.slug]);
   }
 
   onReceivedStoryClick(story: ReceivedLike): void {
-    const username = this.router.getCurrentNavigation()?.extras?.state?.['username'] 
-      || history.state?.username;
-    
+    if (!story.slug) return;
+    const username = this.authService.currentUser()?.username;
     if (!username) return;
-
-    const titleUrl = this.titleResolver.encodeTitle(story.title);
-
-    this.router.navigate(['/chroniques', username, titleUrl], {
-      state: {
-        storyId: story.storyId,
-        title: story.title
-      }
-    });
+    this.router.navigate(['/chroniques', username, story.slug]);
   }
 
   getAvatarUrl(avatar: string): string {

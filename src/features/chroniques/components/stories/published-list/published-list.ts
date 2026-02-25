@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy, inject, computed, resource, signal } from
 import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
 import { PublishedStoriesService, PublishedStory } from '@features/chroniques/services/published-stories.service';
+import { SaveStoriesService } from '@features/chroniques/services/save-stories.service';
 import { DeleteStoriesService } from '@features/chroniques/services/delete-stories.service';
-import { TitleResolver } from '@shared/services/resolvers/title-resolver.service';
 import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 
 @Component({
@@ -19,8 +19,8 @@ export class PublishedList implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly publishedStoriesService = inject(PublishedStoriesService);
+  private readonly saveStoriesService = inject(SaveStoriesService);
   private readonly deleteStoriesService = inject(DeleteStoriesService);
-  private readonly titleResolver = inject(TitleResolver);
   private readonly typingService = inject(TypingEffectService);
 
   //======= TYPING EFFECT =======
@@ -90,16 +90,18 @@ export class PublishedList implements OnInit, OnDestroy {
 
   //======= NAVIGATION =======
 
-  onCardClick(publishedStory: PublishedStory): void {
-    const username = this.authService.currentUser()?.username;
-    const titleUrl = this.titleResolver.encodeTitle(publishedStory.title);
-    
-    this.router.navigate(['/chroniques', username, 'edition', 'publiee', titleUrl], {
-      state: { 
-        storyId: publishedStory.id,
-        title: publishedStory.title
-      }
-    });
+  async onCardClick(publishedStory: PublishedStory): Promise<void> {
+    try {
+      const story = await this.publishedStoriesService.getPublishedStory(publishedStory.id);
+      const draftId = await this.saveStoriesService.createDraftFromPublished(
+        publishedStory.id,
+        { title: story.title, content: story.content }
+      );
+      const username = this.authService.currentUser()?.username;
+      this.router.navigate(['/chroniques', username, 'edition', draftId]);
+    } catch {
+      // Erreur silencieuse
+    }
   }
 
   goBack(): void {

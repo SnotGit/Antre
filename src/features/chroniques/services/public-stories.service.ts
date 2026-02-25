@@ -6,6 +6,7 @@ import { environment } from '@environments/environment';
 export interface StoryCard {
   id: number;
   title: string;
+  slug: string | null;
   publishDate: string;
   user: {
     id: number;
@@ -32,6 +33,7 @@ export interface StoryReader {
 export interface UserStories {
   id: number;
   title: string;
+  slug: string | null;
 }
 
 export interface LatestStoriesResponse {
@@ -78,8 +80,6 @@ export class PublicStoriesService {
 
   //======= GET SINGLE STORY =======
 
-  //======= GET SINGLE STORY =======
-
   async getUserStory(storyId: number): Promise<StoryReader> {
     try {
       const response = await firstValueFrom(
@@ -95,6 +95,23 @@ export class PublicStoriesService {
     }
   }
   
+  //======= GET STORY BY SLUG =======
+
+  async getStoryBySlug(username: string, slug: string): Promise<StoryReader> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<StoryResponse>(`${this.CHRONIQUES_API}/stories/by-slug/${username}/${slug}`)
+      );
+
+      return {
+        ...response.story,
+        publishDate: this.formatDate(response.story.publishDate)
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
   //======= GET USER STORIES =======
 
   async getUserStories(userId: number): Promise<UserStories[]> {

@@ -13,6 +13,7 @@ export interface EditStory {
   id: number;
   title: string;
   content: string;
+  originalStoryId: number | null;
 }
 
 export interface DraftStoriesResponse {

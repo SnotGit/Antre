@@ -1,14 +1,17 @@
 import { Component, OnDestroy, inject, computed, resource, input, signal, effect, ViewChild, ElementRef } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
-import { MarsballGetService } from '@features/marsball/services/marsball-get.service';
-import { CategoryWithChildren } from '@features/marsball/models/marsball.models';
-import { MarsballDeleteService } from '@features/marsball/services/marsball-delete.service';
-import { MarsballUpdateService } from '@features/marsball/services/marsball-update.service';
+import { VaultGetService } from '@shared/vault/services/vault-get.service';
+import { VaultDeleteService } from '@shared/vault/services/vault-delete.service';
+import { VaultUpdateService } from '@shared/vault/services/vault-update.service';
+import { VaultContextService } from '@shared/vault/services/vault-context.service';
+import { CategoryWithChildren } from '@shared/vault/models/vault.models';
 import { CategoryStateService } from '@features/marsball/services/category-state.service';
 import { ConsoleStateService } from '@features/menus/services/console-state.service';
-import { EditMarsballItemService } from '../../services/edit-marsball-item.service';
+import { VaultEditEntryService } from '@shared/vault/services/vault-edit-entry.service';
+import { VaultNewEntryService } from '@shared/vault/services/vault-new-entry.service';
 import { CropService } from '@shared/services/crop-images/crop.service';
+import { AdminDialogService } from '@shared/services/dialog/admin-dialog.service';
 import { AuthService } from '@features/auth/services/auth.service';
 import { environment } from '@environments/environment';
 
@@ -24,14 +27,17 @@ export class MarsballCategory implements OnDestroy {
 
   private readonly location = inject(Location);
   private readonly router = inject(Router);
-  private readonly marsballGetService = inject(MarsballGetService);
-  private readonly marsballDeleteService = inject(MarsballDeleteService);
-  private readonly marsballUpdateService = inject(MarsballUpdateService);
+  private readonly vaultGetService = inject(VaultGetService);
+  private readonly vaultDeleteService = inject(VaultDeleteService);
+  private readonly vaultUpdateService = inject(VaultUpdateService);
+  private readonly vaultContext = inject(VaultContextService);
   private readonly categoryState = inject(CategoryStateService);
   private readonly consoleState = inject(ConsoleStateService);
-  protected readonly editItemService = inject(EditMarsballItemService);
+  protected readonly editItemService = inject(VaultEditEntryService);
   protected readonly cropService = inject(CropService);
   private readonly authService = inject(AuthService);
+  private readonly confirmationService = inject(AdminDialogService);
+  private readonly newEntryService = inject(VaultNewEntryService);
   private readonly API_URL = environment.apiUrl;
 
   //======= VIEW CHILDREN =======
@@ -59,6 +65,12 @@ export class MarsballCategory implements OnDestroy {
   selectedItems = this.categoryState.selectedItems;
   selectedCategories = this.categoryState.selectedCategories;
 
+  //======= CONSTRUCTOR =======
+
+  constructor() {
+    this.vaultContext.setContext('marsball');
+  }
+
   //======= DATA LOADING =======
 
   private readonly categoryResource = resource({
@@ -67,9 +79,9 @@ export class MarsballCategory implements OnDestroy {
         this.router.navigate(['/marsball']);
         return null;
       }
-      
+
       try {
-        return await this.marsballGetService.getCategoryWithChildren(this.routerStateCategoryId);
+        return await this.vaultGetService.getCategoryWithChildren(this.routerStateCategoryId);
       } catch {
         this.router.navigate(['/marsball']);
         return null;
@@ -96,7 +108,7 @@ export class MarsballCategory implements OnDestroy {
   editThumbnailPreview = computed(() => {
     const crop = this.cropService.crop();
     const imageUrl = this.editItemService.image();
-    
+
     return {
       backgroundImage: `url(${this.getImageUrl(imageUrl)})`,
       backgroundPosition: `-${crop.x}px -${crop.y}px`,
@@ -116,21 +128,26 @@ export class MarsballCategory implements OnDestroy {
     this.handleDeleteRequest();
   });
 
+  private readonly _refreshEffect = effect(() => {
+    this.newEntryService.refreshCounter();
+    this.categoryResource.reload();
+  });
+
   //======= DELETE HANDLER =======
 
   private async handleDeleteRequest(): Promise<void> {
-  const data = this.categoryData();
-  if (!data) return;
+    const data = this.categoryData();
+    if (!data) return;
 
-  if (this.categoryState.selectionItems()) {
-    await this.categoryState.deleteSelectedItems(data.items, this.marsballDeleteService);
+    if (this.categoryState.selectionItems()) {
+      await this.categoryState.deleteSelectedItems(data.entries, this.vaultDeleteService);
+    }
+    if (this.categoryState.selectionCategories()) {
+      await this.categoryState.deleteSelectedCategories(data.children, this.vaultDeleteService);
+    }
+
+    this.categoryResource.reload();
   }
-  if (this.categoryState.selectionCategories()) {
-    await this.categoryState.deleteSelectedCategories(data.children, this.marsballDeleteService);
-  }
-  
-  this.categoryResource.reload();
-}
 
   //======= LIFECYCLE =======
 
@@ -199,17 +216,27 @@ export class MarsballCategory implements OnDestroy {
     this.cropService.stopDrag();
   }
 
+  //======= EDIT INPUT HANDLERS =======
+
+  onEditTitleInput(event: Event): void {
+    this.editItemService.updateTitle((event.target as HTMLInputElement).value);
+  }
+
+  onEditDescriptionInput(event: Event): void {
+    this.editItemService.updateDescription((event.target as HTMLTextAreaElement).value);
+  }
+
   //======= ADMIN ACTIONS =======
 
   editItem(itemId: number): void {
     const data = this.categoryData();
     if (!data) return;
 
-    const item = data.items.find(i => i.id === itemId);
+    const item = data.entries.find(i => i.id === itemId);
     if (!item) return;
 
     this.editItemService.startEdit(itemId, item.title, item.description || '', item.imageUrl);
-    
+
     setTimeout(() => {
       this.cropService.init(60);
     }, 0);
@@ -240,7 +267,7 @@ export class MarsballCategory implements OnDestroy {
         const imageFile = this.editItemService.imageFile();
         if (!imageFile) return;
 
-        await this.marsballUpdateService.updateItem(
+        await this.vaultUpdateService.updateEntry(
           itemId,
           title,
           description,
@@ -252,7 +279,7 @@ export class MarsballCategory implements OnDestroy {
           imageFile
         );
       } else {
-        await this.marsballUpdateService.updateItem(
+        await this.vaultUpdateService.updateEntry(
           itemId,
           title,
           description,
@@ -260,7 +287,9 @@ export class MarsballCategory implements OnDestroy {
           crop.y,
           crop.size,
           displayWidth,
-          displayHeight
+          displayHeight,
+          undefined,
+          imgElement
         );
       }
 
@@ -268,7 +297,8 @@ export class MarsballCategory implements OnDestroy {
       this.cropService.reset();
       this.openItemId.set(null);
       this.categoryResource.reload();
-    } catch (error) {
+    } catch {
+      this.confirmationService.showErrorMessage();
     }
   }
 
@@ -276,10 +306,10 @@ export class MarsballCategory implements OnDestroy {
     const data = this.categoryData();
     if (!data) return;
 
-    const item = data.items.find(i => i.id === itemId);
+    const item = data.entries.find(i => i.id === itemId);
     if (!item) return;
 
-    await this.marsballDeleteService.deleteItem(itemId, item.title);
+    await this.vaultDeleteService.deleteEntry(itemId, item.title);
     this.categoryResource.reload();
   }
 
@@ -293,7 +323,7 @@ export class MarsballCategory implements OnDestroy {
     if (!category) return;
 
     this.router.navigate(['/marsball', category.title.toLowerCase().replace(/\s+/g, '-')], {
-      state: { 
+      state: {
         categoryId: category.id
       }
     });

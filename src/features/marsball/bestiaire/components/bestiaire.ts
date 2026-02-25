@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angular/core';
 import { Router } from '@angular/router';
-import { BestiaireGetService } from '../services/bestiaire-get.service';
-import { BestiaireCategory } from '../models/bestiaire.models';
+import { VaultGetService } from '@shared/vault/services/vault-get.service';
+import { VaultContextService } from '@shared/vault/services/vault-context.service';
+import { VaultCategory } from '@shared/vault/models/vault.models';
 import { MarsballStateService } from '@features/marsball/services/marsball-state.service';
 import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { TitleResolver } from '@shared/services/resolvers/title-resolver.service';
@@ -18,7 +19,8 @@ export class Bestiaire implements OnInit, OnDestroy {
   //======= INJECTIONS =======
 
   private readonly router = inject(Router);
-  private readonly bestiaireGetService = inject(BestiaireGetService);
+  private readonly vaultGetService = inject(VaultGetService);
+  private readonly vaultContext = inject(VaultContextService);
   private readonly marsballStateService = inject(MarsballStateService);
   private readonly typingService = inject(TypingEffectService);
   private readonly titleResolver = inject(TitleResolver);
@@ -41,15 +43,21 @@ export class Bestiaire implements OnInit, OnDestroy {
   selectedCategories = this.marsballStateService.selectedCategories;
   selection = this.marsballStateService.selection;
 
+  //======= CONSTRUCTOR =======
+
+  constructor() {
+    this.vaultContext.setContext('bestiaire');
+  }
+
   //======= DATA LOADING =======
 
   private readonly categoriesResource = resource({
     loader: async () => {
-      return await this.bestiaireGetService.getRootCategories();
+      return await this.vaultGetService.getRootCategories();
     }
   });
 
-  categories = computed((): BestiaireCategory[] => {
+  categories = computed((): VaultCategory[] => {
     return this.categoriesResource.value() || [];
   });
 
@@ -76,12 +84,12 @@ export class Bestiaire implements OnInit, OnDestroy {
 
   //======= NAVIGATION =======
 
-  onCardClick(category: BestiaireCategory): void {
+  onCardClick(category: VaultCategory): void {
     if (this.selection()) return;
-    
+
     const titleUrl = this.titleResolver.encodeTitle(category.title);
     this.router.navigate(['/marsball/bestiaire', titleUrl], {
-      state: { 
+      state: {
         categoryId: category.id,
         categoryTitle: category.title
       }

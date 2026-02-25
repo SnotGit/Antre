@@ -16,26 +16,12 @@
   @include hamburger; 
 }
 
-.logo {
-  .logo-frame {
-    position: relative;
-    width: 100%;
-    background-image: url('/assets/images/logo/Logo-Frame.png');
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    padding: 20px;
-    left: -8px;
-    z-index: 12;
-  }
-}
-
 .menu-content {
   display: flex;
   flex-direction: column;
   gap: 15px;
   flex: 1;
   padding: 0 50px 0 20px;
-
 
   .search-container {
     margin-bottom: 35px;
@@ -85,8 +71,7 @@
 .navbar-footer {
   margin-top: auto;
   padding-top: 20px;
-    padding: 0 50px 50px 20px;
-
+  padding: 0 50px 50px 20px;
 
   .group-title {
     display: block;
