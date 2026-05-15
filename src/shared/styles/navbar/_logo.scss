@@ -4,26 +4,29 @@
     margin-bottom: 30px;
     position: relative;
     flex-shrink: 0;
-    
+    z-index: 100;
+
     @media (max-width: 768px) {
       display: none;
     }
-    
+
     @media (orientation: portrait) and (min-width: 768px) and (max-width: 1024px) {
       display: none;
     }
-    
+
     @media (orientation: landscape) and (max-width: 932px) {
       display: none;
     }
-    
+
+    //======= FRAME =======
+
     .logo-frame {
       position: relative;
-      width: 100%;
-      padding: 20px;
-      left: -8px;
+      width: calc(100% + 8px);
+      padding: 26px 14px;
+      left: -6px;
       overflow: hidden;
-      
+
       &::after {
         content: '';
         position: absolute;
@@ -38,7 +41,9 @@
         z-index: 100;
       }
     }
-    
+
+    //======= SCREEN =======
+
     .logo-container {
       position: relative;
       width: 100%;
@@ -47,59 +52,75 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      border: 1px solid #5d889e;
+      background-color: #000;
     }
-    
+
     img {
       width: 100%;
       height: auto;
       border-radius: 10px;
       position: relative;
-      z-index: 2;
-      animation: tv-flicker 0.15s infinite linear alternate;
-      transform: translate(1px, 1px);
+      z-index: 1;
     }
+
+    //======= GLITCH =======
 
     .glitch-logo {
       position: relative;
       width: 100%;
       display: flex;
       justify-content: center;
+    }
 
-      &::before,
-      &::after {
+    .logo-frame {
+      &::before {
         content: '';
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        inset: 8px 14px;
         border-radius: 10px;
-        z-index: 1;
+        z-index: 2;
         pointer-events: none;
-      }
-
-      &::before {
+        background: repeating-linear-gradient(
+          0deg,
+          rgba(160, 160, 160, 0.15) 0px,
+          transparent 1px,
+          rgba(120, 120, 120, 0.1) 2px,
+          transparent 3px,
+          rgba(200, 200, 200, 0.12) 4px,
+          transparent 5px
+        );
         animation: glitch-1 0.2s infinite;
         clip-path: polygon(0 2%, 100% 2%, 100% 5%, 0 5%);
-        transform: translate(-1px);
-      }
-
-      &::after {
-        animation: glitch-2 0.25s infinite;
-        clip-path: polygon(0 78%, 100% 78%, 100% 82%, 0 82%);
-        transform: translate(1px);
       }
     }
 
+    .glitch-overlay {
+      position: absolute;
+      inset: 8px 14px;
+      border-radius: 10px;
+      z-index: 3;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(160, 160, 160, 0.15) 0px,
+        transparent 1px,
+        rgba(120, 120, 120, 0.1) 2px,
+        transparent 3px,
+        rgba(200, 200, 200, 0.12) 4px,
+        transparent 5px
+      );
+      animation: glitch-2 0.25s infinite;
+      clip-path: polygon(0 78%, 100% 78%, 100% 82%, 0 82%);
+    }
+
+    //======= TV OVERLAYS =======
+
     .scanlines {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      inset: 8px 14px;
+      border-radius: 10px;
       pointer-events: none;
-      z-index: 3;
+      z-index: 4;
       opacity: 1;
       background: repeating-linear-gradient(0deg,
               transparent,
@@ -107,14 +128,12 @@
               rgba(255, 255, 255, 0.1) 2px,
               rgba(255, 255, 255, 0.1) 4px);
       animation: scanlines-move 0.1s linear infinite;
-      border-radius: 10px;
     }
 
     .rolling-bar {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
+      inset: 8px 14px;
+      border-radius: 10px;
       height: 20px;
       opacity: 0.5;
       background: linear-gradient(to bottom,
@@ -123,19 +142,16 @@
               rgba(255, 255, 255, 0.3) 50%,
               rgba(255, 255, 255, 0.1) 75%,
               transparent 100%);
-      z-index: 4;
+      z-index: 5;
       animation: roll-down 20s linear infinite;
-      border-radius: 10px;
     }
 
     .noise {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      inset: 8px 14px;
+      border-radius: 10px;
       pointer-events: none;
-      z-index: 1;
+      z-index: 6;
       opacity: 0.03;
       background-image:
           radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
@@ -143,10 +159,86 @@
       background-size: 20px 20px, 30px 30px;
       background-position: 0 0, 15px 15px;
       animation: noise-move 0.2s steps(8) infinite;
-      border-radius: 10px;
+    }
+
+    //======= LED BAR =======
+
+    .led-bar {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      z-index: 110;
+    }
+
+    .led {
+      display: block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle at 40% 35%,
+        #fff 0%, #fff 25%,
+        #ffd050 50%, #d4a017 75%, #604800 100%
+      );
+      box-shadow:
+        0 0 2px 2px rgba(0, 0, 0, 0.9),
+        0 0 5px 2px rgba(255, 200, 50, 0.8),
+        0 0 12px 4px rgba(212, 160, 23, 0.5);
+      transition: background 0.5s ease, box-shadow 0.5s ease;
+
+      &:nth-child(1) { animation: led-pulse 2.5s ease-in-out infinite; }
+      &:nth-child(2) { animation: led-pulse 3.2s ease-in-out infinite 0.4s; }
+      &:nth-child(3) { animation: led-pulse 2.8s ease-in-out infinite 0.9s; }
+      &:nth-child(4) { animation: led-pulse 3.6s ease-in-out infinite 0.2s; }
+      &:nth-child(5) { animation: led-pulse 2.1s ease-in-out infinite 0.7s; }
+    }
+
+    //======= LED COLORS BY SECTION =======
+
+    .logo-frame.marsball .led {
+      background: radial-gradient(
+        circle at 40% 35%,
+        #fff 0%, #fff 25%,
+        #ffd050 50%, #d4a017 75%, #604800 100%
+      );
+      box-shadow:
+        0 0 2px 2px rgba(0, 0, 0, 0.9),
+        0 0 5px 2px rgba(255, 200, 50, 0.8),
+        0 0 12px 4px rgba(212, 160, 23, 0.5);
+    }
+
+    .logo-frame.terraformars .led {
+      background: radial-gradient(
+        circle at 40% 35%,
+        #fff 0%, #fff 25%,
+        #ff8060 50%, #b55a44 75%, #401510 100%
+      );
+      box-shadow:
+        0 0 2px 2px rgba(0, 0, 0, 0.9),
+        0 0 5px 2px rgba(255, 100, 70, 0.8),
+        0 0 12px 4px rgba(181, 90, 68, 0.5);
+    }
+
+    .logo-frame.chroniques .led,
+    .logo-frame.archives .led {
+      background: radial-gradient(
+        circle at 40% 35%,
+        #fff 0%, #fff 25%,
+        #80c0e0 50%, #5d889e 75%, #1a3040 100%
+      );
+      box-shadow:
+        0 0 2px 2px rgba(0, 0, 0, 0.9),
+        0 0 5px 2px rgba(130, 190, 230, 0.8),
+        0 0 12px 4px rgba(93, 136, 158, 0.5);
     }
   }
 }
+
+//======= KEYFRAMES =======
 
 @keyframes tv-flicker {
   0% { opacity: 1; }
@@ -188,4 +280,9 @@
   50% { transform: translate(1px, 0); }
   75% { transform: translate(0, 1px); }
   100% { transform: translate(-1px, 1px); }
+}
+
+@keyframes led-pulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(0.6); }
 }

@@ -20,3 +20,8 @@ app-root {
   width: 100vw;
 }
 
+.content-zone > router-outlet + * {
+  position: relative;
+  z-index: 10;
+}
+

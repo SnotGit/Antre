@@ -21,11 +21,7 @@
 
     <div class="console-status">
       <div class="status-line">
-        <span>> STATUT:
-          <span [class]="`status-${CurrentStatus() === 'CONNECTÉ' ? 'online' : 'offline'}`">
-            {{ CurrentStatus() }}
-          </span>
-        </span>
+        <span>> STATUT: <span [class]="`status-${CurrentStatus() === 'CONNECTÉ' ? 'online' : 'offline'}`">{{ CurrentStatus() }}</span></span>
       </div>
       <div class="user-line">
         <span>> UTILISATEUR: {{ CurrentUserName() }}</span>

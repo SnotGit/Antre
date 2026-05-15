@@ -1,6 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { NgClass } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../auth/services/auth.service';
 import { MobileMenuService } from '../../services/mobile-menu.service';
 import { Searchbar } from '@shared/components/searchbar/searchbar';
@@ -24,6 +26,24 @@ export class Navbar {
   openMenu = this.mobileMenuService.isNavbarOpen;
   isAdmin = this.authService.isAdmin;
   isLoggedIn = this.authService.isLoggedIn;
+
+  private readonly navigationEvents = toSignal(
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd)),
+    { initialValue: null }
+  );
+
+  //======= COMPUTED =======
+
+  flameClass = computed(() => {
+    const event = this.navigationEvents();
+    if (!event) return '';
+    const url = (event as NavigationEnd).url;
+    if (url.includes('/marsball')) return 'marsball';
+    if (url.includes('/terraformars')) return 'terraformars';
+    if (url.includes('/chroniques')) return 'chroniques';
+    if (url.includes('/archives')) return 'archives';
+    return '';
+  });
 
   //======= ACTIONS =======
 

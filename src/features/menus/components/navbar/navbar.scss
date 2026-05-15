@@ -10,7 +10,6 @@
   gap: 20px;
   box-sizing: border-box;
   position: relative;
-  z-index: 0;
   
   @include logo;      
   @include hamburger; 
@@ -19,12 +18,13 @@
 .menu-content {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 20px;
   flex: 1;
   padding: 0 50px 0 20px;
 
+
   .search-container {
-    margin-bottom: 35px;
+    margin-bottom: 20px;
   }
 }
 
@@ -32,46 +32,51 @@
   color: #d0d0d0;
   text-decoration: none;
   text-align: center;
-  padding: 15px 18px;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-  border-left: 4px solid transparent;
-  font-size: 16px;
-  font-weight: 500;
-  background-color: rgba(93, 136, 158, 0.05);
-  border: 1px solid rgba(93, 136, 158, 0.2);
+  padding: 22px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  min-height: 70px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 0;
+  background: url('/assets/images/frames/Nav-Button.png') center / 100% 100% no-repeat;
+  position: relative;
+  transition: filter 0.25s ease;
 
-  &:hover {
-    background-color: rgba(93, 136, 158, 0.15);
-    border-left-color: #5d889e;
-    transform: translateX(3px);
-    border-color: #5d889e;
-  }
-
+  &:hover,
   &.active {
-    background-color: rgba(93, 136, 158, 0.15);
-    border-left-color: #5d889e;
-    color: #d0d0d0;
-    border-color: #5d889e;
-    font-weight: 500;
+    filter: brightness(1.5) saturate(1.4);
+
+    &::after {
+      opacity: 1;
+    }
   }
 
-  &.staff-only {
-    background-color: rgba(93, 136, 158, 0.05);
-    border: 1px solid rgba(93, 136, 158, 0.2);
-    color: #d0d0d0;
-
-    &:hover {
-      background-color: rgba(93, 136, 158, 0.15);
-      border-color: #5d889e;
-    }
+  &::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 25px;
+    right: 25px;
+    height: 5px;
+    background: rgba(150, 128, 75, 0.8);
+    filter: blur(6px);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
   }
 }
 
 .navbar-footer {
   margin-top: auto;
   padding-top: 20px;
-  padding: 0 50px 50px 20px;
+    padding: 0 50px 50px 20px;
+
 
   .group-title {
     display: block;

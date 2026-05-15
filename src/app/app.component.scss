@@ -3,7 +3,7 @@
 .main-container {
   height: 100vh;
   width: 100vw;
-  background-color: #0a0c0e;
+  background-color: #000000;
   box-sizing: border-box;
   overflow: hidden;
   @include main-layout;
@@ -14,7 +14,6 @@
   height: 100%;
   min-height: 0;
   position: relative;
-  z-index: 1;
 }
 
 .content-zone {
@@ -26,16 +25,15 @@
   min-height: 0;
   position: relative;
   z-index: 10;
-  
 
   .flame-video {
     position: absolute;
-    left: -120px;
-    top: 340px;
-    width: 250px;
-    height: 250px;
-    object-fit: contain;
-    z-index: 5;
+    left: calc(-1px - 14vh);
+    top: calc(50.4vh - 19px);
+    width: 28vh;
+    height: 50px;
+    object-fit: fill;
+    z-index: 8;
     pointer-events: none;
     transform: rotate(90deg);
     filter: hue-rotate(60deg);
@@ -70,8 +68,22 @@
     pointer-events: none;
   }
 
-  router-outlet {
-    display: contents;
+  .content-inner {
+    position: relative;
+    z-index: 10;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 8px;
+    padding: 110px 55px 55px 36px;
+    box-sizing: border-box;
+
+    &::ng-deep > router-outlet + * {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+    }
   }
 
   &::after {
@@ -97,7 +109,7 @@
   height: 100%;
   width: 100%;
   min-height: 0;
-  background-color: #0a0c0e;
+  background-color: #000000;
   position: relative;
   z-index: 100;
 
@@ -125,3 +137,4 @@
     min-height: 0;
   }
 }
+

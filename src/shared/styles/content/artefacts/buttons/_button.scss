@@ -5,10 +5,10 @@
 
     .btn {
         background: transparent;
-        border: 2px solid #5d889e;
-        border-radius: 6px;
+        border: 1px solid rgba(150, 128, 75, 0.4);
+        border-radius: 0;
         padding: 10px 30px;
-        color: #5d889e;
+        color: #96804b;
         font-family: inherit;
         font-size: 16px;
         cursor: pointer;
@@ -21,8 +21,8 @@
         width: 180px;
 
         &:hover {
-            color: #d0d0d0;
-            border-color: #d0d0d0;            
+            color: #bfa55e;
+            border-color: #96804b;
         }
     }
 }

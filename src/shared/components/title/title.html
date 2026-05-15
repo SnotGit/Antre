@@ -3,7 +3,10 @@
     #titleElement
     class="title"
     [class.typing]="typing()"
-    [style.left.px]="titleLeftPosition()">
+    [class.scrolling]="isScrolling()"
+    [class.no-cursor]="noCursor()"
+    [style.left.px]="titleLeftPosition()"
+    [style.text-indent.px]="titleIndent()">
     {{ headerTitle() }}
   </h2>
 

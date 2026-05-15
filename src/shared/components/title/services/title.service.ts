@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 
 @Injectable({
@@ -12,11 +12,18 @@ export class TitleService {
 
   //======= SIGNALS =======
 
+  private _overrideTitle = signal<string | null>(null);
+  readonly overrideTitle = this._overrideTitle.asReadonly();
+
   readonly headerTitle = this.typingService.headerTitle;
   readonly showCursor = this.typingService.showCursor;
   readonly typingComplete = this.typingService.typingComplete;
 
   //======= METHODS =======
+
+  setOverrideTitle(title: string | null): void {
+    this._overrideTitle.set(title);
+  }
 
   setTitle(title: string): void {
     this.typingService.title(title);

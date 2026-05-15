@@ -4,16 +4,18 @@
   </div>
   
   <div class="content-zone">
-    <video class="flame-video" 
+    <video class="flame-video"
            [ngClass]="flameClass()"
-           src="/assets/videos/Flammes.webm" 
+           src="/assets/videos/Flammes.webm"
            autoplayForced
-           loop 
-           muted 
+           loop
+           muted
            playsinline>
     </video>
     <app-title></app-title>
-    <router-outlet></router-outlet>
+    <div class="content-inner">
+      <router-outlet></router-outlet>
+    </div>
   </div>
   
   <div class="panels-zone">

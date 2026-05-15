@@ -1,8 +1,9 @@
-import { Component, inject, computed, resource, input } from '@angular/core';
+import { Component, inject, computed, resource, input, effect, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
 import { PublicStoriesService } from '@features/chroniques/services/public-stories.service';
 import { LikeService } from '@features/user/services/like.service';
+import { TitleService } from '@shared/components/title/services/title.service';
 import { environment } from '@environments/environment';
 
 @Component({
@@ -11,12 +12,13 @@ import { environment } from '@environments/environment';
   templateUrl: './story-reader.html',
   styleUrl: './story-reader.scss'
 })
-export class StoryReader {
+export class StoryReader implements OnDestroy {
 
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly publicStoriesService = inject(PublicStoriesService);
   private readonly likeService = inject(LikeService);
+  private readonly titleService = inject(TitleService);
   private readonly API_URL = environment.apiUrl;
 
   //======= ROUTER INPUTS =======
@@ -73,11 +75,28 @@ export class StoryReader {
            user.id !== data.story.user?.id;
   });
 
+  isAuthorOnline = computed(() => false);
+
+  //======= EFFECTS =======
+
+  private readonly _titleOverrideEffect = effect(() => {
+    const data = this.storyData.value();
+    if (data?.story?.title) {
+      this.titleService.setOverrideTitle(data.story.title);
+    }
+  });
+
   avatarUrl = computed(() => {
     const data = this.storyData.value();
     const avatar = data?.story?.user?.avatar;
     return avatar ? `url(${this.API_URL.replace('/api', '')}${avatar})` : '';
   });
+
+  //======= LIFECYCLE =======
+
+  ngOnDestroy(): void {
+    this.titleService.setOverrideTitle(null);
+  }
 
   //======= LIKE ACTIONS =======
 

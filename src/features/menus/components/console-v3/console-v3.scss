@@ -51,6 +51,7 @@
 
   .console-status {
     flex-shrink: 0;
+    align-self: center;
     padding: 10px;
     color: #d0d0d0;
     font-size: 13px;
@@ -59,9 +60,6 @@
     .status-line,
     .user-line,
     .access-line {
-      display: flex;
-      align-items: center;
-      justify-content: center;
       margin-bottom: 5px;
     }
 

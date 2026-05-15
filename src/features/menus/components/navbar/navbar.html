@@ -3,19 +3,27 @@
   'expanded': openMenu()
 }">
   <a routerLink="/accueil" class="logo" (click)="onClick()">
-    <div class="logo-frame">
+    <div class="logo-frame" [ngClass]="flameClass()">
+      <div class="led-bar">
+        <span class="led"></span>
+        <span class="led"></span>
+        <span class="led"></span>
+        <span class="led"></span>
+        <span class="led"></span>
+      </div>
       <div class="logo-container">
         <div class="glitch-logo">
-          <img src="assets/images/logo/Logo-2.png" alt="L'Antre Logo">
+          <img src="assets/images/logo/Logo.png" alt="L'Antre Logo">
         </div>
-        <div class="scanlines"></div>
-        <div class="rolling-bar"></div>
-        <div class="noise"></div>
       </div>
+      <div class="glitch-overlay"></div>
+      <div class="scanlines"></div>
+      <div class="rolling-bar"></div>
+      <div class="noise"></div>
     </div>
   </a>
 
-  <button class="menu-toggle" 
+  <button class="menu-toggle"
           [ngClass]="{
             'expanded': openMenu(),
             'collapsed': !openMenu()
