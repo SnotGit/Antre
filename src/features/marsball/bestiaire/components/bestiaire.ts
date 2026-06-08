@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, computed, resource, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { VaultGetService } from '@shared/vault/services/vault-get.service';
 import { VaultContextService } from '@shared/vault/services/vault-context.service';
@@ -13,6 +13,7 @@ import { VaultCategoriesService } from '@shared/vault/services/vault-categories.
   selector: 'app-bestiaire',
   imports: [],
   templateUrl: './bestiaire.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './bestiaire.scss'
 })
 export class Bestiaire implements OnInit, OnDestroy {

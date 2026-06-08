@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject, signal, computed, effect } from '@angular/core';
+import { Component, OnDestroy, inject, signal, computed, effect, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CreateCategoryService } from '../../services/category/create-category.service';
 import { VaultCreateService } from '@shared/vault/services/vault-create.service';
@@ -9,6 +9,7 @@ import { OverlayTypingEffectService } from '@shared/services/typing-effect/overl
   selector: 'app-create-category',
   imports: [FormsModule],
   templateUrl: './create-category.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './create-category.scss'
 })
 export class CreateCategory implements OnDestroy {

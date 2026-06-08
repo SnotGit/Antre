@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, input, output } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
@@ -18,6 +18,7 @@ interface LoginData {
   imports: [FormsModule],
   templateUrl: './auth-form.html',
   styleUrl: './auth-form.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [TypingTextService]
 })
 export class AuthForm implements OnInit, OnDestroy {

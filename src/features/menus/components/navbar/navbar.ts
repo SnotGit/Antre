@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal, HostListener, ElementRef } from '@angular/core';
+import { Component, inject, computed, signal, HostListener, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
 import { SearchFiltersService } from '@features/search/services/search-filters.service';
@@ -7,6 +7,7 @@ import { SearchFiltersService } from '@features/search/services/search-filters.s
   selector: 'app-navbar',
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './navbar.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './navbar.scss'
 })
 export class Navbar {

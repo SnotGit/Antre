@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { resource } from '@angular/core';
 
 
@@ -13,6 +13,7 @@ import { Story } from '@features/chroniques/models/chroniques.models';
   standalone: true,
   imports: [FormsModule],
   templateUrl: './story-detail.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./story-detail.scss']
 })
 export class StoryDetailComponent {

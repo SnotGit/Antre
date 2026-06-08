@@ -1,4 +1,4 @@
-import { Component, input, output, computed } from '@angular/core';
+import { Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
 
 import { StoryCard } from '@features/chroniques/models/chroniques.models';
 import { environment } from '@environments/environment';
@@ -7,6 +7,7 @@ import { environment } from '@environments/environment';
   selector: 'app-story-card',
   imports: [],
   templateUrl: './story-card.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './story-card.scss'
 })
 export class StoryCardComponent {

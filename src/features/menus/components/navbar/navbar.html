@@ -17,7 +17,7 @@
     @if (menuOpen()) {
       <div class="avatar-menu">
         <a routerLink="/mon-compte" class="menu-item" (click)="closeMenu()">MON COMPTE</a>
-        <a [routerLink]="['/chroniques', user()?.username, 'mes-chroniques']" class="menu-item" (click)="closeMenu()">MES CHRONIQUES</a>
+        <a [routerLink]="['/chroniques', $safeNavigationMigration(user()?.username), 'mes-chroniques']" class="menu-item" (click)="closeMenu()">MES CHRONIQUES</a>
         @if (isAdmin()) {
           <a routerLink="/staff" class="menu-item" (click)="closeMenu()">STAFF</a>
         }

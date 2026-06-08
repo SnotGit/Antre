@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
 
 
 
@@ -9,6 +9,7 @@ import { PrivateStoriesService } from '@features/chroniques/services/private-sto
   standalone: true,
   imports: [],
   templateUrl: './stories-list.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./stories-list.scss']
 })
 export class StoriesListComponent {

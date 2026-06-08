@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { PublicStoriesService } from '@features/chroniques/services/public-stories.service';
 import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
@@ -9,6 +9,7 @@ import { StoryCardComponent } from '../../story-card/story-card';
   selector: 'app-story-menu',
   imports: [StoryCardComponent],
   templateUrl: './story-menu.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './story-menu.scss'
 })
 export class StoryMenu implements OnInit, OnDestroy {

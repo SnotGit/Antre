@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { SearchService, SearchHit } from '@features/search/services/search.service';
 
@@ -21,6 +21,7 @@ const TYPE_LABELS: Record<string, string> = {
   selector: 'app-search-results',
   imports: [],
   templateUrl: './search-results.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './search-results.scss'
 })
 export class SearchResults {

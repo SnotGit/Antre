@@ -1,4 +1,4 @@
-import { Component, inject, linkedSignal } from '@angular/core';
+import { Component, inject, linkedSignal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
@@ -15,6 +15,7 @@ import { StoryDetailComponent } from '../story-detail/story-detail';
   selector: 'app-stories-manager',
   imports: [StoriesListComponent, StoryDetailComponent],
   templateUrl: './stories-manager.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './stories-manager.scss'
 })
 

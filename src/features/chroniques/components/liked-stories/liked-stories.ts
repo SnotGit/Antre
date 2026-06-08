@@ -1,4 +1,4 @@
-import { Component, inject, computed, resource, signal } from '@angular/core';
+import { Component, inject, computed, resource, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { LikeService, LikedStory, ReceivedLike } from '@features/chroniques/services/like.service';
@@ -9,6 +9,7 @@ import { environment } from '@environments/environment';
   selector: 'app-liked-stories',
   imports: [],
   templateUrl: './liked-stories.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './liked-stories.scss',
 })
 export class LikedStories {

@@ -1,4 +1,4 @@
-import { Component, inject, computed, effect, viewChild, ElementRef } from '@angular/core';
+import { Component, inject, computed, effect, viewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ElenaStateService } from '@features/elena/services/elena-state.service';
 import { SearchFiltersService } from '@features/search/services/search-filters.service';
@@ -7,6 +7,7 @@ import { SearchFiltersService } from '@features/search/services/search-filters.s
   selector: 'app-elena-avatar',
   imports: [],
   templateUrl: './elena.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './elena.scss'
 })
 export class Elena{

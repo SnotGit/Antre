@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject, signal, computed, effect, ElementRef, ViewChild, AfterViewInit, HostListener } from '@angular/core';
+import { Component, OnDestroy, inject, signal, computed, effect, ElementRef, ViewChild, AfterViewInit, HostListener, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { VaultNewEntryService } from '@shared/vault/services/vault-new-entry.service';
 import { VaultCreateService } from '@shared/vault/services/vault-create.service';
@@ -16,6 +16,7 @@ interface ImageFile {
   selector: 'app-new-bestiaire-creature',
   imports: [FormsModule],
   templateUrl: './new-bestiaire-creature.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './new-bestiaire-creature.scss'
 })
 export class NewBestiaireCreature implements OnDestroy, AfterViewInit {

@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, OnDestroy, resource } from '@angular/core';
+import { Component, computed, effect, inject, input, OnDestroy, resource, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from '@environments/environment';
 import { AuthService } from '@features/auth/services/auth.service';
@@ -11,6 +11,7 @@ import { TitleService } from '@shared/components/title/services/title.service';
   standalone: true,
   imports: [],
   templateUrl: './story-reader.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './story-reader.scss'
 })
 export class StoryReader implements OnDestroy {

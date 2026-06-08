@@ -1,4 +1,4 @@
-import { Component, inject, computed, input, output, signal, effect, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, computed, input, output, signal, effect, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { VaultEntry } from '@shared/vault/models/vault.models';
 import { VaultEditEntryService } from '@shared/vault/services/vault-edit-entry.service';
 import { VaultUpdateService } from '@shared/vault/services/vault-update.service';
@@ -12,6 +12,7 @@ import { environment } from '@environments/environment';
   selector: 'app-item-view',
   imports: [],
   templateUrl: './item-view.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './item-view.scss'
 })
 export class ItemView {
