@@ -1,0 +1,59 @@
+@use 'variables' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-left: 32px;
+  font-family: $font-mono;
+  overflow: hidden;
+}
+
+.header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px 20px 0;
+  border-bottom: 1px solid $border-color;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: $gold;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.tab {
+  padding: 10px 20px;
+  color: $text-dim;
+  font-family: $font-mono;
+  font-size: 16px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: $gold;
+  }
+
+  &.active {
+    color: $gold;
+  }
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}

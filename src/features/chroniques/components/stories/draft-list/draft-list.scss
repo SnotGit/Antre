@@ -1,166 +1,71 @@
-@use 'content/artefacts/typing-effect/typing-effect' as *;
-@use 'content/artefacts/buttons/button' as *;
+@use 'variables' as *;
 
-.container {
-  padding: 0;
-  background-color: #0a0c0e;
-  color: #d0d0d0;
-  font-family: 'Courier New', monospace;
-  height: 100%;
+:host {
+  display: block;
+}
+
+.list {
   display: flex;
   flex-direction: column;
+  gap: 8px;
 }
 
-//============ HEADER ============
-
-.header {
+.story-row {
   display: flex;
-  justify-content: space-between;
-  padding: 30px;
-  min-height: 105px;
-
-  .header-title {
-    font-size: 32px;
-    font-weight: 700;
-    color: #5d889e;
-    margin: 0;
-
-    @include typing-effect;
-  }
-
-  .back-button {
-    @include button;
-  }
-
-  .delete-button {
-    @include button;
-
-    .btn {
-      border-color: crimson;
-      color: crimson;
-
-      &:hover {
-        color: #d0d0d0;
-        border-color: #d0d0d0;
-      }
-    }
-  }
-}
-
-//============ SEPARATOR ============
-
-.separator {
-  text-align: center;
-
-  .line {
-    width: 80%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #5d889e, transparent);
-    margin: 0 auto;
-    border-radius: 1px;
-  }
-}
-
-//============ CONTENT ============
-
-.content {
-  flex: 1;
-  overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding: 30px;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-//============ GRIDS ============
-
-.content-grid {
-  display: grid;
+  flex-direction: row;
   align-items: center;
-  gap: 30px;
-  justify-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 20px;
+  background: transparent;
+  border: 1px solid $border-color;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
 
-  grid-template-columns: repeat(3, 1fr);
+  .row-title {
+    flex: 1;
+    text-align: left;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: $font-mono;
+    font-size: 18px;
+    font-weight: 700;
+    color: $text-dim;
+    transition: color 0.15s ease;
+  }
 
-  &:has(button) {
-    grid-template-columns: repeat(2, 1fr);
-    max-width: 800px;
+  .row-meta {
+    flex-shrink: 0;
+    font-family: $font-mono;
+    font-size: 18px;
+    color: $text-dim;
+    transition: color 0.15s ease;
+  }
+
+  &:hover {
+    border-color: $border-bright;
+
+    .row-title,
+    .row-meta {
+      color: $text-bright;
+    }
+  }
+
+  &.selected {
+    border-color: $gold;
+
+    .row-title,
+    .row-meta {
+      color: $text-bright;
+    }
   }
 }
 
-//============ STORY CARDS ============
-
-.draft-card {
-  cursor: pointer;
-
-  &.selection-mode {
-    cursor: default;
-    
-    .card {
-      pointer-events: none;
-      
-      .delete-checkbox {
-        pointer-events: auto;
-      }
-    }
-  }
-
-  .card {
-    background-color: #1a1d20;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 280px;
-    height: 160px;
-    position: relative;
-    transition: all 0.3s ease;
-    border-radius: 16px;
-    border: 2px solid #5d889e;
-    gap: 15px;
-
-    &:hover:not(.selected) {
-      border-color: #d0d0d0;
-    }
-
-    &.selected {
-      border-color: crimson;
-      background-color: transparent;
-
-      .story-title {
-        color: crimson;
-      }
-
-      .story-date {
-        color: crimson;
-      }
-    }
-
-    .story-title {
-      color: #d0d0d0;
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .story-date {
-      color: #5d889e;
-      font-size: 14px;
-      font-weight: 400;
-    }
-
-    .delete-checkbox {
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      border-radius: 20px;
-      bottom: 15px;
-      right: 15px;
-      accent-color: crimson;
-      transform: scale(1.2);
-      cursor: pointer;
-    }
-  }
+.empty-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: $text-dim;
+  font-family: $font-mono;
 }

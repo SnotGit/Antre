@@ -4,41 +4,34 @@ import { authGuard } from '@core/guards/auth-guard';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('../components/chroniques').then(m => m.Chroniques)
+    loadComponent: () => import('../components/public/story-menu/story-menu').then(m => m.StoryMenu)
   },
 
   {
-    path: ':username/mes-histoires',
-    loadComponent: () => import('../components/stories/my-stories/my-stories').then(m => m.MyStories),
-    canActivate: [authGuard]
-  },
-
-  {
-    path: ':username/mes-histoires/brouillons',
-    loadComponent: () => import('../components/stories/draft-list/draft-list').then(m => m.DraftList),
-    canActivate: [authGuard]
-  },
-
-  {
-    path: ':username/mes-histoires/publiees',
-    loadComponent: () => import('../components/stories/published-list/published-list').then(m => m.PublishedList),
-    canActivate: [authGuard]
-  },
-
-  {
-    path: ':username/edition/nouveau',
-    loadComponent: () => import('../components/story-editor/story-editor').then(m => m.StoryEditor),
-    canActivate: [authGuard]
-  },
-
-  {
-    path: ':username/edition/:storyId',
-    loadComponent: () => import('../components/story-editor/story-editor').then(m => m.StoryEditor),
-    canActivate: [authGuard]
+    path: ':username/mes-chroniques',
+    loadComponent: () => import('../components/mes-chroniques/mes-chroniques').then(m => m.MesChroniques),
+    canActivate: [authGuard],
+    children: [
+      { path: '', redirectTo: 'brouillons', pathMatch: 'full' },
+      {
+        path: 'brouillons',
+        data: { mode: 'draft' },
+        loadComponent: () => import('../components/private/stories-manager/stories-manager').then(m => m.StoriesManager)
+      },
+      {
+        path: 'publiees',
+        data: { mode: 'published' },
+        loadComponent: () => import('../components/private/stories-manager/stories-manager').then(m => m.StoriesManager)
+      },
+      {
+        path: 'likes',
+        loadComponent: () => import('../components/liked-stories/liked-stories').then(m => m.LikedStories)
+      }
+    ]
   },
 
   {
     path: ':username/:slug',
-    loadComponent: () => import('../components/story-reader/story-reader').then(m => m.StoryReader)
+    loadComponent: () => import('../components/public/story-reader/story-reader').then(m => m.StoryReader)
   }
 ];

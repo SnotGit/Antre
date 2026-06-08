@@ -25,6 +25,17 @@ export class VaultGetService {
     return response.categories;
   }
 
+  //======= GET ALL CATEGORIES =======
+
+  async getAllCategories(contextKey?: string): Promise<VaultCategory[]> {
+    const key = contextKey ?? this.context.contextKey();
+    const apiUrl = `${environment.apiUrl}/${key}`;
+    const response = await firstValueFrom(
+      this.http.get<CategoriesResponse>(`${apiUrl}/categories/all`)
+    );
+    return response.categories;
+  }
+
   //======= GET CATEGORY WITH CHILDREN =======
 
   async getCategoryWithChildren(categoryId: number): Promise<CategoryWithChildren> {

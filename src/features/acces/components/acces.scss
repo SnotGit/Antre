@@ -1,0 +1,97 @@
+@use 'variables' as *;
+@use 'content/artefacts/buttons/credential-button' as *;
+
+$bw-bg:     #000;
+$bw-bright: #e8ecef;
+$bw-mid:    #8a9098;
+$bw-dim:    #5a6068;
+$bw-mute:   #3a4048;
+
+:host {
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  height: 100vh;
+  background: $bw-bg;
+  color: $bw-mid;
+  font-family: $font-mono;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 480px;
+  height: 100%;
+  padding: 50px;
+  box-sizing: border-box;
+}
+
+.logo {
+  margin-top: 30px;
+  text-align: center;
+
+  img {
+    width: 350px;
+    height: auto;
+  }
+
+  .logo-txt {
+    display: block;
+    margin-top: 20px;
+    color: $bw-mid;
+  }
+}
+
+.content {
+  margin-top: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+}
+
+.container.overlay-open .content {
+  margin-top: 60px;
+}
+
+.boot-lines {
+  white-space: pre;
+  font-size: 15px;
+  letter-spacing: 1px;
+  line-height: 1.8;
+  color: $bw-dim;
+  min-height: calc(15px * 1.8 * 3);
+
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    animation: blink 1s steps(1) infinite;
+  }
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+@include credential-button;
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: auto;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: $bw-dim;
+
+  .sep { color: $bw-mute; }
+  .ok  { color: $bw-dim; }
+}

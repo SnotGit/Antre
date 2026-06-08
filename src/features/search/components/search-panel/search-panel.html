@@ -1,0 +1,93 @@
+<div class="block">
+  <div class="block-header">
+    <div class="block-title">// RECHERCHE</div>
+  </div>
+
+  <div class="query-row">
+    <input
+      #queryInput
+      type="text"
+      class="input query-input"
+      placeholder="chercher..."
+      [value]="filters.query()"
+      (input)="setQuery(queryInput.value)">
+    @if (filters.query()) {
+      <button type="button" class="clear-btn" (click)="filters.clearQuery()" aria-label="Vider recherche">✕</button>
+    }
+  </div>
+</div>
+
+<div class="block">
+  <div class="block-header">
+    <div class="block-title">// FILTRES</div>
+    <button type="button" class="refresh-btn" (click)="filters.reset()" aria-label="Reset filtres">⟳</button>
+  </div>
+
+  <div class="fields">
+
+    @if (showUniverseFilter()) {
+      <div class="field">
+        <label class="label">UNIVERS</label>
+        <select #universeSel class="input" [value]="filters.universe()" (change)="setUniverse(universeSel.value)">
+          <option value="">—</option>
+          @for (u of universes; track u.value) {
+            <option [value]="u.value">{{ u.label }}</option>
+          }
+        </select>
+      </div>
+    }
+
+    @if (filters.universe() && availableSections().length > 0) {
+      <div class="field">
+        <label class="label">SECTION</label>
+        <select #sectionSel class="input" [value]="filters.section()" (change)="setSection(sectionSel.value)">
+          <option value="">—</option>
+          @for (s of availableSections(); track s.value) {
+            <option [value]="s.value">{{ s.label }}</option>
+          }
+        </select>
+      </div>
+    }
+
+    @if (filters.section()) {
+      <div class="field">
+        <label class="label">CATEGORIE</label>
+        <select #catSel class="input" [value]="filters.categoryId()" (change)="setCategory(catSel.value)">
+          <option value="">—</option>
+          @for (c of rootCategories(); track c.id) {
+            <option [value]="c.id">{{ c.title }}</option>
+          }
+        </select>
+      </div>
+    }
+
+    @if (filters.categoryId() && subCategories().length > 0) {
+      <div class="field">
+        <label class="label">SOUS-CATEGORIE</label>
+        <select #subSel class="input" [value]="filters.subCategoryId()" (change)="setSubCategory(subSel.value)">
+          <option value="">—</option>
+          @for (c of subCategories(); track c.id) {
+            <option [value]="c.id">{{ c.title }}</option>
+          }
+        </select>
+      </div>
+    }
+
+    @if (showItemFilters()) {
+      <div class="field">
+        <label class="label">TYPE</label>
+        <select class="input" disabled>
+          <option value="">— à venir</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="label">RARETE</label>
+        <select class="input" disabled>
+          <option value="">— à venir</option>
+        </select>
+      </div>
+    }
+
+  </div>
+</div>

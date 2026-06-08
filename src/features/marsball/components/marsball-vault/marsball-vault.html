@@ -1,0 +1,93 @@
+<div class="container">
+
+  <header class="header">
+    @if (vaultCategories.breadcrumb().length > 0) {
+      <nav class="breadcrumb">
+        <span class="prefix">//</span>
+        @for (seg of vaultCategories.breadcrumb(); track seg.label; let last = $last) {
+          <button
+            type="button"
+            class="segment"
+            [class.is-current]="seg.isCurrent"
+            [disabled]="seg.isCurrent"
+            (click)="vaultCategories.navigateSegment(seg)">
+            {{ seg.label }}
+          </button>
+          @if (!last) {
+            <span class="separator">/</span>
+          }
+        }
+      </nav>
+    }
+  </header>
+
+  <div class="content">
+
+    <div class="left-content">
+      <div class="cards">
+
+        <button type="button" class="cat-button" (click)="goToBestiaire()">
+          <span class="cat-title">Bestiaire</span>
+        </button>
+
+        <button type="button" class="cat-button" (click)="goToRover()">
+          <span class="cat-title">Rover</span>
+        </button>
+
+        @for (category of categories(); track category.id) {
+          <button
+            type="button"
+            class="cat-button"
+            [class.selected]="isSelected(category.id)"
+            (click)="onCardClick(category)">
+            <span class="cat-title">{{ category.title }}</span>
+            @if (isAdmin()) {
+              <span
+                class="delete-cross"
+                [class.active]="isSelected(category.id)"
+                (click)="$event.stopPropagation(); toggleSelection(category.id)">
+                ✕
+              </span>
+            }
+          </button>
+        }
+
+      </div>
+    </div>
+
+    <div class="right-content">
+      @if (isAdmin()) {
+        @if (selection()) {
+          <div class="confirm-card">
+            <span class="confirm-title">Supprimer</span>
+            <div class="confirm-actions">
+              <button type="button" class="btn" (click)="cancelDelete()">Annuler</button>
+              <button type="button" class="btn danger" (click)="confirmDelete()">Confirmer</button>
+            </div>
+            @if (deleteError()) {
+              <span class="error">Échec de la suppression.</span>
+            }
+          </div>
+        } @else {
+          <form class="add-form" (ngSubmit)="createCategory()">
+            <label class="label" for="new-cat">Nouvelle catégorie</label>
+            <input
+              id="new-cat"
+              type="text"
+              class="input"
+              name="title"
+              [(ngModel)]="categoryTitle"
+              placeholder="Nom de la catégorie..."
+              autocomplete="off">
+            <button type="submit" class="btn" [disabled]="!canCreate()">Créer</button>
+            @if (createError()) {
+              <span class="error">Échec de la création.</span>
+            }
+          </form>
+        }
+      }
+    </div>
+
+  </div>
+
+</div>

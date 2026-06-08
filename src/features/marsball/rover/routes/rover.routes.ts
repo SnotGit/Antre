@@ -7,6 +7,6 @@ export const routes: Routes = [
   },
   {
     path: ':titleUrl',
-    loadComponent: () => import('../components/rover-category/rover-category').then(m => m.RoverCategory)
+    loadComponent: () => import('@shared/vault/components/vault-list/vault-list').then(m => m.VaultList)
   }
 ];

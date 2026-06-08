@@ -1,0 +1,81 @@
+@use 'variables' as *;
+
+:host {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.greeting {
+  flex-shrink: 0;
+  padding: 40px 20px 0;
+  color: $gold;
+  font-family: $font-mono;
+  font-size: 22px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.instructions {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  padding: 20px;
+  font-family: $font-mono;
+
+  .guide {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    li {
+      position: relative;
+      padding-left: 28px;
+      color: $text-base;
+      font-size: 18px;
+      line-height: 1.5;
+
+      &::before {
+        content: '›';
+        position: absolute;
+        left: 0;
+        color: $gold;
+      }
+    }
+  }
+}
+
+.quote {
+  flex: 1;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  box-sizing: border-box;
+  padding: 40px;
+  color: $text-base;
+  font-family: $font-mono;
+  font-size: 20px;
+  font-style: italic;
+  line-height: 1.6;
+
+  .quote-text {
+    text-align: center;
+  }
+
+  .quote-sign {
+    align-self: flex-end;
+  }
+}

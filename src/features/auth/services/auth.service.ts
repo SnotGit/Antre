@@ -2,6 +2,8 @@ import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { TokenService } from './token.service';
 import { User } from './login.service';
+import { ElenaStateService } from '@features/elena/services/elena-state.service';
+import { SearchFiltersService } from '@features/search/services/search-filters.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +14,8 @@ export class AuthService {
 
   private readonly router = inject(Router);
   private readonly tokenService = inject(TokenService);
+  private readonly elena = inject(ElenaStateService);
+  private readonly filters = inject(SearchFiltersService);
 
   //======= SIGNALS STATE =======
 
@@ -98,12 +102,14 @@ export class AuthService {
   logout(reason?: string): void {
     this.tokenService.removeToken();
     this._currentUser.set(null);
-    
+    this.elena.reset();
+    this.filters.clearAll();
+
     if (reason) {
       this._error.set(reason);
     }
-    
-    this.router.navigate(['/auth/login']);
+
+    this.router.navigate(['/login']);
   }
 
   //======= ERROR HANDLING =======

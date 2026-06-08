@@ -1,34 +1,38 @@
 <div class="container">
-  
-<!--
-  <div class="header">
-    @if (showTitle1()) {
-      <h2 
-        class="header-title" 
-        [class.typing]="typing()"
-        [class.fade-out]="fadeOutTitle1()">
-        {{ headerTitle() }}
-      </h2>
-    }
-    
-    @if (showTitle2()) {
-      <h2 
-        class="header-title" 
-        [class.typing]="typing()">
-        {{ headerTitle() }}
-      </h2>
-    }
-  </div>
-
-  <div class="separator">
-    <div class="line"></div>
-  </div>
-  
-  -->
 
   <div class="content">
-    <p>Des travaux sont en cours ...</p>
-    <p>Attention à la marche en sortant</p>
+    @if (textActive()) {
+      <app-search-results></app-search-results>
+    } @else {
+      <app-home-infos></app-home-infos>
+    }
   </div>
-  
+
+  <footer class="footer">
+
+    <div class="searchbar">
+      <form class="prompt" (submit)="$event.preventDefault(); submit(promptInput)">
+        <span class="prefix">recherche:~$</span>
+        <span class="line"><span class="typed">{{ draft() }}</span>@if (focused()) {<span class="cursor"></span>}</span>
+        <input
+          #promptInput
+          class="capture"
+          type="text"
+          [value]="draft()"
+          (input)="onInput($any($event.target).value)"
+          (focus)="focused.set(true)"
+          (blur)="focused.set(false)"
+          autocomplete="off"
+          spellcheck="false">
+      </form>
+    </div>
+
+    <div class="toggle-zone">
+      <button type="button" class="instructions-toggle" (click)="toggleInstructions()">
+        {{ instructions.visible() ? '▾ Masquer les instructions' : '▸ Afficher les instructions' }}
+      </button>
+    </div>
+
+  </footer>
+
 </div>

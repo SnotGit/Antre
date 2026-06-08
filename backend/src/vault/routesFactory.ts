@@ -14,6 +14,7 @@ export function createVaultRoutes(config: VaultContextConfig): Router {
   //======= PUBLIC ROUTES =======
 
   router.get('/categories', controllers.getRootCategories);
+  router.get('/categories/all', controllers.getAllCategories);
   router.get('/categories/:id', controllers.getCategoryWithChildren);
 
   //======= ADMIN ROUTES =======

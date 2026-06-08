@@ -1,0 +1,40 @@
+<div class="container" [class.overlay-open]="showOverlay()">
+
+  <div class="logo">
+    <img src="/assets/images/logo/Logo.png" alt="L'Antre">
+    <span class="logo-txt">TERRAFORMARS NETWORK ARCHIVE </span>
+  </div>
+
+  <div class="content">
+
+    @if (showOverlay()) {
+      <app-auth-form
+        [initialMode]="overlayMode()"
+        (close)="onOverlayClose()"
+        (modeChange)="onOverlayModeChange($event)">
+      </app-auth-form>
+    } @else {
+      <div class="boot-lines">{{ typingText() }}@if (typingComplete()) {<span class="cursor">_</span>}</div>
+
+      <div class="buttons">
+        <button class="btn" type="button" (click)="goToLogin()">
+          <span class="prefix">&gt;</span>SE CONNECTER
+        </button>
+
+        <button class="btn" type="button" (click)="goToVisitor()">
+          <span class="prefix">&gt;</span>ACCES VISITEUR
+        </button>
+      </div>
+    }
+
+  </div>
+
+  <div class="footer">
+    <span>SOL {{ solNumber }}</span>
+    <span class="sep">/</span>
+    <span>PROTOCOL {{ protocolId }}</span>
+    <span class="sep">/</span>
+    <span class="ok">STATUS OK</span>
+  </div>
+
+</div>

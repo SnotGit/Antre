@@ -20,11 +20,14 @@ interface PrismaDelegate {
 
 //======= MAPPERS =======
 
-function mapCategory(raw: Record<string, unknown>): VaultCategory {
+function mapCategory(raw: Record<string, unknown>, entryRelation?: string): VaultCategory {
+  const countObj = raw['_count'] as Record<string, number> | undefined;
+  const entryCount = entryRelation && countObj ? countObj[entryRelation] ?? 0 : 0;
   return {
     id: raw['id'] as number,
     title: raw['title'] as string,
     parentId: raw['parentId'] as number | null,
+    entryCount,
     createdAt: (raw['createdAt'] as Date).toISOString(),
     updatedAt: (raw['updatedAt'] as Date).toISOString()
   };
@@ -62,13 +65,36 @@ export function createVaultControllers(config: VaultContextConfig) {
           title: true,
           parentId: true,
           createdAt: true,
-          updatedAt: true
+          updatedAt: true,
+          _count: { select: { [config.entryRelation]: true } }
         }
       });
 
-      res.json({ categories: categories.map(mapCategory) });
+      res.json({ categories: categories.map(c => mapCategory(c, config.entryRelation)) });
     } catch (error) {
       handleError(res, 'Erreur lors de la récupération des catégories racines');
+    }
+  };
+
+  //======= GET ALL CATEGORIES =======
+
+  const getAllCategories = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const categories = await categoryDelegate.findMany({
+        orderBy: { createdAt: 'asc' },
+        select: {
+          id: true,
+          title: true,
+          parentId: true,
+          createdAt: true,
+          updatedAt: true,
+          _count: { select: { [config.entryRelation]: true } }
+        }
+      });
+
+      res.json({ categories: categories.map(c => mapCategory(c, config.entryRelation)) });
+    } catch (error) {
+      handleError(res, 'Erreur lors de la récupération des catégories');
     }
   };
 
@@ -86,8 +112,12 @@ export function createVaultControllers(config: VaultContextConfig) {
       const category = await categoryDelegate.findUnique({
         where: { id: categoryId },
         include: {
-          children: { orderBy: { createdAt: 'asc' } },
-          [config.entryRelation]: { orderBy: { createdAt: 'asc' } }
+          children: {
+            orderBy: { createdAt: 'asc' },
+            include: { _count: { select: { [config.entryRelation]: true } } }
+          },
+          [config.entryRelation]: { orderBy: { createdAt: 'asc' } },
+          _count: { select: { [config.entryRelation]: true } }
         }
       });
 
@@ -100,8 +130,8 @@ export function createVaultControllers(config: VaultContextConfig) {
       const entries = (category[config.entryRelation] as Record<string, unknown>[]) || [];
 
       const response: CategoryWithChildrenResponse = {
-        category: mapCategory(category),
-        children: children.map(mapCategory),
+        category: mapCategory(category, config.entryRelation),
+        children: children.map(c => mapCategory(c, config.entryRelation)),
         entries: entries.map(mapEntry)
       };
 
@@ -387,6 +417,7 @@ export function createVaultControllers(config: VaultContextConfig) {
 
   return {
     getRootCategories,
+    getAllCategories,
     getCategoryWithChildren,
     createCategory,
     createEntry,

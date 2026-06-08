@@ -4,6 +4,7 @@ export interface VaultCategory {
   id: number;
   title: string;
   parentId: number | null;
+  entryCount: number;
   createdAt: string;
   updatedAt: string;
 }

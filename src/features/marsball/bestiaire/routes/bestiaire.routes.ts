@@ -7,6 +7,6 @@ export const routes: Routes = [
   },
   {
     path: ':titleUrl',
-    loadComponent: () => import('../components/bestiaire-category/bestiaire-category').then(m => m.BestiaireCategory)
+    loadComponent: () => import('@shared/vault/components/vault-list/vault-list').then(m => m.VaultList)
   }
 ];

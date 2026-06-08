@@ -1,71 +1,30 @@
-<nav class="navbar-container" [ngClass]="{
-  'collapsed': !openMenu(),
-  'expanded': openMenu()
-}">
-  <a routerLink="/accueil" class="logo" (click)="onClick()">
-    <div class="logo-frame" [ngClass]="flameClass()">
-      <div class="led-bar">
-        <span class="led"></span>
-        <span class="led"></span>
-        <span class="led"></span>
-        <span class="led"></span>
-        <span class="led"></span>
-      </div>
-      <div class="logo-container">
-        <div class="glitch-logo">
-          <img src="assets/images/logo/Logo.png" alt="L'Antre Logo">
-        </div>
-      </div>
-      <div class="glitch-overlay"></div>
-      <div class="scanlines"></div>
-      <div class="rolling-bar"></div>
-      <div class="noise"></div>
-    </div>
-  </a>
-
-  <button class="menu-toggle"
-          [ngClass]="{
-            'expanded': openMenu(),
-            'collapsed': !openMenu()
-          }"
-          (click)="toggleMenu()">
-    <span class="hamburger-icon">☰</span>
-    MENU
-  </button>
-
-  <div class="menu-content">
-    <div class="search-container">
-      <app-searchbar></app-searchbar>
-    </div>
-
-    <a routerLink="/archives" routerLinkActive="active" class="menu-btn" (click)="onClick()">
-      Archives
-    </a>
-    <a routerLink="/marsball" routerLinkActive="active" class="menu-btn" (click)="onClick()">
-      Marsball
-    </a>
-    <a routerLink="/terraformars" routerLinkActive="active" class="menu-btn" (click)="onClick()">
-      Terraformars
-    </a>
-    <a routerLink="/chroniques" routerLinkActive="active" class="menu-btn" (click)="onClick()">
-      Chroniques de Mars
-    </a>
-  </div>
-
-  <div class="navbar-footer">
-    @if (isLoggedIn()) {
-      <span class="group-title">> PARAMETRES DU COMPTE</span>
-      @if (isAdmin()) {
-        <a routerLink="/staff" routerLinkActive="active" class="navbar-btn" (click)="onClick()">
-          STAFF
-        </a>
-      }
-      <button class="navbar-btn" (click)="openAccount()">MON COMPTE</button>
-      <button class="navbar-btn logout" (click)="logout()">DECONNEXION</button>
-    } @else {
-      <span class="group-title">> SYSTÈME VERROUILLÉ</span>
-      <button class="navbar-btn" (click)="openLogin()">[⚡] CONNEXION</button>
-      <button class="navbar-btn" (click)="openRegister()">[👤] INSCRIPTION</button>
-    }
-  </div>
+<nav class="navlinks">
+  <a routerLink="/archives" routerLinkActive="active" class="nav-btn" (click)="filters.reset()">ARCHIVES</a>
+  <a routerLink="/marsball" routerLinkActive="active" class="nav-btn" (click)="filters.reset()">MARSBALL</a>
+  <a routerLink="/terraformars" routerLinkActive="active" class="nav-btn" (click)="filters.reset()">TERRAFORMARS</a>
+  <a routerLink="/chroniques" routerLinkActive="active" class="nav-btn" (click)="filters.reset()">CHRONIQUES</a>
 </nav>
+
+<div class="user-zone">
+  @if (isLoggedIn()) {
+    <button type="button" class="avatar-btn" (click)="toggleMenu($event)">
+      <div class="avatar">
+        @if (avatarUrl(); as url) {
+          <img [src]="url" alt="">
+        }
+      </div>
+    </button>
+    @if (menuOpen()) {
+      <div class="avatar-menu">
+        <a routerLink="/mon-compte" class="menu-item" (click)="closeMenu()">MON COMPTE</a>
+        <a [routerLink]="['/chroniques', user()?.username, 'mes-chroniques']" class="menu-item" (click)="closeMenu()">MES CHRONIQUES</a>
+        @if (isAdmin()) {
+          <a routerLink="/staff" class="menu-item" (click)="closeMenu()">STAFF</a>
+        }
+        <button type="button" class="menu-item" (click)="logout()">DECONNEXION</button>
+      </div>
+    }
+  } @else {
+    <a routerLink="/login" class="btn">CONNEXION</a>
+  }
+</div>

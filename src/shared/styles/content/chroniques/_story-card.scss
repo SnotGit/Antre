@@ -1,0 +1,74 @@
+@use 'variables' as *;
+@use 'content/artefacts/delete-cross/delete-cross' as *;
+
+@mixin story-card {
+  .list {
+    max-width: 400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .story-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: transparent;
+    border: 1px solid $border-color;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+
+    &:hover {
+      border-color: $border-bright;
+
+      .row-title,
+      .row-meta,
+      .row-likes {
+        color: $text-bright;
+      }
+
+      .delete-cross {
+        opacity: 1;
+      }
+    }
+
+    .row-title {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: $font-mono;
+      font-size: 15px;
+      font-weight: 700;
+      color: $text-dim;
+      transition: color 0.15s ease;
+    }
+
+    .row-meta {
+      font-family: $font-mono;
+      font-size: 13px;
+      color: $text-dim;
+      transition: color 0.15s ease;
+    }
+
+    .row-likes {
+      font-family: $font-mono;
+      font-size: 15px;
+      color: $text-dim;
+      transition: color 0.15s ease;
+    }
+
+    @include delete-cross;
+
+    .delete-cross {
+      position: static;
+      flex-shrink: 0;
+      background: transparent;
+      opacity: 0;
+      transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+  }
+}

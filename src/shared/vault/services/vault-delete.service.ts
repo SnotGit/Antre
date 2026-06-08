@@ -58,18 +58,23 @@ export class VaultDeleteService {
     }
   }
 
-  //======= BATCH DELETE CATEGORIES =======
+  //======= BATCH DELETE CATEGORIES (HTTP ONLY) =======
+
+  async deleteCategoriesConfirmed(categoryIds: number[]): Promise<void> {
+    const apiUrl = `${environment.apiUrl}/${this.context.contextKey()}`;
+    await firstValueFrom(
+      this.http.post<DeleteResponse>(`${apiUrl}/categories/batch-delete`, { categoryIds })
+    );
+  }
+
+  //======= BATCH DELETE CATEGORIES (WITH CONFIRM) =======
 
   async deleteCategories(categoryIds: number[], categoryNames: string[]): Promise<void> {
     const confirmed = await this.adminDialogService.confirmDelete(categoryNames);
     if (!confirmed) return;
 
-    const apiUrl = `${environment.apiUrl}/${this.context.contextKey()}`;
-
     try {
-      await firstValueFrom(
-        this.http.post<DeleteResponse>(`${apiUrl}/categories/batch-delete`, { categoryIds })
-      );
+      await this.deleteCategoriesConfirmed(categoryIds);
       this.adminDialogService.showSuccessMessage();
     } catch (error) {
       this.adminDialogService.showErrorMessage();

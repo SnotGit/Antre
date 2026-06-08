@@ -1,0 +1,46 @@
+@use 'variables' as *;
+
+:host {
+  display: block;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: $font-mono;
+  font-size: 15px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding-bottom: 12px;
+  border-bottom: 1px solid $border-color;
+}
+
+.prefix {
+  color: $gold;
+}
+
+.segment {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: $text-dim;
+  cursor: pointer;
+  transition: color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    color: $text-bright;
+  }
+
+  &.is-current {
+    color: $gold;
+    cursor: default;
+  }
+}
+
+.separator {
+  color: $text-mute;
+}

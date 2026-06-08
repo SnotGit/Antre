@@ -1,0 +1,71 @@
+@if (vaultCategories.breadcrumb().length > 0) {
+  <nav class="breadcrumb">
+    <span class="prefix">//</span>
+    @for (seg of vaultCategories.breadcrumb(); track seg.label; let last = $last) {
+      <button
+        type="button"
+        class="segment"
+        [class.is-current]="seg.isCurrent"
+        [disabled]="seg.isCurrent"
+        (click)="vaultCategories.navigateSegment(seg)">
+        {{ seg.label }}
+      </button>
+      @if (!last) {
+        <span class="separator">/</span>
+      }
+    }
+
+    @if (isAdmin() && itemOpen()) {
+      <span class="bc-actions">
+        @if (!editing()) {
+          <button type="button" class="btn gold" (click)="editOpen()">Modifier</button>
+          <button type="button" class="btn danger" (click)="deleteOpen()">Supprimer</button>
+        } @else {
+          <button type="button" class="btn gold" (click)="cancelEdit()">Annuler</button>
+          <button type="button" class="btn ok" (click)="saveEdit()">Sauvegarder</button>
+        }
+      </span>
+    }
+  </nav>
+}
+
+<div class="content-container">
+
+  @if (categoryData(); as data) {
+
+    @if (data.children.length > 0) {
+      <div class="marsball-grid">
+        @for (child of data.children; track child.id) {
+          <div class="category-card"
+               [class.selected]="isSelectedCategory(child.id)"
+               (click)="goToCategory(child.id)">
+            <div class="card">
+              <span class="category-title">{{ child.title }}</span>
+
+              @if (isAdmin()) {
+                <button
+                  class="delete-cross"
+                  [class.active]="isSelectedCategory(child.id)"
+                  (click)="$event.stopPropagation(); toggleCategorySelection(child.id)">
+                  ✕
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (data.entries.length > 0) {
+      <app-item-view
+        [entries]="data.entries"
+        [isAdmin]="isAdmin()"
+        [label]="sectionLabel()"
+        (openChange)="onItemOpenChange($event)"
+        (changed)="onEntriesChanged()">
+      </app-item-view>
+    }
+
+  }
+
+</div>

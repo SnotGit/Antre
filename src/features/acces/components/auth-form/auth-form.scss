@@ -1,0 +1,194 @@
+@use 'variables' as *;
+@use 'content/artefacts/buttons/credential-button' as *;
+
+$bw-bg:     #000;
+$bw-bright: #e8ecef;
+$bw-mid:    #8a9098;
+$bw-dim:    #5a6068;
+$bw-mute:   #3a4048;
+$bw-error:  #d86a6a;
+
+:host {
+  display: block;
+  position: relative;
+  width: 100%;
+}
+
+.close-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: transparent;
+  border: 1px solid $bw-mid;
+  color: $bw-bright;
+  width: 32px;
+  height: 32px;
+  font-family: $font-mono;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: border-color 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    border-color: $bw-bright;
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding-top: 8px;
+}
+
+.form-title {
+  color: $bw-bright;
+  font-size: 16px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  white-space: pre;
+  display: inline-block;
+  min-height: 1em;
+
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    margin-left: 4px;
+    animation: blink 1s steps(1) infinite;
+  }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.field-label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: $bw-bright;
+  text-transform: uppercase;
+}
+
+.terminal-input {
+  background: $bw-bg;
+  border: 1px solid $bw-mid;
+  padding: 16px 22px;
+  color: #fff;
+  font-family: $font-mono;
+  font-size: 15px;
+  letter-spacing: 1px;
+  outline: none;
+  transition: border-color 0.15s ease;
+
+  &:focus {
+    border-color: $bw-bright;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus,
+  &:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px $bw-bg inset;
+    -webkit-text-fill-color: #fff;
+    caret-color: #fff;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+}
+
+.password-field {
+  position: relative;
+  display: flex;
+}
+
+.password-field .terminal-input {
+  flex: 1;
+  padding-right: 52px;
+}
+
+.reveal-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: none;
+  color: $bw-mid;
+  cursor: pointer;
+  padding: 0 16px;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: $bw-bright;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+  }
+}
+
+.error-message {
+  color: $bw-error;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: 4px 0;
+}
+
+@include credential-button;
+
+.auth-form .btn {
+  margin-top: 16px;
+}
+
+.mode-toggle {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: $bw-dim;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.toggle-link {
+  background: transparent;
+  border: none;
+  color: $bw-bright;
+  font-family: $font-mono;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 8px;
+
+  .prefix {
+    margin-right: 6px;
+  }
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

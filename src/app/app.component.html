@@ -1,28 +1,15 @@
-<div class="main-container">
-  <div class="navbar-zone">
-    <app-navbar></app-navbar>
-  </div>
-  
-  <div class="content-zone">
-    <video class="flame-video"
-           [ngClass]="flameClass()"
-           src="/assets/videos/Flammes.webm"
-           autoplayForced
-           loop
-           muted
-           playsinline>
-    </video>
-    <app-title></app-title>
-    <div class="content-inner">
+@if (isAcces()) {
+  <router-outlet></router-outlet>
+} @else {
+  <div class="layout">
+    <app-logo class="logo-cell"></app-logo>
+    <app-navbar class="navbar-cell"></app-navbar>
+    <app-left-panel class="left-cell"></app-left-panel>
+    <main class="content-cell">
       <router-outlet></router-outlet>
-    </div>
+    </main>
   </div>
-  
-  <div class="panels-zone">
-    <app-console-v3></app-console-v3>
-    <app-terminal></app-terminal>
-  </div>
-</div>
+}
 
 <app-confirmation-dialog></app-confirmation-dialog>
 <app-create-category></app-create-category>

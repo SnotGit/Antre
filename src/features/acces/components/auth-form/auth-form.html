@@ -1,0 +1,107 @@
+<div class="overlay">
+
+  <button class="close-btn" type="button" (click)="onClose()" aria-label="Fermer">×</button>
+
+  <div class="form-container">
+
+    <div class="form-header">
+      <span class="form-title">{{ titleText() }}@if (titleComplete()) {<span class="cursor">_</span>}</span>
+    </div>
+
+    @if (mode() === 'login') {
+      <form class="auth-form" (ngSubmit)="onLogin()" #loginForm="ngForm">
+        <div class="form-field">
+          <label class="field-label">EMAIL</label>
+          <input type="email" name="email" [(ngModel)]="loginData.email" class="terminal-input"
+                 required autocomplete="email" [disabled]="loading()">
+        </div>
+
+        <div class="form-field">
+          <label class="field-label">MOT DE PASSE</label>
+          <div class="password-field">
+            <input [type]="showPassword() ? 'text' : 'password'" name="password" [(ngModel)]="loginData.password" class="terminal-input"
+                   required autocomplete="current-password" [disabled]="loading()">
+            <button type="button" class="reveal-btn" (click)="showPassword.set(!showPassword())" [attr.aria-label]="showPassword() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'" [title]="showPassword() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
+                <circle cx="12" cy="12" r="3"/>
+                @if (!showPassword()) { <line x1="3" y1="3" x2="21" y2="21"/> }
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        @if (error()) {
+          <div class="error-message">ERREUR : {{ error() }}</div>
+        }
+
+        <button type="submit" class="btn" [disabled]="loading() || !loginForm.valid">
+          @if (loading()) {
+            CONNEXION EN COURS...
+          } @else {
+            <span class="prefix">&gt;</span>SE CONNECTER
+          }
+        </button>
+      </form>
+
+      <div class="mode-toggle">
+        Pas de compte ?
+        <button type="button" class="toggle-link" (click)="toggleMode()">
+          <span class="prefix">&gt;</span>CRÉER UN COMPTE
+        </button>
+      </div>
+    }
+
+    @if (mode() === 'register') {
+      <form class="auth-form" (ngSubmit)="onRegister()" #registerForm="ngForm">
+        <div class="form-field">
+          <label class="field-label">PSEUDO</label>
+          <input type="text" name="username" [(ngModel)]="registerData.username" class="terminal-input"
+                 required minlength="3" maxlength="50" [disabled]="loading()">
+        </div>
+
+        <div class="form-field">
+          <label class="field-label">EMAIL</label>
+          <input type="email" name="email" [(ngModel)]="registerData.email" class="terminal-input"
+                 required autocomplete="email" [disabled]="loading()">
+        </div>
+
+        <div class="form-field">
+          <label class="field-label">MOT DE PASSE (8 caractères min)</label>
+          <div class="password-field">
+            <input [type]="showPassword() ? 'text' : 'password'" name="password" [(ngModel)]="registerData.password" class="terminal-input"
+                   required minlength="8" autocomplete="new-password" [disabled]="loading()">
+            <button type="button" class="reveal-btn" (click)="showPassword.set(!showPassword())" [attr.aria-label]="showPassword() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'" [title]="showPassword() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
+                <circle cx="12" cy="12" r="3"/>
+                @if (!showPassword()) { <line x1="3" y1="3" x2="21" y2="21"/> }
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        @if (error()) {
+          <div class="error-message">ERREUR : {{ error() }}</div>
+        }
+
+        <button type="submit" class="btn" [disabled]="loading() || !registerForm.valid">
+          @if (loading()) {
+            CRÉATION EN COURS...
+          } @else {
+            <span class="prefix">&gt;</span>CRÉER LE COMPTE
+          }
+        </button>
+      </form>
+
+      <div class="mode-toggle">
+        Déjà inscrit ?
+        <button type="button" class="toggle-link" (click)="toggleMode()">
+          <span class="prefix">&gt;</span>SE CONNECTER
+        </button>
+      </div>
+    }
+
+  </div>
+
+</div>

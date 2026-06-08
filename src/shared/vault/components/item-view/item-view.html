@@ -1,0 +1,103 @@
+<div class="container">
+
+  <div class="left-column">
+    @for (item of entries(); track item.id) {
+      <div class="item-card"
+           [class.active]="isItemOpen(item.id)"
+           [class.selected]="isSelected(item.id)"
+           (click)="selectItem(item.id)">
+        <div class="item-thumb">
+          <img [src]="getImageUrl(item.thumbnailUrl || item.imageUrl)" [alt]="item.title">
+        </div>
+        <span class="item-title">{{ item.title }}</span>
+
+        @if (isAdmin() && !edit.isEditing()) {
+          <button
+            class="delete-cross"
+            [class.active]="isSelected(item.id)"
+            (click)="$event.stopPropagation(); toggleSelection(item.id)">
+            ✕
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="right-column">
+    @if (selectedEntry(); as item) {
+
+      @if (!edit.isEditingEntry(item.id)) {
+
+        <div class="detail-box">
+          <div class="detail-text">
+            @if (item.description) {
+              <p>{{ item.description }}</p>
+            } @else {
+              <p class="detail-empty">Aucune description.</p>
+            }
+          </div>
+          <div class="item-full-image">
+            <img [src]="getImageUrl(item.imageUrl)" [alt]="item.title">
+          </div>
+        </div>
+      } @else {
+        <div class="detail-bar">
+          <input
+            type="text"
+            class="edit-title-input"
+            [value]="edit.title()"
+            (input)="onEditTitleInput($event)"
+            placeholder="Titre...">
+        </div>
+
+        <div class="edit-description">
+          <textarea
+            class="edit-description-textarea"
+            [value]="edit.description()"
+            (input)="onEditDescriptionInput($event)"
+            placeholder="Description..."
+            rows="4"></textarea>
+        </div>
+
+        <div class="edit-image-container">
+          <div class="image-with-crop"
+               (mousemove)="onMouseMove($event, imageContainer)"
+               (mouseup)="onMouseUp()"
+               (mouseleave)="onMouseUp()"
+               #imageContainer>
+            <img [src]="getImageUrl(edit.image())"
+                 [alt]="edit.title()"
+                 class="edit-image"
+                 crossOrigin="anonymous">
+            <div class="crop-box"
+                 [class.resizing-mode]="cropService.isCtrlPressed()"
+                 [style.left]="cropStyle().left"
+                 [style.top]="cropStyle().top"
+                 [style.width]="cropStyle().width"
+                 [style.height]="cropStyle().height"
+                 [style.cursor]="cropService.isCtrlPressed() ? 'default' : 'move'"
+                 (mousedown)="onCropMouseDown($event, imageContainer)">
+
+                 @if (cropService.isCtrlPressed()) {
+                   <div class="resize-handle top-left"
+                        (mousedown)="onResizeMouseDown($event, 'tl', imageContainer)"></div>
+                   <div class="resize-handle top-right"
+                        (mousedown)="onResizeMouseDown($event, 'tr', imageContainer)"></div>
+                   <div class="resize-handle bottom-left"
+                        (mousedown)="onResizeMouseDown($event, 'bl', imageContainer)"></div>
+                   <div class="resize-handle bottom-right"
+                        (mousedown)="onResizeMouseDown($event, 'br', imageContainer)"></div>
+                 }
+            </div>
+          </div>
+        </div>
+      }
+
+    } @else {
+      <div class="detail-placeholder">
+        <span>Sélectionnez un élément.</span>
+      </div>
+    }
+  </div>
+
+</div>

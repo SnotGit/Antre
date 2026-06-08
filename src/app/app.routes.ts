@@ -1,65 +1,58 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '../core/guards/auth-guard';
-import {
-  authRoutes,
-  chroniquesRoutes,
-  marsballRoutes,
-  staffRoutes,
-  terraformarsRoutes,
-  archivesRoutes,
-  userRoutes
-} from '../routes/index';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/accueil',
-    pathMatch: 'full'
+    pathMatch: 'full',
+    loadComponent: () => import('../features/acces/components/acces').then(m => m.Acces)
   },
 
   {
-    path: "accueil",
+    path: 'login',
+    loadComponent: () => import('../features/acces/components/acces').then(m => m.Acces)
+  },
+
+  {
+    path: 'register',
+    loadComponent: () => import('../features/acces/components/acces').then(m => m.Acces)
+  },
+
+  {
+    path: 'accueil',
     loadComponent: () => import('../features/home/components/home').then(m => m.Home)
   },
 
   {
     path: 'chroniques',
-    children: chroniquesRoutes
+    loadChildren: () => import('../features/chroniques/routes/chroniques.routes').then(m => m.routes)
   },
 
-  //============ ROUTE PROTÉGÉE UTILISATEUR ============
   {
     path: 'mon-compte',
-    children: userRoutes,
+    loadChildren: () => import('../features/user/routes/user-routes').then(m => m.routes),
     canActivate: [authGuard]
   },
 
-  //============ ROUTES PUBLIQUES ============
   {
     path: 'archives',
-    children: archivesRoutes
+    loadChildren: () => import('../features/archives/routes/archives.routes').then(m => m.routes)
   },
 
   {
     path: 'marsball',
-    children: marsballRoutes
+    loadChildren: () => import('../features/marsball/routes/marsball.routes').then(m => m.routes)
   },
 
   {
     path: 'terraformars',
-    children: terraformarsRoutes
+    loadChildren: () => import('../features/terraformars/routes/terraformars.routes').then(m => m.routes)
   },
 
-  //============ ROUTES ADMIN ============
   {
     path: 'staff',
-    children: staffRoutes,
+    loadChildren: () => import('../features/staff/routes/staff.routes').then(m => m.routes),
     canActivate: [authGuard]
-  },
-
-  {
-    path: 'auth',
-    children: authRoutes
   },
 
   {

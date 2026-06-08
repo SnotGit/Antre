@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal, resource, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, computed, signal, linkedSignal, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '@features/auth';
 import { ProfileService } from '@features/user/services/profile.service';
@@ -19,20 +19,15 @@ export class UserProfile {
   private readonly profileService = inject(ProfileService);
   private readonly API_URL = environment.apiUrl;
 
-  //============ RESOURCE USER DATA ============
-
-  private userResource = resource({
-    loader: async () => {
-      return this.authService.currentUser();
-    }
-  });
-
   //============ SIGNALS FORM ============
 
-  username = signal('');
-  description = signal('');
-  playerId = signal('');
-  playerDays = signal('');
+  username = linkedSignal(() => this.authService.currentUser()?.username ?? '');
+  description = linkedSignal(() => this.authService.currentUser()?.description ?? '');
+  playerId = linkedSignal(() => this.authService.currentUser()?.playerId ?? '');
+  playerDays = linkedSignal(() => {
+    const days = this.authService.currentUser()?.playerDays;
+    return days ? String(days) : '';
+  });
   selectedFile = signal<File | null>(null);
   avatar = signal<string | null>(null);
 
@@ -51,12 +46,9 @@ export class UserProfile {
   AvatarUrl(): string {
     const preview = this.avatar();
     if (preview) return preview;
-    
-    const user = this.userResource.value();
-    if (user?.avatar) {
-      return `${this.API_URL.replace('/api', '')}${user.avatar}`;
-    }
-    return '';
+
+    const avatar = this.authService.currentUser()?.avatar;
+    return avatar ? `${this.API_URL.replace('/api', '')}${avatar}` : '';
   }
 
   //============ AVATAR ACTIONS ============

@@ -1,0 +1,87 @@
+@use 'variables' as *;
+
+.stories-manager {
+  display: flex;
+  height: 100vh;
+  background: $black;
+  color: $text-base;
+}
+
+.manager-sidebar {
+  width: 350px;
+  border-right: 1px solid $gold-dim;
+  display: flex;
+  flex-direction: column;
+  background: rgba(10, 12, 14, 0.5);
+}
+
+.sidebar-header {
+  padding: $gap-lg;
+  border-bottom: 1px solid $gold-dim;
+
+  display: flex;
+  flex-direction: column;
+  gap: $gap-md;
+
+  .title {
+    margin: 0;
+    font-size: 18px;
+    color: $gold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .btn-new {
+    background: transparent;
+
+    border: 1px solid $gold;
+
+    color: $gold;
+
+    padding: 10px;
+
+    cursor: pointer;
+
+    font-size: 14px;
+
+    transition: all 0.2s;
+
+    &:hover {
+      background: $gold;
+      color: $black;
+    }
+  }
+}
+
+.manager-main {
+  flex: 1;
+  position: relative;
+  background: $bg-deep;
+}
+
+.empty-hub {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  height: 100%;
+
+  color: $text-mute;
+
+  .empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: $gap-sm;
+
+    .icon {
+      font-size: 40px;
+    }
+
+    p {
+      font-size: 16px;
+      font-style: italic;
+    }
+  }
+}

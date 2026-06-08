@@ -1,0 +1,18 @@
+<p class="greeting">Salut {{ displayName() }}</p>
+
+@if (instructions.visible()) {
+  <div class="instructions">
+    <ul class="guide">
+      <li>Formule ta requête et je vais chercher dans les archives.</li>
+      <li>Clique sur moi pour retourner à l'accueil ou faire une nouvelle recherche.</li>
+      <li>Utilise les onglets pour naviguer entre les différentes sections.</li>
+    </ul>
+  </div>
+} @else {
+  <p class="quote">
+    <span class="quote-text">{{ quote()?.text }}</span>
+    @if (quote()?.signed) {
+      <span class="quote-sign">— Elena</span>
+    }
+  </p>
+}

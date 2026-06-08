@@ -1,0 +1,189 @@
+@use 'variables' as *;
+
+.story-detail {
+  display: flex;
+  flex-direction: column;
+
+  height: 100%;
+
+  padding: 30px;
+
+  background: transparent;
+}
+
+.detail-content {
+  flex: 1;
+
+  overflow-y: auto;
+}
+
+.view-mode {
+  display: flex;
+  flex-direction: column;
+
+  gap: $gap-lg;
+
+  .title {
+    margin: 0;
+
+    padding-bottom: $gap-sm;
+
+    font-size: 24px;
+
+    color: $gold;
+
+    border-bottom: 1px solid $gold-dim;
+  }
+
+  .content {
+    font-size: 16px;
+
+    line-height: 1.6;
+
+    white-space: pre-wrap;
+
+    color: $text-base;
+  }
+}
+
+.edit-mode {
+  display: flex;
+  flex-direction: column;
+
+  gap: $gap-lg;
+
+  height: 100%;
+
+  .title-input {
+    background: transparent;
+
+    border: 1px solid $gold-dim;
+
+    color: $gold;
+
+    padding: 12px;
+
+    font-size: 20px;
+
+    outline: none;
+
+    transition: border-color 0.2s;
+
+    &:focus {
+      border-color: $gold;
+    }
+  }
+
+  .content-input {
+    flex: 1;
+
+    resize: none;
+
+    background: transparent;
+
+    border: 1px solid $gold-dim;
+
+    color: $text-base;
+
+    padding: 12px;
+
+    font-size: 16px;
+
+    outline: none;
+
+    transition: border-color 0.2s;
+
+    &:focus {
+      border-color: $gold;
+    }
+  }
+}
+
+.detail-footer {
+  display: flex;
+  justify-content: flex-end;
+
+  gap: $gap-md;
+
+  padding-top: 30px;
+}
+
+.btn-action {
+  padding: 10px 20px;
+
+  background: transparent;
+
+  border: 1px solid $gold;
+
+  color: $gold;
+
+  cursor: pointer;
+
+  font-size: 15px;
+
+  transition: all 0.2s;
+
+  &:hover {
+    background: $gold;
+
+    color: $black;
+  }
+}
+
+.btn-cancel {
+  padding: 10px 20px;
+
+  background: transparent;
+
+  border: 1px solid $border-bright;
+
+  color: $text-dim;
+
+  cursor: pointer;
+
+  font-size: 15px;
+
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: $text-base;
+
+    color: $text-bright;
+  }
+}
+
+.btn-danger {
+  padding: 10px 20px;
+
+  background: transparent;
+
+  border: 1px solid $status-error;
+
+  color: $status-error;
+
+  cursor: pointer;
+
+  font-size: 15px;
+
+  transition: all 0.2s;
+
+  &:hover {
+    background: $status-error;
+
+    color: $black;
+  }
+}
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  height: 100%;
+
+  color: $text-mute;
+
+  font-size: 16px;
+
+  font-style: italic;
+}

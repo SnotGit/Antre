@@ -1,69 +1,52 @@
-<div class="user-account-container">
+<div class="container">
 
-  <!-- ============ HEADER : 50% | 50% ============ -->
   <div class="header">
-    <div class="header-title">
-      <h2 class="title" [class.typing]="typing()">
-        {{ headerTitle() }}
-      </h2>
-    </div>
-
-    <div class="header-messages">
-      @if (error()) {
-      <div class="message error-message">
-        {{ error() }}
-      </div>
-      } @else if (success()) {
-      <div class="message success-message">
-        {{ success() }}
-      </div>
-      } @else if (showBackButton()) {
-      <button class="back-btn" (click)="goBack()">← Retour</button>
-      }
-    </div>
+    <h1 class="title">Mon Compte</h1>
   </div>
 
-  <!-- ============ TABS CONTAINER : 30% | 40% | 30% ============ -->
-  <div class="tabs-container">
+  @if (error()) {
+    <div class="message error">{{ error() }}</div>
+  } @else if (success()) {
+    <div class="message success">{{ success() }}</div>
+  }
 
-    <div class="left-section">
-      <!-- VIDE -->
+  <div class="content">
+
+    <div class="column profil">
+      <h2 class="subtitle">Profil</h2>
+
+      <div class="avatar" [style.background-image]="avatarUrl() ? 'url(' + avatarUrl() + ')' : ''"></div>
+      <button type="button" class="btn change-avatar" (click)="pickAvatar()">Changer l'avatar</button>
+
+      <input type="text" class="input" [(ngModel)]="username" placeholder="Pseudo" maxlength="50" autocomplete="off" [disabled]="loading()">
+      <input type="text" class="input" [(ngModel)]="description" placeholder="Description" maxlength="60" autocomplete="off" [disabled]="loading()">
+      <input type="text" class="input" [(ngModel)]="playerId" placeholder="ID Joueur" maxlength="20" autocomplete="off" [disabled]="loading()">
     </div>
 
-    <div class="tabs-box">
-      <div class="tabs-nav">
-        <button class="tab-btn" [class.active]="activeTab() === 'stats'" (click)="setActiveTab('stats')">
-          Stats
-        </button>
-        <button class="tab-btn" [class.active]="activeTab() === 'profile'" (click)="setActiveTab('profile')">
-          Profil
-        </button>
-        <button class="tab-btn" [class.active]="activeTab() === 'identifiants'" (click)="setActiveTab('identifiants')">
-          Identifiants
-        </button>
-      </div>
+    <div class="column credentials">
+      <h2 class="subtitle">Identifiants</h2>
+
+      <input type="password" class="input" [(ngModel)]="currentPassword" placeholder="Mot de passe actuel" autocomplete="current-password" [disabled]="loading()">
+      <input type="email" class="input" [(ngModel)]="newEmail" placeholder="Nouvel email" [disabled]="loading()">
+      <input type="email" class="input" [(ngModel)]="confirmEmail" placeholder="Confirmer l'email" [disabled]="loading()">
+      <input type="password" class="input" [(ngModel)]="newPassword" placeholder="Nouveau mot de passe" autocomplete="new-password" [disabled]="loading()">
+      <input type="password" class="input" [(ngModel)]="confirmPassword" placeholder="Confirmer le mot de passe" autocomplete="new-password" [disabled]="loading()">
     </div>
 
-    <div class="right-section">
-      <!-- VIDE -->
-    </div>
-    
   </div>
 
-  <!-- ============ CONTENU PRINCIPAL ============ -->
-  <div class="content-container">
-
-    @if (activeTab() === 'stats') {
-      <app-user-stats></app-user-stats>
-    }
-
-    @if (activeTab() === 'profile') {
-      <app-user-profile></app-user-profile>
-    }
-
-    @if (activeTab() === 'identifiants') {
-      <app-user-credentials></app-user-credentials>
-    }
-
+  <div class="validate">
+    <button type="button" class="btn valider" (click)="save()" [disabled]="loading() || !usernameValid()">Valider</button>
   </div>
+
+  <div class="footer">
+    <div class="meta">
+      <span class="meta-row"><span class="meta-key">Membre depuis :</span> {{ memberSince() }}</span>
+      <span class="meta-row"><span class="meta-key">Statut :</span> {{ status() }}</span>
+    </div>
+    <button type="button" class="btn danger delete" (click)="deleteAccount()" [disabled]="loading()">Supprimer le compte</button>
+  </div>
+
+  <input type="file" #fileInput accept="image/*" (change)="onAvatarSelected($event)" hidden>
+
 </div>

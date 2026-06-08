@@ -15,13 +15,12 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
-    "baseUrl": ".",
     "paths": {
-      "@shared/*": ["src/shared/*"],
-      "@features/*": ["src/features/*"],
-      "@core/*": ["src/core/*"],
-      "@environments/*": ["src/environments/*"],
-      "@/*": ["src/*"]
+      "@shared/*": ["./src/shared/*"],
+      "@features/*": ["./src/features/*"],
+      "@core/*": ["./src/core/*"],
+      "@environments/*": ["./src/environments/*"],
+      "@/*": ["./src/*"]
     }
   },
   "angularCompilerOptions": {

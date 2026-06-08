@@ -1,6 +1,6 @@
 import { Component, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { StoryCard } from '@features/chroniques/services/public-stories.service';
+import { StoryCard } from '@features/chroniques/models/chroniques.models';
 import { environment } from '@environments/environment';
 
 @Component({

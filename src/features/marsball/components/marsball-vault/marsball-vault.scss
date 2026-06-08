@@ -1,0 +1,129 @@
+@use 'variables' as *;
+@use 'content/artefacts/breadcrumb/breadcrumb' as *;
+@use 'content/artefacts/buttons/button' as *;
+@use 'content/marsball/cat-button' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+  font-family: $font-mono;
+  color: $text-base;
+}
+
+.header {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  height: 60px;
+  margin: 0 30px;
+  border-bottom: 1px solid $border-color;
+}
+
+@include breadcrumb;
+
+.breadcrumb {
+  grid-column: 1;
+  align-self: end;
+  margin-bottom: 15px;
+}
+
+@include button;
+
+.content {
+  display: grid;
+  grid-template-columns: 60% 40%;
+  flex: 1;
+  min-height: 0;
+}
+
+.left-content {
+  padding: 50px;
+  overflow-y: auto;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-content: start;
+  gap: 30px;
+}
+
+@include cat-button;
+
+.right-content {
+  padding: 50px;
+  overflow-y: auto;
+}
+
+.add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 40px;
+  border: 1px solid $border-color;
+}
+
+.label {
+  color: $gold;
+  font-size: 18px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.input {
+  background: transparent;
+  border: 1px solid $border-color;
+  padding: 12px;
+  color: $text-base;
+  font-family: $font-mono;
+  font-size: 15px;
+  transition: border-color 0.15s ease;
+
+  &::placeholder {
+    color: $text-mute;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $border-focus;
+  }
+}
+
+.error {
+  color: $status-error;
+  font-size: 13px;
+}
+
+.confirm-card {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 40px;
+  border: 1px solid $border-color;
+}
+
+.confirm-title {
+  color: $status-error;
+  font-size: 18px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 16px;
+
+  .btn {
+    flex: 1;
+  }
+}

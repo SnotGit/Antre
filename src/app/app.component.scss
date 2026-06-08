@@ -1,140 +1,43 @@
-@use 'main/main-layout' as *;
+@use 'variables' as *;
 
-.main-container {
-  height: 100vh;
+:host {
+  display: block;
   width: 100vw;
-  background-color: #000000;
+  height: 100vh;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: auto 1fr;
+  gap: 16px;
+  padding: 16px;
+  height: 100%;
+  background: $bg-deep;
+  color: $text-base;
+  font-family: $font-mono;
   box-sizing: border-box;
-  overflow: hidden;
-  @include main-layout;
 }
 
-.navbar-zone {
-  grid-area: navbar;
-  height: 100%;
-  min-height: 0;
-  position: relative;
+.logo-cell {
+  grid-column: 1;
+  grid-row: 1;
 }
 
-.content-zone {
-  grid-area: content;
-  background-color: #000000;
-  height: 100%;
-  overflow: visible;
-  color: #d0d0d0;
-  min-height: 0;
-  position: relative;
-  z-index: 10;
-
-  .flame-video {
-    position: absolute;
-    left: calc(-1px - 14vh);
-    top: calc(50.4vh - 19px);
-    width: 28vh;
-    height: 50px;
-    object-fit: fill;
-    z-index: 8;
-    pointer-events: none;
-    transform: rotate(90deg);
-    filter: hue-rotate(60deg);
-
-    @media (max-width: 1366px) {
-      display: none;
-    }
-
-    &.marsball {
-      filter: hue-rotate(60deg);
-    }
-
-    &.terraformars {
-      filter: hue-rotate(30deg);
-    }
-
-    &.chroniques {
-      filter: hue-rotate(180deg);
-    }
-
-    &.archives {
-      filter: hue-rotate(180deg);
-    }
-  }
-
-  app-title {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 60;
-    pointer-events: none;
-  }
-
-  .content-inner {
-    position: relative;
-    z-index: 10;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    border-radius: 8px;
-    padding: 110px 55px 55px 36px;
-    box-sizing: border-box;
-
-    &::ng-deep > router-outlet + * {
-      flex: 1;
-      min-height: 0;
-      overflow: auto;
-    }
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url('/assets/images/frames/Content-Frame-5.png');
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    pointer-events: none;
-    z-index: 50;
-    left: -30px;
-  }
+.navbar-cell {
+  grid-column: 2;
+  grid-row: 1;
 }
 
-.panels-zone {
-  grid-area: panels;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-  min-height: 0;
-  background-color: #000000;
-  position: relative;
-  z-index: 100;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -44px;
-    width: calc(100% + 60px);
-    height: 100%;
-    background-image: url('/assets/images/frames/Panel-Frame.png');
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    pointer-events: none;
-    z-index: 200;
-  }
-
-  app-console-v3 {
-    flex: 6.3;
-    min-height: 0;
-  }
-
-  app-terminal {
-    flex: 3.2;
-    min-height: 0;
-  }
+.left-cell {
+  grid-column: 1;
+  grid-row: 2;
 }
 
+.content-cell {
+  grid-column: 2;
+  grid-row: 2;
+  border: 1px solid $border-color;
+  overflow-y: auto;
+  color: $text-base;
+}

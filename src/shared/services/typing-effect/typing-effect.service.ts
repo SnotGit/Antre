@@ -23,15 +23,14 @@ export class TypingEffectService {
   
   //============ METHODS ============
   
-  title(title: string): void {
+  title(title: string, speed: number = 150): void {
     this.destroy();
-    
+
     this._headerTitle.set('');
     this._typingComplete.set(false);
     this._showCursor.set(true);
-    
+
     let currentIndex = 0;
-    const speed = 150;
 
     this.typingInterval = window.setInterval(() => {
       if (currentIndex < title.length) {

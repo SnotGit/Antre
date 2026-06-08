@@ -7,6 +7,7 @@ import { MarsballStateService } from '@features/marsball/services/marsball-state
 import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { TitleResolver } from '@shared/services/resolvers/title-resolver.service';
 import { AuthService } from '@features/auth/services/auth.service';
+import { VaultCategoriesService } from '@shared/vault/services/vault-categories.service';
 
 @Component({
   selector: 'app-bestiaire',
@@ -25,6 +26,7 @@ export class Bestiaire implements OnInit, OnDestroy {
   private readonly typingService = inject(TypingEffectService);
   private readonly titleResolver = inject(TitleResolver);
   private readonly authService = inject(AuthService);
+  protected readonly vaultCategories = inject(VaultCategoriesService);
 
   //======= TYPING EFFECT =======
 

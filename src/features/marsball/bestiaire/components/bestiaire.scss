@@ -1,6 +1,13 @@
 @use 'content/artefacts/delete-cross/delete-cross' as *;
+@use 'content/artefacts/breadcrumb/breadcrumb' as *;
 @use 'content/marsball/marsball-category-card' as *;
 @use 'content/marsball/marsball-grid' as *;
+
+@include breadcrumb;
+
+.breadcrumb {
+  margin-bottom: 18px;
+}
 
 .content-container {
   display: flex;

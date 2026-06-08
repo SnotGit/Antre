@@ -1,79 +1,50 @@
-import { Component, inject, computed } from '@angular/core';
-import { NgClass } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { AuthService } from '../../../auth/services/auth.service';
-import { MobileMenuService } from '../../services/mobile-menu.service';
-import { Searchbar } from '@shared/components/searchbar/searchbar';
+import { Component, inject, computed, signal, HostListener, ElementRef } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '@features/auth/services/auth.service';
+import { SearchFiltersService } from '@features/search/services/search-filters.service';
 
 @Component({
   selector: 'app-navbar',
-  imports: [NgClass, RouterLink, RouterLinkActive, Searchbar],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './navbar.html',
-  styleUrls: ['./navbar.scss']
+  styleUrl: './navbar.scss'
 })
 export class Navbar {
 
-  //======= INJECTIONS =======
+  private readonly auth = inject(AuthService);
+  private readonly el = inject(ElementRef);
+  protected readonly filters = inject(SearchFiltersService);
 
-  private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
-  private readonly mobileMenuService = inject(MobileMenuService);
+  readonly user = this.auth.currentUser;
+  readonly isLoggedIn = this.auth.isLoggedIn;
+  readonly isAdmin = this.auth.isAdmin;
+  readonly menuOpen = signal(false);
 
-  //======= SIGNALS =======
-
-  openMenu = this.mobileMenuService.isNavbarOpen;
-  isAdmin = this.authService.isAdmin;
-  isLoggedIn = this.authService.isLoggedIn;
-
-  private readonly navigationEvents = toSignal(
-    this.router.events.pipe(filter(event => event instanceof NavigationEnd)),
-    { initialValue: null }
-  );
-
-  //======= COMPUTED =======
-
-  flameClass = computed(() => {
-    const event = this.navigationEvents();
-    if (!event) return '';
-    const url = (event as NavigationEnd).url;
-    if (url.includes('/marsball')) return 'marsball';
-    if (url.includes('/terraformars')) return 'terraformars';
-    if (url.includes('/chroniques')) return 'chroniques';
-    if (url.includes('/archives')) return 'archives';
-    return '';
+  readonly avatarUrl = computed(() => {
+    const u = this.user();
+    if (!u?.avatar) return null;
+    return `http://localhost:3000${u.avatar}`;
   });
 
-  //======= ACTIONS =======
-
-  toggleMenu(): void {
-    this.mobileMenuService.toggleNavbar();
+  toggleMenu(event: Event): void {
+    event.stopPropagation();
+    this.menuOpen.update(v => !v);
   }
 
-  onClick(): void {
-    this.mobileMenuService.closeAll();
-  }
-
-  //======= AUTH ACTIONS =======
-
-  openLogin(): void {
-    this.router.navigate(['/auth/login']);
-    this.onClick();
-  }
-
-  openRegister(): void {
-    this.router.navigate(['/auth/register']);
-    this.onClick();
+  closeMenu(): void {
+    this.menuOpen.set(false);
   }
 
   logout(): void {
-    this.authService.logout();
-    this.onClick();
+    this.menuOpen.set(false);
+    this.auth.logout();
   }
 
-  openAccount(): void {
-    this.router.navigate(['/mon-compte']);
-    this.onClick();
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as Node;
+    if (!(this.el.nativeElement as HTMLElement).contains(target)) {
+      this.menuOpen.set(false);
+    }
   }
 }

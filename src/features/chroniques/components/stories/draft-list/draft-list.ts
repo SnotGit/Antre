@@ -1,9 +1,7 @@
-import { Component, OnInit, OnDestroy, inject, computed, resource, signal } from '@angular/core';
+import { Component, inject, computed, resource, input, output } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
 import { DraftStoriesService, DraftStory } from '@features/chroniques/services/draft-stories.service';
-import { DeleteStoriesService } from '@features/chroniques/services/delete-stories.service';
-import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 
 @Component({
   selector: 'app-draft-list',
@@ -11,40 +9,33 @@ import { TypingEffectService } from '@shared/services/typing-effect/typing-effec
   templateUrl: './draft-list.html',
   styleUrl: './draft-list.scss'
 })
-export class DraftList implements OnInit, OnDestroy {
+export class DraftList {
 
   //======= INJECTIONS =======
 
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly draftStoriesService = inject(DraftStoriesService);
-  private readonly deleteStoriesService = inject(DeleteStoriesService);
-  private readonly typingService = inject(TypingEffectService);
 
-  //======= TYPING EFFECT =======
+  //======= INPUTS / OUTPUTS =======
 
-  private readonly title = 'Brouillons';
-
-  headerTitle = this.typingService.headerTitle;
-  showCursor = this.typingService.showCursor;
-  typing = this.typingService.typingComplete;
-
-  //======= SELECTION STATE =======
-
-  selectedStories = signal<Set<number>>(new Set());
+  selectedId = input<number | null>(null);
+  refreshKey = input<number>(0);
+  select = output<number>();
 
   //======= DATA LOADING =======
 
   private readonly draftStoriesResource = resource({
     params: () => ({
-      isLoggedIn: this.authService.isLoggedIn()
+      isLoggedIn: this.authService.isLoggedIn(),
+      refresh: this.refreshKey()
     }),
     loader: async ({ params }) => {
       if (!params.isLoggedIn) {
         this.router.navigate(['/auth/login']);
         return [];
       }
-      
+
       return await this.draftStoriesService.getDraftStories();
     }
   });
@@ -52,49 +43,4 @@ export class DraftList implements OnInit, OnDestroy {
   draftStories = computed((): DraftStory[] => {
     return this.draftStoriesResource.value() || [];
   });
-
-  selection = computed(() => this.selectedStories().size > 0);
-
-  //======= LIFECYCLE =======
-
-  ngOnInit(): void {
-    this.typingService.title(this.title);
-  }
-
-  ngOnDestroy(): void {
-    this.typingService.destroy();
-  }
-
-  //======= SELECTION METHODS =======
-
-  toggleSelection(id: number): void {
-    const newSelection = this.deleteStoriesService.toggleSelection(id, this.selectedStories());
-    this.selectedStories.set(newSelection);
-  }
-
-  isSelected(id: number): boolean {
-    return this.selectedStories().has(id);
-  }
-
-  //======= DELETE METHODS =======
-
-  async deleteSelected(): Promise<void> {
-    const selectedIds = Array.from(this.selectedStories());
-
-    await this.deleteStoriesService.deleteSelection(selectedIds, 'draft');
-    this.selectedStories.set(new Set());
-    this.draftStoriesResource.reload();
-  }
-
-  //======= NAVIGATION =======
-
-  onCardClick(draftStory: DraftStory): void {
-    const username = this.authService.currentUser()?.username;
-    this.router.navigate(['/chroniques', username, 'edition', draftStory.id]);
-  }
-
-  goBack(): void {
-    const username = this.authService.currentUser()?.username;
-    this.router.navigate(['/chroniques', username, 'mes-histoires']);
-  }
 }

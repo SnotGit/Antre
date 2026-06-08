@@ -1,6 +1,5 @@
 @use 'content/chroniques/story-card-responsive' as *;
 
-//============ STORY CARD PUBLIC ============
 .story-card {
   display: flex;
   flex-direction: column;
@@ -59,7 +58,6 @@
   }
 }
 
-//============ STORY CARD PRIVATE ============
 .story-card-private {
   display: flex;
   flex-direction: column;

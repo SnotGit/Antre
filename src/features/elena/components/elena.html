@@ -1,0 +1,36 @@
+<div
+  class="tv"
+  [attr.data-on]="clip() !== null"
+  role="button"
+  tabindex="0"
+  (click)="goHome()"
+  (keydown.enter)="goHome()">
+  <div class="screen">
+    @if (powering()) {
+      <div class="crt-line"></div>
+    } @else {
+      @if (current(); as c) {
+        @if (c.kind === 'video') {
+          <video
+            #video
+            class="media"
+            [src]="c.src"
+            [loop]="c.loop"
+            autoplay
+            muted
+            playsinline
+            (ended)="onEnded()"
+            (error)="onEnded()"></video>
+        } @else {
+          <img class="media" [src]="c.src" alt="Elena">
+        }
+      } @else {
+        <div class="off-screen"></div>
+      }
+    }
+  </div>
+  <div class="status-bar">
+    <span class="name">ELENA</span>
+    <span class="label">{{ statusLabel() }}</span>
+  </div>
+</div>

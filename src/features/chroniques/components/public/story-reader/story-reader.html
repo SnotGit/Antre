@@ -1,0 +1,43 @@
+@if (storyData.value(); as data) {
+<div class="container">
+
+  <div class="header">
+    <div class="header-content">
+      <h1 class="title">{{ data.story.title }}</h1>
+      <button class="like" (click)="toggleLike()" [disabled]="!canLike()">
+        <span class="heart" [class.liked-self]="data.story.isliked" [class.liked-others]="data.story.likes > 0 && !data.story.isliked">&#9829;</span>
+      </button>
+    </div>
+    <div class="avatar" [style.background-image]="avatarUrl()"></div>
+  </div>
+
+  <div class="content">
+
+    <div class="text">{{ data.story.content }}</div>
+
+    <div class="meta-zone">
+      <div class="info">
+        <div class="meta-row"><span class="name">Auteur :</span> {{ data.story.user.username }}</div>
+        <div class="meta-row"><span class="date">Date :</span> {{ data.story.publishDate }}</div>
+      </div>
+      <hr class="separator" />
+      <div class="info">
+        <div class="meta-row"><span class="code">Classification :</span> {{ storyCode() }}</div>
+        <div class="meta-row"><span class="restrict">Restrictions :</span> 0</div>
+      </div>
+      <hr class="separator" />
+      <div class="info">
+        <div class="meta-row"><span class="like-count">Likes :</span> {{ data.story.likes }}</div>
+        <div class="meta-row"><span class="story-count">Histoires :</span> {{ data.currentStory + 1 }}/{{ data.userStories.length }}</div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="btn" [disabled]="!data.hasPrevious" (click)="goToPreviousStory()">prev</button>
+      <button class="btn" [disabled]="!data.hasNext" (click)="goToNextStory()">next</button>
+    </div>
+
+  </div>
+
+</div>
+}

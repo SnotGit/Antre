@@ -128,13 +128,13 @@ export class ConsoleV3 {
 
   newStory(): void {
     const username = this.authService.currentUser()?.username;
-    this.router.navigate(['/chroniques', username, 'edition', 'nouvelle-histoire']);
+    this.router.navigate(['/chroniques', username, 'mes-chroniques', 'edition', 'nouveau']);
     this.onClick();
   }
 
   myStories(): void {
     const username = this.authService.currentUser()?.username;
-    this.router.navigate(['/chroniques', username, 'mes-histoires']);
+    this.router.navigate(['/chroniques', username, 'mes-chroniques']);
     this.onClick();
   }
 

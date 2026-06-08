@@ -28,15 +28,17 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
       shouldSearchChroniques ? prisma.story.findMany({
         where: {
           status: 'PUBLISHED',
+          slug: { not: null },
           OR: [
             { title: { contains: searchTerm, mode: 'insensitive' } },
-            { content: { contains: searchTerm, mode: 'insensitive' } }
+            { user: { username: { contains: searchTerm, mode: 'insensitive' } } }
           ]
         },
         select: {
           id: true,
           title: true,
           content: true,
+          slug: true,
           user: {
             select: {
               username: true
@@ -58,6 +60,8 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
           title: true,
           description: true,
           categoryId: true,
+          imageUrl: true,
+          thumbnailUrl: true,
           category: {
             select: {
               title: true
@@ -79,6 +83,8 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
           title: true,
           description: true,
           categoryId: true,
+          imageUrl: true,
+          thumbnailUrl: true,
           category: {
             select: {
               title: true
@@ -100,6 +106,8 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
           title: true,
           description: true,
           categoryId: true,
+          imageUrl: true,
+          thumbnailUrl: true,
           category: {
             select: {
               title: true
@@ -117,13 +125,14 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
         description: item.content.substring(0, 100) + '...',
         category: `Par ${item.user.username}`,
         type: 'chronique',
-        route: `/chroniques/${item.user.username}/${item.title.replace(/ /g, '-')}`
+        route: `/chroniques/${item.user.username}/${item.slug}`
       })),
       ...marsball.map(item => ({
         id: item.id,
         title: item.title,
         description: item.description || '',
         category: item.category.title,
+        imageUrl: item.thumbnailUrl || item.imageUrl,
         type: 'marsball',
         route: `/marsball/${item.categoryId}`
       })),
@@ -132,6 +141,7 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
         title: item.title,
         description: item.description || '',
         category: item.category.title,
+        imageUrl: item.thumbnailUrl || item.imageUrl,
         type: 'rover',
         route: `/marsball/rover/${item.categoryId}`
       })),
@@ -140,6 +150,7 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
         title: item.title,
         description: item.description || '',
         category: item.category.title,
+        imageUrl: item.thumbnailUrl || item.imageUrl,
         type: 'bestiaire',
         route: `/marsball/bestiaire/${item.categoryId}`
       }))

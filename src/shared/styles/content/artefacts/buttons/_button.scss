@@ -1,28 +1,60 @@
-// ============ BACK BUTTON ============
+@use 'variables' as *;
+
 @mixin button {
-    padding: 0px 40px;
-    flex-shrink: 0;
+  .btn {
+    background: transparent;
+    border: 1px solid $border-color;
+    padding: 10px 20px;
+    color: $text-dim;
+    font-family: $font-mono;
+    font-size: 15px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 
-    .btn {
-        background: transparent;
-        border: 1px solid rgba(150, 128, 75, 0.4);
-        border-radius: 0;
-        padding: 10px 30px;
-        color: #96804b;
-        font-family: inherit;
-        font-size: 16px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        height: 45px;
-        width: 180px;
-
-        &:hover {
-            color: #bfa55e;
-            border-color: #96804b;
-        }
+    &:hover:not(:disabled) {
+      color: $text-bright;
+      border-color: $border-bright;
     }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &.active {
+      color: $gold;
+      border-color: $gold-dim;
+    }
+
+    &.gold {
+      color: $gold;
+      border-color: $gold-dim;
+
+      &:hover:not(:disabled) {
+        color: $text-bright;
+        border-color: $gold;
+      }
+    }
+
+    &.danger {
+      color: $status-error;
+      border-color: $status-error;
+
+      &:hover:not(:disabled) {
+        color: $text-bright;
+      }
+    }
+
+    &.ok {
+      color: $status-ok;
+      border-color: $status-ok;
+
+      &:hover:not(:disabled) {
+        color: $text-bright;
+      }
+    }
+  }
 }

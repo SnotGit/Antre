@@ -1,0 +1,39 @@
+<div class="story-detail">
+  @if (story()) {
+    <div class="detail-content">
+      @if (!isEditing()) {
+        <!-- MODE LECTURE -->
+        <div class="view-mode">
+          <h1 class="title">{{ story()?.title }}</h1>
+          <div class="content">{{ story()?.content }}</div>
+        </div>
+      } @else {
+        <!-- MODE EDITION -->
+        <div class="edit-mode">
+          <input
+            class="title-input"
+            [(ngModel)]="story()!.title"
+            placeholder="Titre de l'histoire...">
+          <textarea
+            class="content-input"
+            [(ngModel)]="story()!.content"
+            placeholder="Racontez votre histoire..."></textarea>
+        </div>
+      }
+    </div>
+
+    <div class="detail-footer">
+      @if (!isEditing()) {
+        <button class="btn-action" (click)="toggleEdit()">Modifier</button>
+        <button class="btn-danger" (click)="delete()">Supprimer</button>
+      } @else {
+        <button class="btn-cancel" (click)="cancel()">Annuler</button>
+        <button class="btn-action" (click)="publish()">Publier</button>
+      }
+    </div>
+  } @else {
+    <div class="empty-state">
+      Sélectionnez une histoire pour la consulter.
+    </div>
+  }
+</div>

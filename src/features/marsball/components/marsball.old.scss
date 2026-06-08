@@ -1,0 +1,70 @@
+@use 'content/artefacts/delete-cross/delete-cross' as *;
+@use 'content/artefacts/breadcrumb/breadcrumb' as *;
+@use 'content/marsball/marsball-grid' as *;
+@use 'content/marsball/marsball-category-card' as *;
+
+@include breadcrumb;
+
+.breadcrumb {
+  margin-bottom: 18px;
+}
+
+.content-container {
+  padding: 0;
+  background-image: url('../../../../public/assets/images/backgrounds/MB-BG-4.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  backdrop-filter: blur(5px);
+  color: #d0d0d0;
+  font-family: 'Courier New', monospace;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  height: 100%;
+  flex: 1;
+  overflow-y: auto;
+  padding-top: 120px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(93, 136, 158, 0.3) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(93, 136, 158, 0.3);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(93, 136, 158, 0.6);
+    }
+  }
+}
+
+@include marsball-grid;
+@include marsball-category-card;
+
+.category-card {
+  &.selected .card {
+    border-color: crimson;
+
+    .category-title {
+      color: crimson;
+    }
+  }
+
+  .card {
+    position: relative;
+
+    @include delete-cross;
+
+    .delete-cross {
+      top: 8px;
+      right: 8px;
+    }
+  }
+}

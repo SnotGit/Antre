@@ -1,0 +1,32 @@
+@use 'variables' as *;
+
+@mixin nav-button {
+  .nav-btn {
+    background: transparent;
+    border: 1px solid $border-color;
+    padding: 12px 30px;
+    color: $base;
+    font-family: $font-mono;
+    font-size: 15px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+
+    &:hover:not(:disabled):not(.active) {
+      color: $bright;
+      border-color: $bright;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &.active {
+      color: $accent;
+      border-color: $accent;
+    }
+  }
+}

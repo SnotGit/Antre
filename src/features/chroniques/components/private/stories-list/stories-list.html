@@ -1,0 +1,29 @@
+<div class="story-list">
+
+  @for (story of stories(); track story.id) {
+
+  <div class="story-item" [class.active]="story.id === selectedId()" (click)="selectStory(story.id)">
+    <div class="story-info">
+      <span class="story-title">
+        {{ story.title }}
+      </span>
+      <span class="story-date">
+        {{ story.lastModified }}
+      </span>
+    </div>
+
+    @if (mode() === 'published') {
+    <div class="story-likes">
+      <span class="icon">❤</span>
+      {{ story.likes }}
+    </div>
+    }
+  </div>
+  }
+
+  @empty {
+  <div class="empty-state">
+    Aucune histoire trouvée.
+  </div>
+  }
+</div>

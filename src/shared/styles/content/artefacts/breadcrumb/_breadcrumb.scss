@@ -1,0 +1,42 @@
+@use 'variables' as *;
+
+@mixin breadcrumb {
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: $font-mono;
+    font-size: 16px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+
+    .prefix {
+      color: $gold;
+    }
+
+    .segment {
+      background: transparent;
+      border: none;
+      padding: 0;
+      font: inherit;
+      letter-spacing: inherit;
+      text-transform: inherit;
+      color: $gold;
+      cursor: pointer;
+      transition: color 0.15s ease;
+
+      &:hover:not(:disabled) {
+        color: $turquoise-dim;
+      }
+
+      &.is-current {
+        color: $gold-luminous;
+        cursor: default;
+      }
+    }
+
+    .separator {
+      color: $gold;
+    }
+  }
+}

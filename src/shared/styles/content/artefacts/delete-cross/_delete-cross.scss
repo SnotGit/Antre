@@ -1,32 +1,30 @@
+@use 'variables' as *;
+
 @mixin delete-cross {
   .delete-cross {
     position: absolute;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    background: rgba(18, 20, 22, 0.9);
-    border: 2px solid #5d889e;
-    border-radius: 6px;
-    color: #5d889e;
-    font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10;
-    opacity: 0.6;
+    border: 1px solid $border-color;
+    color: $text-dim;
+    font-size: 16px;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 
     &:hover {
-      opacity: 1;
+      color: $status-error;
+      border-color: $status-error;
     }
 
     &.active {
-      background: crimson;
-      color: #121416;
-      border-color: crimson;
-      opacity: 1;
+      color: $status-error;
+      border-color: $status-error;
+      background: rgba(255, 85, 85, 0.1);
     }
   }
 }

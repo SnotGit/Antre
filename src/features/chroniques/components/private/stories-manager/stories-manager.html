@@ -1,0 +1,43 @@
+<div class="stories-manager">
+  <div class="manager-sidebar">
+
+    <div class="sidebar-header">
+      <h2 class="title">
+        {{ mode() === 'draft' ? 'Brouillons' : 'Histoires Publiées' }}
+      </h2>
+
+      <button class="btn-new" (click)="createNewStory()">
+        + Nouvelle Histoire
+      </button>
+    </div>
+
+    <app-stories-list
+      [mode]="mode()"
+      [username]="authService.currentUser()?.username || ''"
+      (storySelected)="onSelect($event)">
+    </app-stories-list>
+
+  </div>
+
+  <div class="manager-main">
+
+    @if (selectedId()) {
+
+      <app-story-detail
+        [storyId]="selectedId()!"
+        [mode]="mode()"
+        (storySaved)="handleStorySaved()"
+        (storyDeleted)="handleStoryDeleted()">
+      </app-story-detail>
+
+    } @else {
+
+      <div class="empty-hub">
+        <div class="empty-content">
+          <span class="icon">📖</span>
+          <p>Sélectionnez une chronique pour commencer</p>
+        </div>
+      </div>
+    }
+  </div>
+</div>

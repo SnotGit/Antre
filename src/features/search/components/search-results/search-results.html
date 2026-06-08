@@ -1,0 +1,60 @@
+<div class="container">
+
+  <aside class="tree">
+    <p class="tree-root"><span class="prefix">//</span> résultats</p>
+    @if (!search.hitsLoading() && groups().length > 0) {
+      <ul class="tree-list">
+        @for (group of groups(); track group.type; let last = $last) {
+          <li>
+            <button type="button" class="tree-node" (click)="focusGroup(group.type)">
+              <span class="branch">{{ last ? '└─' : '├─' }}</span>
+              {{ group.label }} ({{ group.hits.length }})
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </aside>
+
+  <section class="results">
+    @if (search.hitsLoading()) {
+      <p class="state">RECHERCHE...</p>
+    } @else if (groups().length === 0) {
+      <p class="state">AUCUN RÉSULTAT</p>
+    } @else {
+      @for (group of groups(); track group.type) {
+        <div class="group" [id]="'group-' + group.type">
+          @if (isChronique(group.type)) {
+            <ul class="list">
+              @for (hit of group.hits; track hit.id) {
+                <li>
+                  <button type="button" class="hit" (click)="open(hit)">
+                    <span class="hit-type">{{ group.label }}</span>
+                    <span class="hit-sub">{{ hit.category }}</span>
+                    <span class="hit-title">{{ hit.title }}</span>
+                  </button>
+                </li>
+              }
+            </ul>
+          } @else {
+            <div class="grid">
+              @for (hit of group.hits; track hit.id) {
+                <button type="button" class="item-card" (click)="open(hit)">
+                  <div class="item-thumb">
+                    @if (hit.imageUrl) {
+                      <img [src]="search.apiHost + hit.imageUrl" [alt]="hit.title">
+                    }
+                  </div>
+                  <span class="item-title">{{ hit.title }}</span>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+  </section>
+
+  <aside class="side"></aside>
+
+</div>

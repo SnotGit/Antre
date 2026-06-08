@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('../components/marsball').then(m => m.Marsball)
+    loadComponent: () => import('../components/marsball-vault/marsball-vault').then(m => m.MarsballVault)
   },
   {
     path: 'bestiaire',
@@ -15,6 +15,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    loadComponent: () => import('../components/marsball-category/marsball-category').then(m => m.MarsballCategory)
+    loadComponent: () => import('@shared/vault/components/vault-list/vault-list').then(m => m.VaultList)
   }
 ];
