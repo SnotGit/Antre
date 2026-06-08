@@ -49,3 +49,6 @@ Thumbs.db
 
 # Misc
 docs/llm.md
+
+# git bash crash dump
+bash.exe.stackdump
