@@ -1,11 +1,11 @@
 import { Component, input, output, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { StoryCard } from '@features/chroniques/models/chroniques.models';
 import { environment } from '@environments/environment';
 
 @Component({
   selector: 'app-story-card',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './story-card.html',
   styleUrl: './story-card.scss'
 })

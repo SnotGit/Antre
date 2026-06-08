@@ -1,7 +1,7 @@
 import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { resource } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 
 import { PrivateStoriesService } from '@features/chroniques/services/private-stories.service';
@@ -11,7 +11,7 @@ import { Story } from '@features/chroniques/models/chroniques.models';
 @Component({
   selector: 'app-story-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './story-detail.html',
   styleUrls: ['./story-detail.scss']
 })

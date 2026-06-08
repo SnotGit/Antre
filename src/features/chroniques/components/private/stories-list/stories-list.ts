@@ -1,13 +1,13 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
+
 
 import { PrivateStoriesService } from '@features/chroniques/services/private-stories.service';
 
 @Component({
   selector: 'app-stories-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './stories-list.html',
   styleUrls: ['./stories-list.scss']
 })

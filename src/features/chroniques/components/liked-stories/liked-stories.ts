@@ -1,13 +1,13 @@
 import { Component, inject, computed, resource, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { LikeService, LikedStory, ReceivedLike } from '@features/chroniques/services/like.service';
 import { AuthService } from '@features/auth/services/auth.service';
 import { environment } from '@environments/environment';
 
 @Component({
   selector: 'app-liked-stories',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './liked-stories.html',
   styleUrl: './liked-stories.scss',
 })

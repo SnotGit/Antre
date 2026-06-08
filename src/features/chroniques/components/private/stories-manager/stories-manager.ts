@@ -6,14 +6,14 @@ import { map } from 'rxjs';
 import { AuthService } from '@features/auth/services/auth.service';
 import { StoriesService } from '@features/chroniques/services/stories.service';
 
-import { CommonModule } from '@angular/common';
+
 
 import { StoriesListComponent } from '../stories-list/stories-list';
 import { StoryDetailComponent } from '../story-detail/story-detail';
 
 @Component({
   selector: 'app-stories-manager',
-  imports: [CommonModule, StoriesListComponent, StoryDetailComponent],
+  imports: [StoriesListComponent, StoryDetailComponent],
   templateUrl: './stories-manager.html',
   styleUrl: './stories-manager.scss'
 })
