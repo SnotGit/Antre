@@ -2,7 +2,7 @@ import { Component, inject, computed } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { VaultCategoriesService } from '@shared/vault/services/vault-categories.service';
+import { MarsballTreeService } from '@features/marsball/services/marsball-tree.service';
 import { SearchFiltersService, Universe, SearchSection } from '@features/search/services/search-filters.service';
 import { SECTIONS_BY_UNIVERSE } from '@features/search/services/search-config';
 
@@ -24,7 +24,7 @@ const TAB_ROUTES = ['/marsball', '/terraformars', '/archives', '/chroniques'];
 export class SearchPanel {
 
   private readonly router = inject(Router);
-  private readonly vaultCategories = inject(VaultCategoriesService);
+  private readonly tree = inject(MarsballTreeService);
   protected readonly filters = inject(SearchFiltersService);
 
   readonly universes = UNIVERSES;
@@ -48,13 +48,13 @@ export class SearchPanel {
   });
 
   readonly rootCategories = computed(() =>
-    this.vaultCategories.categories().filter(c => c.parentId === null)
+    this.tree.categories().filter(c => c.parentId === null)
   );
 
   readonly subCategories = computed(() => {
     const parentId = this.filters.categoryId();
     if (parentId === '') return [];
-    return this.vaultCategories.categories().filter(c => c.parentId === parentId);
+    return this.tree.categories().filter(c => c.parentId === parentId);
   });
 
   readonly showItemFilters = computed(() => {
@@ -104,7 +104,7 @@ export class SearchPanel {
   }
 
   private navigateToCategory(id: number): void {
-    const cat = this.vaultCategories.categories().find(c => c.id === id);
+    const cat = this.tree.categories().find(c => c.id === id);
     if (!cat) return;
     const slug = cat.title.toLowerCase().replace(/\s+/g, '-');
     const base = this.getSectionRoute(this.filters.section() || 'marsball');

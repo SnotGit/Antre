@@ -1,0 +1,26 @@
+@use 'variables' as *;
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  font-family: $font-mono;
+}
+
+.frame {
+  background: $bg-deep;
+  border: 1px solid $border-bright;
+  min-height: 240px;
+  width: fit-content;
+  min-width: 480px;
+  max-width: min(720px, 90vw);
+  display: flex;
+  flex-direction: column;
+}

@@ -2,8 +2,8 @@ import { Service, inject, resource, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
-import { VaultGetService } from '@shared/vault/services/vault-get.service';
-import { VaultCategory, VaultEntry } from '@shared/vault/models/vault.models';
+import { MarsballCrudService } from '@features/marsball/services/marsball-crud.service';
+import { VaultCategory, VaultEntry } from '@features/marsball/models/marsball.models';
 import { SearchFiltersService, SearchSection } from './search-filters.service';
 import { SECTIONS_BY_UNIVERSE } from './search-config';
 
@@ -30,7 +30,7 @@ export interface SearchHit {
 export class SearchService {
 
   private readonly filters = inject(SearchFiltersService);
-  private readonly vaultGet = inject(VaultGetService);
+  private readonly crud = inject(MarsballCrudService);
   private readonly http = inject(HttpClient);
 
   readonly apiHost = environment.apiUrl.replace(/\/api$/, '');
@@ -59,10 +59,10 @@ export class SearchService {
 
       const targetId = params.subId ?? params.catId;
       if (targetId === null) {
-        const cats = await this.vaultGet.getAllCategories(params.section);
+        const cats = await this.crud.getAllCategories(params.section);
         return cats.filter(c => c.parentId === null).map(c => this.toCategoryCard(c));
       }
-      const data = await this.vaultGet.getCategoryWithChildren(targetId);
+      const data = await this.crud.getCategoryWithChildren(targetId);
       const childrenCards = (data.children ?? []).map(c => this.toCategoryCard(c));
       const entryCards = (data.entries ?? []).map(e => this.toEntryCard(e));
       return [...childrenCards, ...entryCards];

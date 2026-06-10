@@ -1,5 +1,0 @@
-@use 'content/artefacts/searchbar/searchbar' as *;
-
-:host {
-  @include searchbar;
-}

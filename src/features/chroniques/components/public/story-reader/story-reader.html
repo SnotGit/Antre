@@ -18,7 +18,7 @@
     <div class="meta-zone">
       <div class="info">
         <div class="meta-row"><span class="name">Auteur :</span> {{ data.story.user.username }}</div>
-        <div class="meta-row"><span class="date">Date :</span> {{ data.story.publishDate }}</div>
+        <div class="meta-row"><span class="date">Date :</span> {{ data.story.publishDate | date:'dd/MM/yyyy' }}</div>
       </div>
       <hr class="separator" />
       <div class="info">

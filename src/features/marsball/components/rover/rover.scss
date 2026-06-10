@@ -1,0 +1,14 @@
+@use 'content/marsball/cat-button' as *;
+@use 'content/marsball/cat-grid' as *;
+
+:host {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 50px;
+  box-sizing: border-box;
+}
+
+@include cat-grid;
+@include cat-button;

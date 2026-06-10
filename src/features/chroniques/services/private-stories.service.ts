@@ -2,6 +2,7 @@ import { Service, inject, resource, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
+import { AuthService } from '@features/auth/services/auth.service';
 import { EditStory, Story, PrivateStoriesResponse } from '../models/chroniques.models';
 
 interface StoryDetailResponse {
@@ -14,6 +15,7 @@ export class PrivateStoriesService {
   //========== INJECTIONS ==========//
 
   private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
   private readonly STORIES_API = `${environment.apiUrl}/chroniques/stories`;
 
   //========== EDIT STATE ==========//
@@ -25,14 +27,18 @@ export class PrivateStoriesService {
   //========== RESOURCES ==========//
 
   readonly publishedStories = resource({
-    loader: async () => {
+    params: () => ({ userId: this.authService.currentUser()?.id ?? null }),
+    loader: async ({ params }) => {
+      if (params.userId === null) return [];
       const res = await firstValueFrom(this.http.get<PrivateStoriesResponse>(`${this.STORIES_API}/published`));
       return res.stories;
     }
   });
 
   readonly draftStories = resource({
-    loader: async () => {
+    params: () => ({ userId: this.authService.currentUser()?.id ?? null }),
+    loader: async ({ params }) => {
+      if (params.userId === null) return [];
       const res = await firstValueFrom(this.http.get<PrivateStoriesResponse>(`${this.STORIES_API}/drafts`));
       return res.stories;
     }

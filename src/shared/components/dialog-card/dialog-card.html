@@ -1,0 +1,49 @@
+<div class="dialog-header">
+  <h3 class="dialog-title"
+      [class.success]="isMessage() && !isDanger()"
+      [class.error]="isMessage() && isDanger()">
+    {{ title() }}
+  </h3>
+</div>
+
+<div class="dialog-content">
+  <p class="dialog-message">{{ message() }}</p>
+
+  @if (items().length > 0) {
+    <div class="dialog-items">
+      @for (item of items(); track $index) {
+        <div class="dialog-item">{{ item }}</div>
+      }
+    </div>
+  }
+
+  @if (additionalInfo()) {
+    <p class="dialog-additional">{{ additionalInfo() }}</p>
+  }
+</div>
+
+<div class="dialog-actions">
+  @if (isMessage()) {
+    <button
+      class="btn"
+      [class.ok]="!isDanger()"
+      [class.danger]="isDanger()"
+      (click)="confirm.emit()">
+      {{ confirmText() }}
+    </button>
+  } @else {
+    <button
+      class="btn"
+      (click)="cancel.emit()">
+      {{ cancelText() }}
+    </button>
+
+    <button
+      class="btn"
+      [class.danger]="isDanger()"
+      [class.gold]="!isDanger()"
+      (click)="confirm.emit()">
+      {{ confirmText() }}
+    </button>
+  }
+</div>

@@ -1,0 +1,22 @@
+@if (dialogCard.isVisible()) {
+  <div class="overlay" (click)="dialogCard.onCancel()">
+    <div class="frame" (click)="$event.stopPropagation()">
+
+      @if (dialogCard.config(); as config) {
+        <app-dialog-card
+          [title]="config.title"
+          [message]="config.message"
+          [items]="config.items ?? []"
+          [additionalInfo]="config.additionalInfo ?? ''"
+          [confirmText]="config.confirmText"
+          [cancelText]="config.cancelText"
+          [isDanger]="config.isDanger"
+          [isMessage]="config.isMessage ?? false"
+          (confirm)="dialogCard.onConfirm()"
+          (cancel)="dialogCard.onCancel()">
+        </app-dialog-card>
+      }
+
+    </div>
+  </div>
+}

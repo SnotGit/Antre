@@ -1,18 +1,18 @@
-import { Component, computed, effect, inject, input, OnDestroy, resource } from '@angular/core';
+import { Component, computed, inject, input, resource } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { environment } from '@environments/environment';
 import { AuthService } from '@features/auth/services/auth.service';
 import { LikeService } from '@features/chroniques/services/like.service';
 import { PublicStoriesService } from '@features/chroniques/services/public-stories.service';
-import { TitleService } from '@shared/components/title/services/title.service';
 
 @Component({
   selector: 'app-story-reader',
-  imports: [],
+  imports: [DatePipe],
   templateUrl: './story-reader.html',
   styleUrl: './story-reader.scss'
 })
-export class StoryReader implements OnDestroy {
+export class StoryReader {
 
   //========== INJECTIONS ==========//
 
@@ -20,7 +20,6 @@ export class StoryReader implements OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly publicStoriesService = inject(PublicStoriesService);
   private readonly likeService = inject(LikeService);
-  private readonly titleService = inject(TitleService);
 
   private readonly API_URL = environment.apiUrl;
 
@@ -105,24 +104,6 @@ export class StoryReader implements OnDestroy {
       : '';
 
   });
-
-  //========== EFFECTS ==========//
-
-  private readonly titleEffect = effect(() => {
-
-    const data = this.storyData.value();
-
-    if (data?.story?.title) {
-      this.titleService.setOverrideTitle(data.story.title);
-    }
-
-  });
-
-  //========== LIFECYCLE ==========//
-
-  ngOnDestroy(): void {
-    this.titleService.setOverrideTitle(null);
-  }
 
   //========== LIKE ACTIONS ==========//
 

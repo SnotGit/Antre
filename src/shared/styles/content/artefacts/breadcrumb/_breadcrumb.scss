@@ -21,16 +21,15 @@
       font: inherit;
       letter-spacing: inherit;
       text-transform: inherit;
-      color: $gold;
+      color: $text-dim;
       cursor: pointer;
-      transition: color 0.15s ease;
 
       &:hover:not(:disabled) {
-        color: $turquoise-dim;
+        color: $text-bright;
       }
 
       &.is-current {
-        color: $gold-luminous;
+        color: $gold;
         cursor: default;
       }
     }

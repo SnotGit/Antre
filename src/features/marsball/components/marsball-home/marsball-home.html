@@ -1,0 +1,29 @@
+<div class="cards">
+
+  <button type="button" class="cat-button" (click)="goToBestiaire()">
+    <span class="cat-title">Bestiaire</span>
+  </button>
+
+  <button type="button" class="cat-button" (click)="goToRover()">
+    <span class="cat-title">Rover</span>
+  </button>
+
+  @for (category of categories(); track category.id) {
+    <button
+      type="button"
+      class="cat-button"
+      [class.selected]="isSelected(category.id)"
+      (click)="onCardClick(category)">
+      <span class="cat-title">{{ category.title }}</span>
+      @if (isAdmin()) {
+        <span
+          class="delete-cross"
+          [class.active]="isSelected(category.id)"
+          (click)="$event.stopPropagation(); toggleSelection(category)">
+          ✕
+        </span>
+      }
+    </button>
+  }
+
+</div>

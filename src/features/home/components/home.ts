@@ -1,5 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, computed, signal } from '@angular/core';
-import { HomeTitleService } from '@shared/components/title/services/home-title.service';
+import { Component, inject, computed, signal } from '@angular/core';
 import { SearchFiltersService } from '@features/search/services/search-filters.service';
 import { SearchResults } from '@features/search/components/search-results/search-results';
 import { InstructionsService } from '@features/home/services/instructions.service';
@@ -11,23 +10,14 @@ import { HomeInfos } from './home-infos/home-infos';
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
-export class Home implements OnInit, OnDestroy {
+export class Home {
 
-  private readonly homeTitleService = inject(HomeTitleService);
   protected readonly filters = inject(SearchFiltersService);
   protected readonly instructions = inject(InstructionsService);
 
   protected readonly textActive = computed(() => this.filters.query().trim().length >= 2);
   protected readonly draft = signal('');
   protected readonly focused = signal(false);
-
-  ngOnInit(): void {
-    this.homeTitleService.startSequence();
-  }
-
-  ngOnDestroy(): void {
-    this.homeTitleService.stop();
-  }
 
   protected toggleInstructions(): void {
     this.instructions.toggle();

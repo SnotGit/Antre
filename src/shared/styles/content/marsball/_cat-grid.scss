@@ -1,0 +1,28 @@
+@mixin cat-grid {
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-content: start;
+    gap: 30px;
+
+    @media screen and (max-width: 1366px) and (orientation: landscape) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 25px;
+    }
+
+    @media screen and (max-width: 1024px) and (orientation: landscape) {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    @media screen and (max-width: 1024px) and (orientation: portrait) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    @media screen and (max-width: 430px) {
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+  }
+}

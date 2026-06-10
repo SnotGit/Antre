@@ -14,7 +14,7 @@
     color: $text-dim;
     font-size: 16px;
     cursor: pointer;
-    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    background: transparent;
 
     &:hover {
       color: $status-error;
@@ -24,7 +24,6 @@
     &.active {
       color: $status-error;
       border-color: $status-error;
-      background: rgba(255, 85, 85, 0.1);
     }
   }
 }

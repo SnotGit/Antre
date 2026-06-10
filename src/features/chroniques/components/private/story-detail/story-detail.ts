@@ -2,7 +2,7 @@ import { Component, OnDestroy, computed, effect, inject, input, linkedSignal, ou
 import { FormsModule } from '@angular/forms';
 
 import { PrivateStoriesService } from '@features/chroniques/services/private-stories.service';
-import { ConfirmationDialogService } from '@shared/services/dialog/confirmation-dialog.service';
+import { DialogCardService } from '@shared/services/dialog/dialog-card.service';
 
 interface PendingSave {
   isDraft: boolean;
@@ -23,7 +23,7 @@ export class StoryDetailComponent implements OnDestroy {
 
   private readonly storiesService = inject(PrivateStoriesService);
 
-  private readonly confirmationDialog = inject(ConfirmationDialogService);
+  private readonly dialogCard = inject(DialogCardService);
 
   //========== INPUTS / OUTPUTS ==========//
 
@@ -327,7 +327,7 @@ export class StoryDetailComponent implements OnDestroy {
 
     if (!story) return;
 
-    const confirmed = await this.confirmationDialog.showDialog({
+    const confirmed = await this.dialogCard.showDialog({
       title: this.mode() === 'draft' ? 'Suppression brouillon' : 'Suppression histoire',
       message: this.mode() === 'draft'
         ? 'Êtes-vous sûr de vouloir supprimer ce brouillon ?'

@@ -14,7 +14,6 @@
     color: $text-dim;
     font-family: $font-mono;
     cursor: pointer;
-    transition: color 0.15s ease, border-color 0.15s ease;
 
     &:hover {
       color: $text-bright;

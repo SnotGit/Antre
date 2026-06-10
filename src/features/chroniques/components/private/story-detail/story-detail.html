@@ -1,24 +1,26 @@
 <div class="story-detail">
   @if (story(); as currentStory) {
+    <div class="detail-header">
+      @if (!isEditing()) {
+        <h1 class="title">{{ currentStory.title || 'Sans titre' }}</h1>
+      } @else {
+        <input
+          class="title-input"
+          [ngModel]="form().title"
+          (ngModelChange)="updateTitle($event)"
+          placeholder="Titre de l'histoire...">
+      }
+    </div>
+
     <div class="detail-content">
       @if (!isEditing()) {
-        <div class="view-mode">
-          <h1 class="title">{{ currentStory.title || 'Sans titre' }}</h1>
-          <div class="content">{{ currentStory.content }}</div>
-        </div>
+        <div class="content">{{ currentStory.content }}</div>
       } @else {
-        <div class="edit-mode">
-          <input
-            class="title-input"
-            [ngModel]="form().title"
-            (ngModelChange)="updateTitle($event)"
-            placeholder="Titre de l'histoire...">
-          <textarea
-            class="content-input"
-            [ngModel]="form().content"
-            (ngModelChange)="updateContent($event)"
-            placeholder="Racontez votre histoire..."></textarea>
-        </div>
+        <textarea
+          class="content-input"
+          [ngModel]="form().content"
+          (ngModelChange)="updateContent($event)"
+          placeholder="Racontez votre histoire..."></textarea>
       }
     </div>
 
