@@ -1,13 +1,11 @@
-import { Injectable, inject, signal, computed, effect } from '@angular/core';
+import { Service, inject, signal, computed, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { TokenService } from './token.service';
 import { User } from './login.service';
 import { ElenaStateService } from '@features/elena/services/elena-state.service';
 import { SearchFiltersService } from '@features/search/services/search-filters.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class AuthService {
 
   //======= INJECTIONS =======

@@ -1,4 +1,4 @@
-import { Injectable, inject, resource, computed } from '@angular/core';
+import { Service, inject, resource, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
@@ -26,7 +26,7 @@ export interface SearchHit {
   imageUrl?: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class SearchService {
 
   private readonly filters = inject(SearchFiltersService);

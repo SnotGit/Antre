@@ -1,11 +1,9 @@
-import { Injectable, inject, computed, signal } from '@angular/core';
+import { Service, inject, computed, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { MarsballStateService } from '@features/marsball/services/marsball-state.service';
 import { CategoryStateService } from '@features/marsball/services/category-state.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ConsoleStateService {
 
   //======= INJECTIONS =======

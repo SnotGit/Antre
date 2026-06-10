@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Service, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
@@ -12,9 +12,7 @@ export interface SearchResult {
   route: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class SearchbarService {
 
   //======= INJECTIONS =======

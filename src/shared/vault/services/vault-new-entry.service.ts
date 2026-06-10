@@ -1,9 +1,7 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Service, inject, signal } from '@angular/core';
 import { VaultContextService } from './vault-context.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class VaultNewEntryService {
 
   //======= INJECTIONS =======

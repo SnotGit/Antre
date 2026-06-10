@@ -1,34 +1,53 @@
 <div class="story-detail">
-  @if (story()) {
+  @if (story(); as currentStory) {
     <div class="detail-content">
       @if (!isEditing()) {
-        <!-- MODE LECTURE -->
         <div class="view-mode">
-          <h1 class="title">{{ story()?.title }}</h1>
-          <div class="content">{{ story()?.content }}</div>
+          <h1 class="title">{{ currentStory.title || 'Sans titre' }}</h1>
+          <div class="content">{{ currentStory.content }}</div>
         </div>
       } @else {
-        <!-- MODE EDITION -->
         <div class="edit-mode">
           <input
             class="title-input"
-            [(ngModel)]="story()!.title"
+            [ngModel]="form().title"
+            (ngModelChange)="updateTitle($event)"
             placeholder="Titre de l'histoire...">
           <textarea
             class="content-input"
-            [(ngModel)]="story()!.content"
+            [ngModel]="form().content"
+            (ngModelChange)="updateContent($event)"
             placeholder="Racontez votre histoire..."></textarea>
         </div>
       }
     </div>
 
+    @if (error()) {
+      <div class="detail-error">{{ error() }}</div>
+    }
+
     <div class="detail-footer">
-      @if (!isEditing()) {
-        <button class="btn-action" (click)="toggleEdit()">Modifier</button>
-        <button class="btn-danger" (click)="delete()">Supprimer</button>
+      @if (isEditing()) {
+        <button class="btn-cancel" (click)="cancel()" [disabled]="busy()">Annuler</button>
+        <button class="btn-action" (click)="saveAndClose()" [disabled]="busy()">Sauvegarder</button>
+        <button class="btn-action" (click)="publish()" [disabled]="busy()">
+          {{ mode() === 'published' || isRepublication() ? 'Republier' : 'Publier' }}
+        </button>
+      } @else if (mode() === 'draft') {
+        <button class="btn-action" (click)="startEdit()">Modifier</button>
+        <button class="btn-action" (click)="publish()" [disabled]="busy()">
+          {{ isRepublication() ? 'Republier' : 'Publier' }}
+        </button>
+        <button class="btn-danger" (click)="delete()" [disabled]="busy()">Supprimer</button>
       } @else {
-        <button class="btn-cancel" (click)="cancel()">Annuler</button>
-        <button class="btn-action" (click)="publish()">Publier</button>
+        <button
+          class="btn-action"
+          (click)="startEdit()"
+          [disabled]="hasRevision() || busy()"
+          [attr.data-tooltip]="hasRevision() ? 'Révision en cours dans Brouillons' : null">
+          Modifier
+        </button>
+        <button class="btn-danger" (click)="delete()" [disabled]="busy()">Supprimer</button>
       }
     </div>
   } @else {

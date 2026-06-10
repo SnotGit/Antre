@@ -1,4 +1,4 @@
-import { Injectable, signal, inject, effect } from '@angular/core';
+import { Service, signal, inject, effect } from '@angular/core';
 import { SearchFiltersService } from '@features/search/services/search-filters.service';
 import { SearchService } from '@features/search/services/search.service';
 
@@ -11,7 +11,7 @@ interface ClipDef {
   next: ElenaClip | null;
 }
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class ElenaStateService {
 
   private readonly filters = inject(SearchFiltersService);

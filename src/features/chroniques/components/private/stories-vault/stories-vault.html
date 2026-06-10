@@ -1,0 +1,66 @@
+<div class="container">
+
+  <div class="header">
+    <h1 class="header-title">Mes Chroniques</h1>
+
+    <div class="header-center">
+      @if (editing()) {
+        @if (saveState() === 'saved') {
+          <span class="save-indicator">Sauvegardé</span>
+        }
+      } @else {
+        <button class="btn gold" (click)="createNewStory()">
+          + Nouvelle Histoire
+        </button>
+      }
+    </div>
+
+    <nav class="tabs">
+      <button class="tab" [class.active]="tab() === 'draft'" (click)="setTab('draft')">Brouillons</button>
+      <button class="tab" [class.active]="tab() === 'published'" (click)="setTab('published')">Publiées</button>
+      <button class="tab" [class.active]="tab() === 'likes'" (click)="setTab('likes')">Likes</button>
+    </nav>
+  </div>
+
+  <div class="content">
+    @if (tab() === 'likes') {
+      <app-liked-stories />
+    } @else {
+      <div class="stories-manager">
+
+        <div class="manager-sidebar">
+          <app-stories-list
+            [mode]="mode()"
+            [selectedId]="selectedId()"
+            (storySelected)="onSelect($event)">
+          </app-stories-list>
+        </div>
+
+        <div class="manager-main">
+          @if (selectedId(); as id) {
+            <app-story-detail
+              [storyId]="id"
+              [mode]="mode()"
+              (storyPublished)="handleStoryPublished($event)"
+              (storyDeleted)="handleStoryDeleted()"
+              (draftSaved)="handleDraftSaved()">
+            </app-story-detail>
+          } @else {
+            <div class="empty-hub">
+              <div class="empty-content">
+                <span class="icon">📖</span>
+                @if (draftSavedMessage()) {
+                  <p class="saved">Votre brouillon a bien été sauvegardé.</p>
+                } @else {
+                  <p>Sélectionnez une chronique pour commencer</p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+      </div>
+    }
+  </div>
+
+</div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, computed, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, computed, signal } from '@angular/core';
 import { HomeTitleService } from '@shared/components/title/services/home-title.service';
 import { SearchFiltersService } from '@features/search/services/search-filters.service';
 import { SearchResults } from '@features/search/components/search-results/search-results';
@@ -9,7 +9,6 @@ import { HomeInfos } from './home-infos/home-infos';
   selector: 'app-home',
   imports: [SearchResults, HomeInfos],
   templateUrl: './home.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './home.scss'
 })
 export class Home implements OnInit, OnDestroy {

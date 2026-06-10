@@ -13,6 +13,7 @@
     "ignoreDeprecations": "5.0",
     "baseUrl": ".",
     "paths": {
+      "@db": ["src/db/prisma"],
       "@models/*": ["src/models/*"],
       "@utils/*": ["src/utils/*"],
       "@middlewares/*": ["src/middlewares/*"],

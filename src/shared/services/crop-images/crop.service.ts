@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Service, signal } from '@angular/core';
 
 //======= INTERFACES =======
 
@@ -27,9 +27,7 @@ interface DragStart {
 
 //======= SERVICE =======
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class CropService {
 
   //======= SIGNALS PRIVÉS =======
@@ -47,15 +45,9 @@ export class CropService {
   isDragging = this._isDragging.asReadonly();
   currentDragMode = this._currentDragMode.asReadonly();
 
-  //======= CONSTRUCTOR =======
-
-  constructor() {
-    this.setupKeyListeners();
-  }
-
   //======= KEYBOARD LISTENERS =======
 
-  private setupKeyListeners(): void {
+  private readonly _keyListeners = (() => {
     window.addEventListener('keydown', (event: KeyboardEvent) => {
       if (event.ctrlKey && !this._isCtrlPressed()) {
         this._isCtrlPressed.set(true);
@@ -70,7 +62,7 @@ export class CropService {
         }
       }
     });
-  }
+  })();
 
   //======= INITIALISATION =======
 

@@ -22,7 +22,7 @@ export const ELENA_QUOTES: string[] = [
   "Javais jamais rencontré un terra aussi lourd que Gros Robot avant toi. C'est impressionnant.",
   "Si t'as rien a dire, alors ne dis rien.",
   ":parano:",
-  "Chasser le naturel et il revient en possédé des grands anciens, méfiance.",
+  "Ton imagination n'a pas de limites. Sauf si je te fends le crâne.",
  
 ];
 

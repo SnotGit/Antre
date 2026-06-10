@@ -1,15 +1,12 @@
-import { Component, computed, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
-
-
+import { Component, computed, inject, input, output } from '@angular/core';
+import { DatePipe } from '@angular/common';
 
 import { PrivateStoriesService } from '@features/chroniques/services/private-stories.service';
 
 @Component({
   selector: 'app-stories-list',
-  standalone: true,
-  imports: [],
+  imports: [DatePipe],
   templateUrl: './stories-list.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./stories-list.scss']
 })
 export class StoriesListComponent {
@@ -21,8 +18,6 @@ export class StoriesListComponent {
   //========== INPUTS / OUTPUTS ==========//
 
   readonly mode = input.required<'draft' | 'published'>();
-
-  readonly username = input.required<string>();
 
   readonly selectedId = input<number | null>(null);
 

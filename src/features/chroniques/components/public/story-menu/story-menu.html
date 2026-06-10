@@ -8,10 +8,16 @@
     @if (storyCards().length > 0) {
       <div class="chroniques-grid">
         @for (storyCard of storyCards(); track storyCard.id) {
-          <app-story-card 
-            [story]="storyCard"
-            (cardClick)="onStoryCardClick(storyCard)">
-          </app-story-card>
+          <div class="story-card" (click)="onStoryCardClick(storyCard)">
+            <div class="avatar" [style.background-image]="avatarBackground(storyCard)"></div>
+            <div class="user-data">
+              <div class="username">{{ storyCard.user.username }}</div>
+            </div>
+            <div class="story-data">
+              <div class="story-title">{{ storyCard.title }}</div>
+              <div class="story-date">{{ storyCard.publishDate | date:'dd/MM/yyyy' }}</div>
+            </div>
+          </div>
         }
       </div>
     }

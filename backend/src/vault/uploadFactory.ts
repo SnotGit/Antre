@@ -4,9 +4,8 @@ import { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import { existsSync, mkdirSync } from 'fs';
 import { VaultContextConfig } from './config';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@db';
 
-const prisma = new PrismaClient();
 
 //======= FACTORY =======
 

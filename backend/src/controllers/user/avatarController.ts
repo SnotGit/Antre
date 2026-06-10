@@ -1,13 +1,12 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@db';
 import multer from 'multer';
 import path from 'path';
 import { existsSync, mkdirSync, unlinkSync } from 'fs';
 import { AuthenticatedRequest } from '@models/shared';
 import { handleError } from '@utils/global/helpers';
-import { userSelectFields } from '@utils/chroniques/helpers';
+import { userSelectFields } from '@utils/user/helpers';
 
-const prisma = new PrismaClient();
 
 const AVATAR_DIR = 'uploads/avatars';
 

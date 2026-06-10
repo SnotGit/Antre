@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Service, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
@@ -12,9 +12,7 @@ export interface ProfileData {
   playerDays: number;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ProfileService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);

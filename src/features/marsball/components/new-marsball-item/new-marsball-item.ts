@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject, signal, computed, effect, ElementRef, ViewChild, AfterViewInit, HostListener, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnDestroy, inject, signal, computed, effect, ElementRef, viewChild, AfterViewInit, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { VaultNewEntryService } from '@shared/vault/services/vault-new-entry.service';
 import { VaultCreateService } from '@shared/vault/services/vault-create.service';
@@ -16,7 +16,6 @@ interface ImageFile {
   selector: 'app-new-marsball-item',
   imports: [FormsModule],
   templateUrl: './new-marsball-item.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './new-marsball-item.scss'
 })
 export class NewMarsballItem implements OnDestroy, AfterViewInit {
@@ -45,9 +44,9 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
 
   //======= VIEW CHILDREN =======
 
-  @ViewChild('uploadZone') uploadZone?: ElementRef<HTMLDivElement>;
-  @ViewChild('descriptionInput') descriptionInput?: ElementRef<HTMLTextAreaElement>;
-  @ViewChild('imageContainer') imageContainer?: ElementRef<HTMLDivElement>;
+  private readonly uploadZone = viewChild<ElementRef<HTMLDivElement>>('uploadZone');
+  private readonly descriptionInput = viewChild<ElementRef<HTMLTextAreaElement>>('descriptionInput');
+  private readonly imageContainer = viewChild<ElementRef<HTMLDivElement>>('imageContainer');
 
   //======= SIGNALS =======
 
@@ -80,9 +79,9 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
     this.imageLoaded();
 
     const img = this.mainImage();
-    if (!img || !this.imageContainer?.nativeElement) return 1;
+    if (!img || !this.imageContainer()?.nativeElement) return 1;
 
-    const container = this.imageContainer.nativeElement;
+    const container = this.imageContainer()!.nativeElement;
     const imgElement = container.querySelector('img') as HTMLImageElement;
 
     if (!imgElement || !imgElement.naturalWidth) return 1;
@@ -104,7 +103,7 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
     const thumbSize = 60;
     const scale = thumbSize / realSize;
 
-    const containerWidth = this.imageContainer?.nativeElement?.clientWidth || 0;
+    const containerWidth = this.imageContainer()?.nativeElement?.clientWidth || 0;
     const realImageWidth = containerWidth * ratio;
 
     const bgWidth = realImageWidth * scale;
@@ -128,14 +127,14 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
 
   private readonly _focusEffect = effect(() => {
     if (this.isVisible() && !this.mainImage()) {
-      setTimeout(() => this.uploadZone?.nativeElement.focus(), 100);
+      setTimeout(() => this.uploadZone()?.nativeElement.focus(), 100);
     }
   });
 
   //======= LIFECYCLE =======
 
   ngAfterViewInit(): void {
-    const uploadZone = this.uploadZone?.nativeElement;
+    const uploadZone = this.uploadZone()?.nativeElement;
     if (uploadZone) {
       uploadZone.addEventListener('paste', this.boundOnPaste);
     }
@@ -145,7 +144,7 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void {
-    const uploadZone = this.uploadZone?.nativeElement;
+    const uploadZone = this.uploadZone()?.nativeElement;
     if (uploadZone) {
       uploadZone.removeEventListener('paste', this.boundOnPaste);
     }
@@ -166,8 +165,9 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
   //======= MOUSE HANDLERS =======
 
   private onWindowMouseMove(event: MouseEvent): void {
-    if (this.imageContainer?.nativeElement) {
-      this.cropService.onDrag(event, this.imageContainer.nativeElement.getBoundingClientRect());
+    const container = this.imageContainer()?.nativeElement;
+    if (container) {
+      this.cropService.onDrag(event, container.getBoundingClientRect());
     }
   }
 
@@ -281,7 +281,7 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
   }
 
   blurUploadZone(): void {
-    this.uploadZone?.nativeElement.blur();
+    this.uploadZone()?.nativeElement.blur();
   }
 
   //======= FORM ACTIONS =======
@@ -294,7 +294,7 @@ export class NewMarsballItem implements OnDestroy, AfterViewInit {
 
     if (categoryId === null || !img) return;
 
-    const container = this.imageContainer?.nativeElement;
+    const container = this.imageContainer()?.nativeElement;
     const imgElement = container?.querySelector('img') as HTMLImageElement;
 
     if (!container || !imgElement) return;

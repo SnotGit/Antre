@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
@@ -19,9 +19,7 @@ export interface RegisterResponse {
   user: User;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class RegisterService {
 
   //======= INJECTIONS =======

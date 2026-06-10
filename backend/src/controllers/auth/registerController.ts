@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@db';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { handleError, sendError } from '@utils/global/helpers';
-import { userSelectFields } from '@utils/chroniques/helpers';
+import { userSelectFields } from '@utils/user/helpers';
 
-const prisma = new PrismaClient();
 
 interface RegisterRequest {
   username: string;

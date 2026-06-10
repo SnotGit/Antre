@@ -1,12 +1,10 @@
-import { Injectable, inject, resource } from '@angular/core';
+import { Service, inject, resource } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
-import { PublicStory, PublicStoriesResponse } from '../models/chroniques.models';
+import { PublicStory, PublicStoriesResponse, UserStoriesResponse, UserStoryLink } from '../models/chroniques.models';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class PublicStoriesService {
 
   //========== INJECTIONS ==========//
@@ -30,18 +28,20 @@ export class PublicStoriesService {
   //========== METHODS ==========//
 
   async getStoryBySlug(username: string, slug: string): Promise<PublicStory> {
-    return firstValueFrom(
-      this.http.get<PublicStory>(
+    const response = await firstValueFrom(
+      this.http.get<{ story: PublicStory }>(
         `${this.CHRONIQUES_API}/stories/by-slug/${username}/${slug}`
       )
     );
+    return response.story;
   }
 
-  async getStoryById(id: number): Promise<PublicStory> {
-    return firstValueFrom(
-      this.http.get<PublicStory>(
-        `${this.CHRONIQUES_API}/stories/${id}`
+  async getUserStories(userId: number): Promise<UserStoryLink[]> {
+    const response = await firstValueFrom(
+      this.http.get<UserStoriesResponse>(
+        `${this.CHRONIQUES_API}/stories/user/${userId}`
       )
     );
+    return response.stories;
   }
 }

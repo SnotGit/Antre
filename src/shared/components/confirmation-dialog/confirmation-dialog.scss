@@ -1,3 +1,6 @@
+@use 'variables' as *;
+@use 'content/artefacts/buttons/button' as *;
+
 .confirmation-overlay {
   position: fixed;
   top: 0;
@@ -9,42 +12,45 @@
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  font-family: 'Courier New', monospace;
+  font-family: $font-mono;
 }
 
 .confirmation-dialog {
-  background: #0a0c0e;
-  border: 2px solid #5d889e;
-  border-radius: 12px;
+  background: $bg-deep;
+  border: 1px solid $border-bright;
   min-height: 240px;
-  width: 550px;
+  width: fit-content;
+  min-width: 480px;
+  max-width: min(720px, 90vw);
   display: flex;
   flex-direction: column;
 }
 
 .dialog-header {
-  padding: 20px 25px 15px 25px;
-  border-bottom: 1px solid rgba(93, 136, 158, 0.3);
+  padding: 32px;
+  border-bottom: 1px solid $border-color;
   flex-shrink: 0;
 }
 
 .dialog-title {
-  color: darkorange;
+  color: $gold;
   font-size: 20px;
-  font-weight: bold;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
   margin: 0;
 
   &.success {
-    color: #4CAF50;
+    color: $status-ok;
   }
 
   &.error {
-    color: crimson;
+    color: $status-error;
   }
 }
 
 .dialog-content {
-  padding: 30px;
+  padding: 32px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -52,8 +58,8 @@
 }
 
 .dialog-message {
-  color: #d0d0d0;
-  font-size: 16px;
+  color: $text-base;
+  font-size: 18px;
   line-height: 1.6;
   margin: 0;
   white-space: pre-line;
@@ -67,79 +73,48 @@
 }
 
 .dialog-item {
-  color: darkorange;
+  color: $gold;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
 }
 
 .dialog-additional {
-  color: #d0d0d0;
-  font-size: 14px;
+  color: $text-dim;
+  font-size: 15px;
   line-height: 1.5;
   margin: 0;
   font-style: italic;
-  opacity: 0.8;
 }
 
 .dialog-actions {
-  padding: 20px 30px;
+  padding: 32px;
   display: flex;
   gap: 20px;
   justify-content: flex-end;
-  border-top: 1px solid rgba(93, 136, 158, 0.3);
+  border-top: 1px solid $border-color;
   flex-shrink: 0;
 }
 
-.dialog-btn {
-  background: transparent;
-  border: 2px solid #5d889e;
-  border-radius: 6px;
-  padding: 10px 20px;
-  color: #5d889e;
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
+@include button;
+
+.dialog-actions .btn {
   min-width: 100px;
+  border-color: $border-bright;
+  color: $text-base;
 
-  &:hover {
-    background-color: rgba(93, 136, 158, 0.1);
+  &:hover:not(:disabled) {
+    color: $gold;
+    border-color: $gold;
   }
 
-  &.cancel-btn {
-    order: 1;
-
-    &:hover {
-      color: #d0d0d0;
-      border-color: #d0d0d0;
-      background-color: transparent;
-    }
+  &.danger:hover:not(:disabled) {
+    color: $status-error;
+    border-color: $status-error;
   }
 
-  &.confirm-btn {
-    order: 2;
-
-    &.success {
-      border-color: #4CAF50;
-      color: #4CAF50;
-
-      &:hover {
-        color: #66BB6A;
-        border-color: #66BB6A;
-      }
-    }
-
-    &.danger {
-      background: transparent;
-      border-color: darkorange;
-      color: darkorange;
-
-      &:hover {
-        color: crimson;
-        border-color: crimson;
-      }
-    }
+  &.ok:hover:not(:disabled) {
+    color: $status-ok;
+    border-color: $status-ok;
   }
 }

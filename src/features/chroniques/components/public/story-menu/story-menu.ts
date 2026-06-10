@@ -1,15 +1,15 @@
-import { Component, OnInit, OnDestroy, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, computed } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
+import { environment } from '@environments/environment';
 import { PublicStoriesService } from '@features/chroniques/services/public-stories.service';
 import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 import { StoryCard } from '@features/chroniques/models/chroniques.models';
-import { StoryCardComponent } from '../../story-card/story-card';
 
 @Component({
   selector: 'app-story-menu',
-  imports: [StoryCardComponent],
+  imports: [DatePipe],
   templateUrl: './story-menu.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './story-menu.scss'
 })
 export class StoryMenu implements OnInit, OnDestroy {
@@ -19,6 +19,8 @@ export class StoryMenu implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly publicStoriesService = inject(PublicStoriesService);
   private readonly typingService = inject(TypingEffectService);
+
+  private readonly API_URL = environment.apiUrl;
 
   //======= TYPING EFFECT =======
 
@@ -44,6 +46,20 @@ export class StoryMenu implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.typingService.destroy();
+  }
+
+  //======= AVATAR =======
+
+  avatarBackground(story: StoryCard): string {
+    const avatar = story.user.avatar;
+    if (!avatar) return '';
+
+    let baseUrl = this.API_URL.replace('/api', '');
+    if (baseUrl.endsWith('/') && avatar.startsWith('/')) {
+      baseUrl = baseUrl.slice(0, -1);
+    }
+
+    return `url('${baseUrl}${avatar}')`;
   }
 
   //======= ACTIONS =======

@@ -29,25 +29,26 @@
 
         <div class="dialog-actions">
           @if (config.isMessage) {
-            <button 
-              class="dialog-btn confirm-btn"
-              [class.success]="!config.isDanger"
+            <button
+              class="btn"
+              [class.ok]="!config.isDanger"
               [class.danger]="config.isDanger"
               (click)="confirmationService.onConfirm()">
               {{ config.confirmText }}
             </button>
           }
-          
+
           @if (!config.isMessage) {
-            <button 
-              class="dialog-btn cancel-btn" 
+            <button
+              class="btn"
               (click)="confirmationService.onCancel()">
               {{ config.cancelText }}
             </button>
-            
-            <button 
-              class="dialog-btn confirm-btn"
+
+            <button
+              class="btn"
               [class.danger]="config.isDanger"
+              [class.gold]="!config.isDanger"
               (click)="confirmationService.onConfirm()">
               {{ config.confirmText }}
             </button>

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject, computed, resource, signal, effect, untracked, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnDestroy, inject, computed, resource, signal, effect, untracked, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { VaultGetService } from '@shared/vault/services/vault-get.service';
 import { VaultDeleteService } from '@shared/vault/services/vault-delete.service';
@@ -22,7 +22,6 @@ const SECTION_ROUTES: Record<string, string> = {
   selector: 'app-vault-list',
   imports: [ItemView],
   templateUrl: './vault-list.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './vault-list.scss'
 })
 export class VaultList implements OnDestroy {

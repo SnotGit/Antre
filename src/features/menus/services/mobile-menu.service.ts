@@ -1,10 +1,8 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Service, signal, computed } from '@angular/core';
 
 type MenuType = 'navbar' | 'console' | null;
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class MobileMenuService {
   
   //============ SIGNAL ============
@@ -53,13 +51,9 @@ export class MobileMenuService {
   }
   
   //============ PERSISTENCE ============
-  
+
   private readonly STORAGE_KEY = 'mobile-menu-state';
-  
-  constructor() {
-    this._activeMenu.set(null);
-  }
-  
+
   private loadState(): void {
     const saved = localStorage.getItem(this.STORAGE_KEY);
     if (saved && ['navbar', 'console'].includes(saved)) {

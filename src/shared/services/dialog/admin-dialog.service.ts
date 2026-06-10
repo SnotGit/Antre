@@ -1,9 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { ConfirmationDialogService, ConfirmationConfig } from './confirmation-dialog.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class AdminDialogService {
 
   //======= INJECTIONS =======

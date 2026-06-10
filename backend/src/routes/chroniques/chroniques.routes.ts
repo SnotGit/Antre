@@ -14,7 +14,6 @@ const router = Router();
 router.get('/stories/latest', publicCtrl.getLatestStories);
 router.get('/stories/by-slug/:username/:slug', publicCtrl.getStoryBySlug);
 router.get('/stories/user/:userId', publicCtrl.getUserStories);
-router.get('/stories/:id', publicCtrl.getUserStory);
 router.get('/likes/story/:id/count', getCount);
 
 //======= PROTECTED ROUTES =======
@@ -35,7 +34,6 @@ router.get('/stories/published/:id', validateStoryId, privateCtrl.getPublishedSt
 
 // DELETE
 router.delete('/stories/:id', validateStoryId, validateOwnership, privateCtrl.deleteStory);
-router.post('/stories/delete', privateCtrl.deleteStories);
 
 router.use(errorHandler);
 

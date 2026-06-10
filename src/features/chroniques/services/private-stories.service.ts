@@ -1,30 +1,39 @@
-import { Injectable, inject, resource } from '@angular/core';
+import { Service, inject, resource, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '@environments/environment';
 import { EditStory, Story, PrivateStoriesResponse } from '../models/chroniques.models';
 
-@Injectable({
-  providedIn: 'root'
-})
+interface StoryDetailResponse {
+  story: EditStory;
+}
 
+@Service()
 export class PrivateStoriesService {
 
   //========== INJECTIONS ==========//
 
   private readonly http = inject(HttpClient);
+  private readonly STORIES_API = `${environment.apiUrl}/chroniques/stories`;
+
+  //========== EDIT STATE ==========//
+
+  readonly saveState = signal<'idle' | 'saved'>('idle');
+
+  readonly editing = signal(false);
 
   //========== RESOURCES ==========//
 
   readonly publishedStories = resource({
     loader: async () => {
-      const res = await firstValueFrom(this.http.get<PrivateStoriesResponse>('/api/chroniques/stories/published'));
+      const res = await firstValueFrom(this.http.get<PrivateStoriesResponse>(`${this.STORIES_API}/published`));
       return res.stories;
     }
   });
 
   readonly draftStories = resource({
     loader: async () => {
-      const res = await firstValueFrom(this.http.get<PrivateStoriesResponse>('/api/chroniques/stories/drafts'));
+      const res = await firstValueFrom(this.http.get<PrivateStoriesResponse>(`${this.STORIES_API}/drafts`));
       return res.stories;
     }
   });
@@ -33,35 +42,37 @@ export class PrivateStoriesService {
 
   async getStoryDetail(id: number, isDraft: boolean): Promise<EditStory> {
     const url = isDraft
-      ? `/api/chroniques/stories/drafts/${id}`
-      : `/api/chroniques/stories/published/${id}`;
-    return firstValueFrom(this.http.get<EditStory>(url));
+      ? `${this.STORIES_API}/drafts/${id}`
+      : `${this.STORIES_API}/published/${id}`;
+    const res = await firstValueFrom(this.http.get<StoryDetailResponse>(url));
+    return res.story;
   }
 
-  async createDraft(data: Partial<Story>): Promise<void> {
-    await firstValueFrom(this.http.post('/api/chroniques/stories/drafts', data));
+  async createDraft(data: Partial<Story> = {}): Promise<number> {
+    const res = await firstValueFrom(this.http.post<StoryDetailResponse>(`${this.STORIES_API}/drafts`, data));
     this.draftStories.reload();
+    return res.story.id;
   }
 
   async saveDraft(id: number, data: Partial<Story>): Promise<void> {
-    await firstValueFrom(this.http.put(`/api/chroniques/stories/drafts/${id}`, data));
+    await firstValueFrom(this.http.put(`${this.STORIES_API}/drafts/${id}`, data));
     this.draftStories.reload();
   }
 
   async publishStory(id: number): Promise<void> {
-    await firstValueFrom(this.http.post(`/api/chroniques/stories/drafts/${id}/publish`, {}));
+    await firstValueFrom(this.http.post(`${this.STORIES_API}/drafts/${id}/publish`, {}));
     this.publishedStories.reload();
     this.draftStories.reload();
   }
 
   async republishFromDraft(id: number): Promise<void> {
-    await firstValueFrom(this.http.post(`/api/chroniques/stories/drafts/${id}/republish`, {}));
+    await firstValueFrom(this.http.post(`${this.STORIES_API}/drafts/${id}/republish`, {}));
     this.publishedStories.reload();
     this.draftStories.reload();
   }
 
   async deleteStory(id: number): Promise<void> {
-    await firstValueFrom(this.http.delete(`/api/chroniques/stories/${id}`));
+    await firstValueFrom(this.http.delete(`${this.STORIES_API}/${id}`));
 
     const isDraft = this.draftStories.value()?.some(s => s.id === id);
     const isPublished = this.publishedStories.value()?.some(s => s.id === id);

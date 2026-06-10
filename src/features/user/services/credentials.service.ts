@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Service, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
@@ -16,9 +16,7 @@ export interface CredentialsResponse {
   message: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class CredentialsService {
 
   //======= INJECTIONS =======

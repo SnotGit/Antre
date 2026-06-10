@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@db';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { handleError, sendError } from '@utils/global/helpers';
 
-const prisma = new PrismaClient();
 
 interface LoginRequest {
   email: string;

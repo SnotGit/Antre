@@ -4,20 +4,29 @@
 
   <div class="story-item" [class.active]="story.id === selectedId()" (click)="selectStory(story.id)">
     <div class="story-info">
-      <span class="story-title">
-        {{ story.title }}
-      </span>
-      <span class="story-date">
-        {{ story.lastModified }}
-      </span>
-    </div>
+      <span class="story-title-row">
+        <span class="story-title">
+          {{ story.title }}
+        </span>
 
-    @if (mode() === 'published') {
-    <div class="story-likes">
-      <span class="icon">❤</span>
-      {{ story.likes }}
+        @if (story.originalStoryId) {
+          <span class="revision-star" data-tooltip="Révision d'une histoire publiée">*</span>
+        }
+      </span>
+
+      <div class="story-meta">
+        <span class="story-date">
+          {{ story.lastModified | date:'dd/MM/yyyy' }}
+        </span>
+
+        @if (mode() === 'published') {
+          <span class="story-likes">
+            <span class="icon">❤</span>
+            {{ story.likes }}
+          </span>
+        }
+      </div>
     </div>
-    }
   </div>
   }
 

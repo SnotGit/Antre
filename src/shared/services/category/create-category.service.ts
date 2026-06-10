@@ -1,9 +1,7 @@
-import { Injectable, signal, inject, computed } from '@angular/core';
+import { Service, signal, inject, computed } from '@angular/core';
 import { Router } from '@angular/router';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class CreateCategoryService {
 
   //======= INJECTIONS =======

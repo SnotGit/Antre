@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, computed, resource, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, computed, resource } from '@angular/core';
 import { Router } from '@angular/router';
 import { VaultGetService } from '@shared/vault/services/vault-get.service';
 import { VaultContextService } from '@shared/vault/services/vault-context.service';
@@ -13,7 +13,6 @@ import { VaultCategoriesService } from '@shared/vault/services/vault-categories.
   selector: 'app-rover',
   imports: [],
   templateUrl: './rover.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './rover.scss'
 })
 export class Rover implements OnInit, OnDestroy {
@@ -23,6 +22,7 @@ export class Rover implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly vaultGetService = inject(VaultGetService);
   private readonly vaultContext = inject(VaultContextService);
+  private readonly _contextInit = this.vaultContext.setContext('rover');
   private readonly marsballStateService = inject(MarsballStateService);
   private readonly typingService = inject(TypingEffectService);
   private readonly titleResolver = inject(TitleResolver);
@@ -45,12 +45,6 @@ export class Rover implements OnInit, OnDestroy {
 
   selectedCategories = this.marsballStateService.selectedCategories;
   selection = this.marsballStateService.selection;
-
-  //======= CONSTRUCTOR =======
-
-  constructor() {
-    this.vaultContext.setContext('rover');
-  }
 
   //======= DATA LOADING =======
 

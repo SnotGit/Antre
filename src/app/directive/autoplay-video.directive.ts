@@ -1,8 +1,7 @@
 import { Directive, ElementRef, inject, OnInit } from '@angular/core';
 
 @Directive({
-  selector: 'video[autoplayForced]',
-  standalone: true
+  selector: 'video[autoplayForced]'
 })
 export class AutoplayVideoDirective implements OnInit {
   private readonly el = inject(ElementRef<HTMLVideoElement>);

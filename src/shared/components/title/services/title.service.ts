@@ -1,9 +1,7 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Service, inject, signal } from '@angular/core';
 import { TypingEffectService } from '@shared/services/typing-effect/typing-effect.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class TitleService {
 
   //======= INJECTIONS =======

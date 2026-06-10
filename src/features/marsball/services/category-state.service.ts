@@ -1,9 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Service, signal, computed } from '@angular/core';
 import { VaultDeleteService } from '@shared/vault/services/vault-delete.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class CategoryStateService {
 
   //======= SIGNALS =======

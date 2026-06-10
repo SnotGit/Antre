@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Service, signal } from '@angular/core';
 
 export interface ConfirmationConfig {
   title: string;
@@ -11,9 +11,7 @@ export interface ConfirmationConfig {
   isMessage?: boolean;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ConfirmationDialogService {
   private visible = signal(false);
   private dialogConfig = signal<ConfirmationConfig | null>(null);

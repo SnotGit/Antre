@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, input, output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '@features/auth/services/auth.service';
@@ -18,7 +18,6 @@ interface LoginData {
   imports: [FormsModule],
   templateUrl: './auth-form.html',
   styleUrl: './auth-form.scss',
-  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [TypingTextService]
 })
 export class AuthForm implements OnInit, OnDestroy {
@@ -77,15 +76,16 @@ export class AuthForm implements OnInit, OnDestroy {
     this.close.emit();
   }
 
-  async onLogin(): Promise<void> {
-    if (!this.loginData.email || !this.loginData.password) {
+  async onLogin(email: string, password: string): Promise<void> {
+    email = email.trim();
+    if (!email || !password) {
       this.error.set('Tous les champs sont requis');
       return;
     }
     this.loading.set(true);
     this.error.set(null);
     try {
-      const response = await this.loginService.login(this.loginData.email, this.loginData.password);
+      const response = await this.loginService.login(email, password);
       this.tokenService.setToken(response.token);
       this.authService.setCurrentUser(response.user);
       this.instructions.hide();
@@ -97,19 +97,21 @@ export class AuthForm implements OnInit, OnDestroy {
     }
   }
 
-  async onRegister(): Promise<void> {
-    if (!this.registerData.username || !this.registerData.email || !this.registerData.password) {
+  async onRegister(username: string, email: string, password: string): Promise<void> {
+    username = username.trim();
+    email = email.trim();
+    if (!username || !email || !password) {
       this.error.set('Tous les champs sont requis');
       return;
     }
-    if (this.registerData.password.length < 8) {
+    if (password.length < 8) {
       this.error.set('Mot de passe minimum 8 caractères');
       return;
     }
     this.loading.set(true);
     this.error.set(null);
     try {
-      const response = await this.registerService.register(this.registerData);
+      const response = await this.registerService.register({ ...this.registerData, username, email, password });
       this.tokenService.setToken(response.token);
       this.authService.setCurrentUser(response.user);
       this.instructions.show();

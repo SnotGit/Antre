@@ -1,0 +1,129 @@
+@use 'variables' as *;
+@use 'content/artefacts/buttons/button' as *;
+
+//========== SHELL ==========//
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  font-family: $font-mono;
+  overflow: hidden;
+}
+
+.header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-left: 32px;
+  padding: 20px 32px 20px 0;
+  border-bottom: 1px solid $border-color;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: $gold;
+}
+
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.save-indicator {
+  font-size: 15px;
+  letter-spacing: 1px;
+  color: $status-ok;
+}
+
+@include button;
+
+.tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.tab {
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  color: $text-dim;
+  font-family: $font-mono;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+
+  &:hover {
+    color: $text-bright;
+  }
+
+  &.active {
+    color: $gold;
+  }
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+//========== MANAGER ==========//
+
+.stories-manager {
+  display: flex;
+  height: 100%;
+  color: $text-base;
+}
+
+.manager-sidebar {
+  width: 350px;
+  border-right: 1px solid $border-color;
+  display: flex;
+  flex-direction: column;
+}
+
+.manager-main {
+  flex: 1;
+  position: relative;
+}
+
+.empty-hub {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  height: 100%;
+
+  color: $text-mute;
+
+  .empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: $gap-sm;
+
+    .icon {
+      font-size: 40px;
+    }
+
+    p {
+      font-size: 16px;
+      font-style: italic;
+    }
+
+    .saved {
+      color: $status-ok;
+    }
+  }
+}

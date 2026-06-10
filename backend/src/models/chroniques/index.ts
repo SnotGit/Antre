@@ -1,11 +1,3 @@
-//======= STORY FORMS =======
-
-export interface StoryFormData {
-  title: string;
-  content: string;
-  originalStoryId?: number;
-}
-
 //======= STORY RESPONSES =======
 
 export interface StoryResponse {
@@ -68,6 +60,7 @@ export interface DraftStory {
   id: number;
   title: string;
   lastModified: string;
+  originalStoryId: number | null;
 }
 
 export interface PublishedStory {

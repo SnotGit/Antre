@@ -1,10 +1,9 @@
 import { Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@db';
 import bcrypt from 'bcryptjs';
 import { AuthenticatedRequest } from '@models/shared';
 import { handleError, sendError, sendSuccess } from '@utils/global/helpers';
 
-const prisma = new PrismaClient();
 
 interface UpdateEmailRequest {
   newEmail: string;

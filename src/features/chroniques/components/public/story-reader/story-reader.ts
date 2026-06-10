@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, OnDestroy, resource, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, effect, inject, input, OnDestroy, resource } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from '@environments/environment';
 import { AuthService } from '@features/auth/services/auth.service';
@@ -8,15 +8,13 @@ import { TitleService } from '@shared/components/title/services/title.service';
 
 @Component({
   selector: 'app-story-reader',
-  standalone: true,
   imports: [],
   templateUrl: './story-reader.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './story-reader.scss'
 })
 export class StoryReader implements OnDestroy {
 
-  //======= INJECTIONS =======//
+  //========== INJECTIONS ==========//
 
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
@@ -26,12 +24,12 @@ export class StoryReader implements OnDestroy {
 
   private readonly API_URL = environment.apiUrl;
 
-  //======= ROUTER INPUTS =======//
+  //========== ROUTER INPUTS ==========//
 
   readonly username = input.required<string>();
   readonly slug = input.required<string>();
 
-  //======= STORY DATA RESOURCE =======//
+  //========== STORY DATA RESOURCE ==========//
 
   storyData = resource({
     params: () => ({
@@ -47,7 +45,7 @@ export class StoryReader implements OnDestroy {
           return null;
         }
 
-        const userStories = await this.publicStoriesService.getStoryById(story.user.id);
+        const userStories = await this.publicStoriesService.getUserStories(story.user.id);
         const currentStory = userStories.findIndex(s => s.id === story.id);
 
         return {
@@ -69,7 +67,7 @@ export class StoryReader implements OnDestroy {
     }
   });
 
-  //======= COMPUTED =======//
+  //========== COMPUTED ==========//
 
   readonly canLike = computed(() => {
 
@@ -108,7 +106,7 @@ export class StoryReader implements OnDestroy {
 
   });
 
-  //======= EFFECTS =======//
+  //========== EFFECTS ==========//
 
   private readonly titleEffect = effect(() => {
 
@@ -120,13 +118,13 @@ export class StoryReader implements OnDestroy {
 
   });
 
-  //======= LIFECYCLE =======//
+  //========== LIFECYCLE ==========//
 
   ngOnDestroy(): void {
     this.titleService.setOverrideTitle(null);
   }
 
-  //======= LIKE ACTIONS =======//
+  //========== LIKE ACTIONS ==========//
 
   async toggleLike(): Promise<void> {
 
@@ -147,7 +145,7 @@ export class StoryReader implements OnDestroy {
     }
   }
 
-  //======= NAVIGATION =======//
+  //========== NAVIGATION ==========//
 
   goToNextStory(): void {
     const data = this.storyData.value();

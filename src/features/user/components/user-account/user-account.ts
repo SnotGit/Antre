@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, linkedSignal, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, computed, linkedSignal, ElementRef, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '@features/auth/services/auth.service';
 import { ProfileService } from '@features/user/services/profile.service';
@@ -9,7 +9,6 @@ import { environment } from '@environments/environment';
   selector: 'app-user-account',
   imports: [FormsModule],
   templateUrl: './user-account.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './user-account.scss'
 })
 export class UserAccount {
@@ -23,7 +22,7 @@ export class UserAccount {
 
   //======= VIEW CHILD =======
 
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  private readonly fileInput = viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
 
   //======= USER =======
 
@@ -74,7 +73,7 @@ export class UserAccount {
   //======= AVATAR =======
 
   pickAvatar(): void {
-    this.fileInput.nativeElement.click();
+    this.fileInput().nativeElement.click();
   }
 
   onAvatarSelected(event: Event): void {

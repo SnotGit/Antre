@@ -1,5 +1,6 @@
 @use 'content/artefacts/typing-effect/typing-effect' as *;
 @use 'content/chroniques/chroniques-grid' as *;
+@use 'content/chroniques/story-card-responsive' as *;
 
 .container {  
   padding: 0;
@@ -42,3 +43,59 @@
 }
 
 @include chroniques-grid;
+
+.story-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #000000;
+  border: 2px solid #96804b;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+
+  &:hover {
+    border-color: #d0d0d0;
+
+    .avatar {
+      border-color: #d0d0d0;
+    }
+  }
+
+  @include story-card-responsive;
+
+  .avatar {
+    border-radius: 50%;
+    border: 2px solid #96804b;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.3s ease;
+  }
+
+  .user-data .username {
+    font-weight: 700;
+    text-align: center;
+    color: #96804b;
+  }
+
+  .story-data {
+    display: flex;
+    flex-direction: column;
+
+    .story-title {
+      font-weight: 700;
+      text-align: center;
+      color: #d0d0d0;
+    }
+
+    .story-date {
+      font-weight: 400;
+      text-align: center;
+      color: #96804b;
+    }
+  }
+}

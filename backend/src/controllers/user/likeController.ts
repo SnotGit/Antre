@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@db';
 import { AuthenticatedRequest } from '@models/shared';
 import { handleError, sendError, sendNotFound, parseStoryId } from '@utils/global/helpers';
 
-const prisma = new PrismaClient();
 
 //======= HELPER =======
 

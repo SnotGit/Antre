@@ -1,4 +1,6 @@
 @use 'variables' as *;
+@use 'content/artefacts/scrollbar/scrollbar' as *;
+@use 'content/artefacts/tooltip/tooltip' as *;
 
 .story-detail {
   display: flex;
@@ -15,6 +17,9 @@
   flex: 1;
 
   overflow-y: auto;
+  overflow-x: hidden;
+
+  @include hidden-scrollbar;
 }
 
 .view-mode {
@@ -36,7 +41,7 @@
   }
 
   .content {
-    font-size: 16px;
+    font-size: 18px;
 
     line-height: 1.6;
 
@@ -87,7 +92,7 @@
 
     padding: 12px;
 
-    font-size: 16px;
+    font-size: 18px;
 
     outline: none;
 
@@ -99,37 +104,37 @@
   }
 }
 
+.detail-error {
+  padding-top: 15px;
+
+  font-size: 15px;
+
+  color: $status-error;
+}
+
 .detail-footer {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
 
   gap: $gap-md;
 
   padding-top: 30px;
 }
 
-.btn-action {
-  padding: 10px 20px;
-
-  background: transparent;
-
-  border: 1px solid $gold;
-
-  color: $gold;
-
-  cursor: pointer;
-
-  font-size: 15px;
-
-  transition: all 0.2s;
-
-  &:hover {
-    background: $gold;
-
-    color: $black;
-  }
+.btn-action[data-tooltip] {
+  @include tooltip;
 }
 
+.btn-action:disabled {
+  border-color: $border-color;
+
+  color: $text-mute;
+
+  cursor: default;
+}
+
+.btn-action,
 .btn-cancel {
   padding: 10px 20px;
 
@@ -137,18 +142,16 @@
 
   border: 1px solid $border-bright;
 
-  color: $text-dim;
+  color: $text-base;
 
   cursor: pointer;
 
   font-size: 15px;
 
-  transition: all 0.2s;
+  &:hover:not(:disabled) {
+    color: $gold;
 
-  &:hover {
-    border-color: $text-base;
-
-    color: $text-bright;
+    border-color: $gold;
   }
 }
 
@@ -157,20 +160,18 @@
 
   background: transparent;
 
-  border: 1px solid $status-error;
+  border: 1px solid $border-bright;
 
-  color: $status-error;
+  color: $text-base;
 
   cursor: pointer;
 
   font-size: 15px;
 
-  transition: all 0.2s;
+  &:hover:not(:disabled) {
+    color: $status-error;
 
-  &:hover {
-    background: $status-error;
-
-    color: $black;
+    border-color: $status-error;
   }
 }
 

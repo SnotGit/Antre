@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject, signal, computed, effect, ElementRef, ViewChild, AfterViewInit, HostListener, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnDestroy, inject, signal, computed, effect, ElementRef, viewChild, AfterViewInit, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { VaultNewEntryService } from '@shared/vault/services/vault-new-entry.service';
 import { VaultCreateService } from '@shared/vault/services/vault-create.service';
@@ -16,7 +16,6 @@ interface ImageFile {
   selector: 'app-new-rover-item',
   imports: [FormsModule],
   templateUrl: './new-rover-item.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './new-rover-item.scss'
 })
 export class NewRoverItem implements OnDestroy, AfterViewInit {
@@ -43,9 +42,9 @@ export class NewRoverItem implements OnDestroy, AfterViewInit {
 
   //======= VIEW CHILDREN =======
 
-  @ViewChild('uploadZone') uploadZone?: ElementRef<HTMLDivElement>;
-  @ViewChild('descriptionInput') descriptionInput?: ElementRef<HTMLTextAreaElement>;
-  @ViewChild('imageContainer') imageContainer?: ElementRef<HTMLDivElement>;
+  private readonly uploadZone = viewChild<ElementRef<HTMLDivElement>>('uploadZone');
+  private readonly descriptionInput = viewChild<ElementRef<HTMLTextAreaElement>>('descriptionInput');
+  private readonly imageContainer = viewChild<ElementRef<HTMLDivElement>>('imageContainer');
 
   //======= SIGNALS =======
 
@@ -97,21 +96,21 @@ export class NewRoverItem implements OnDestroy, AfterViewInit {
 
   private readonly _focusEffect = effect(() => {
     if (this.isVisible() && !this.mainImage()) {
-      setTimeout(() => this.uploadZone?.nativeElement.focus(), 100);
+      setTimeout(() => this.uploadZone()?.nativeElement.focus(), 100);
     }
   });
 
   //======= LIFECYCLE =======
 
   ngAfterViewInit(): void {
-    const uploadZone = this.uploadZone?.nativeElement;
+    const uploadZone = this.uploadZone()?.nativeElement;
     if (uploadZone) {
       uploadZone.addEventListener('paste', this.boundOnPaste);
     }
   }
 
   ngOnDestroy(): void {
-    const uploadZone = this.uploadZone?.nativeElement;
+    const uploadZone = this.uploadZone()?.nativeElement;
     if (uploadZone) {
       uploadZone.removeEventListener('paste', this.boundOnPaste);
     }
@@ -240,7 +239,7 @@ export class NewRoverItem implements OnDestroy, AfterViewInit {
   }
 
   blurUploadZone(): void {
-    this.uploadZone?.nativeElement.blur();
+    this.uploadZone()?.nativeElement.blur();
   }
 
   //======= FORM ACTIONS =======
@@ -253,7 +252,7 @@ export class NewRoverItem implements OnDestroy, AfterViewInit {
 
     if (categoryId === null || !img) return;
 
-    const container = this.imageContainer?.nativeElement;
+    const container = this.imageContainer()?.nativeElement;
     const imgElement = container?.querySelector('img') as HTMLImageElement;
 
     if (!container || !imgElement) return;

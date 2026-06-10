@@ -1,11 +1,9 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Service, inject, signal, computed } from '@angular/core';
 import { VaultDeleteService } from '@shared/vault/services/vault-delete.service';
 import { VaultNewEntryService } from '@shared/vault/services/vault-new-entry.service';
 import { CreateCategoryService } from '@shared/services/category/create-category.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class MarsballStateService {
 
   //======= INJECTIONS =======

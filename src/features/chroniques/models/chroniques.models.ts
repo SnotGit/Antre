@@ -24,7 +24,6 @@ export interface PublicStory {
   publishDate: string;
   likes: number;
   isliked: boolean;
-  canLike: boolean;
   user: User;
 }
 
@@ -47,8 +46,18 @@ export interface PrivateStory {
 
 export interface EditStory extends PrivateStory {}
 
+export interface UserStoryLink {
+  id: number;
+  title: string;
+  slug: string;
+}
+
 export interface PublicStoriesResponse {
   stories: StoryCard[];
+}
+
+export interface UserStoriesResponse {
+  stories: UserStoryLink[];
 }
 
 export interface PrivateStoriesResponse {

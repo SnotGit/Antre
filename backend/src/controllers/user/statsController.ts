@@ -1,9 +1,8 @@
 import { Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@db';
 import { AuthenticatedRequest } from '@models/shared';
 import { handleError } from '@utils/global/helpers';
 
-const prisma = new PrismaClient();
 
 interface UserStats {
   drafts: number;

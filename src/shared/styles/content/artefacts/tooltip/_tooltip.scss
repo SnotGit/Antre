@@ -1,0 +1,28 @@
+@mixin tooltip {
+  position: relative;
+
+  &:hover::after {
+    content: attr(data-tooltip);
+
+    position: absolute;
+    bottom: calc(100% + 8px);
+    right: 0;
+
+    padding: 8px;
+
+    background: #ffffff;
+
+    border: 1px solid #000000;
+
+    color: #000000;
+
+    font-size: 15px;
+    font-weight: 400;
+
+    white-space: nowrap;
+
+    pointer-events: none;
+
+    z-index: 10;
+  }
+}

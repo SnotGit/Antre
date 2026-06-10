@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, resource, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, resource } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { VaultGetService } from '@shared/vault/services/vault-get.service';
@@ -16,7 +16,6 @@ import { VaultDeleteService } from '@shared/vault/services/vault-delete.service'
   selector: 'app-marsball-vault',
   imports: [FormsModule],
   templateUrl: './marsball-vault.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './marsball-vault.scss'
 })
 export class MarsballVault implements OnInit, OnDestroy {
@@ -26,6 +25,7 @@ export class MarsballVault implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly vaultGetService = inject(VaultGetService);
   private readonly vaultContext = inject(VaultContextService);
+  private readonly _contextInit = this.vaultContext.setContext('marsball');
   private readonly marsballStateService = inject(MarsballStateService);
   private readonly typingService = inject(TypingEffectService);
   private readonly authService = inject(AuthService);
@@ -53,12 +53,6 @@ export class MarsballVault implements OnInit, OnDestroy {
 
   selectedCategories = this.marsballStateService.selectedCategories;
   selection = this.marsballStateService.selection;
-
-  //======= CONSTRUCTOR =======
-
-  constructor() {
-    this.vaultContext.setContext('marsball');
-  }
 
   //======= DATA LOADING =======
 

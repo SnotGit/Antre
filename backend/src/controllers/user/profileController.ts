@@ -1,10 +1,9 @@
 import { Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@db';
 import { AuthenticatedRequest } from '@models/shared';
 import { handleError, sendNotFound } from '@utils/global/helpers';
-import { userSelectFields } from '@utils/chroniques/helpers';
+import { userSelectFields } from '@utils/user/helpers';
 
-const prisma = new PrismaClient();
 
 interface UpdateProfileRequest {
   username?: string;

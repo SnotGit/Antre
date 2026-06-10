@@ -6,7 +6,7 @@
     <div class="terminal-content" #terminalContent>
       @for (line of terminalLines(); track $index) {
         <div class="command-line">
-          <span class="text" [ngClass]="line.type">{{line.content}}</span>
+          <span class="text" [class]="line.type">{{line.content}}</span>
           @if ($index === terminalLines().length - 1 && line.type === 'command' && !isTyping() && showCursor()) {
             <span class="cursor">█</span>
           }

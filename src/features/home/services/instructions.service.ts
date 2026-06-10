@@ -1,13 +1,11 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Service, inject, signal } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { AuthService } from '@features/auth/services/auth.service';
 
 const VISITED_KEY = 'antre.visited';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class InstructionsService {
 
   private readonly router = inject(Router);

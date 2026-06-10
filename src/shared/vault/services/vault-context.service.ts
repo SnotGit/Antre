@@ -1,9 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Service, signal, computed } from '@angular/core';
 import { VaultContextConfig, VAULT_CONTEXTS } from '../models/vault.models';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class VaultContextService {
 
   //======= SIGNALS =======

@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal, linkedSignal, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, computed, signal, linkedSignal, ElementRef, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '@features/auth';
 import { ProfileService } from '@features/user/services/profile.service';
@@ -11,7 +11,7 @@ import { environment } from '@environments/environment';
   styleUrl: './user-profile.scss'
 })
 export class UserProfile {
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  private readonly fileInput = viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
 
   //============ INJECTIONS ============
 
@@ -54,7 +54,7 @@ export class UserProfile {
   //============ AVATAR ACTIONS ============
 
   triggerFileInput(): void {
-    this.fileInput.nativeElement.click();
+    this.fileInput().nativeElement.click();
   }
 
   onAvatarSelected(event: Event): void {

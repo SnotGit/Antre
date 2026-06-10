@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, computed } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter, map } from 'rxjs';
@@ -9,7 +9,6 @@ import { AuthForm } from './auth-form/auth-form';
   selector: 'app-acces',
   imports: [AuthForm],
   templateUrl: './acces.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './acces.scss'
 })
 export class Acces implements OnInit, OnDestroy {

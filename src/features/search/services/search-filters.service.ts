@@ -1,9 +1,9 @@
-import { Injectable, signal, linkedSignal, computed } from '@angular/core';
+import { Service, signal, linkedSignal, computed } from '@angular/core';
 
 export type Universe = 'marsball' | 'terraformars' | 'archives' | 'chroniques';
 export type SearchSection = 'marsball' | 'bestiaire' | 'rover';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class SearchFiltersService {
 
   readonly query = signal<string>('');

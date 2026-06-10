@@ -1,5 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, signal, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, signal, inject, viewChild } from '@angular/core';
 import { ElenaStateService } from '@features/elena/services/elena-state.service';
 
 interface TerminalLine {
@@ -9,16 +8,15 @@ interface TerminalLine {
 
 @Component({
   selector: 'app-terminal',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './terminal.html',
-  styleUrl: './terminal.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrl: './terminal.scss'
 })
 export class Terminal implements OnInit, OnDestroy {
 
-  @ViewChild('terminalContent') terminalContent!: ElementRef;
-
   private readonly elenaState = inject(ElenaStateService);
+
+  private readonly terminalContent = viewChild<ElementRef>('terminalContent');
 
   terminalLines = signal<TerminalLine[]>([]);
   showCursor = signal(true);
@@ -153,8 +151,9 @@ export class Terminal implements OnInit, OnDestroy {
 
   private scrollBottom(): void {
     setTimeout(() => {
-      if (this.terminalContent?.nativeElement) {
-        const parent = this.terminalContent.nativeElement.parentElement;
+      const el = this.terminalContent()?.nativeElement;
+      if (el) {
+        const parent = el.parentElement;
         if (parent) parent.scrollTop = parent.scrollHeight;
       }
     }, 30);

@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@db';
 import { AuthenticatedRequest } from '@models/shared';
 import { handleError, sendNotFound, sendBadRequest } from '@utils/global/helpers';
 import { VaultContextConfig } from './config';
 import { VaultCategory, VaultEntry, CategoryWithChildrenResponse } from './models';
 
-const prisma = new PrismaClient();
 
 //======= PRISMA DELEGATE TYPE =======
 

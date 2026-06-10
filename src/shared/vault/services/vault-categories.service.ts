@@ -1,4 +1,4 @@
-import { Injectable, inject, computed, resource } from '@angular/core';
+import { Service, inject, computed, resource } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -28,7 +28,7 @@ const SECTION_LABELS: Record<SearchSection, string> = {
   rover: 'Rover'
 };
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class VaultCategoriesService {
 
   private readonly router = inject(Router);

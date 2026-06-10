@@ -1,0 +1,186 @@
+@use 'variables' as *;
+@use 'content/artefacts/scrollbar/scrollbar' as *;
+
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  color: $text-base;
+  font-family: $font-mono;
+}
+
+//============ TOGGLE ============
+
+.toggle {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+}
+
+.toggle-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 20px;
+  color: $text-dim;
+  font-family: $font-mono;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+
+  &:hover {
+    color: $text-bright;
+  }
+
+  &.active {
+    color: $gold;
+    border-color: $gold;
+  }
+}
+
+//============ CONTENT ============
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 30px;
+
+  @include hidden-scrollbar;
+}
+
+//============ LIKED STORIES LIST ============
+
+.liked-stories-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+//============ STORY ITEM ============
+
+.story-item {
+  border: 1px solid $gold-dim;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: $gold;
+  }
+
+  //======= AVATAR SECTION =======
+
+  .avatar-section {
+    flex-shrink: 0;
+
+    .avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      border: 1px solid $gold-dim;
+    }
+  }
+
+  //======= INFO SECTION (POSTED MODE) =======
+
+  .info-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .username {
+      font-size: 18px;
+      font-weight: 700;
+      color: $gold;
+    }
+
+    .story-info {
+      font-size: 15px;
+      color: $text-base;
+    }
+  }
+
+  //======= INFO SECTION (RECEIVED MODE) =======
+
+  .info-section-received {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .story-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: $gold;
+    }
+
+    .story-date {
+      font-size: 15px;
+      color: $text-base;
+    }
+  }
+
+  //======= STATS SECTION (RECEIVED MODE) =======
+
+  .stats-section {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: right;
+
+    .likes-count {
+      font-size: 18px;
+      font-weight: 700;
+      color: $gold;
+    }
+
+    .last-liked {
+      font-size: 15px;
+      color: $text-dim;
+    }
+  }
+
+  //======= LIKE SECTION (POSTED MODE) =======
+
+  .like-section {
+    flex-shrink: 0;
+
+    .like-date {
+      font-size: 15px;
+      color: $text-dim;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+}
+
+//============ EMPTY STATE ============
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: $text-dim;
+
+  p {
+    font-size: 16px;
+    margin: 10px 0;
+
+    &:first-child {
+      font-weight: 700;
+      color: $gold;
+      font-size: 18px;
+    }
+  }
+}
