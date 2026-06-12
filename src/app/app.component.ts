@@ -30,7 +30,7 @@ export class AppComponent {
     { initialValue: null }
   );
 
-  isAcces = computed(() => {
+  isLogin = computed(() => {
     const event = this.navigationEvents();
     const url = event ? (event as NavigationEnd).url : this.router.url;
     return url === '/' || url === '/login' || url === '/register';

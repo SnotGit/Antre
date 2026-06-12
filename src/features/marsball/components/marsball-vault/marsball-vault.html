@@ -88,7 +88,7 @@
                 @if (options) {
                   <select
                     class="input"
-                    [ngModel]="itemPath()[i]?.id ?? null"
+                    [ngModel]="levelValue(i)"
                     (ngModelChange)="onLevelSelect(i, $event)">
                     <option [ngValue]="null">Catégorie...</option>
                     @for (cat of options; track cat.id) {
@@ -107,9 +107,6 @@
               <button type="button" class="btn" [disabled]="!canCreateItemNow()" (click)="createItemGo()">Créer</button>
             </div>
           </div>
-
-      } @else {
-        <pre class="ascii-art">{{ asciiArt }}</pre>
       }
     </div>
     }

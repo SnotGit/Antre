@@ -6,7 +6,6 @@
   display: flex;
   flex-direction: column;
   color: $text-base;
-  font-family: $font-mono;
 }
 
 //============ TOGGLE ============
@@ -24,7 +23,6 @@
   border-bottom: 2px solid transparent;
   padding: 10px 20px;
   color: $text-dim;
-  font-family: $font-mono;
   font-size: 18px;
   font-weight: 700;
   letter-spacing: 2px;

@@ -2,7 +2,7 @@
 
   <div class="left-column">
     @if (isAdmin() && !edit.creating() && !edit.isEditing()) {
-      <button type="button" class="new-item-bar" (click)="startCreate()">+ Nouvel item</button>
+      <button type="button" class="new-item-bar" (click)="startCreate()">+ Ajouter item</button>
     }
 
     <div class="item-cards">
@@ -10,7 +10,7 @@
         <div class="item-card"
              [class.active]="isItemOpen(item.id)"
              (click)="selectItem(item.id)">
-          <div class="item-thumb">
+          <div class="item-thumb" [style.aspect-ratio]="thumbAspect()">
             <img [src]="getImageUrl(item.thumbnailUrl || item.imageUrl)" [alt]="item.title">
           </div>
           <span class="item-title">{{ item.title }}</span>
@@ -49,7 +49,8 @@
                #createImageContainer>
             <img [src]="edit.image()"
                  [alt]="edit.title()"
-                 class="edit-image">
+                 class="edit-image"
+                 (load)="initCrop()">
             <div class="crop-box"
                  [class.resizing-mode]="cropService.isCtrlPressed()"
                  [style.left]="cropStyle().left"
@@ -73,15 +74,17 @@
           </div>
         </div>
       } @else {
-        <label class="upload-zone">
-          Choisir une image...
+        <label class="upload-zone"
+               (dragover)="onDragOver($event)"
+               (drop)="onDrop($event)">
+          Glissez une image ou cliquez...
           <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden>
         </label>
       }
 
       <div class="detail-actions">
-        <button type="button" class="btn gold" (click)="cancelCreate()">Annuler</button>
-        <button type="button" class="btn ok" (click)="createItem()" [disabled]="!canCreate()">Créer</button>
+        <button type="button" class="btn" (click)="cancelCreate()">Annuler</button>
+        <button type="button" class="btn" (click)="createItem()" [disabled]="!canCreate()">Créer</button>
       </div>
 
     } @else if (selectedEntry(); as item) {
@@ -90,23 +93,27 @@
 
         <div class="detail-box">
           <div class="detail-text">
-            @if (item.description) {
-              <p>{{ item.description }}</p>
-            } @else {
-              <p class="detail-empty">Aucune description.</p>
-            }
+            <div class="detail-desc">
+              @if (item.description) {
+                <p>{{ item.description }}</p>
+              } @else {
+                <p class="detail-empty">Aucune description.</p>
+              }
+            </div>
           </div>
           <div class="item-full-image">
-            <img [src]="getImageUrl(item.imageUrl)" [alt]="item.title">
+            <div class="image-hover">
+              <img [src]="getImageUrl(item.imageUrl)" [alt]="item.title">
+              @if (isAdmin()) {
+                <div class="image-overlay">
+                  <button type="button" class="btn" (click)="startEdit()">Modifier</button>
+                  <button type="button" class="btn danger" (click)="deleteItem()">Supprimer</button>
+                </div>
+              }
+            </div>
           </div>
         </div>
 
-        @if (isAdmin()) {
-          <div class="detail-actions">
-            <button type="button" class="btn gold" (click)="startEdit()">Modifier</button>
-            <button type="button" class="btn danger" (click)="deleteItem()">Supprimer</button>
-          </div>
-        }
       } @else {
         <div class="detail-bar">
           <input
@@ -135,7 +142,8 @@
             <img [src]="getImageUrl(edit.image())"
                  [alt]="edit.title()"
                  class="edit-image"
-                 crossOrigin="anonymous">
+                 crossOrigin="anonymous"
+                 (load)="initCrop()">
             <div class="crop-box"
                  [class.resizing-mode]="cropService.isCtrlPressed()"
                  [style.left]="cropStyle().left"
@@ -160,8 +168,8 @@
         </div>
 
         <div class="detail-actions">
-          <button type="button" class="btn gold" (click)="cancelEdit()">Annuler</button>
-          <button type="button" class="btn ok" (click)="saveEdit()">Sauvegarder</button>
+          <button type="button" class="btn" (click)="cancelEdit()">Annuler</button>
+          <button type="button" class="btn" (click)="saveEdit()">Sauvegarder</button>
         </div>
       }
 

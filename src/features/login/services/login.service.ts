@@ -2,18 +2,9 @@ import { Service, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
+import { User } from '@shared/services/auth/user.model';
 
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  description?: string;
-  avatar?: string;
-  role: 'admin' | 'user';
-  playerId?: string;
-  playerDays?: number;
-  createdAt: string;
-}
+export type { User };
 
 export interface LoginRequest {
   email: string;

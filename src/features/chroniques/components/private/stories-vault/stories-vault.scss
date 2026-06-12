@@ -7,24 +7,24 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  font-family: $font-mono;
   overflow: hidden;
 }
 
 .header {
   flex-shrink: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
+  height: 60px;
   margin-left: 32px;
-  padding: 20px 32px 20px 0;
+  padding-right: 32px;
   border-bottom: 1px solid $border-color;
 }
 
 .header-title {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 700;
+  margin: 0 0 15px;
+  font-size: 16px;
+  font-weight: 400;
   letter-spacing: 2px;
   text-transform: uppercase;
   color: $gold;
@@ -34,7 +34,7 @@
   flex: 1;
   display: flex;
   justify-content: center;
-  align-items: center;
+  margin-bottom: 15px;
 }
 
 .save-indicator {
@@ -48,16 +48,15 @@
 .tabs {
   display: flex;
   gap: 8px;
+  margin-bottom: 15px;
 }
 
 .tab {
-  padding: 10px 20px;
+  padding: 0 20px;
   background: transparent;
   border: none;
   color: $text-dim;
-  font-family: $font-mono;
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 16px;
   letter-spacing: 2px;
   text-transform: uppercase;
   cursor: pointer;
@@ -68,6 +67,22 @@
 
   &.active {
     color: $gold;
+  }
+}
+
+.new-story-bar {
+  flex-shrink: 0;
+  margin: 20px 32px 0;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid $border-color;
+  color: $text-dim;
+  font-size: 16px;
+  cursor: pointer;
+
+  &:hover {
+    color: $gold;
+    border-color: $gold;
   }
 }
 

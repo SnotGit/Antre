@@ -2,7 +2,7 @@ import { Service, inject, resource, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
-import { AuthService } from '@features/auth/services/auth.service';
+import { AuthService } from '@shared/services/auth/auth.service';
 import { EditStory, Story, PrivateStoriesResponse } from '../models/chroniques.models';
 
 interface StoryDetailResponse {

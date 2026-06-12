@@ -1,24 +1,18 @@
 <div class="container">
 
   <div class="header">
-    <h1 class="header-title">Mes Chroniques</h1>
+    <h1 class="header-title">// Mes Chroniques</h1>
 
     <div class="header-center">
-      @if (editing()) {
-        @if (saveState() === 'saved') {
-          <span class="save-indicator">Sauvegardé</span>
-        }
-      } @else {
-        <button class="btn gold" (click)="createNewStory()">
-          + Nouvelle Histoire
-        </button>
+      @if (editing() && saveState() === 'saved') {
+        <span class="save-indicator">Sauvegardé</span>
       }
     </div>
 
     <nav class="tabs">
-      <button class="tab" [class.active]="tab() === 'draft'" (click)="setTab('draft')">Brouillons</button>
-      <button class="tab" [class.active]="tab() === 'published'" (click)="setTab('published')">Publiées</button>
-      <button class="tab" [class.active]="tab() === 'likes'" (click)="setTab('likes')">Likes</button>
+      <button class="tab" [class.active]="tab() === 'draft'" (click)="setTab('draft')">~/ Brouillons</button>
+      <button class="tab" [class.active]="tab() === 'published'" (click)="setTab('published')">~/ Publiées</button>
+      <button class="tab" [class.active]="tab() === 'likes'" (click)="setTab('likes')">~/ Likes</button>
     </nav>
   </div>
 
@@ -29,6 +23,9 @@
       <div class="stories-manager">
 
         <div class="manager-sidebar">
+          @if (!editing()) {
+            <button type="button" class="new-story-bar" (click)="createNewStory()">+ Nouvelle Histoire</button>
+          }
           <app-stories-list
             [mode]="mode()"
             [selectedId]="selectedId()"

@@ -15,7 +15,6 @@
 .tree {
   padding: 30px;
   overflow-y: auto;
-  font-family: $font-mono;
 }
 
 .tree-root {
@@ -45,7 +44,6 @@
   background: transparent;
   border: none;
   padding: 0;
-  font-family: $font-mono;
   font-size: 14px;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -69,7 +67,6 @@
 }
 
 .state {
-  font-family: $font-mono;
   font-size: 13px;
   letter-spacing: 2px;
   color: $text-dim;
@@ -100,7 +97,6 @@
   background: transparent;
   border: 1px solid $border-bright;
   border-radius: 4px;
-  font-family: $font-mono;
   text-align: left;
   cursor: pointer;
   transition: border-color 0.15s ease;

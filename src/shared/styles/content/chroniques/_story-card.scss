@@ -40,7 +40,6 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      font-family: $font-mono;
       font-size: 15px;
       font-weight: 700;
       color: $text-dim;
@@ -48,14 +47,12 @@
     }
 
     .row-meta {
-      font-family: $font-mono;
       font-size: 13px;
       color: $text-dim;
       transition: color 0.15s ease;
     }
 
     .row-likes {
-      font-family: $font-mono;
       font-size: 15px;
       color: $text-dim;
       transition: color 0.15s ease;

@@ -1,5 +1,6 @@
-import { Component, OnInit, OnDestroy, ElementRef, signal, inject, viewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, signal, computed, inject, viewChild } from '@angular/core';
 import { ElenaStateService } from '@features/elena/services/elena-state.service';
+import { AuthService } from '@shared/services/auth/auth.service';
 
 interface TerminalLine {
   content: string;
@@ -15,6 +16,7 @@ interface TerminalLine {
 export class Terminal implements OnInit, OnDestroy {
 
   private readonly elenaState = inject(ElenaStateService);
+  private readonly authService = inject(AuthService);
 
   private readonly terminalContent = viewChild<ElementRef>('terminalContent');
 
@@ -22,7 +24,10 @@ export class Terminal implements OnInit, OnDestroy {
   showCursor = signal(true);
   isTyping = signal(false);
 
-  private readonly prompt = '141050:~$ ';
+  private readonly prompt = computed(() => {
+    const user = this.authService.currentUser();
+    return `${user?.playerId || user?.username || 'INCONNU'}:~$ `;
+  });
   private cursorIntervalId?: number;
   private typingIntervalId?: number;
   private timeoutId?: number;
@@ -71,7 +76,7 @@ export class Terminal implements OnInit, OnDestroy {
   private showPromptThenType(): void {
     this.terminalLines.update(lines => [
       ...lines,
-      { content: this.prompt, type: 'command' }
+      { content: this.prompt(), type: 'command' }
     ]);
     this.scrollBottom();
     this.timeoutId = window.setTimeout(() => this.typeStartCommand(), 500);
@@ -88,7 +93,7 @@ export class Terminal implements OnInit, OnDestroy {
           const newLines = [...lines];
           newLines[newLines.length - 1] = {
             ...newLines[newLines.length - 1],
-            content: this.prompt + partial
+            content: this.prompt() + partial
           };
           return newLines;
         });
@@ -109,7 +114,7 @@ export class Terminal implements OnInit, OnDestroy {
       this.timeoutId = window.setTimeout(() => {
         this.terminalLines.update(lines => [
           ...lines,
-          { content: this.prompt, type: 'command' }
+          { content: this.prompt(), type: 'command' }
         ]);
         this.scrollBottom();
       }, 200);

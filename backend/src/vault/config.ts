@@ -18,7 +18,7 @@ export const vaultContexts: Record<string, VaultContextConfig> = {
     entryModel: 'marsballItem',
     entryRelation: 'items',
     uploadDir: 'uploads/marsball',
-    maxFileSize: 500 * 1024
+    maxFileSize: 2 * 1024 * 1024
   },
   bestiaire: {
     key: 'bestiaire',
@@ -26,7 +26,7 @@ export const vaultContexts: Record<string, VaultContextConfig> = {
     entryModel: 'creature',
     entryRelation: 'creatures',
     uploadDir: 'uploads/bestiaire',
-    maxFileSize: 1024 * 1024
+    maxFileSize: 2 * 1024 * 1024
   },
   rover: {
     key: 'rover',
@@ -34,6 +34,6 @@ export const vaultContexts: Record<string, VaultContextConfig> = {
     entryModel: 'roverItem',
     entryRelation: 'items',
     uploadDir: 'uploads/rover',
-    maxFileSize: 500 * 1024
+    maxFileSize: 2 * 1024 * 1024
   }
 };

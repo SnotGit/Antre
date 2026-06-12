@@ -5,7 +5,7 @@ import { MarsballTreeService } from '../../services/marsball-tree.service';
 import { MarsballSelectionService } from '../../services/marsball-selection.service';
 import { ItemEditService } from '../../services/item-edit.service';
 import { CategoryWithChildren } from '../../models/marsball.models';
-import { AuthService } from '@features/auth/services/auth.service';
+import { AuthService } from '@shared/services/auth/auth.service';
 import { CategoryDetail } from '../category-detail/category-detail';
 
 const SECTION_ROUTES: Record<string, string> = {

@@ -2,7 +2,7 @@ import { Service, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
-import { User } from '@features/auth';
+import { User } from '@features/login/services';
 
 //======= TYPES =======
 

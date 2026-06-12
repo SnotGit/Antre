@@ -1,6 +1,6 @@
 import { Component, inject, computed, signal, HostListener, ElementRef } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from '@features/auth/services/auth.service';
+import { AuthService } from '@shared/services/auth/auth.service';
 import { SearchFiltersService } from '@features/search/services/search-filters.service';
 
 @Component({

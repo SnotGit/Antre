@@ -1,7 +1,7 @@
 import { Service, inject, signal, computed, effect } from '@angular/core';
 import { Router } from '@angular/router';
-import { TokenService } from './token.service';
-import { User } from './login.service';
+import { TokenService } from '@core/services/token.service';
+import { User } from './user.model';
 import { ElenaStateService } from '@features/elena/services/elena-state.service';
 import { SearchFiltersService } from '@features/search/services/search-filters.service';
 

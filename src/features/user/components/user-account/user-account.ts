@@ -1,6 +1,6 @@
 import { Component, inject, signal, computed, linkedSignal, ElementRef, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '@features/auth/services/auth.service';
+import { AuthService } from '@shared/services/auth/auth.service';
 import { ProfileService } from '@features/user/services/profile.service';
 import { CredentialsService } from '@features/user/services/credentials.service';
 import { environment } from '@environments/environment';
@@ -57,6 +57,7 @@ export class UserAccount {
 
   error = signal<string | null>(null);
   success = signal<string | null>(null);
+  private successTimeoutId?: number;
   loading = computed(() => this.profileService.loading() || this.credentialsService.loading());
 
   //======= COMPUTED =======
@@ -148,6 +149,8 @@ export class UserAccount {
 
       this.currentPassword.set('');
       this.success.set('Modifications enregistrées');
+      window.clearTimeout(this.successTimeoutId);
+      this.successTimeoutId = window.setTimeout(() => this.success.set(null), 3000);
     } catch {
       this.error.set(this.credentialsService.error() ?? 'Erreur lors de l\'enregistrement');
     }

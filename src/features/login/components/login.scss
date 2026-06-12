@@ -14,7 +14,6 @@ $bw-mute:   #3a4048;
   height: 100vh;
   background: $bw-bg;
   color: $bw-mid;
-  font-family: $font-mono;
 }
 
 .container {
@@ -85,13 +84,10 @@ $bw-mute:   #3a4048;
 .footer {
   display: flex;
   justify-content: center;
-  gap: 8px;
   margin-top: auto;
   font-size: 12px;
   letter-spacing: 2px;
   text-transform: uppercase;
+  white-space: nowrap;
   color: $bw-dim;
-
-  .sep { color: $bw-mute; }
-  .ok  { color: $bw-dim; }
 }

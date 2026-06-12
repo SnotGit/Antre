@@ -12,7 +12,7 @@ export const getLatestStories = async (req: Request, res: Response): Promise<voi
       where: { status: 'PUBLISHED' },
       orderBy: { publishedAt: 'desc' },
       distinct: ['userId'],
-      take: 6,
+      take: 8,
       select: {
         id: true,
         title: true,

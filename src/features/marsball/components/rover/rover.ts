@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { MarsballTreeService } from '../../services/marsball-tree.service';
 import { MarsballSelectionService } from '../../services/marsball-selection.service';
 import { VaultCategory } from '../../models/marsball.models';
-import { AuthService } from '@features/auth/services/auth.service';
+import { AuthService } from '@shared/services/auth/auth.service';
 
 @Component({
   selector: 'app-rover',

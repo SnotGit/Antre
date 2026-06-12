@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, effect, resource } from '@angular/core';
+import { Component, inject, signal, computed, effect, resource, linkedSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterOutlet } from '@angular/router';
 import { DialogCardService } from '@shared/services/dialog/dialog-card.service';
@@ -8,27 +8,13 @@ import { MarsballTreeService } from '../../services/marsball-tree.service';
 import { MarsballSelectionService } from '../../services/marsball-selection.service';
 import { MarsballFeedbackService } from '../../services/marsball-feedback.service';
 import { ItemEditService } from '../../services/item-edit.service';
-import { AuthService } from '@features/auth/services/auth.service';
+import { AuthService } from '@shared/services/auth/auth.service';
 
 const SECTION_ROUTES: Record<string, string> = {
   marsball: '/marsball',
   bestiaire: '/marsball/bestiaire',
   rover: '/marsball/rover'
 };
-
-const MARS_ART = `
-        *        .         *
-   .        .-""""-.   .
-          .'  .  o  '.      *
-    *    /  o     .   \\
-        :     .--.   o :  .
-        |    |    |    |
-        :  o  '--'     : *
-    .    \\   .    o   /
-          '.  o    .'     .
-       *    '-....-'   *
-         .    MARS    .
-`;
 
 @Component({
   selector: 'app-marsball-vault',
@@ -56,9 +42,21 @@ export class MarsballVault {
   createError = signal(false);
   duplicateError = signal(false);
   itemSection = signal<'' | MarsballSection>('');
-  itemPath = signal<VaultCategory[]>([]);
 
-  protected readonly asciiArt = MARS_ART;
+  private readonly routeItemPath = computed<VaultCategory[]>(() => {
+    if (this.itemSection() && this.itemSection() !== this.tree.activeSection()) return [];
+    const cats = this.tree.categories();
+    const path: VaultCategory[] = [];
+    let cat = cats.find(c => c.id === this.tree.currentCategoryId()) ?? null;
+    while (cat) {
+      path.unshift(cat);
+      const parentId = cat.parentId;
+      cat = parentId === null ? null : cats.find(c => c.id === parentId) ?? null;
+    }
+    return path;
+  });
+
+  itemPath = linkedSignal(() => this.routeItemPath());
 
   //========== COMPUTED ==========//
 
@@ -161,7 +159,6 @@ export class MarsballVault {
     this.tree.currentUrl();
     this.selection.clear();
     this.itemSection.set('');
-    this.itemPath.set([]);
   });
 
   //========== CREATE CATEGORY ==========//
@@ -228,7 +225,10 @@ export class MarsballVault {
 
   onSectionChange(section: MarsballSection): void {
     this.itemSection.set(section);
-    this.itemPath.set([]);
+  }
+
+  levelValue(level: number): number | null {
+    return this.itemPath().at(level)?.id ?? null;
   }
 
   onLevelSelect(level: number, categoryId: number | null): void {

@@ -5,8 +5,10 @@ import { MarsballCrudService } from '../../services/marsball-crud.service';
 import { MarsballFeedbackService } from '../../services/marsball-feedback.service';
 import { MarsballTreeService } from '../../services/marsball-tree.service';
 import { CropService } from '@shared/services/crop-images/crop.service';
+import { FileNameFormatterService } from '@shared/services/file-name-formatter/file-name-formatter.service';
 import { DialogCardService } from '@shared/services/dialog/dialog-card.service';
 import { environment } from '@environments/environment';
+import { compressImage, trimImage, detectIconCrop, CROP_RATIOS } from '@shared/services/crop-images/crop.utils';
 
 @Component({
   selector: 'app-category-detail',
@@ -24,9 +26,11 @@ export class CategoryDetail {
   private readonly opFeedback = inject(MarsballFeedbackService);
   private readonly tree = inject(MarsballTreeService);
   protected readonly cropService = inject(CropService);
+  private readonly fileNameFormatter = inject(FileNameFormatterService);
   private readonly API_URL = environment.apiUrl;
 
   @ViewChild('imageContainer') imageContainer?: ElementRef<HTMLDivElement>;
+  @ViewChild('createImageContainer') createImageContainer?: ElementRef<HTMLDivElement>;
 
   //========== INPUTS / OUTPUTS ==========//
 
@@ -56,9 +60,13 @@ export class CategoryDetail {
       left: `${crop.x}px`,
       top: `${crop.y}px`,
       width: `${crop.size}px`,
-      height: `${crop.size}px`
+      height: `${crop.size / crop.aspect}px`
     };
   });
+
+  thumbAspect = computed(() =>
+    this.tree.activeSection() === 'bestiaire' ? CROP_RATIOS.creatureCard.aspect : 1
+  );
 
   editThumbnailPreview = computed(() => {
     const crop = this.cropService.crop();
@@ -123,12 +131,29 @@ export class CategoryDetail {
     this.editItemService.updateDescription((event.target as HTMLTextAreaElement).value);
   }
 
-  private initCrop(): void {
-    if (this.tree.activeSection() === 'bestiaire') {
-      this.cropService.initWithPosition(200, 20, 20);
-    } else {
-      this.cropService.initWithPosition(58, 29, 15);
+  protected initCrop(): void {
+    const container = this.edit.creating()
+      ? this.createImageContainer?.nativeElement
+      : this.imageContainer?.nativeElement;
+    const img = container?.querySelector('img');
+    const width = img?.clientWidth;
+    if (!img || !width) return;
+
+    if (this.tree.activeSection() !== 'bestiaire') {
+      const detected = detectIconCrop(img);
+      if (detected) {
+        this.cropService.initWithPosition(detected.size, detected.x, detected.y, 1);
+        return;
+      }
     }
+
+    const ratios = this.tree.activeSection() === 'bestiaire' ? CROP_RATIOS.creatureCard : CROP_RATIOS.itemCard;
+    this.cropService.initWithPosition(
+      Math.round(ratios.size * width),
+      Math.round(ratios.x * width),
+      Math.round(ratios.y * width),
+      ratios.aspect
+    );
   }
 
   startEdit(): void {
@@ -136,10 +161,6 @@ export class CategoryDetail {
     if (!item) return;
 
     this.editItemService.startEdit(item.id, item.title, item.description || '', item.imageUrl);
-
-    setTimeout(() => {
-      this.initCrop();
-    }, 0);
   }
 
   cancelEdit(): void {
@@ -159,8 +180,10 @@ export class CategoryDetail {
 
     if (!title.trim() || !container || !imgElement) return;
 
-    const displayWidth = imgElement.naturalWidth;
-    const displayHeight = imgElement.naturalHeight;
+    const displayWidth = imgElement.clientWidth;
+    const displayHeight = imgElement.clientHeight;
+
+    const cropHeight = crop.size / crop.aspect;
 
     try {
       if (this.editItemService.imageChanged()) {
@@ -174,6 +197,7 @@ export class CategoryDetail {
           crop.x,
           crop.y,
           crop.size,
+          cropHeight,
           displayWidth,
           displayHeight,
           imageFile
@@ -186,6 +210,7 @@ export class CategoryDetail {
           crop.x,
           crop.y,
           crop.size,
+          cropHeight,
           displayWidth,
           displayHeight,
           undefined,
@@ -211,12 +236,28 @@ export class CategoryDetail {
   onFileSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
+    this.setImage(file);
+  }
 
-    this.editItemService.updateImage(file);
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+  }
 
-    setTimeout(() => {
-      this.initCrop();
-    }, 0);
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    const file = event.dataTransfer?.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    this.setImage(file);
+  }
+
+  private async setImage(file: File): Promise<void> {
+    const trimmed = await trimImage(file);
+    const compressed = await compressImage(trimmed);
+    this.editItemService.updateImage(compressed);
+
+    if (this.editItemService.title().trim().length === 0) {
+      this.editItemService.updateTitle(this.fileNameFormatter.format(file));
+    }
   }
 
   canCreate = computed(() =>
@@ -234,6 +275,9 @@ export class CategoryDetail {
     if (!title || !file) return;
 
     const crop = this.cropService.crop();
+    const container = this.createImageContainer?.nativeElement;
+    const imgElement = container?.querySelector('img') as HTMLImageElement | null;
+    if (!imgElement) return;
 
     try {
       await this.crud.createEntry(
@@ -243,6 +287,9 @@ export class CategoryDetail {
         crop.x,
         crop.y,
         crop.size,
+        crop.size / crop.aspect,
+        imgElement.clientWidth,
+        imgElement.clientHeight,
         this.editItemService.description() || undefined
       );
       this.editItemService.cancelEdit();

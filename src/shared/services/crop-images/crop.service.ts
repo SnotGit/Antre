@@ -6,6 +6,7 @@ interface CropState {
   x: number;
   y: number;
   size: number;
+  aspect: number;
 }
 
 enum DragMode {
@@ -32,7 +33,7 @@ export class CropService {
 
   //======= SIGNALS PRIVÉS =======
 
-  private _crop = signal<CropState>({ x: 0, y: 0, size: 60 });
+  private _crop = signal<CropState>({ x: 0, y: 0, size: 60, aspect: 1 });
   private _isCtrlPressed = signal(false);
   private _isDragging = signal(false);
   private _currentDragMode = signal<DragMode>(DragMode.NONE);
@@ -67,17 +68,22 @@ export class CropService {
   //======= INITIALISATION =======
 
   init(initialSize: number = 60): void {
-    this._crop.set({ x: 0, y: 0, size: initialSize });
+    this._crop.set({ x: 0, y: 0, size: initialSize, aspect: 1 });
     this._currentDragMode.set(DragMode.NONE);
     this._isDragging.set(false);
     this._dragStart.set(null);
   }
 
-  initWithPosition(initialSize: number, initialX: number, initialY: number): void {
-    this._crop.set({ x: initialX, y: initialY, size: initialSize });
+  initWithPosition(initialSize: number, initialX: number, initialY: number, aspect: number = 1): void {
+    this._crop.set({ x: initialX, y: initialY, size: initialSize, aspect });
     this._currentDragMode.set(DragMode.NONE);
     this._isDragging.set(false);
     this._dragStart.set(null);
+  }
+
+  cropHeight(): number {
+    const crop = this._crop();
+    return crop.size / crop.aspect;
   }
 
   reset(): void {
@@ -109,12 +115,13 @@ export class CropService {
     if (!start) return;
 
     const currentCrop = this._crop();
-    
+    const height = currentCrop.size / currentCrop.aspect;
+
     let newX = event.clientX - rect.left - currentCrop.size / 2;
-    let newY = event.clientY - rect.top - currentCrop.size / 2;
+    let newY = event.clientY - rect.top - height / 2;
 
     newX = Math.max(0, Math.min(newX, rect.width - currentCrop.size));
-    newY = Math.max(0, Math.min(newY, rect.height - currentCrop.size));
+    newY = Math.max(0, Math.min(newY, rect.height - height));
 
     this._crop.set({ ...currentCrop, x: newX, y: newY });
   }
@@ -151,99 +158,97 @@ export class CropService {
   private handleResizeTL(event: MouseEvent, rect: DOMRect): void {
     const start = this._dragStart();
     if (!start) return;
-    
+
+    const aspect = this._crop().aspect;
     const deltaX = event.clientX - rect.left - start.mouseX;
     const deltaY = event.clientY - rect.top - start.mouseY;
     const delta = (deltaX + deltaY) / 2;
-    
+
     let newSize = start.cropSize - delta;
-    let newX = start.cropX + delta;
-    let newY = start.cropY + delta;
-    
     newSize = Math.max(40, newSize);
-    newSize = Math.min(newSize, Math.min(rect.width, rect.height));
-    
-    newX = Math.max(0, newX);
-    newY = Math.max(0, newY);
-    
+    newSize = Math.min(newSize, Math.min(rect.width, rect.height * aspect));
+
+    let newX = Math.max(0, start.cropX + (start.cropSize - newSize));
+    let newY = Math.max(0, start.cropY + (start.cropSize - newSize) / aspect);
+
     if (newX + newSize > rect.width) {
       newSize = rect.width - newX;
     }
-    if (newY + newSize > rect.height) {
-      newSize = rect.height - newY;
+    if (newY + newSize / aspect > rect.height) {
+      newSize = (rect.height - newY) * aspect;
     }
-    
-    this._crop.set({ x: newX, y: newY, size: newSize });
+
+    this._crop.set({ x: newX, y: newY, size: newSize, aspect });
   }
 
   private handleResizeTR(event: MouseEvent, rect: DOMRect): void {
     const start = this._dragStart();
     if (!start) return;
-    
+
+    const aspect = this._crop().aspect;
     const deltaX = event.clientX - rect.left - start.mouseX;
     const deltaY = event.clientY - rect.top - start.mouseY;
     const delta = (deltaX - deltaY) / 2;
-    
+
     let newSize = start.cropSize + delta;
-    let newY = start.cropY - delta;
-    
     newSize = Math.max(40, newSize);
-    newY = Math.max(0, newY);
-    
+
+    let newY = Math.max(0, start.cropY - (newSize - start.cropSize) / aspect);
+
     if (start.cropX + newSize > rect.width) {
       newSize = rect.width - start.cropX;
     }
-    if (newY + newSize > rect.height) {
-      newSize = rect.height - newY;
+    if (newY + newSize / aspect > rect.height) {
+      newSize = (rect.height - newY) * aspect;
     }
-    
-    this._crop.set({ x: start.cropX, y: newY, size: newSize });
+
+    this._crop.set({ x: start.cropX, y: newY, size: newSize, aspect });
   }
 
   private handleResizeBL(event: MouseEvent, rect: DOMRect): void {
     const start = this._dragStart();
     if (!start) return;
-    
+
+    const aspect = this._crop().aspect;
     const deltaX = event.clientX - rect.left - start.mouseX;
     const deltaY = event.clientY - rect.top - start.mouseY;
     const delta = (-deltaX + deltaY) / 2;
-    
+
     let newSize = start.cropSize + delta;
-    let newX = start.cropX - delta;
-    
     newSize = Math.max(40, newSize);
-    newX = Math.max(0, newX);
-    
+
+    let newX = Math.max(0, start.cropX - (newSize - start.cropSize));
+
     if (newX + newSize > rect.width) {
       newSize = rect.width - newX;
     }
-    if (start.cropY + newSize > rect.height) {
-      newSize = rect.height - start.cropY;
+    if (start.cropY + newSize / aspect > rect.height) {
+      newSize = (rect.height - start.cropY) * aspect;
     }
-    
-    this._crop.set({ x: newX, y: start.cropY, size: newSize });
+
+    this._crop.set({ x: newX, y: start.cropY, size: newSize, aspect });
   }
 
   private handleResizeBR(event: MouseEvent, rect: DOMRect): void {
     const start = this._dragStart();
     if (!start) return;
-    
+
+    const aspect = this._crop().aspect;
     const deltaX = event.clientX - rect.left - start.mouseX;
     const deltaY = event.clientY - rect.top - start.mouseY;
     const delta = (deltaX + deltaY) / 2;
-    
+
     let newSize = start.cropSize + delta;
-    
     newSize = Math.max(40, newSize);
-    
+
     if (start.cropX + newSize > rect.width) {
       newSize = rect.width - start.cropX;
     }
-    if (start.cropY + newSize > rect.height) {
-      newSize = rect.height - start.cropY;
+    if (start.cropY + newSize / aspect > rect.height) {
+      newSize = (rect.height - start.cropY) * aspect;
     }
-    
-    this._crop.set({ x: start.cropX, y: start.cropY, size: newSize });
+
+    this._crop.set({ x: start.cropX, y: start.cropY, size: newSize, aspect });
   }
 
   //======= DRAG PRINCIPAL =======

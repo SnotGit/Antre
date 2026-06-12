@@ -7,17 +7,6 @@
   flex-direction: column;
 }
 
-.greeting {
-  flex-shrink: 0;
-  padding: 40px 20px 0;
-  color: $gold;
-  font-family: $font-mono;
-  font-size: 22px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  text-align: center;
-}
-
 .instructions {
   flex: 1;
   display: flex;
@@ -26,7 +15,6 @@
   align-items: center;
   gap: 24px;
   padding: 20px;
-  font-family: $font-mono;
 
   .guide {
     list-style: none;
@@ -62,17 +50,17 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 12px;
+  gap: 24px;
   box-sizing: border-box;
   padding: 40px;
   color: $text-base;
-  font-family: $font-mono;
   font-size: 20px;
   font-style: italic;
   line-height: 1.6;
 
   .quote-text {
     text-align: center;
+    white-space: pre-line;
   }
 
   .quote-sign {

@@ -32,21 +32,19 @@ export interface ElenaLine {
 }
 
 let lastText = '';
+let nextIsCodex = true;
 
 export function pickElenaLine(): ElenaLine {
-  const pools = [CODEX, ELENA_QUOTES].filter(p => p.length > 0);
-  if (pools.length === 0) return { text: '', signed: false };
+  const pool = (nextIsCodex && CODEX.length > 0) ? CODEX : ELENA_QUOTES;
+  if (pool.length === 0) return { text: '', signed: false };
+  nextIsCodex = !nextIsCodex;
 
-  const total = CODEX.length + ELENA_QUOTES.length;
-  let pool = ELENA_QUOTES;
   let text = '';
   let guard = 0;
-
   do {
-    pool = pools[Math.floor(Math.random() * pools.length)];
     text = pool[Math.floor(Math.random() * pool.length)];
     guard++;
-  } while (text === lastText && total > 1 && guard < 10);
+  } while (text === lastText && pool.length > 1 && guard < 10);
 
   lastText = text;
   return { text, signed: pool === ELENA_QUOTES };

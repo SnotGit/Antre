@@ -2,7 +2,7 @@ import { Component, computed, inject, input, resource } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { environment } from '@environments/environment';
-import { AuthService } from '@features/auth/services/auth.service';
+import { AuthService } from '@shared/services/auth/auth.service';
 import { LikeService } from '@features/chroniques/services/like.service';
 import { PublicStoriesService } from '@features/chroniques/services/public-stories.service';
 

@@ -2,8 +2,8 @@ import { Service, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
-import { AuthService } from '../../auth/services/auth.service';
-import { User } from '../../auth/services/login.service';
+import { AuthService } from '@shared/services/auth/auth.service';
+import { User } from '@features/login/services/login.service';
 
 export interface ProfileData {
   username: string;

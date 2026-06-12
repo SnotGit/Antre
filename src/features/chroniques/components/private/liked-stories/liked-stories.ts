@@ -2,7 +2,7 @@ import { Component, inject, computed, resource, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { LikeService, LikedStory, ReceivedLike } from '@features/chroniques/services/like.service';
-import { AuthService } from '@features/auth/services/auth.service';
+import { AuthService } from '@shared/services/auth/auth.service';
 import { environment } from '@environments/environment';
 
 @Component({

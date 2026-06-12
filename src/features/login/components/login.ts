@@ -6,12 +6,12 @@ import { TypingTextService } from '@shared/services/typing-text/typing-text.serv
 import { AuthForm } from './auth-form/auth-form';
 
 @Component({
-  selector: 'app-acces',
+  selector: 'app-login',
   imports: [AuthForm],
-  templateUrl: './acces.html',
-  styleUrl: './acces.scss'
+  templateUrl: './login.html',
+  styleUrl: './login.scss'
 })
-export class Acces implements OnInit, OnDestroy {
+export class Login implements OnInit, OnDestroy {
 
   private readonly router = inject(Router);
   private readonly typing = inject(TypingTextService);
@@ -36,8 +36,6 @@ export class Acces implements OnInit, OnDestroy {
     this.url().startsWith('/register') ? 'register' : 'login'
   );
 
-  readonly solNumber = 1432;
-  readonly protocolId = 'ARCH-7';
 
   private readonly boot = `// INITIALISATION DU RESEAU D'ARCHIVES
 // CONNEXION TERMINAL ETABLIE

@@ -1,10 +1,10 @@
 import { Component, OnInit, OnDestroy, inject, signal, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '@features/auth/services/auth.service';
-import { LoginService } from '@features/auth/services/login.service';
-import { RegisterService, RegisterRequest } from '@features/auth/services/register.service';
-import { TokenService } from '@features/auth/services/token.service';
+import { AuthService } from '@shared/services/auth/auth.service';
+import { LoginService } from '@features/login/services/login.service';
+import { RegisterService, RegisterRequest } from '@features/login/services/register.service';
+import { TokenService } from '@core/services/token.service';
 import { InstructionsService } from '@features/home/services/instructions.service';
 import { TypingTextService } from '@shared/services/typing-text/typing-text.service';
 

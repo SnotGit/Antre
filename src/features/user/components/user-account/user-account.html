@@ -1,14 +1,13 @@
 <div class="container">
 
   <div class="header">
-    <h1 class="title">Mon Compte</h1>
+    <h1 class="header-title">// Mon Compte</h1>
+    @if (error()) {
+      <div class="message error">{{ error() }}</div>
+    } @else if (success()) {
+      <div class="message success">{{ success() }}</div>
+    }
   </div>
-
-  @if (error()) {
-    <div class="message error">{{ error() }}</div>
-  } @else if (success()) {
-    <div class="message success">{{ success() }}</div>
-  }
 
   <div class="content">
 
@@ -26,7 +25,7 @@
     <div class="column credentials">
       <h2 class="subtitle">Identifiants</h2>
 
-      <input type="password" class="input" [(ngModel)]="currentPassword" placeholder="Mot de passe actuel" autocomplete="current-password" [disabled]="loading()">
+      <input type="password" class="input" [(ngModel)]="currentPassword" placeholder="Mot de passe actuel" autocomplete="new-password" [disabled]="loading()">
       <input type="email" class="input" [(ngModel)]="newEmail" placeholder="Nouvel email" [disabled]="loading()">
       <input type="email" class="input" [(ngModel)]="confirmEmail" placeholder="Confirmer l'email" [disabled]="loading()">
       <input type="password" class="input" [(ngModel)]="newPassword" placeholder="Nouveau mot de passe" autocomplete="new-password" [disabled]="loading()">

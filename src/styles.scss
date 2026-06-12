@@ -1,4 +1,8 @@
 @use 'shared/styles/index' as *;
+@use '@fontsource/ibm-plex-mono/400.css' as *;
+@use '@fontsource/ibm-plex-mono/400-italic.css' as *;
+@use '@fontsource/ibm-plex-mono/600.css' as *;
+@use '@fontsource/ibm-plex-mono/700.css' as *;
 
 
 * {
@@ -7,10 +11,14 @@
   box-sizing: border-box;
 }
 
+button, input, select, textarea {
+  font-family: inherit;
+}
+
 html, body {
   height: 100%;
   overflow: hidden;
-  font-family: 'Courier New', monospace;
+  font-family: 'IBM Plex Mono', 'Courier New', monospace;
   background-color: #000000;
 }
 

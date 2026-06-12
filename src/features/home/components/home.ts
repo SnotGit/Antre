@@ -12,12 +12,21 @@ import { HomeInfos } from './home-infos/home-infos';
 })
 export class Home {
 
+  //========== INJECTIONS ==========//
+
   protected readonly filters = inject(SearchFiltersService);
   protected readonly instructions = inject(InstructionsService);
 
-  protected readonly textActive = computed(() => this.filters.query().trim().length >= 2);
+  //========== SIGNALS ==========//
+
   protected readonly draft = signal('');
   protected readonly focused = signal(false);
+
+  //========== COMPUTED ==========//
+
+  protected readonly textActive = computed(() => this.filters.query().trim().length >= 2);
+
+  //========== ACTIONS ==========//
 
   protected toggleInstructions(): void {
     this.instructions.toggle();

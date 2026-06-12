@@ -1,7 +1,9 @@
-import { Component, inject, computed, signal, effect, untracked } from '@angular/core';
-import { AuthService } from '@features/auth/services/auth.service';
+import { Component, inject, signal, effect, untracked } from '@angular/core';
+import { AuthService } from '@shared/services/auth/auth.service';
 import { InstructionsService } from '@features/home/services/instructions.service';
+import { ElenaStateService } from '@features/elena/services/elena-state.service';
 import { pickElenaLine, ElenaLine } from '@features/elena/data/elena-quotes';
+import { pickElenaGreeting } from '@features/elena/data/elena-greetings';
 
 @Component({
   selector: 'app-home-infos',
@@ -12,14 +14,16 @@ export class HomeInfos {
 
   private readonly auth = inject(AuthService);
   protected readonly instructions = inject(InstructionsService);
-
-  protected readonly displayName = computed(() => this.auth.currentUser()?.username ?? 'Visiteur');
+  private readonly elenaState = inject(ElenaStateService);
 
   protected readonly quote = signal<ElenaLine | null>(null);
 
   private readonly rollQuote = effect(() => {
     if (!this.instructions.visible()) {
-      untracked(() => this.quote.set(pickElenaLine()));
+      untracked(() => {
+        const name = this.auth.currentUser()?.username ?? null;
+        this.quote.set(this.elenaState.shouldGreet(name) ? pickElenaGreeting(name) : pickElenaLine());
+      });
     }
   });
 }

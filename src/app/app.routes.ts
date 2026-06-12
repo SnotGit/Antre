@@ -5,17 +5,17 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    loadComponent: () => import('../features/acces/components/acces').then(m => m.Acces)
+    loadComponent: () => import('../features/login/components/login').then(m => m.Login)
   },
 
   {
     path: 'login',
-    loadComponent: () => import('../features/acces/components/acces').then(m => m.Acces)
+    loadComponent: () => import('../features/login/components/login').then(m => m.Login)
   },
 
   {
     path: 'register',
-    loadComponent: () => import('../features/acces/components/acces').then(m => m.Acces)
+    loadComponent: () => import('../features/login/components/login').then(m => m.Login)
   },
 
   {

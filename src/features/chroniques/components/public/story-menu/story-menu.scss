@@ -1,100 +1,115 @@
-@use 'content/chroniques/chroniques-grid' as *;
-@use 'content/chroniques/story-card-responsive' as *;
+@use 'variables' as *;
 
-.container {  
-  padding: 0;
-  background-color: #000000;
-  color: #d0d0d0;
-  font-family: 'Courier New', monospace;
+.container {
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
   height: 100%;
-  flex: 1;
-  padding-top: 120px;
+  box-sizing: border-box;
+  color: $text-base;
+}
+
+.header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  height: 60px;
+  margin-left: 32px;
+  padding-right: 32px;
+  border-bottom: 1px solid $border-color;
+}
+
+.header-title {
+  margin: 0 0 15px;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: $gold;
 }
 
 .description {
-  width: 100%;
-  padding: 0 30px 20px 30px;
   flex-shrink: 0;
+  padding: 50px 50px 0;
   text-align: center;
 
   p {
+    margin: 0 auto;
+    max-width: 800px;
     font-size: 18px;
     line-height: 1.6;
-    margin: 0 auto 8px auto;
-    opacity: 0.8;
-    max-width: 800px;
+    color: $text-base;
   }
 }
 
 .content {
-  
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   scrollbar-width: none;
-  -ms-overflow-style: none;
 
   &::-webkit-scrollbar {
     display: none;
   }
 }
 
-@include chroniques-grid;
+.chroniques-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+  padding: 50px;
+}
 
 .story-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #000000;
-  border: 2px solid #96804b;
-  border-radius: 12px;
+  gap: 15px;
+  height: 230px;
+  background: transparent;
+  border: 1px solid $border-bright;
   cursor: pointer;
-  transition: border-color 0.3s ease;
 
   &:hover {
-    border-color: #d0d0d0;
+    border-color: $gold;
 
     .avatar {
-      border-color: #d0d0d0;
+      border-color: $gold;
     }
   }
 
-  @include story-card-responsive;
-
   .avatar {
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
-    border: 2px solid #96804b;
+    border: 2px solid $border-bright;
     background-size: cover;
     background-position: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: border-color 0.3s ease;
   }
 
   .user-data .username {
+    font-size: 16px;
     font-weight: 700;
     text-align: center;
-    color: #96804b;
+    color: $gold;
   }
 
   .story-data {
     display: flex;
     flex-direction: column;
+    gap: 15px;
 
     .story-title {
+      font-size: 16px;
       font-weight: 700;
       text-align: center;
-      color: #d0d0d0;
+      color: $text-base;
     }
 
     .story-date {
-      font-weight: 400;
+      font-size: 15px;
       text-align: center;
-      color: #96804b;
+      color: $gold;
     }
   }
 }

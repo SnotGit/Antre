@@ -20,6 +20,7 @@ export class ElenaStateService {
   private readonly storageKey = 'elena-activated';
   private powerTimer?: ReturnType<typeof setTimeout>;
   private lastReacted: string | null = null;
+  private lastGreeted: string | null | undefined = undefined;
 
   readonly clip = signal<ElenaClip | null>(
     sessionStorage.getItem(this.storageKey) ? 'idle' : null
@@ -45,6 +46,12 @@ export class ElenaStateService {
     this.lastReacted = q;
     this.reactToHits(this.searchService.hits().length > 0);
   });
+
+  shouldGreet(identity: string | null): boolean {
+    if (this.lastGreeted === identity) return false;
+    this.lastGreeted = identity;
+    return true;
+  }
 
   start(): void {
     if (this.clip() !== null || this.powering()) return;
