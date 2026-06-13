@@ -1,0 +1,177 @@
+<div class="container">
+
+  <header class="header">
+    <nav class="breadcrumb">
+      <span class="prefix">//</span>
+      <button type="button" class="segment" (click)="goAdmin()">Admin</button>
+      <span class="separator">/</span>
+      <button type="button" class="segment is-current" disabled>Dépôt</button>
+    </nav>
+  </header>
+
+  @if (isAdmin()) {
+    <div class="content">
+
+      <div class="tree-column">
+
+        @if (treeService.loading()) {
+          <p class="tree-loading">Chargement…</p>
+        }
+
+        @for (row of flatTree(); track trackRow($index, row)) {
+
+          @if (row.kind === 'section') {
+            <div class="section-label" (click)="toggleSection(row.sectionKey!)">
+              <span class="guide">{{ rowGuide(row) }}</span>
+              <span class="node-prefix branch-prefix">{{ isSectionCollapsed(row.sectionKey!) ? '▸' : '▾' }}</span>
+              <span>{{ row.sectionLabel }}</span>
+            </div>
+          }
+
+          @if (row.kind === 'node' && rowIsLeaf(row)) {
+            <div
+              class="tree-node leaf-node"
+              [class.selected]="isSelected(rowNode(row))"
+              [class.leaf-drag-over]="nodeIsLeafDragOver(rowNode(row))"
+              (click)="selectLeaf(rowNode(row), rowSection(row))"
+              (dragover)="onTreeDragOver($event, row)"
+              (dragleave)="onTreeDragLeave(row)"
+              (drop)="onTreeDrop($event, row)"
+            >
+              <span class="guide">{{ rowGuide(row) }}</span>
+              <span class="node-title">{{ rowNode(row).title }}</span>
+              @if (rowNode(row).entryCount > 0) {
+                <span class="node-count">({{ rowNode(row).entryCount }})</span>
+              }
+            </div>
+          }
+
+          @if (row.kind === 'node' && !rowIsLeaf(row)) {
+            <div
+              class="tree-node branch-node"
+              (click)="toggleCollapse(row)"
+            >
+              <span class="guide">{{ rowGuide(row) }}</span>
+              <span class="node-prefix branch-prefix">{{ isCollapsed(row) ? '▸' : '▾' }}</span>
+              <span class="node-title">{{ rowNode(row).title }}</span>
+              @if (rowNode(row).entryCount > 0) {
+                <span class="node-count">({{ rowNode(row).entryCount }})</span>
+              }
+            </div>
+          }
+
+        }
+
+      </div>
+
+      <div class="depot-column">
+        <div
+          class="dropbox"
+          [class.drag-over]="depotDragOver()"
+          (dragover)="onDepotDragOver($event)"
+          (dragleave)="onDepotDragLeave()"
+          (drop)="onDepotDrop($event)"
+        >
+
+        <div class="dropbox-header">
+          <h2 class="dropbox-title">Bienvenue au dépôt !</h2>
+        </div>
+
+        @if (!selectedLeaf()) {
+          <div class="depot-placeholder">
+            <p>Choisis une catégorie dans l'arbre de gauche,</p>
+            <p>puis dépose un dossier ou des fichiers ici.</p>
+          </div>
+        } @else {
+
+          <div class="depot-inner">
+
+            <div class="depot-path">
+              @for (seg of selectedLeaf()!.path; track $index; let last = $last) {
+                @if (!last) {
+                  <span class="path-segment">{{ seg }}</span><span class="path-sep"> / </span>
+                } @else {
+                  <span class="path-segment path-last">{{ seg }}</span>
+                }
+              }
+            </div>
+
+            @if (sendError()) {
+              <p class="report-error">Le dépôt a échoué — réessaie.</p>
+            }
+
+            @if (lotEmpty()) {
+              @if (report(); as rep) {
+                <div class="report">
+                  <p class="report-title">Rapport d'Elena</p>
+                  <p class="report-line ok">Archivés : {{ rep.created }}</p>
+                  @if (rep.duplicates > 0) {
+                    <p class="report-line">Doublons écartés : {{ rep.duplicates }}</p>
+                  }
+                  @if (rep.ignored > 0) {
+                    <p class="report-line">Descriptions sans image : {{ rep.ignored }}</p>
+                  }
+                  @for (entry of rep.review; track entry.file) {
+                    <p class="report-line warn">{{ entry.file }} — {{ entry.reason }}</p>
+                  }
+                </div>
+              } @else {
+                <div class="depot-lot-hint">
+                  <p>Dépose ici les images et leurs .txt — le nom de fichier devient le titre.</p>
+                </div>
+              }
+            } @else {
+
+              <div class="lot-headers">
+                <span class="lot-header-label">Images</span>
+                <span class="lot-header-label">Descriptions</span>
+                <span></span>
+              </div>
+
+              @for (item of lot(); track item.baseName) {
+                <div class="lot-row">
+
+                  <div class="lot-cell lot-image-cell">
+                    @if (item.image && item.objectUrl) {
+                      <img class="lot-thumb" [src]="item.objectUrl" alt="">
+                      <span class="lot-title">{{ formattedTitle(item) }}</span>
+                    } @else {
+                      <span class="lot-title">
+                        {{ item.baseName }}<span class="lot-error"> image manquante</span>
+                      </span>
+                    }
+                  </div>
+
+                  <div class="lot-cell lot-txt-cell">
+                    @if (item.txt) {
+                      <span class="lot-desc">{{ item.txtFirstLine ?? '…' }}</span>
+                    } @else {
+                      <span class="lot-no-desc">— sans description</span>
+                    }
+                  </div>
+
+                  <button type="button" class="lot-remove" (click)="removeItem(item)">×</button>
+
+                </div>
+              }
+
+            }
+
+          </div>
+
+        }
+
+        </div>
+      </div>
+
+    </div>
+
+    <footer class="footer">
+      <button type="button" class="btn" [disabled]="lotEmpty() || sending()" (click)="clearLot()">Annuler</button>
+      <button type="button" class="btn gold" [disabled]="lotEmpty() || sending()" (click)="confierElena()">
+        {{ sending() ? 'Traitement…' : 'Envoyer' }}
+      </button>
+    </footer>
+  }
+
+</div>

@@ -1,4 +1,3 @@
-const THUMB_SIZE = 80;
 const THUMB_QUALITY = 0.92;
 const THUMB_SHARPEN = 0.2;
 
@@ -38,8 +37,8 @@ const TRIM_MIN_AREA_RATIO = 0.3;
 //========== RATIOS DE CROP PAR TYPE DE CARTE (PROPORTION DE LA LARGEUR TRIMÉE) ==========//
 
 export const CROP_RATIOS = {
-  itemCard: { size: 0.130, x: 0.044, y: 0.063, aspect: 1 },
-  creatureCard: { size: 0.344, x: 0.031, y: 0.042, aspect: 1.456 }
+  itemCard: { size: 0.130, x: 0.044, y: 0.063, aspect: 1, thumbWidth: 80 },
+  bestiaireCard: { size: 0.344, x: 0.031, y: 0.042, aspect: 1.456, thumbWidth: 240 }
 } as const;
 
 //========== DÉTECTION DU CADRE D'ICÔNE (CARTES ITEM, COIN HAUT-GAUCHE) ==========//
@@ -281,7 +280,8 @@ export function cropThumbnailScaled(
   cropWidth: number,
   cropHeight: number,
   displayWidth: number,
-  displayHeight: number
+  displayHeight: number,
+  thumbWidth: number
 ): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -296,8 +296,8 @@ export function cropThumbnailScaled(
       const realCropHeight = cropHeight * ratioY;
 
       const canvas = document.createElement('canvas');
-      canvas.width = THUMB_SIZE;
-      canvas.height = Math.round(THUMB_SIZE * cropHeight / cropWidth);
+      canvas.width = thumbWidth;
+      canvas.height = Math.round(thumbWidth * cropHeight / cropWidth);
 
       const ctx = canvas.getContext('2d');
       if (!ctx) {
@@ -340,7 +340,8 @@ export async function cropThumbnailFromElement(
   cropX: number,
   cropY: number,
   cropWidth: number,
-  cropHeight: number
+  cropHeight: number,
+  thumbWidth: number
 ): Promise<Blob> {
   const ratioX = imgElement.naturalWidth / imgElement.clientWidth;
   const ratioY = imgElement.naturalHeight / imgElement.clientHeight;
@@ -358,8 +359,8 @@ export async function cropThumbnailFromElement(
 
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      canvas.width = THUMB_SIZE;
-      canvas.height = Math.round(THUMB_SIZE * cropHeight / cropWidth);
+      canvas.width = thumbWidth;
+      canvas.height = Math.round(thumbWidth * cropHeight / cropWidth);
 
       const ctx = canvas.getContext('2d');
       if (!ctx) {

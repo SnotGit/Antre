@@ -1,22 +1,45 @@
 <div class="container">
 
   <div class="header">
-    <h1 class="header-title">// Accueil</h1>
+    @if (isRechercheRoute()) {
+      <nav class="breadcrumb">
+        <span class="prefix">//</span>
+        <span class="segment is-current">Recherche</span>
+      </nav>
+    } @else if (isDiscuterRoute()) {
+      <nav class="breadcrumb">
+        <span class="prefix">//</span>
+        <span class="segment is-current">Elena</span>
+      </nav>
+    } @else {
+      <h1 class="header-title">// Accueil</h1>
+    }
   </div>
 
   <div class="content">
-    @if (textActive()) {
-      <app-search-results></app-search-results>
-    } @else {
-      <app-home-infos></app-home-infos>
-    }
+    <router-outlet></router-outlet>
   </div>
 
   <footer class="footer">
 
     <div class="searchbar">
       <form class="prompt" (submit)="$event.preventDefault(); submit(promptInput)">
-        <span class="prefix">recherche:~$</span>
+
+        <div class="mode-toggle">
+          <button type="button" class="mode-btn" [class.active]="mode() === 'search'" (click)="changeMode('search')" title="Recherche">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </button>
+          <button type="button" class="mode-btn" [class.active]="mode() === 'chat'" (click)="changeMode('chat')" title="Discuter avec Elena">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </button>
+        </div>
+
+        <span class="prefix">{{ mode() === 'chat' ? 'elena:~$' : 'recherche:~$' }}</span>
         <span class="line"><span class="typed">{{ draft() }}</span>@if (focused()) {<span class="cursor"></span>}</span>
         <input
           #promptInput
@@ -32,7 +55,7 @@
     </div>
 
     <div class="toggle-zone">
-      <button type="button" class="instructions-toggle" (click)="toggleInstructions()">
+      <button type="button" class="instructions-toggle" (click)="instructions.toggle()">
         {{ instructions.visible() ? '▾ Masquer les instructions' : '▸ Afficher les instructions' }}
       </button>
     </div>

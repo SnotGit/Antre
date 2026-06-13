@@ -1,4 +1,4 @@
-<div class="story-detail">
+<div class="story-detail" [class.editing]="isEditing()">
   @if (story(); as currentStory) {
     <div class="detail-header">
       @if (!isEditing()) {

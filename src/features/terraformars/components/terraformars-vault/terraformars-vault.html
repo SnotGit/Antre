@@ -1,0 +1,107 @@
+<div class="container">
+
+  <header class="header">
+    @if (tree.breadcrumb().length > 0) {
+      <nav class="breadcrumb">
+        <span class="prefix">//</span>
+        @for (seg of tree.breadcrumb(); track seg.label; let last = $last) {
+          <button
+            type="button"
+            class="segment"
+            [class.is-current]="seg.isCurrent"
+            [disabled]="seg.isCurrent"
+            (click)="tree.navigateSegment(seg)">
+            {{ seg.label }}
+          </button>
+          @if (!last) {
+            <span class="separator">/</span>
+          }
+        }
+      </nav>
+    }
+
+    @if (isAdmin() && selection.hasSelection()) {
+      <span class="header-actions">
+        <button type="button" class="btn" (click)="cancelDelete()">Annuler</button>
+        <button type="button" class="btn danger" (click)="confirmDelete()">Supprimer</button>
+      </span>
+    } @else if (opFeedback.kind() !== 'idle') {
+      <span class="op-indicator" [class.ok]="opFeedback.kind() === 'success'" [class.error]="opFeedback.kind() === 'error'">
+        {{ opFeedback.text() }}
+      </span>
+    }
+  </header>
+
+  <div class="content" [class.full]="hideColumn()">
+
+    <div class="outlet-content">
+      <router-outlet></router-outlet>
+    </div>
+
+    @if (!hideColumn()) {
+    <div class="right-content">
+      @if (isAdmin()) {
+
+          @if (showCategoryForm()) {
+            <form class="create-bloc" (ngSubmit)="createCategory()">
+              <div class="bloc-header">
+                <label class="label" for="new-cat">Nouvelle catégorie</label>
+              </div>
+              <div class="bloc-content">
+                <input
+                  id="new-cat"
+                  type="text"
+                  class="input"
+                  name="title"
+                  [(ngModel)]="categoryTitle"
+                  placeholder="Nom de la catégorie..."
+                  autocomplete="off">
+                @if (duplicateError()) {
+                  <span class="error">Ce titre existe déjà à ce niveau.</span>
+                }
+                @if (createError()) {
+                  <span class="error">Échec de la création.</span>
+                }
+              </div>
+              <div class="bloc-footer">
+                <button type="submit" class="btn" [disabled]="!canCreate()">Créer</button>
+              </div>
+            </form>
+          }
+
+          <div class="create-bloc item-bloc">
+            <div class="bloc-header">
+              <span class="label">Nouvel item</span>
+            </div>
+            <div class="bloc-content">
+
+              @for (options of itemSlots(); track $index; let i = $index) {
+                @if (options) {
+                  <select
+                    class="input"
+                    [ngModel]="levelValue(i)"
+                    (ngModelChange)="onLevelSelect(i, $event)">
+                    <option [ngValue]="null">Catégorie...</option>
+                    @for (cat of options; track cat.id) {
+                      <option [ngValue]="cat.id">{{ cat.title }}</option>
+                    }
+                  </select>
+                } @else {
+                  <select class="input" disabled>
+                    <option>Catégorie...</option>
+                  </select>
+                }
+              }
+
+            </div>
+            <div class="bloc-footer">
+              <button type="button" class="btn" [disabled]="!canCreateItemNow()" (click)="createItemGo()">Créer</button>
+            </div>
+          </div>
+      }
+    </div>
+    }
+
+  </div>
+
+</div>

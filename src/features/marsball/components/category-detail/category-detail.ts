@@ -64,8 +64,8 @@ export class CategoryDetail {
     };
   });
 
-  thumbAspect = computed(() =>
-    this.tree.activeSection() === 'bestiaire' ? CROP_RATIOS.creatureCard.aspect : 1
+  cardClass = computed(() =>
+    this.tree.activeSection() === 'bestiaire' ? 'bestiaire-card' : 'item-card'
   );
 
   editThumbnailPreview = computed(() => {
@@ -100,27 +100,6 @@ export class CategoryDetail {
     return this.openItemId() === itemId;
   }
 
-  //========== CROP ==========//
-
-  onCropMouseDown(event: MouseEvent, container: HTMLElement): void {
-    const rect = container.getBoundingClientRect();
-    this.cropService.startMove(event, rect);
-  }
-
-  onResizeMouseDown(event: MouseEvent, corner: 'tl' | 'tr' | 'bl' | 'br', container: HTMLElement): void {
-    const rect = container.getBoundingClientRect();
-    this.cropService.startResize(event, corner, rect);
-  }
-
-  onMouseMove(event: MouseEvent, container: HTMLElement): void {
-    const rect = container.getBoundingClientRect();
-    this.cropService.onDrag(event, rect);
-  }
-
-  onMouseUp(): void {
-    this.cropService.stopDrag();
-  }
-
   //========== ÉDITION ==========//
 
   onEditTitleInput(event: Event): void {
@@ -147,7 +126,7 @@ export class CategoryDetail {
       }
     }
 
-    const ratios = this.tree.activeSection() === 'bestiaire' ? CROP_RATIOS.creatureCard : CROP_RATIOS.itemCard;
+    const ratios = this.tree.activeSection() === 'bestiaire' ? CROP_RATIOS.bestiaireCard : CROP_RATIOS.itemCard;
     this.cropService.initWithPosition(
       Math.round(ratios.size * width),
       Math.round(ratios.x * width),

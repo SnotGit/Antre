@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '@environments/environment';
 import { VaultCategory, VaultEntry, CategoryWithChildren, CategoriesResponse } from '../models/marsball.models';
-import { cropThumbnailScaled, cropThumbnailFromElement } from '@shared/services/crop-images/crop.utils';
+import { cropThumbnailScaled, cropThumbnailFromElement, CROP_RATIOS } from '@shared/services/crop-images/crop.utils';
 
 export type MarsballSection = 'marsball' | 'bestiaire' | 'rover';
 
@@ -37,6 +37,10 @@ export class MarsballCrudService {
 
   private apiUrl(section?: string): string {
     return `${environment.apiUrl}/${section ?? this._section()}`;
+  }
+
+  private thumbWidth(): number {
+    return this._section() === 'bestiaire' ? CROP_RATIOS.bestiaireCard.thumbWidth : CROP_RATIOS.itemCard.thumbWidth;
   }
 
   //========== GET ==========//
@@ -82,7 +86,7 @@ export class MarsballCrudService {
     displayHeight: number,
     description?: string
   ): Promise<VaultEntry> {
-    const thumbnail = await cropThumbnailScaled(image, cropX, cropY, cropWidth, cropHeight, displayWidth, displayHeight);
+    const thumbnail = await cropThumbnailScaled(image, cropX, cropY, cropWidth, cropHeight, displayWidth, displayHeight, this.thumbWidth());
 
     const formData = new FormData();
     formData.append('title', title);
@@ -127,11 +131,11 @@ export class MarsballCrudService {
     formData.append('description', description);
 
     if (image) {
-      const thumbnail = await cropThumbnailScaled(image, cropX, cropY, cropWidth, cropHeight, displayWidth, displayHeight);
+      const thumbnail = await cropThumbnailScaled(image, cropX, cropY, cropWidth, cropHeight, displayWidth, displayHeight, this.thumbWidth());
       formData.append('image', image);
       formData.append('thumbnail', thumbnail, 'thumbnail.jpg');
     } else if (existingImageElement && existingImageElement.complete) {
-      const thumbnail = await cropThumbnailFromElement(existingImageElement, cropX, cropY, cropWidth, cropHeight);
+      const thumbnail = await cropThumbnailFromElement(existingImageElement, cropX, cropY, cropWidth, cropHeight, this.thumbWidth());
       formData.append('thumbnail', thumbnail, 'thumbnail.jpg');
     }
 

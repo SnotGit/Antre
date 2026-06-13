@@ -56,3 +56,7 @@ bash.exe.stackdump
 
 # Docs internes
 docs/
+
+# Staging Elena (images admin + registre de hashes)
+backend/staging/
+backend/logs/

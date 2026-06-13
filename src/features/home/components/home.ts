@@ -1,12 +1,12 @@
-import { Component, inject, computed, signal } from '@angular/core';
-import { SearchFiltersService } from '@features/search/services/search-filters.service';
-import { SearchResults } from '@features/search/components/search-results/search-results';
+import { Component, inject, signal, computed } from '@angular/core';
+import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map } from 'rxjs';
 import { InstructionsService } from '@features/home/services/instructions.service';
-import { HomeInfos } from './home-infos/home-infos';
 
 @Component({
   selector: 'app-home',
-  imports: [SearchResults, HomeInfos],
+  imports: [RouterOutlet],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
@@ -14,40 +14,51 @@ export class Home {
 
   //========== INJECTIONS ==========//
 
-  protected readonly filters = inject(SearchFiltersService);
+  protected readonly router = inject(Router);
   protected readonly instructions = inject(InstructionsService);
 
   //========== SIGNALS ==========//
 
   protected readonly draft = signal('');
   protected readonly focused = signal(false);
+  protected readonly mode = signal<'search' | 'chat'>('search');
+
+  private readonly currentUrl = toSignal(
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd),
+      map(e => (e as NavigationEnd).urlAfterRedirects)
+    ),
+    { initialValue: this.router.url }
+  );
 
   //========== COMPUTED ==========//
 
-  protected readonly textActive = computed(() => this.filters.query().trim().length >= 2);
+  protected readonly isRechercheRoute = computed(() =>
+    this.currentUrl().includes('/accueil/recherche')
+  );
+
+  protected readonly isDiscuterRoute = computed(() =>
+    this.currentUrl().includes('/accueil/discuter')
+  );
 
   //========== ACTIONS ==========//
 
-  protected toggleInstructions(): void {
-    this.instructions.toggle();
-    if (this.instructions.visible()) {
-      this.draft.set('');
-      this.filters.clearQuery();
-    }
+  protected changeMode(m: 'search' | 'chat'): void {
+    this.mode.set(m);
   }
 
   protected onInput(value: string): void {
     this.draft.set(value);
-    if (value.trim().length === 0 && this.filters.query() !== '') {
-      this.filters.clearQuery();
-    }
   }
 
   protected submit(input: HTMLInputElement): void {
     const q = this.draft().trim();
     if (q.length < 2) return;
-    this.instructions.hide();
-    this.filters.query.set(q);
+    if (this.mode() === 'search') {
+      this.router.navigate(['/accueil/recherche'], { queryParams: { q } });
+    } else {
+      this.router.navigate(['/accueil/discuter']);
+    }
     this.draft.set('');
     input.blur();
   }

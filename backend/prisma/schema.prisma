@@ -101,6 +101,39 @@ model MarsballItem {
   @@map("marsball_items")
 }
 
+//======= TERRAFORMARS MODELS =======
+
+model TerraformarsCategory {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(200)
+  parentId  Int?     @map("parent_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  parent   TerraformarsCategory?  @relation("TerraformarsCategoryHierarchy", fields: [parentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  children TerraformarsCategory[] @relation("TerraformarsCategoryHierarchy")
+  items    TerraformarsItem[]
+
+  @@index([parentId], map: "idx_terraformars_categories_parent")
+  @@map("terraformars_categories")
+}
+
+model TerraformarsItem {
+  id           Int      @id @default(autoincrement())
+  title        String   @db.VarChar(200)
+  imageUrl     String   @map("image_url") @db.VarChar(500)
+  thumbnailUrl String?  @map("thumbnail_url") @db.VarChar(500)
+  description  String?  @db.Text
+  categoryId   Int      @map("category_id")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  category TerraformarsCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([categoryId], map: "idx_terraformars_items_category")
+  @@map("terraformars_items")
+}
+
 //======= BESTIAIRE MODELS =======
 
 model BestiaireCategory {
@@ -112,13 +145,13 @@ model BestiaireCategory {
 
   parent    BestiaireCategory?  @relation("BestiaireCategoryHierarchy", fields: [parentId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   children  BestiaireCategory[] @relation("BestiaireCategoryHierarchy")
-  creatures Creature[]
+  items     BestiaireItem[]
 
   @@index([parentId], map: "idx_bestiaire_categories_parent")
   @@map("bestiaire_categories")
 }
 
-model Creature {
+model BestiaireItem {
   id           Int      @id @default(autoincrement())
   title        String   @db.VarChar(200)
   imageUrl     String   @map("image_url") @db.VarChar(500)
@@ -130,8 +163,8 @@ model Creature {
 
   category BestiaireCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@index([categoryId], map: "idx_creatures_category")
-  @@map("creatures")
+  @@index([categoryId], map: "idx_bestiaire_items_category")
+  @@map("bestiaire_items")
 }
 
 //======= ROVER MODELS =======

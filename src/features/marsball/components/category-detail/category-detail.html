@@ -7,10 +7,10 @@
 
     <div class="item-cards">
       @for (item of entries(); track item.id) {
-        <div class="item-card"
+        <div [class]="cardClass()"
              [class.active]="isItemOpen(item.id)"
              (click)="selectItem(item.id)">
-          <div class="item-thumb" [style.aspect-ratio]="thumbAspect()">
+          <div class="item-thumb">
             <img [src]="getImageUrl(item.thumbnailUrl || item.imageUrl)" [alt]="item.title">
           </div>
           <span class="item-title">{{ item.title }}</span>
@@ -42,35 +42,16 @@
 
       @if (edit.image()) {
         <div class="edit-image-container">
-          <div class="image-with-crop"
-               (mousemove)="onMouseMove($event, createImageContainer)"
-               (mouseup)="onMouseUp()"
-               (mouseleave)="onMouseUp()"
-               #createImageContainer>
+          <div class="image-with-crop" #createImageContainer>
             <img [src]="edit.image()"
                  [alt]="edit.title()"
                  class="edit-image"
                  (load)="initCrop()">
             <div class="crop-box"
-                 [class.resizing-mode]="cropService.isCtrlPressed()"
                  [style.left]="cropStyle().left"
                  [style.top]="cropStyle().top"
                  [style.width]="cropStyle().width"
-                 [style.height]="cropStyle().height"
-                 [style.cursor]="cropService.isCtrlPressed() ? 'default' : 'move'"
-                 (mousedown)="onCropMouseDown($event, createImageContainer)">
-
-                 @if (cropService.isCtrlPressed()) {
-                   <div class="resize-handle top-left"
-                        (mousedown)="onResizeMouseDown($event, 'tl', createImageContainer)"></div>
-                   <div class="resize-handle top-right"
-                        (mousedown)="onResizeMouseDown($event, 'tr', createImageContainer)"></div>
-                   <div class="resize-handle bottom-left"
-                        (mousedown)="onResizeMouseDown($event, 'bl', createImageContainer)"></div>
-                   <div class="resize-handle bottom-right"
-                        (mousedown)="onResizeMouseDown($event, 'br', createImageContainer)"></div>
-                 }
-            </div>
+                 [style.height]="cropStyle().height"></div>
           </div>
         </div>
       } @else {
@@ -134,36 +115,17 @@
         </div>
 
         <div class="edit-image-container">
-          <div class="image-with-crop"
-               (mousemove)="onMouseMove($event, imageContainer)"
-               (mouseup)="onMouseUp()"
-               (mouseleave)="onMouseUp()"
-               #imageContainer>
+          <div class="image-with-crop" #imageContainer>
             <img [src]="getImageUrl(edit.image())"
                  [alt]="edit.title()"
                  class="edit-image"
                  crossOrigin="anonymous"
                  (load)="initCrop()">
             <div class="crop-box"
-                 [class.resizing-mode]="cropService.isCtrlPressed()"
                  [style.left]="cropStyle().left"
                  [style.top]="cropStyle().top"
                  [style.width]="cropStyle().width"
-                 [style.height]="cropStyle().height"
-                 [style.cursor]="cropService.isCtrlPressed() ? 'default' : 'move'"
-                 (mousedown)="onCropMouseDown($event, imageContainer)">
-
-                 @if (cropService.isCtrlPressed()) {
-                   <div class="resize-handle top-left"
-                        (mousedown)="onResizeMouseDown($event, 'tl', imageContainer)"></div>
-                   <div class="resize-handle top-right"
-                        (mousedown)="onResizeMouseDown($event, 'tr', imageContainer)"></div>
-                   <div class="resize-handle bottom-left"
-                        (mousedown)="onResizeMouseDown($event, 'bl', imageContainer)"></div>
-                   <div class="resize-handle bottom-right"
-                        (mousedown)="onResizeMouseDown($event, 'br', imageContainer)"></div>
-                 }
-            </div>
+                 [style.height]="cropStyle().height"></div>
           </div>
         </div>
 

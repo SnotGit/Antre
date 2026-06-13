@@ -1,0 +1,70 @@
+<div class="container">
+
+  <header class="header">
+    <h1 class="header-title">// Admin</h1>
+  </header>
+
+  @if (isAdmin()) {
+    <div class="content">
+
+      <div class="cards">
+        @for (tile of tiles; track tile.label) {
+          <button
+            type="button"
+            class="admin-tile"
+            [disabled]="!tile.route"
+            (click)="open(tile)">
+            <span class="tile-title">{{ tile.label }}</span>
+            <span class="tile-desc">{{ tile.route ? tile.description : 'À venir' }}</span>
+          </button>
+        }
+      </div>
+
+      @if (stats(); as s) {
+        <aside class="stats">
+          <p class="stats-title">// État de L'Antre</p>
+          <div class="stat-rows">
+          <div class="stat-row">
+            <span class="stat-label">Status</span>
+            <span class="stat-value ok">Opérationnel</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">En ligne</span>
+            <span class="stat-value">{{ s.online }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Membres</span>
+            <span class="stat-value">{{ s.users }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Admins</span>
+            <span class="stat-value">{{ s.admins }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Chroniques</span>
+            <span class="stat-value">{{ s.stories }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Catégories</span>
+            <span class="stat-value">{{ s.categories }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Items</span>
+            <span class="stat-value">{{ s.items }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Uploads</span>
+            <span class="stat-value">{{ formatBytes(s.uploadsBytes) }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Dernier backup</span>
+            <span class="stat-value">{{ s.lastBackup ? (s.lastBackup | date:'dd/MM/yyyy') : '—' }}</span>
+          </div>
+          </div>
+        </aside>
+      }
+
+    </div>
+  }
+
+</div>

@@ -5,6 +5,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MarsballCrudService } from './marsball-crud.service';
 import { VaultCategory } from '../models/marsball.models';
 import { SearchFiltersService, Universe, SearchSection } from '@features/search/services/search-filters.service';
+import { SearchOriginService } from '@shared/services/search-origin/search-origin.service';
 
 export type BreadcrumbKind = 'universe' | 'section' | 'category';
 
@@ -12,6 +13,7 @@ export interface BreadcrumbSegment {
   label: string;
   route: string | null;
   state?: { categoryId: number };
+  queryParams?: Record<string, string>;
   isCurrent: boolean;
   kind: BreadcrumbKind;
 }
@@ -34,6 +36,7 @@ export class MarsballTreeService {
   private readonly router = inject(Router);
   private readonly crud = inject(MarsballCrudService);
   private readonly filters = inject(SearchFiltersService);
+  private readonly searchOrigin = inject(SearchOriginService);
 
   readonly currentUrl = toSignal(
     this.router.events.pipe(
@@ -97,24 +100,35 @@ export class MarsballTreeService {
       ? (this.filters.subCategoryId() || this.filters.categoryId() || null)
       : this.currentCategoryId();
 
+    const origin = this.searchOrigin.parse(this.currentUrl());
     const segments: BreadcrumbSegment[] = [];
 
-    if (universe) {
+    if (origin) {
       segments.push({
-        label: this.capitalize(universe),
-        route: '/' + universe,
-        isCurrent: (!section || section === universe) && !catId,
+        label: 'Recherche',
+        route: '/accueil/recherche',
+        queryParams: { q: origin.q },
+        isCurrent: !catId,
         kind: 'universe'
       });
-    }
+    } else {
+      if (universe) {
+        segments.push({
+          label: this.capitalize(universe),
+          route: '/' + universe,
+          isCurrent: (!section || section === universe) && !catId,
+          kind: 'universe'
+        });
+      }
 
-    if (section && section !== universe) {
-      segments.push({
-        label: SECTION_LABELS[section],
-        route: SECTION_ROUTES[section],
-        isCurrent: !catId,
-        kind: 'section'
-      });
+      if (section && section !== universe) {
+        segments.push({
+          label: SECTION_LABELS[section],
+          route: SECTION_ROUTES[section],
+          isCurrent: !catId,
+          kind: 'section'
+        });
+      }
     }
 
     if (catId && typeof catId === 'number') {
@@ -126,6 +140,7 @@ export class MarsballTreeService {
           label: cat.title,
           route: `${base}/${this.slugify(cat.title)}`,
           state: { categoryId: cat.id },
+          queryParams: origin ? { from: 'recherche', q: origin.q } : undefined,
           isCurrent: i === path.length - 1,
           kind: 'category'
         });
@@ -149,11 +164,10 @@ export class MarsballTreeService {
 
   navigateSegment(seg: BreadcrumbSegment): void {
     if (!seg.route || seg.isCurrent) return;
-    if (seg.state) {
-      this.router.navigate([seg.route], { state: seg.state });
-    } else {
-      this.router.navigate([seg.route]);
-    }
+    this.router.navigate([seg.route], {
+      state: seg.state,
+      queryParams: seg.queryParams
+    });
   }
 
   slugify(title: string): string {

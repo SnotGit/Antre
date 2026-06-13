@@ -1,0 +1,48 @@
+@use 'variables' as *;
+
+@mixin admin-tile {
+  .admin-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    height: 200px;
+    background: transparent;
+    border: 1px solid $border-color;
+    color: $text-dim;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      color: $text-bright;
+      border-color: $border-bright;
+    }
+
+    &:disabled {
+      cursor: default;
+      color: $text-mute;
+    }
+
+    .tile-title {
+      font-size: 18px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 0 20px;
+    }
+
+    .tile-desc {
+      font-size: 15px;
+      color: $text-mute;
+    }
+
+    @media screen and (max-width: 1366px) {
+      height: 170px;
+    }
+
+    @media screen and (max-width: 1024px) {
+      height: 150px;
+    }
+  }
+}

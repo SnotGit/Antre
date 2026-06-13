@@ -22,8 +22,9 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
     const shouldSearchMarsball = !section || section === 'marsball';
     const shouldSearchRover = !section || section === 'rover';
     const shouldSearchBestiaire = !section || section === 'bestiaire';
+    const shouldSearchTerraformars = !section || section === 'terraformars';
 
-    const [chroniques, marsball, rover, bestiaire] = await Promise.all([
+    const [chroniques, marsball, rover, bestiaire, terraformars] = await Promise.all([
       shouldSearchChroniques ? prisma.story.findMany({
         where: {
           status: 'PUBLISHED',
@@ -93,7 +94,30 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
         take: 5
       }) : Promise.resolve([]),
 
-      shouldSearchBestiaire ? prisma.creature.findMany({
+      shouldSearchBestiaire ? prisma.bestiaireItem.findMany({
+        where: {
+          OR: [
+            { title: { contains: searchTerm, mode: 'insensitive' } },
+            { description: { contains: searchTerm, mode: 'insensitive' } }
+          ]
+        },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          categoryId: true,
+          imageUrl: true,
+          thumbnailUrl: true,
+          category: {
+            select: {
+              title: true
+            }
+          }
+        },
+        take: 5
+      }) : Promise.resolve([]),
+
+      shouldSearchTerraformars ? prisma.terraformarsItem.findMany({
         where: {
           OR: [
             { title: { contains: searchTerm, mode: 'insensitive' } },
@@ -152,6 +176,15 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
         imageUrl: item.thumbnailUrl || item.imageUrl,
         type: 'bestiaire',
         route: `/marsball/bestiaire/${item.categoryId}`
+      })),
+      ...terraformars.map(item => ({
+        id: item.id,
+        title: item.title,
+        description: item.description || '',
+        category: item.category.title,
+        imageUrl: item.thumbnailUrl || item.imageUrl,
+        type: 'terraformars',
+        route: `/terraformars/${item.categoryId}`
       }))
     ];
 

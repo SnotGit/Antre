@@ -1,0 +1,358 @@
+@use 'variables' as *;
+@use 'content/artefacts/buttons/button' as *;
+@use 'content/artefacts/scrollbar/scrollbar' as *;
+@use 'content/artefacts/breadcrumb/breadcrumb' as *;
+
+//========== SHELL ==========//
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  height: 60px;
+  margin-left: 32px;
+  padding-right: 32px;
+  border-bottom: 1px solid $border-color;
+
+  @include breadcrumb;
+
+  .breadcrumb {
+    margin-bottom: 15px;
+  }
+}
+
+//========== CONTENT ==========//
+
+.content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+//========== TREE COLUMN ==========//
+
+.tree-column {
+  width: 50%;
+  flex-shrink: 0;
+  overflow-y: auto;
+  padding: 30px;
+
+  @include hidden-scrollbar;
+}
+
+.tree-loading {
+  font-size: 15px;
+  color: $text-mute;
+  margin: 0;
+}
+
+.section-label {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 30px 0 12px;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: $gold;
+  cursor: pointer;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.tree-node {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-right: 12px;
+  font-size: 16px;
+  color: $text-dim;
+  cursor: pointer;
+  border: 1px solid transparent;
+
+  &:hover {
+    color: $text-bright;
+  }
+
+  &.selected {
+    color: $gold;
+  }
+
+  &.leaf-drag-over {
+    border-color: $gold;
+  }
+}
+
+.branch-node {
+  cursor: pointer;
+}
+
+.leaf-node {
+  cursor: pointer;
+}
+
+.guide {
+  flex-shrink: 0;
+  white-space: pre;
+  letter-spacing: normal;
+  color: $gold-dim;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.node-prefix {
+  flex-shrink: 0;
+}
+
+.branch-prefix {
+  color: $gold-dim;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.node-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.node-count {
+  flex-shrink: 0;
+  font-size: 15px;
+  color: $text-mute;
+}
+
+//========== DEPOT COLUMN ==========//
+
+.depot-column {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  padding: 30px;
+}
+
+.dropbox {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid $border-color;
+
+  &.drag-over {
+    border-color: $gold;
+  }
+}
+
+.dropbox-header {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  padding: 40px 30px;
+}
+
+.dropbox-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  color: $gold;
+}
+
+.depot-placeholder {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 30px 110px;
+
+  p {
+    font-size: 16px;
+    color: $text-mute;
+    font-style: italic;
+    margin: 0;
+    text-align: center;
+  }
+}
+
+.depot-inner {
+  flex: 1;
+  overflow-y: auto;
+  padding: 30px;
+
+  @include hidden-scrollbar;
+}
+
+.depot-path {
+  margin-bottom: 24px;
+  font-size: 16px;
+  color: $text-dim;
+}
+
+.path-sep {
+  color: $text-mute;
+}
+
+.path-last {
+  color: $gold;
+}
+
+.depot-lot-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+
+  p {
+    font-size: 16px;
+    color: $text-mute;
+    font-style: italic;
+    margin: 0;
+    text-align: center;
+  }
+}
+
+//========== RAPPORT ==========//
+
+.report {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.report-title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: $gold;
+}
+
+.report-line {
+  margin: 0;
+  font-size: 16px;
+  color: $text-dim;
+
+  &.ok {
+    color: $status-ok;
+  }
+
+  &.warn {
+    color: $status-warn;
+  }
+}
+
+.report-error {
+  margin: 0 0 20px;
+  font-size: 16px;
+  color: $status-error;
+}
+
+//========== LOT ==========//
+
+.lot-headers {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.lot-header-label {
+  font-size: 15px;
+  color: $text-mute;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.lot-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid $border-color;
+}
+
+.lot-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.lot-thumb {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.lot-title {
+  font-size: 16px;
+  color: $text-base;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lot-error {
+  color: $status-error;
+  font-size: 15px;
+}
+
+.lot-desc {
+  font-size: 15px;
+  color: $text-dim;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lot-no-desc {
+  font-size: 15px;
+  color: $text-mute;
+  font-style: italic;
+}
+
+.lot-remove {
+  background: transparent;
+  border: none;
+  color: $text-mute;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+
+  &:hover {
+    color: $status-error;
+  }
+}
+
+@include button;
+
+//========== FOOTER ==========//
+
+.footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  padding: 0 30px 30px;
+}

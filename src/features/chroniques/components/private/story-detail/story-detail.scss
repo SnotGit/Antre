@@ -44,20 +44,18 @@
 
     background: transparent;
 
-    border: 1px solid $gold-dim;
+    border: 1px solid $border-color;
 
     color: $gold;
 
-    padding: 12px;
+    padding: 20px;
 
-    font-size: 20px;
+    font-size: 18px;
 
     outline: none;
 
-    transition: border-color 0.2s;
-
     &:focus {
-      border-color: $gold;
+      border-color: $border-bright;
     }
   }
 }
@@ -94,7 +92,7 @@
 
     background: transparent;
 
-    border: 1px solid $gold-dim;
+    border: 1px solid $border-color;
 
     color: $text-base;
 
@@ -106,10 +104,8 @@
 
     outline: none;
 
-    transition: border-color 0.2s;
-
     &:focus {
-      border-color: $gold;
+      border-color: $border-bright;
     }
   }
 }
@@ -123,8 +119,6 @@
 }
 
 .detail-footer {
-  position: relative;
-
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -132,18 +126,23 @@
   gap: 20px;
 
   padding: 20px 30px;
+}
 
-  &::before {
-    content: '';
+.story-detail.editing {
+  .detail-header {
+    padding: 30px 30px 0;
 
-    position: absolute;
-    top: 0;
-    left: 30px;
-    right: 0;
+    &::after {
+      display: none;
+    }
+  }
 
-    height: 1px;
+  .detail-content {
+    margin: 20px 0 0;
+  }
 
-    background: $border-color;
+  .detail-footer {
+    padding: 30px;
   }
 }
 
@@ -174,7 +173,7 @@
   font-size: 15px;
 
   &:hover:not(:disabled) {
-    color: $gold;
+    color: $text-bright;
 
     border-color: $gold;
   }

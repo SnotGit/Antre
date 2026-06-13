@@ -20,7 +20,7 @@ export const routes: Routes = [
 
   {
     path: 'accueil',
-    loadComponent: () => import('../features/home/components/home').then(m => m.Home)
+    loadChildren: () => import('../features/home/routes/home.routes').then(m => m.routes)
   },
 
   {
@@ -50,8 +50,8 @@ export const routes: Routes = [
   },
 
   {
-    path: 'staff',
-    loadChildren: () => import('../features/staff/routes/staff.routes').then(m => m.routes),
+    path: 'admin',
+    loadChildren: () => import('../features/admin/routes/admin.routes').then(m => m.routes),
     canActivate: [authGuard]
   },
 

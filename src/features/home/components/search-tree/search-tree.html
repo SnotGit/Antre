@@ -1,0 +1,60 @@
+<div class="search-tree">
+
+  @if (search.isLoading()) {
+    <p class="status">Recherche en cours…</p>
+  } @else if (search.isResolved()) {
+
+    @if (rows().length === 0) {
+      <p class="status empty">Je n'ai rien trouvé.</p>
+    } @else {
+
+      <p class="summary">
+        Voici ce que j'ai trouvé :
+        <span class="count">{{ search.itemCount() }} item{{ search.itemCount() > 1 ? 's' : '' }}</span>
+        @if (search.categoryCount() > 0) {
+          , <span class="count">{{ search.categoryCount() }} catégorie{{ search.categoryCount() > 1 ? 's' : '' }}</span>
+        }
+      </p>
+
+      <div class="tree">
+        @for (row of rows(); track trackRow($index, row)) {
+
+          @if (row.kind === 'section') {
+            <div class="section-label" (click)="toggleSection(row.section)">
+              <span class="node-prefix branch-prefix">{{ isSectionCollapsed(row.section) ? '▸' : '▾' }}</span>
+              <span>{{ row.label }}</span>
+            </div>
+          }
+
+          @if (row.kind === 'category') {
+            @if (row.hasItems) {
+              <div class="tree-node branch-node" (click)="toggleCategory(row.section, row.id)">
+                <span class="guide">{{ row.guide }}</span>
+                <span class="node-prefix branch-prefix">{{ isCategoryCollapsed(row.section, row.id) ? '▸' : '▾' }}</span>
+                <span class="node-title">{{ row.title }}</span>
+                <span class="node-count">({{ row.count }})</span>
+              </div>
+            } @else {
+              <a class="tree-node leaf-node" [routerLink]="row.route" [queryParams]="{ from: 'recherche', q: search.query() }">
+                <span class="guide">{{ row.guide }}</span>
+                <span class="node-title">{{ row.title }}</span>
+                <span class="node-count">({{ row.count }})</span>
+              </a>
+            }
+          }
+
+          @if (row.kind === 'item') {
+            <a class="tree-node leaf-node" [routerLink]="row.route" [queryParams]="{ from: 'recherche', q: search.query() }">
+              <span class="guide">{{ row.guide }}</span>
+              <span class="node-title">{{ row.title }}</span>
+            </a>
+          }
+
+        }
+      </div>
+
+    }
+
+  }
+
+</div>

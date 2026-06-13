@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { sendError } from '@utils/global/helpers';
+import { touchPresence } from '@utils/global/presence';
 import { getJwtSecret } from '@controllers/auth/jwtConfig';
 
 interface JwtPayload {
@@ -24,6 +25,7 @@ export const authenticateToken = (
   try {
     const decoded = jwt.verify(token, getJwtSecret()) as JwtPayload;
     req.user = { userId: decoded.userId, role: decoded.role || 'user' };
+    touchPresence(decoded.userId);
     next();
   } catch (error) {
     sendError(res, 'Token invalide', 403);

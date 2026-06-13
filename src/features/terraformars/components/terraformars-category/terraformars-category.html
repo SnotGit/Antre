@@ -1,0 +1,39 @@
+<div class="content-container">
+
+  @if (categoryData(); as data) {
+
+    @if (data.children.length > 0) {
+      <div class="cards">
+        @for (child of data.children; track child.id) {
+          <button
+            type="button"
+            class="cat-button"
+            [class.selected]="isSelectedCategory(child.id)"
+            (click)="goToCategory(child.id)">
+            <span class="cat-title">{{ child.title }}</span>
+            @if (isAdmin()) {
+              <span
+                class="delete-cross"
+                [class.active]="isSelectedCategory(child.id)"
+                (click)="$event.stopPropagation(); toggleCategorySelection(child)">
+                ✕
+              </span>
+            }
+          </button>
+        }
+      </div>
+    }
+
+    @if (data.entries.length > 0 || itemEdit.creating()) {
+      <app-category-detail
+        [entries]="data.entries"
+        [categoryId]="data.category.id"
+        [isAdmin]="isAdmin()"
+        [label]="'TERRAFORMARS'"
+        (changed)="onEntriesChanged()">
+      </app-category-detail>
+    }
+
+  }
+
+</div>

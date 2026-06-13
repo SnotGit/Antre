@@ -1,0 +1,145 @@
+<div class="container">
+
+  <div class="left-column">
+    @if (isAdmin() && !edit.creating() && !edit.isEditing()) {
+      <button type="button" class="new-item-bar" (click)="startCreate()">+ Ajouter item</button>
+    }
+
+    <div class="item-cards">
+      @for (item of entries(); track item.id) {
+        <div class="item-card"
+             [class.active]="isItemOpen(item.id)"
+             (click)="selectItem(item.id)">
+          <div class="item-thumb">
+            <img [src]="getImageUrl(item.thumbnailUrl || item.imageUrl)" [alt]="item.title">
+          </div>
+          <span class="item-title">{{ item.title }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="right-column">
+    @if (edit.creating()) {
+
+      <div class="detail-bar">
+        <input
+          type="text"
+          class="edit-title-input"
+          [value]="edit.title()"
+          (input)="onEditTitleInput($event)"
+          placeholder="Titre...">
+      </div>
+
+      <div class="edit-description">
+        <textarea
+          class="edit-description-textarea"
+          [value]="edit.description()"
+          (input)="onEditDescriptionInput($event)"
+          placeholder="Description..."
+          rows="4"></textarea>
+      </div>
+
+      @if (edit.image()) {
+        <div class="edit-image-container">
+          <div class="image-with-crop" #createImageContainer>
+            <img [src]="edit.image()"
+                 [alt]="edit.title()"
+                 class="edit-image"
+                 (load)="initCrop()">
+            <div class="crop-box"
+                 [style.left]="cropStyle().left"
+                 [style.top]="cropStyle().top"
+                 [style.width]="cropStyle().width"
+                 [style.height]="cropStyle().height"></div>
+          </div>
+        </div>
+      } @else {
+        <label class="upload-zone"
+               (dragover)="onDragOver($event)"
+               (drop)="onDrop($event)">
+          Glissez une image ou cliquez...
+          <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden>
+        </label>
+      }
+
+      <div class="detail-actions">
+        <button type="button" class="btn" (click)="cancelCreate()">Annuler</button>
+        <button type="button" class="btn" (click)="createItem()" [disabled]="!canCreate()">Créer</button>
+      </div>
+
+    } @else if (selectedEntry(); as item) {
+
+      @if (!edit.isEditingEntry(item.id)) {
+
+        <div class="detail-box">
+          <div class="detail-text">
+            <div class="detail-desc">
+              @if (item.description) {
+                <p>{{ item.description }}</p>
+              } @else {
+                <p class="detail-empty">Aucune description.</p>
+              }
+            </div>
+          </div>
+          <div class="item-full-image">
+            <div class="image-hover">
+              <img [src]="getImageUrl(item.imageUrl)" [alt]="item.title">
+              @if (isAdmin()) {
+                <div class="image-overlay">
+                  <button type="button" class="btn" (click)="startEdit()">Modifier</button>
+                  <button type="button" class="btn danger" (click)="deleteItem()">Supprimer</button>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+      } @else {
+        <div class="detail-bar">
+          <input
+            type="text"
+            class="edit-title-input"
+            [value]="edit.title()"
+            (input)="onEditTitleInput($event)"
+            placeholder="Titre...">
+        </div>
+
+        <div class="edit-description">
+          <textarea
+            class="edit-description-textarea"
+            [value]="edit.description()"
+            (input)="onEditDescriptionInput($event)"
+            placeholder="Description..."
+            rows="4"></textarea>
+        </div>
+
+        <div class="edit-image-container">
+          <div class="image-with-crop" #imageContainer>
+            <img [src]="getImageUrl(edit.image())"
+                 [alt]="edit.title()"
+                 class="edit-image"
+                 crossOrigin="anonymous"
+                 (load)="initCrop()">
+            <div class="crop-box"
+                 [style.left]="cropStyle().left"
+                 [style.top]="cropStyle().top"
+                 [style.width]="cropStyle().width"
+                 [style.height]="cropStyle().height"></div>
+          </div>
+        </div>
+
+        <div class="detail-actions">
+          <button type="button" class="btn" (click)="cancelEdit()">Annuler</button>
+          <button type="button" class="btn" (click)="saveEdit()">Sauvegarder</button>
+        </div>
+      }
+
+    } @else {
+      <div class="detail-placeholder">
+        <span>Sélectionnez un élément.</span>
+      </div>
+    }
+  </div>
+
+</div>

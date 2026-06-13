@@ -1,0 +1,143 @@
+@use 'variables' as *;
+@use 'content/marsball/cat-grid' as *;
+@use 'content/admin/admin-tile' as *;
+
+//========== SHELL ==========//
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  height: 60px;
+  margin-left: 32px;
+  padding-right: 32px;
+  border-bottom: 1px solid $border-color;
+}
+
+.header-title {
+  margin: 0 0 15px;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: $gold;
+}
+
+//========== CONTENT ==========//
+
+.content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 50px;
+  padding: 50px;
+  overflow-y: auto;
+}
+
+//========== TILES ==========//
+
+@include cat-grid;
+@include admin-tile;
+
+.cards {
+  flex: 1;
+}
+
+//========== STATS ==========//
+
+.stats {
+  flex-shrink: 0;
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid $border-color;
+}
+
+.stats-title {
+  margin: 0;
+  padding: 30px;
+  font-size: 16px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+  color: $gold;
+  border-bottom: 1px solid $border-color;
+}
+
+.stat-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 30px 0 40px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 20px;
+  padding: 0 40px;
+}
+
+.stat-value {
+  font-size: 16px;
+  color: $gold;
+  white-space: nowrap;
+
+  &.ok {
+    color: $status-ok;
+  }
+}
+
+.stat-label {
+  font-size: 15px;
+  color: $text-dim;
+  white-space: nowrap;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 30px;
+  background: transparent;
+  border: 1px solid $border-color;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    border-color: $gold;
+
+    .tile-title {
+      color: $text-bright;
+    }
+  }
+
+  &:disabled {
+    cursor: default;
+
+    .tile-title {
+      color: $text-mute;
+    }
+  }
+}
+
+.tile-title {
+  font-size: 18px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: $text-base;
+}
+
+.tile-desc {
+  font-size: 15px;
+  color: $text-mute;
+}

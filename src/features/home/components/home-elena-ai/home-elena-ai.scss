@@ -1,0 +1,27 @@
+@use 'variables' as *;
+
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.placeholder {
+  text-align: center;
+}
+
+.label {
+  margin: 0 0 10px;
+  font-size: 16px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: $gold;
+}
+
+.sublabel {
+  margin: 0;
+  font-size: 15px;
+  color: $text-mute;
+  letter-spacing: 1px;
+}

@@ -28,11 +28,9 @@ $bw-error:  #d86a6a;
   cursor: pointer;
   display: grid;
   place-items: center;
-  transition: border-color 0.15s ease, background 0.15s ease;
 
   &:hover {
     border-color: $bw-bright;
-    background: rgba(255, 255, 255, 0.06);
   }
 }
 
